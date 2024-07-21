@@ -20,11 +20,15 @@ fn main() {
 		.build(&event_loop);
 	
 	let program = create_program(&display);
-	let mut box1 = Rect::new(0, 0, 299, 59, rgb(100, 250, 230));
-	let mut box2 = Rect::new(0, 0, 50, 590, rgb(100, 25, 230));
+	let mut box1 = Rect::new(0, 0, 300, 50, rgb(100, 250, 230));
+	let mut box2 = Rect::new(0, 0, 300, 50, rgb(100, 25, 230));
+	let mut box3 = Rect::new(0, 0, 300, 50, rgb(100, 25, 23));
+	let mut box4 = Rect::new(0, 0, 300, 50, rgb(10, 25, 230));
+	let mut box5 = Rect::new(0, 0, 300, 50, rgb(10, 25, 23));
+
 	let mut page = View{
 		child:VStack{
-			children:vec![&mut box1, &mut box2]
+			children:vec![&mut box1, &mut box2,&mut box3,&mut box4,&mut box5]
 		}
 	};
 

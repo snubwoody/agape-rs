@@ -34,10 +34,13 @@ pub trait Widget {
 	fn render(&self);
 }
 
+/// A widget that arranges children in a vertical list   
 pub struct VStack<'a>{
 	pub children:Vec<&'a mut Rect>
 }
 
+
+//TODO there might be unnecessary mutability here
 impl<'a> VStack<'a> {
 	pub fn render(
 		&mut self,
@@ -46,9 +49,13 @@ impl<'a> VStack<'a> {
 		window:&Window,
 		program:&Program,
 	){
+		let mut spacing = 20;
+		let mut offset = 0;
 		self.children.iter_mut().for_each(|child|{
-			child.translate(0, 10);
-			child.render(display, frame, window, program)
+			let y_position = offset;
+			child.set_position(0, y_position);
+			child.render(display, frame, window, program);
+			offset += 20 + child.height;
 		});
 	}
 }
@@ -83,6 +90,11 @@ impl Rect {
 	pub fn translate(&mut self,x:i32,y:i32){
 		self.x += x;
 		self.y += y;
+	}
+
+	pub fn set_position(&mut self,x:i32,y:i32){
+		self.x = x;
+		self.y = y;
 	}
 
 	pub fn render(
