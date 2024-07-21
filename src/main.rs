@@ -1,5 +1,5 @@
 mod widgets;
-use widgets::View;
+use widgets::{VStack, View};
 use crate::widgets::{
 	Rect,
 	create_program
@@ -18,16 +18,15 @@ fn main() {
 	let (window,display) = glium::backend::glutin::
 		SimpleWindowBuilder::new()
 		.build(&event_loop);
-
-	let frame = Rect::new(100, 100, 250, 350, rgb(150, 205, 235));
 	
 	let program = create_program(&display);
-
-	let page = View{
-		child:frame
+	let mut box1 = Rect::new(0, 0, 299, 59, rgb(100, 250, 230));
+	let mut box2 = Rect::new(0, 0, 50, 590, rgb(100, 25, 230));
+	let mut page = View{
+		child:VStack{
+			children:vec![&mut box1, &mut box2]
+		}
 	};
-
-	
 
 	let _ = event_loop.run(move | event,window_target|{
 		match event {
@@ -49,12 +48,6 @@ fn main() {
 	});
 }
 
-
-
-
-
-
-
 #[derive(Debug,Clone,Copy)]
 struct Vertex{
 	position: [i32;2],
@@ -75,6 +68,8 @@ impl Vertex {
 	}
 }
 
+implement_vertex!(Vertex,position,colour);
+
 fn rgb(r:i32,g:i32,b:i32) -> [f32;4]{
 	let red = map(r as f32, [0.0,255.0], [0.0,1.0]);
 	let green = map(g as f32, [0.0,255.0], [0.0,1.0]);
@@ -82,7 +77,6 @@ fn rgb(r:i32,g:i32,b:i32) -> [f32;4]{
 	return [red,green,blue,1.0]
 }
 
-implement_vertex!(Vertex,position,colour);
 
 /// Map value from one range to another. Any overflow is clipped to the min or max
 fn map(mut value:f32,input_range:[f32;2],output_range:[f32;2]) -> f32{

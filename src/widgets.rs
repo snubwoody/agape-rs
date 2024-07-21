@@ -10,20 +10,21 @@ use glium::{
 };
 use winit::window::Window;
 use crate::Vertex;
-pub struct View{
-	pub child:Rect
+
+/// A page-like structure that holds multiple widgets below it and renders them
+pub struct View<'a>{
+	pub child:VStack<'a>
 }
 
-impl View {
+impl<'a> View<'a> {
 	pub fn render(
-		&self,
+		&mut self,
 		display:&Display<WindowSurface>,
 		window:&Window,
 		program:&Program,
 	){
 		let mut frame = display.draw();
 		frame.clear_color(1.0, 1.0, 1.0, 1.0);
-		
 		self.child.render(display,&mut frame,window,program);
 		frame.finish().unwrap();
 	}
@@ -33,24 +34,33 @@ pub trait Widget {
 	fn render(&self);
 }
 
-struct VStack<'a>{
-	children:Vec<&'a Rect>
+pub struct VStack<'a>{
+	pub children:Vec<&'a mut Rect>
 }
 
 impl<'a> VStack<'a> {
-	pub fn render(){
-
+	pub fn render(
+		&mut self,
+		display:&Display<WindowSurface>,
+		frame:&mut Frame,
+		window:&Window,
+		program:&Program,
+	){
+		self.children.iter_mut().for_each(|child|{
+			child.translate(0, 10);
+			child.render(display, frame, window, program)
+		});
 	}
 }
 
 
 
 pub struct Rect{
-	x:i32,
-	y:i32,
-	width:i32,
-	height:i32,
-	colour:[f32;4]
+	pub x:i32,
+	pub y:i32,
+	pub width:i32,
+	pub height:i32,
+	pub colour:[f32;4]
 }
 
 impl Rect {
@@ -58,7 +68,7 @@ impl Rect {
 		Self{x, y, width, height, colour }
 	}
 
-	pub fn to_vertices(&self,window:&Window) -> Vec<Vertex>{
+	pub fn to_vertices(&self) -> Vec<Vertex>{
 
 		let vertex1 = Vertex::new(self.x, self.y,self.colour); //Top left
 		let vertex2 = Vertex::new(self.x+self.width, self.y,self.colour); // Top right
@@ -70,14 +80,19 @@ impl Rect {
 		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
 	}
 
+	pub fn translate(&mut self,x:i32,y:i32){
+		self.x += x;
+		self.y += y;
+	}
+
 	pub fn render(
 		&self,
 		display:&Display<WindowSurface>,
-		mut frame:&mut Frame,
+		frame:&mut Frame,
 		window:&Window,
 		program:&Program,
 	){
-		let vertices:Vec<Vertex> = self.to_vertices(window);
+		let vertices:Vec<Vertex> = self.to_vertices();
 		let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
 		let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
@@ -93,6 +108,16 @@ impl Rect {
 				height:screen_height,
 			},
 			&Default::default()).unwrap();
+	}
+
+	pub fn colour(&self,colour:[f32;4]) -> Self{
+		Self{
+			x:self.x,
+			y:self.y,
+			width:self.width,
+			height:self.height,
+			colour:colour
+		}
 	}
 }
 
