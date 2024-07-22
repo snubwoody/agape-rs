@@ -34,6 +34,8 @@ impl<'a> VStack<'a> {
 	}
 }
 
+//FIXME make the error return on the caller and not in the macro
+//FIXME cannot borrow multiple items as mutable
 #[macro_export]
 /// Creates an [`VStack`]
 macro_rules! vstack {
@@ -79,8 +81,8 @@ impl Widget for HStack {
 	){
 		let mut offset = 0;
 		self.children.iter_mut().for_each(|child|{
-			let y_position = offset;
-			child.set_position(0, y_position);
+			let x_position = offset;
+			child.set_position(x_position, 0);
 			child.render(display, frame, window, program);
 			let size = child.size();
 			offset += self.spacing + size[0];
@@ -110,9 +112,11 @@ macro_rules! hstack {
 		{
 			
             let mut children = Vec::new();
+
             $(
-                children.push(Box::new($x))
+                children.push(Box::new($x) as Box<dyn Widget>);
             )*
+
             HStack{
 				x:0,
 				y:0,

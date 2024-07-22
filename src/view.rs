@@ -2,15 +2,15 @@ use glium::{
 	glutin::surface::WindowSurface, Display, Program, Surface,
 };
 use winit::window::Window;
-use crate::widgets::stack::VStack;
+use crate::widgets::{stack::{HStack, VStack}, Widget};
 
 /// A page-like structure that holds multiple widgets below it and renders them.  
 /// It can only have one [`Widget`] child
-pub struct View<'a>{
-	pub child:VStack<'a>
+pub struct View<T>{
+	pub child:T
 }
 
-impl<'a> View<'a> {
+impl<T> View<T> where T:Widget {
 	pub fn render(
 		&mut self,
 		display:&Display<WindowSurface>,

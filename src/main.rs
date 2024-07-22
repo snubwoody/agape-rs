@@ -6,6 +6,7 @@ use std::fs;
 use glium::{
 	glutin::surface::WindowSurface, Display, Program
 };
+use crate::widgets::Widget;
 use crate::view::View;
 #[macro_use]
 extern crate glium;
@@ -30,20 +31,15 @@ fn main() {
 	let mut box5 = Rect::new(0, 0, 300, 50, rgb(10, 25, 23));
 	
 	let k = hstack!(spacing:20,width:100,height:200,);
-	let test = vstack!(spacing:20,box1,box2,box3);
-
-	/* VStack{
-		spacing:120,
-		children:vec![&mut box1, &mut box2,&mut box3,&mut box4,&mut box5]
-	} */
+	let test = hstack!{
+		spacing:20,
+		width:200,
+		height:400,
+		box1,box2};
 	
 	let mut page = View{
 		child:test
 	};
-
-	//let k = HStack{spacing:20,children:vec![Box::new(&box1)]};
-
-	
 
 	let _ = event_loop.run(move | event,window_target|{
 		match event {
