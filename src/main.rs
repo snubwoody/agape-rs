@@ -1,10 +1,12 @@
 mod widgets;
-use widgets::{VStack, View};
-use crate::widgets::{
-	Rect,
-	create_program
+mod view;
+use widgets::stack::{VStack,HStack};
+use widgets::rect::Rect;
+use std::fs;
+use glium::{
+	glutin::surface::WindowSurface, Display, Program
 };
-
+use crate::view::View;
 #[macro_use]
 extern crate glium;
 
@@ -26,11 +28,17 @@ fn main() {
 	let mut box4 = Rect::new(0, 0, 300, 50, rgb(10, 25, 230));
 	let mut box5 = Rect::new(0, 0, 300, 50, rgb(10, 25, 23));
 
+	
 	let mut page = View{
 		child:VStack{
+			spacing:120,
 			children:vec![&mut box1, &mut box2,&mut box3,&mut box4,&mut box5]
 		}
 	};
+
+	//let k = HStack{spacing:20,children:vec![Box::new(&box1)]};
+
+	
 
 	let _ = event_loop.run(move | event,window_target|{
 		match event {
@@ -97,3 +105,11 @@ fn map(mut value:f32,input_range:[f32;2],output_range:[f32;2]) -> f32{
 	return  value * scale + offset;
 }
 
+
+
+pub fn create_program(display:&Display<WindowSurface>) -> Program {
+	let vertex_shader = fs::read_to_string("shaders/triangle.vert").unwrap();
+	let fragment_shader = fs::read_to_string("shaders/triangle.frag").unwrap();
+	let program = glium::Program::from_source(display, vertex_shader.as_str(), fragment_shader.as_str(), None).unwrap();
+	return program
+}
