@@ -1,8 +1,3 @@
-use std::fs;
-use glium::{
-	glutin::surface::WindowSurface, index, Display, Frame, Program, Surface, VertexBuffer
-};
-use winit::window::Window;
 use crate::widgets::Widget;
 
 

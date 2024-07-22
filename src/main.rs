@@ -20,6 +20,7 @@ fn main() {
 	let (window,display) = glium::backend::glutin::
 		SimpleWindowBuilder::new()
 		.build(&event_loop);
+
 	
 	let program = create_program(&display);
 	let mut box1 = Rect::new(0, 0, 300, 50, rgb(100, 250, 230));
@@ -27,13 +28,17 @@ fn main() {
 	let mut box3 = Rect::new(0, 0, 300, 50, rgb(100, 25, 23));
 	let mut box4 = Rect::new(0, 0, 300, 50, rgb(10, 25, 230));
 	let mut box5 = Rect::new(0, 0, 300, 50, rgb(10, 25, 23));
+	
+	let k = hstack!(spacing:20,width:100,height:200,);
+	let test = vstack!(spacing:20,box1,box2,box3);
 
+	/* VStack{
+		spacing:120,
+		children:vec![&mut box1, &mut box2,&mut box3,&mut box4,&mut box5]
+	} */
 	
 	let mut page = View{
-		child:VStack{
-			spacing:120,
-			children:vec![&mut box1, &mut box2,&mut box3,&mut box4,&mut box5]
-		}
+		child:test
 	};
 
 	//let k = HStack{spacing:20,children:vec![Box::new(&box1)]};

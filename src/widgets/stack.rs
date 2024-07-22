@@ -1,8 +1,12 @@
+use std::marker;
+
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame, Program, 
 };
 use winit::window::Window;
 use crate::widgets::{Widget,rect::Rect};
+
+
 
 /// A widget that arranges children in a vertical list 
 pub struct VStack<'a>{
@@ -29,12 +33,36 @@ impl<'a> VStack<'a> {
 		});
 	}
 }
-  
+
+#[macro_export]
+/// Creates an [`VStack`]
+macro_rules! vstack {
+	(
+		spacing:$spacing:expr, 
+		$($x:expr),
+		*
+	) => {
+		{
+			
+            let mut children = Vec::new();
+            $(
+                children.push(&mut $x);
+            )*
+
+            VStack{
+				spacing:$spacing,
+				children:children
+			}
+        }
+	};
+}
+
+
 pub struct HStack{
-	x:i32,
-	y:i32,
-	width:i32,
-	height:i32,
+	pub x:i32,
+	pub y:i32,
+	pub width:i32,
+	pub height:i32,
 	pub spacing:i32,
 	pub children:Vec<Box<dyn Widget>>
 }
@@ -69,8 +97,30 @@ impl Widget for HStack {
 	}
 }
 
-macro_rules! HStack {
-	() => {
-		
+#[macro_export]
+/// Creates an [`HStack`]
+macro_rules! hstack {
+	(
+		spacing:$spacing:expr, 
+		width:$width:expr,
+		height:$height:expr,
+		$($x:expr),
+		*
+	) => {
+		{
+			
+            let mut children = Vec::new();
+            $(
+                children.push(Box::new($x))
+            )*
+            HStack{
+				x:0,
+				y:0,
+				width:$width,
+				height:$height,
+				spacing:$spacing,
+				children:children
+			}
+        }
 	};
 }
