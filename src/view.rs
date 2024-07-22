@@ -2,7 +2,7 @@ use glium::{
 	glutin::surface::WindowSurface, Display, Program, Surface,
 };
 use winit::window::Window;
-use crate::widgets::{stack::{HStack, VStack}, Widget};
+use crate::widgets::Widget;
 
 /// A page-like structure that holds multiple widgets below it and renders them.  
 /// It can only have one [`Widget`] child

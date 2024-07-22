@@ -1,6 +1,6 @@
 mod widgets;
 mod view;
-use widgets::stack::{VStack,HStack};
+use widgets::stack::{Stack,StackDirection};
 use widgets::rect::Rect;
 use std::fs;
 use glium::{
@@ -30,12 +30,17 @@ fn main() {
 	let mut box4 = Rect::new(0, 0, 300, 50, rgb(10, 25, 230));
 	let mut box5 = Rect::new(0, 0, 300, 50, rgb(10, 25, 23));
 	
-	let k = hstack!(spacing:20,width:100,height:200,);
-	let test = hstack!{
+	let k = hstack!(spacing:20,width:100,height:200,box3,box4);
+	let test = vstack!{
 		spacing:20,
 		width:200,
 		height:400,
-		box1,box2};
+		k,
+		box1,
+		box2
+	};
+
+		
 	
 	let mut page = View{
 		child:test

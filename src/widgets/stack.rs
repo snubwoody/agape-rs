@@ -7,71 +7,25 @@ use winit::window::Window;
 use crate::widgets::{Widget,rect::Rect};
 
 
-
-/// A widget that arranges children in a vertical list 
-pub struct VStack<'a>{
-	pub spacing:i32,
-	pub children:Vec<&'a mut Rect>
+pub enum StackDirection {
+	Horizontal,
+	Vertical
 }
-
-
-//TODO there might be unnecessary mutability here
-impl<'a> VStack<'a> {
-	pub fn render(
-		&mut self,
-		display:&Display<WindowSurface>,
-		frame:&mut Frame,
-		window:&Window,
-		program:&Program,
-	){
-		let mut offset = 0;
-		self.children.iter_mut().for_each(|child|{
-			let y_position = offset;
-			child.set_position(0, y_position);
-			child.render(display, frame, window, program);
-			offset += self.spacing + child.height;
-		});
-	}
-}
-
-//FIXME make the error return on the caller and not in the macro
-//FIXME cannot borrow multiple items as mutable
-#[macro_export]
-/// Creates an [`VStack`]
-macro_rules! vstack {
-	(
-		spacing:$spacing:expr, 
-		$($x:expr),
-		*
-	) => {
-		{
-			
-            let mut children = Vec::new();
-            $(
-                children.push(&mut $x);
-            )*
-
-            VStack{
-				spacing:$spacing,
-				children:children
-			}
-        }
-	};
-}
-
-
-pub struct HStack{
-	pub x:i32,
+/// A [`Widget`] that arranges it's children either
+/// horizontally or vertically
+pub struct Stack{
 	pub y:i32,
+	pub x:i32,
 	pub width:i32,
 	pub height:i32,
 	pub spacing:i32,
+	pub direction:StackDirection,
 	pub children:Vec<Box<dyn Widget>>
 }
 
 
 //TODO there might be unnecessary mutability here
-impl Widget for HStack {
+impl Widget for Stack {
 	fn render(
 		&mut self,
 		display:&Display<WindowSurface>,
@@ -81,11 +35,22 @@ impl Widget for HStack {
 	){
 		let mut offset = 0;
 		self.children.iter_mut().for_each(|child|{
-			let x_position = offset;
-			child.set_position(x_position, 0);
+			let position = offset;
 			child.render(display, frame, window, program);
-			let size = child.size();
-			offset += self.spacing + size[0];
+
+			//TODO might cause issues due to setting the other position to 0
+			match self.direction {
+				StackDirection::Horizontal => {
+					let size = child.size();
+					offset += self.spacing + size[0];
+					child.set_position(position, 0);
+				},
+				StackDirection::Vertical => {
+					let size = child.size();
+					offset += self.spacing + size[1];
+					child.set_position(0, position);
+				}
+			}
 		});
 	}
 
@@ -99,8 +64,41 @@ impl Widget for HStack {
 	}
 }
 
+
 #[macro_export]
 /// Creates an [`HStack`]
+macro_rules! stack {
+	(
+		spacing:$spacing:expr, 
+		width:$width:expr,
+		height:$height:expr,
+		$($x:expr),
+		*
+	) => {
+		{
+			
+            let mut children = Vec::new();
+
+            $(
+                children.push(Box::new($x) as Box<dyn Widget>);
+            )*
+
+            Stack{
+				x:0,
+				y:0,
+				direction:StackDirection::Vertical,
+				width:$width,
+				height:$height,
+				spacing:$spacing,
+				children:children
+			}
+        }
+	};
+}
+
+
+#[macro_export]
+/// A Phantom [`Widget`] that returns a stack with a horizontal direction
 macro_rules! hstack {
 	(
 		spacing:$spacing:expr, 
@@ -117,9 +115,10 @@ macro_rules! hstack {
                 children.push(Box::new($x) as Box<dyn Widget>);
             )*
 
-            HStack{
+            Stack{
 				x:0,
 				y:0,
+				direction:StackDirection::Horizontal,
 				width:$width,
 				height:$height,
 				spacing:$spacing,
@@ -128,3 +127,35 @@ macro_rules! hstack {
         }
 	};
 }
+
+#[macro_export]
+/// A Phantom [`Widget`] that returns a stack with a vertical direction
+macro_rules! vstack {
+	(
+		spacing:$spacing:expr, 
+		width:$width:expr,
+		height:$height:expr,
+		$($x:expr),
+		*
+	) => {
+		{
+			
+            let mut children = Vec::new();
+
+            $(
+                children.push(Box::new($x) as Box<dyn Widget>);
+            )*
+
+            Stack{
+				x:0,
+				y:0,
+				direction:StackDirection::Vertical,
+				width:$width,
+				height:$height,
+				spacing:$spacing,
+				children:children
+			}
+        }
+	};
+}
+
