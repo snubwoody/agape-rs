@@ -30,18 +30,18 @@ impl<'a> VStack<'a> {
 	}
 }
   
-pub struct HStack<'a>{
+pub struct HStack{
 	x:i32,
 	y:i32,
 	width:i32,
 	height:i32,
 	pub spacing:i32,
-	pub children:Vec<Box<&'a dyn Widget>>
+	pub children:Vec<Box<dyn Widget>>
 }
 
 
 //TODO there might be unnecessary mutability here
-impl<'a> Widget for HStack<'a> {
+impl Widget for HStack {
 	fn render(
 		&mut self,
 		display:&Display<WindowSurface>,
