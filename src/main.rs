@@ -1,5 +1,6 @@
 mod widgets;
 mod view;
+use widgets::container::Container;
 use widgets::stack::{Stack,StackDirection};
 use widgets::rect::Rect;
 use std::fs;
@@ -22,25 +23,22 @@ fn main() {
 		SimpleWindowBuilder::new()
 		.build(&event_loop);
 
-	
 	let program = create_program(&display);
-	let mut box1 = Rect::new(0, 0, 300, 50, rgb(100, 250, 230));
-	let mut box2 = Rect::new(0, 0, 300, 50, rgb(100, 25, 230));
-	let mut box3 = Rect::new(0, 0, 300, 50, rgb(100, 25, 23));
-	let mut box4 = Rect::new(0, 0, 300, 50, rgb(10, 25, 230));
-	let mut box5 = Rect::new(0, 0, 300, 50, rgb(10, 25, 23));
-	
-	let k = hstack!(spacing:20,width:100,height:200,box3,box4);
+	let mut box1 = Rect::new(0, 0, 100, 50, rgb(100, 250, 230));
+	let mut box2 = Rect::new(0, 0, 100, 50, rgb(100, 25, 230));
+	let mut box3 = Rect::new(0, 0, 100, 50, rgb(100, 25, 23));
+	let mut box4 = Rect::new(0, 0, 100, 50, rgb(10, 25, 230));
+	let mut box5 = Rect::new(0, 0, 100, 50, rgb(10, 25, 23));
+
+	let container = Container::new(300, 100, 20, rgb(20, 20,50), box5);
+	let container2 = Container::new(300, 250, 20, rgb(255, 200,550), box2);
 	let test = vstack!{
-		spacing:20,
+		spacing:150,
 		width:200,
 		height:400,
-		k,
 		box1,
-		box2
-	};
-
-		
+		box3
+	};	
 	
 	let mut page = View{
 		child:test

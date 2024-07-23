@@ -4,15 +4,16 @@ use glium::{
 	glutin::surface::WindowSurface, Display, Frame, Program, 
 };
 use winit::window::Window;
-use crate::widgets::{Widget,rect::Rect};
+use crate::widgets::Widget;
 
 
 pub enum StackDirection {
 	Horizontal,
 	Vertical
 }
+
 /// A [`Widget`] that arranges it's children either
-/// horizontally or vertically
+/// horizontally or vertically.
 pub struct Stack{
 	pub y:i32,
 	pub x:i32,
@@ -22,7 +23,6 @@ pub struct Stack{
 	pub direction:StackDirection,
 	pub children:Vec<Box<dyn Widget>>
 }
-
 
 //TODO there might be unnecessary mutability here
 impl Widget for Stack {
@@ -63,39 +63,6 @@ impl Widget for Stack {
 		return [self.width,self.height];
 	}
 }
-
-
-#[macro_export]
-/// Creates an [`HStack`]
-macro_rules! stack {
-	(
-		spacing:$spacing:expr, 
-		width:$width:expr,
-		height:$height:expr,
-		$($x:expr),
-		*
-	) => {
-		{
-			
-            let mut children = Vec::new();
-
-            $(
-                children.push(Box::new($x) as Box<dyn Widget>);
-            )*
-
-            Stack{
-				x:0,
-				y:0,
-				direction:StackDirection::Vertical,
-				width:$width,
-				height:$height,
-				spacing:$spacing,
-				children:children
-			}
-        }
-	};
-}
-
 
 #[macro_export]
 /// A Phantom [`Widget`] that returns a stack with a horizontal direction
