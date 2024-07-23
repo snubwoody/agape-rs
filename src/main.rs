@@ -1,5 +1,6 @@
 mod widgets;
 mod view;
+mod colour;
 pub mod surface;
 use widgets::container::Container;
 use widgets::stack::{Stack,StackDirection};
@@ -11,6 +12,7 @@ use glium::{
 use crate::surface::Surface;
 use crate::widgets::Widget;
 use crate::view::View;
+use crate::colour::rgb;
 #[macro_use]
 extern crate glium;
 
@@ -51,7 +53,7 @@ fn main() {
 			winit::event::Event::WindowEvent{event,..} => match event{
 				winit::event::WindowEvent::CloseRequested => window_target.exit(),
 				winit::event::WindowEvent::RedrawRequested => {
-					
+
 					page.render(&display, &window, &program);
 
 				}
@@ -87,21 +89,6 @@ impl Vertex {
 }
 
 implement_vertex!(Vertex,position,colour);
-
-fn rgb(r:i32,g:i32,b:i32) -> [f32;4]{
-	let red = map(r as f32, [0.0,255.0], [0.0,1.0]);
-	let green = map(g as f32, [0.0,255.0], [0.0,1.0]);
-	let blue = map(b as f32, [0.0,255.0], [0.0,1.0]);
-	return [red,green,blue,1.0]
-}
-
-fn rgba(r:i32,g:i32,b:i32,a:i32) -> [f32;4]{
-	let red = map(r as f32, [0.0,255.0], [0.0,1.0]);
-	let green = map(g as f32, [0.0,255.0], [0.0,1.0]);
-	let blue = map(b as f32, [0.0,255.0], [0.0,1.0]);
-	let alpha = map(a as f32, [0.0,100.0], [0.0,1.0]);
-	return [red,green,blue,alpha]
-}
 
 
 /// Map value from one range to another. Any overflow is clipped to the min or max
