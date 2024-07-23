@@ -8,6 +8,7 @@ use std::fs;
 use glium::{
 	glutin::surface::WindowSurface, Display, Program
 };
+use crate::surface::Surface;
 use crate::widgets::Widget;
 use crate::view::View;
 #[macro_use]

@@ -28,9 +28,9 @@ impl<T> Widget for Container<T> where T:Widget {
 		window:&winit::window::Window,
 		program:&glium::Program,
 	) {
-		self.surface.render(display, frame, window, program);
 		self.child.set_position(self.surface.x, self.surface.y);
 		self.child.render(display, frame, window, program);
+		self.surface.render(display, frame, window, program);
 	}
 
 	//FIXME change this

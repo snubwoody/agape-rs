@@ -1,8 +1,5 @@
 use glium::{
-	glutin::surface::WindowSurface,
-	VertexBuffer,
-	index,
-	Surface as GliumSurface
+	glutin::surface::WindowSurface, index, Blend, DrawParameters, Surface as GliumSurface, VertexBuffer
 };
 use crate::Vertex;
 
@@ -32,6 +29,10 @@ impl Surface {
 		let vertices:Vec<Vertex> = self.to_vertices();
 		let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
 		let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+		let params = DrawParameters{
+			blend:Blend::alpha_blending(),
+			..Default::default()
+		};
 
 		let screen_width = window.inner_size().width as f32;
 		let screen_height = window.inner_size().height as f32;
@@ -44,7 +45,8 @@ impl Surface {
 				width:screen_width,
 				height:screen_height,
 			},
-			&Default::default()).unwrap();
+			&params
+		).unwrap();
 	}
 
 	pub fn to_vertices(&self) -> Vec<Vertex>{

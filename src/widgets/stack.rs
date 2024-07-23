@@ -4,7 +4,7 @@ use glium::{
 	glutin::surface::WindowSurface, Display, Frame, Program, 
 };
 use winit::window::Window;
-use crate::widgets::Widget;
+use crate::{surface::Surface, widgets::Widget};
 
 
 pub enum StackDirection {
@@ -15,10 +15,7 @@ pub enum StackDirection {
 /// A [`Widget`] that arranges it's children either
 /// horizontally or vertically.
 pub struct Stack{
-	pub y:i32,
-	pub x:i32,
-	pub width:i32,
-	pub height:i32,
+	pub surface:Surface,
 	pub spacing:i32,
 	pub direction:StackDirection,
 	pub children:Vec<Box<dyn Widget>>
@@ -33,6 +30,7 @@ impl Widget for Stack {
 		window:&Window,
 		program:&Program,
 	){
+		self.surface.render(display, frame, window, program);
 		let mut offset = 0;
 		self.children.iter_mut().for_each(|child|{
 			let position = offset;
@@ -55,12 +53,12 @@ impl Widget for Stack {
 	}
 
 	fn set_position(&mut self,x:i32,y:i32) {
-		self.x = x;
-		self.y = y;
+		self.surface.x = x;
+		self.surface.y = y;
 	}
 
 	fn size(&mut self) -> [i32;2] {
-		return [self.width,self.height];
+		return [self.surface.width,self.surface.height];
 	}
 }
 
@@ -84,12 +82,11 @@ macro_rules! hstack {
                 children.push(Box::new($x) as Box<dyn Widget>);
             )*
 
+            let surface = Surface::new(0, 0, $width, $height, rgb(255,255,255));
+
             Stack{
-				x:0,
-				y:0,
+				surface,
 				direction:StackDirection::Horizontal,
-				width:$width,
-				height:$height,
 				spacing:$spacing,
 				children:children
 			}
@@ -115,12 +112,11 @@ macro_rules! vstack {
                 children.push(Box::new($x) as Box<dyn Widget>);
             )*
 
+			let surface = Surface::new(0, 0, $width, $height, rgb(255,255,255));
+
             Stack{
-				x:0,
-				y:0,
+				surface,
 				direction:StackDirection::Vertical,
-				width:$width,
-				height:$height,
 				spacing:$spacing,
 				children:children
 			}
