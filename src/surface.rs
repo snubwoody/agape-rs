@@ -3,8 +3,9 @@ use glium::{
 };
 use crate::Vertex;
 
-/// This is a primitive that draws to the screen. Everything 
-/// is essentially a surface that you draw onto other surfaces
+/// This is a primitive that draws to the screen. This holds
+/// essential information about the [`Widget`], ie.
+/// the colour, coordinates and size.
 #[derive(Debug,Clone, Copy)]
 pub struct Surface{
 	pub x:i32,
@@ -29,6 +30,7 @@ impl Surface {
 		let vertices:Vec<Vertex> = self.to_vertices();
 		let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
 		let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+		//FIXME blending not working properly
 		let params = DrawParameters{
 			blend:Blend::alpha_blending(),
 			..Default::default()

@@ -21,7 +21,6 @@ pub struct Stack{
 	pub children:Vec<Box<dyn Widget>>
 }
 
-//TODO there might be unnecessary mutability here
 impl Widget for Stack {
 	fn render(
 		&mut self,
@@ -36,28 +35,30 @@ impl Widget for Stack {
 			let position = offset;
 			child.render(display, frame, window, program);
 
-			//TODO might cause issues due to setting the other position to 0
+			// TODO might cause issues due to setting the other position to 0
+			// Try setting the position of the child during initialization
+			// Then try translating instead
 			match self.direction {
 				StackDirection::Horizontal => {
-					let size = child.size();
+					let size = child.get_size();
 					offset += self.spacing + size[0];
-					child.set_position(position, 0);
+					child.position(position, 0);
 				},
 				StackDirection::Vertical => {
-					let size = child.size();
+					let size = child.get_size();
 					offset += self.spacing + size[1];
-					child.set_position(0, position);
+					child.position(0, position);
 				}
 			}
 		});
 	}
 
-	fn set_position(&mut self,x:i32,y:i32) {
+	fn position(&mut self,x:i32,y:i32) {
 		self.surface.x = x;
 		self.surface.y = y;
 	}
 
-	fn size(&mut self) -> [i32;2] {
+	fn get_size(&mut self) -> [i32;2] {
 		return [self.surface.width,self.surface.height];
 	}
 }

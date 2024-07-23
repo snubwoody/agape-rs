@@ -51,7 +51,7 @@ fn main() {
 			winit::event::Event::WindowEvent{event,..} => match event{
 				winit::event::WindowEvent::CloseRequested => window_target.exit(),
 				winit::event::WindowEvent::RedrawRequested => {
-	
+					
 					page.render(&display, &window, &program);
 
 				}

@@ -76,12 +76,12 @@ impl Widget for Rect {
 			&Default::default()).unwrap();
 	}
 
-	fn set_position(&mut self,x:i32,y:i32){
+	fn position(&mut self,x:i32,y:i32){
 		self.x = x;
 		self.y = y;
 	}
 
-	fn size(&mut self) -> [i32;2] {
+	fn get_size(&mut self) -> [i32;2] {
 		return [self.width,self.height];
 	}
 }

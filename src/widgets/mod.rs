@@ -21,10 +21,10 @@ pub trait Widget {
 	/// Note that positions start from the upper left 
 	/// corner
 	// TODO change to position
-	fn set_position(&mut self,x:i32,y:i32);
+	fn position(&mut self,x:i32,y:i32);
 	//fn get_surface(&self) -> Surface;	
 	//TODO change to get_size then add function size that sets the size 
 	// to be more idiomatic
 	///Returns the size
-	fn size(&mut self) -> [i32;2];
+	fn get_size(&mut self) -> [i32;2];
 }

@@ -28,17 +28,18 @@ impl<T> Widget for Container<T> where T:Widget {
 		window:&winit::window::Window,
 		program:&glium::Program,
 	) {
-		self.child.set_position(self.surface.x, self.surface.y);
-		self.child.render(display, frame, window, program);
 		self.surface.render(display, frame, window, program);
+		self.child.position(self.surface.x, self.surface.y);
+		self.child.render(display, frame, window, program);
 	}
 
-	//FIXME change this
-	fn size(&mut self) -> [i32;2] {
-		return [0,0] ;	
+	fn get_size(&mut self) -> [i32;2] {
+		let width = self.surface.width;
+		let height = self.surface.height;
+		return [width,height] ;	
 	}
 
-	fn set_position(&mut self,x:i32,y:i32) {
+	fn position(&mut self,x:i32,y:i32) {
 		self.surface.x = x;
 		self.surface.y = y;
 	}
