@@ -8,6 +8,7 @@ use crate::Vertex;
 
 /// This is a primitive that draws to the screen. Everything 
 /// is essentially a surface that you draw onto other surfaces
+#[derive(Debug,Clone, Copy)]
 pub struct Surface{
 	pub x:i32,
 	pub y:i32,

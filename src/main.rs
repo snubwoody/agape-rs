@@ -37,7 +37,7 @@ fn main() {
 		width:200,
 		height:400,
 		box1,
-		box3
+		container
 	};	
 	
 	let mut page = View{
