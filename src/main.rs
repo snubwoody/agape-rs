@@ -28,9 +28,9 @@ fn main() {
 	let mut box2 = Rect::new(0, 0, 100, 50, rgb(100, 25, 230));
 	let mut box3 = Rect::new(0, 0, 100, 50, rgb(100, 25, 23));
 	let mut box4 = Rect::new(0, 0, 100, 50, rgb(10, 25, 230));
-	let mut box5 = Rect::new(0, 0, 100, 50, rgb(10, 25, 23));
+	let mut box5 = Rect::new(0, 0, 100, 50, rgb(255, 255, 255));
 
-	let container = Container::new(300, 100, 20, rgb(20, 20,50), box5);
+	let container = Container::new(300, 100, 20, rgb(20, 250,50), box5);
 	let container2 = Container::new(300, 250, 20, rgb(255, 200,550), box2);
 	let test = vstack!{
 		spacing:150,
@@ -39,7 +39,7 @@ fn main() {
 		box1,
 		container
 	};	
-	
+
 	let mut page = View{
 		child:test
 	};
@@ -91,6 +91,14 @@ fn rgb(r:i32,g:i32,b:i32) -> [f32;4]{
 	let green = map(g as f32, [0.0,255.0], [0.0,1.0]);
 	let blue = map(b as f32, [0.0,255.0], [0.0,1.0]);
 	return [red,green,blue,1.0]
+}
+
+fn rgba(r:i32,g:i32,b:i32,a:i32) -> [f32;4]{
+	let red = map(r as f32, [0.0,255.0], [0.0,1.0]);
+	let green = map(g as f32, [0.0,255.0], [0.0,1.0]);
+	let blue = map(b as f32, [0.0,255.0], [0.0,1.0]);
+	let alpha = map(a as f32, [0.0,100.0], [0.0,1.0]);
+	return [red,green,blue,alpha]
 }
 
 

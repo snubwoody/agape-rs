@@ -29,8 +29,9 @@ impl<T> Widget for Container<T> where T:Widget {
 		window:&winit::window::Window,
 		program:&glium::Program,
 	) {
-		self.child.render(display, frame, window, program);
 		self.surface.render(display, frame, window, program);
+		self.child.set_position(self.surface.x, self.surface.y);
+		self.child.render(display, frame, window, program);
 	}
 
 	//FIXME change this
@@ -39,10 +40,8 @@ impl<T> Widget for Container<T> where T:Widget {
 	}
 
 	fn set_position(&mut self,x:i32,y:i32) {
-		dbg!(self.surface);
 		self.surface.x = x;
 		self.surface.y = y;
-		dbg!(self.surface);
 	}
 
 }
