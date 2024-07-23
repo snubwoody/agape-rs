@@ -1,5 +1,6 @@
 mod widgets;
 mod view;
+pub mod surface;
 use widgets::container::Container;
 use widgets::stack::{Stack,StackDirection};
 use widgets::rect::Rect;

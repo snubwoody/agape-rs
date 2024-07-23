@@ -1,6 +1,5 @@
 pub mod rect;
 pub mod stack;
-pub mod surface;
 pub mod container;
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame, Program,

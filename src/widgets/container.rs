@@ -1,6 +1,5 @@
 use crate::widgets::Widget;
-
-use super::surface::Surface;
+use crate::surface::Surface;
 
 
 /// A container [`Widget`] that can only have one child
