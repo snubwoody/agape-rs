@@ -1,38 +1,64 @@
-use std::{fs::File, io::{Cursor, Write}};
-use fontdue::{self, Font};
+use std::{fs::File, io::{Cursor, Read, Write}};
 use glium::{
 	glutin::surface::WindowSurface, 
 	Display, 
-	Program, 
+	Program, Surface, 
 };
+use text_to_png::TextRenderer;
+use winit::window::Window;
 
-pub fn render_text(display:&Display<WindowSurface>,program:&Program){
+pub fn render_text(display:&Display<WindowSurface>,program:&Program,window:&Window){
 	
-	// Read the font data.
-	let font = include_bytes!("../fonts/Inter/static/Inter-Regular.ttf") as &[u8];
-	// Parse it into the font type.
-	let inter = Font::from_bytes(font, fontdue::FontSettings::default()).unwrap();
+	let text_renderer = TextRenderer::default();
+	let image_data = text_renderer.render_text_to_png_data("Hello world", 64, "#F24FF4").unwrap();
+	let image = File::create("render.png").unwrap();
+	let mut writer = std::io::BufWriter::new(&image);
+	writer.write(&image_data.data).unwrap();
+	let image_size = image_data.size;
+	let j = image_data.data;
+	let img = image::load(std::io::Cursor::new(&include_bytes!("../render.png")), image::ImageFormat::Png).unwrap().to_rgba8().into_raw();
 
-	let (metrics, mut bitmap) = inter.rasterize('H', 48.0);
+	dbg!("test 1");
+	let raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(&img,(image_size.width,image_size.height));
+	dbg!(raw_image.width,raw_image.height);
+	dbg!("test 2");
+	let texture = glium::texture::Texture2d::new(display, raw_image).unwrap();
+	dbg!("test 3");
+	
+	let mut frame = display.draw();
+	//dbg!(img);
+	let screen_size = window.inner_size();
+	let uniforms = uniform! {
+		matrix: [
+			[1.0, 0.0, 0.0, 0.0],
+			[0.0, 1.0, 0.0, 0.0],
+			[0.0, 0.0, 1.0, 0.0],
+			[ 0.0 , 0.0, 0.0, 1.0f32],
+		],
+		width:screen_size.width as f32,
+		height:screen_size.height as f32,
+		tex: &texture,
+	};
+	/* Vertex { position: [-0.5, -0.5], tex_coords: [0.0, 0.0] },
+    Vertex { position: [ 0.5, -0.5], tex_coords: [1.0, 0.0] },
+    Vertex { position: [ 0.5,  0.5], tex_coords: [1.0, 1.0] },
 
-	let mut frame = display.draw();	
-
-	let img = image::ImageReader::open("../rgb.png").unwrap().decode().unwrap();
-	img.write_to(&mut Cursor::new(&mut bitmap), image::ImageFormat::Png).unwrap();
-	
-	dbg!(&bitmap);
-	
-	let raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(&bitmap, (metrics.width as u32, metrics.height as u32));
-    let texture = glium::texture::Texture2d::new(display, raw_image).unwrap();
-	
-	let uniforms = uniform! { tex: &texture };
+    Vertex { position: [ 0.5,  0.5], tex_coords: [1.0, 1.0] },
+    Vertex { position: [-0.5,  0.5], tex_coords: [0.0, 1.0] },
+    Vertex { position: [-0.5, -0.5], tex_coords: [0.0, 0.0] }, */
 	let vertex_buffer = glium::VertexBuffer::new(
 		display, 
-		&[		// top-left
+		&[		
 			Vertex::new(0,0,  [0.0,0.0]),
 			Vertex::new(500,0,  [1.0,0.0]),
 			Vertex::new(0,500,  [0.0,1.0]),
 			Vertex::new(500,500,  [1.0,1.0]),
+			/* Vertex::new(0, 0,0.0,[0.0,0.0]), //Top left
+			Vertex::new(500,0,self.colour), // Top right
+			Vertex::new(0, 500,self.colour), //Bottom left
+			Vertex::new(500,0,self.colour), //Top right
+			Vertex::new(0, 500,self.colour), // Bottom left
+			Vertex::new(500, 500,self.colour), //Bottom right */
 	]).unwrap();
 
 	let index_buffer = glium::IndexBuffer::new(
@@ -43,8 +69,8 @@ pub fn render_text(display:&Display<WindowSurface>,program:&Program){
 			1, 2, 3,
 	]).unwrap();
 			
-	//frame.draw(&vertex_buffer, &index_buffer, program, &uniforms, &Default::default()).unwrap();
-	//frame.finish().unwrap();
+	frame.draw(&vertex_buffer, &index_buffer, program, &uniforms, &Default::default()).unwrap();
+	frame.finish().unwrap();
 }
 
 
@@ -52,7 +78,7 @@ pub fn render_text(display:&Display<WindowSurface>,program:&Program){
 #[derive(Debug,Clone,Copy)]
 struct Vertex{
 	position: [i32;2],
-	tex_coords:[f32;2]
+	uv:[f32;2]
 }
 
 impl Vertex {
@@ -60,9 +86,9 @@ impl Vertex {
 
 		Self { 
 			position: [x,y],
-			tex_coords:coords
+			uv:coords
 		}
 	}
 }
 
-implement_vertex!(Vertex,position,tex_coords);
+implement_vertex!(Vertex,position,uv);

@@ -2,6 +2,7 @@
 
 in vec2 position;
 in vec4 colour;
+in vec2 uv;
 
 uniform float width;
 uniform float height;

@@ -22,17 +22,7 @@ extern crate glium;
 
 
 fn main() {
-	//run_app();
-	text();
-}
-
-fn text() {
-	let renderer = TextRenderer::default();
-	let text_image = renderer.render_text_to_png_data("Hello world", 64, "#000000").unwrap();
-	let image = File::create("render.png").unwrap();
-	let mut k = std::io::BufWriter::new(&image);
-	let l = text_image.data;
-	k.write(&l).unwrap();
+	run_app();
 }
 
 fn run_app() {
@@ -74,7 +64,7 @@ fn run_app() {
 				winit::event::WindowEvent::RedrawRequested => {
 
 					//page.render(&display, &window, &program);
-					//render_text(&display,&program);
+					render_text(&display,&program,&window);
 
 				}
 				_ => {}
@@ -94,7 +84,8 @@ fn run_app() {
 #[derive(Debug,Clone,Copy)]
 struct Vertex{
 	position: [i32;2],
-	colour:[f32;4]
+	colour:[f32;4],
+	uv:[f32;2],
 }
 
 impl Vertex {
@@ -106,7 +97,8 @@ impl Vertex {
 
 		Self { 
 			position: [x,y],
-			colour:[r,g,b,a]
+			colour:[r,g,b,a],
+			uv:[1.0,1.0],
 		}
 	}
 }
@@ -132,8 +124,8 @@ fn map(mut value:f32,input_range:[f32;2],output_range:[f32;2]) -> f32{
 
 
 pub fn create_program(display:&Display<WindowSurface>) -> Program {
-	let vertex_shader = fs::read_to_string("shaders/triangle.vert").unwrap();
-	let fragment_shader = fs::read_to_string("shaders/triangle.frag").unwrap();
+	let vertex_shader = fs::read_to_string("shaders/text.vert").unwrap();
+	let fragment_shader = fs::read_to_string("shaders/text.frag").unwrap();
 	let program = glium::Program::from_source(display, vertex_shader.as_str(), fragment_shader.as_str(), None).unwrap();
 	return program
 }
