@@ -63,6 +63,3 @@ impl Surface {
 		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
 	}
 }
-
-fn test(){
-}

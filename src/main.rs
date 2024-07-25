@@ -35,16 +35,13 @@ fn run_app() {
 		SimpleWindowBuilder::new()
 		.build(&event_loop);
 
-	let program = create_program(&display);
+	let surface_program = create_program(&display,"shaders/triangle.vert","shaders/triangle.frag");
+	let text_program = create_program(&display,"shaders/text.vert","shaders/text.frag");
 	let mut box1 = Rect::new(0, 0, 100, 50, rgb(100, 250, 230));
 	let mut box2 = Rect::new(0, 0, 100, 50, rgb(100, 25, 230));
-	let mut box3 = Rect::new(0, 0, 100, 50, rgb(100, 25, 23));
-	let mut box4 = Rect::new(0, 0, 100, 50, rgb(10, 25, 230));
 	let mut box5 = Rect::new(0, 0, 100, 50, rgb(255, 255, 255));
 
 	let container = Container::new(300, 100, 20, rgb(20, 250,50), box5);
-	let container2 = Container::new(300, 250, 20, rgb(255, 200,550), box2);
-	
 	let test = vstack!{
 		spacing:150,
 		width:200,
@@ -63,8 +60,8 @@ fn run_app() {
 				winit::event::WindowEvent::CloseRequested => window_target.exit(),
 				winit::event::WindowEvent::RedrawRequested => {
 
-					//page.render(&display, &window, &program);
-					render_text(&display,&program,&window);
+					//page.render(&display, &window, &surface_program);
+					render_text(&display,&text_program,&window);
 
 				}
 				_ => {}
@@ -79,17 +76,22 @@ fn run_app() {
 }
 
 
+struct Renderers{
+	surface_renderer:Program,
+	text_renderer:Program
+}
+
 /// A struct which hold all the vertex attributes ie. color
 /// and position
 #[derive(Debug,Clone,Copy)]
-struct Vertex{
+pub struct Vertex{
 	position: [i32;2],
 	colour:[f32;4],
 	uv:[f32;2],
 }
 
 impl Vertex {
-	fn new(x:i32,y:i32,colour:[f32;4]) -> Self{
+	pub fn new(x:i32,y:i32,colour:[f32;4]) -> Self{
 		let r = colour[0];
 		let g = colour[1];
 		let b = colour[2];
@@ -101,9 +103,22 @@ impl Vertex {
 			uv:[1.0,1.0],
 		}
 	}
+
+	pub fn new_with_texture(x:i32,y:i32,colour:[f32;4],texture_coords:[f32;2]) -> Self {
+		let r = colour[0];
+		let g = colour[1];
+		let b = colour[2];
+		let a = colour[3];
+
+		Self { 
+			position: [x,y],
+			colour:[r,g,b,a],
+			uv:texture_coords,
+		}
+	}
 }
 
-implement_vertex!(Vertex,position,colour);
+implement_vertex!(Vertex,position,colour,uv);
 
 
 /// Map value from one range to another. Any overflow is clipped to the min or max
@@ -123,9 +138,9 @@ fn map(mut value:f32,input_range:[f32;2],output_range:[f32;2]) -> f32{
 
 
 
-pub fn create_program(display:&Display<WindowSurface>) -> Program {
-	let vertex_shader = fs::read_to_string("shaders/text.vert").unwrap();
-	let fragment_shader = fs::read_to_string("shaders/text.frag").unwrap();
+pub fn create_program(display:&Display<WindowSurface>,vertex_shader_src:&str,fragment_shader_src:&str) -> Program {
+	let vertex_shader = fs::read_to_string(vertex_shader_src).unwrap();
+	let fragment_shader = fs::read_to_string(fragment_shader_src).unwrap();
 	let program = glium::Program::from_source(display, vertex_shader.as_str(), fragment_shader.as_str(), None).unwrap();
 	return program
 }

@@ -1,7 +1,7 @@
 #version 410 
 
 in vec2 position;
-//in vec4 colour;
+in vec4 colour;
 in vec2 uv;
 
 uniform float width;
