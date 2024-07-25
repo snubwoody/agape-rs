@@ -24,20 +24,15 @@ pub fn render_text(display:&Display<WindowSurface>,program:&Program,window:&Wind
 	dbg!("test 3");
 	
 	let mut frame = display.draw();
-	//dbg!(img);
+	frame.clear_color(1.0, 1.0, 1.0, 1.0);
+	
 	let screen_size = window.inner_size();
 	let uniforms = uniform! {
 		width:screen_size.width as f32,
 		height:screen_size.height as f32,
 		tex: &texture,
 	};
-	/* Vertex { position: [-0.5, -0.5], tex_coords: [0.0, 0.0] },
-    Vertex { position: [ 0.5, -0.5], tex_coords: [1.0, 0.0] },
-    Vertex { position: [ 0.5,  0.5], tex_coords: [1.0, 1.0] },
 
-    Vertex { position: [ 0.5,  0.5], tex_coords: [1.0, 1.0] },
-    Vertex { position: [-0.5,  0.5], tex_coords: [0.0, 1.0] },
-    Vertex { position: [-0.5, -0.5], tex_coords: [0.0, 0.0] }, */
 	let vertex_buffer = glium::VertexBuffer::new(
 		display, 
 		&[		
