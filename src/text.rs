@@ -1,8 +1,6 @@
 use std::{fs::File, io::{Cursor, Read, Write}};
 use glium::{
-	glutin::surface::WindowSurface, 
-	Display, 
-	Program, Surface, 
+	glutin::surface::WindowSurface, index, Display, Program, Surface 
 };
 use text_to_png::TextRenderer;
 use winit::window::Window;
@@ -29,12 +27,6 @@ pub fn render_text(display:&Display<WindowSurface>,program:&Program,window:&Wind
 	//dbg!(img);
 	let screen_size = window.inner_size();
 	let uniforms = uniform! {
-		matrix: [
-			[1.0, 0.0, 0.0, 0.0],
-			[0.0, 1.0, 0.0, 0.0],
-			[0.0, 0.0, 1.0, 0.0],
-			[ 0.0 , 0.0, 0.0, 1.0f32],
-		],
 		width:screen_size.width as f32,
 		height:screen_size.height as f32,
 		tex: &texture,
@@ -49,27 +41,25 @@ pub fn render_text(display:&Display<WindowSurface>,program:&Program,window:&Wind
 	let vertex_buffer = glium::VertexBuffer::new(
 		display, 
 		&[		
-			Vertex::new(0,0,  [0.0,0.0]),
-			Vertex::new(500,0,  [1.0,0.0]),
-			Vertex::new(0,500,  [0.0,1.0]),
-			Vertex::new(500,500,  [1.0,1.0]),
-			/* Vertex::new(0, 0,0.0,[0.0,0.0]), //Top left
-			Vertex::new(500,0,self.colour), // Top right
-			Vertex::new(0, 500,self.colour), //Bottom left
-			Vertex::new(500,0,self.colour), //Top right
-			Vertex::new(0, 500,self.colour), // Bottom left
-			Vertex::new(500, 500,self.colour), //Bottom right */
+			Vertex::new(0,0,[0.0,1.0]), //Top left
+			Vertex::new(500,0,[1.0,1.0]), // Top right
+			Vertex::new(0, 500,[0.0,0.0]), //Bottom left
+			Vertex::new(500,0,[1.0,1.0]), //Top right
+			Vertex::new(0, 500,[0.0,0.0]), // Bottom left
+			Vertex::new(500, 500,[1.0,0.0]), //Bottom right
 	]).unwrap();
 
-	let index_buffer = glium::IndexBuffer::new(
+	/* let index_buffer = glium::IndexBuffer::new(
 		display, 
 		glium::index::PrimitiveType::TrianglesList,
 		&[
 			0u16, 1, 2,
 			1, 2, 3,
 	]).unwrap();
+ */
+	let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 			
-	frame.draw(&vertex_buffer, &index_buffer, program, &uniforms, &Default::default()).unwrap();
+	frame.draw(&vertex_buffer, &indices, program, &uniforms, &Default::default()).unwrap();
 	frame.finish().unwrap();
 }
 
