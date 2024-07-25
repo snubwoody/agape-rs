@@ -6,5 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+fontdue = "0.9.2"
 glium = "0.34.0"
+image = "0.25.2"
+text-to-png = "0.2.0"
 winit = "0.29"

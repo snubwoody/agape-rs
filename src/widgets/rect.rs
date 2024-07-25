@@ -6,9 +6,8 @@ use crate::widgets::Widget;
 use crate::Vertex;
 
 
-/// A rect is the underlying structure of every thing
-/// that can be drawn to the screen.  
-/// It itself is also a [`Widget`]
+/// A simple rectangle
+// TODO change this to use surface
 pub struct Rect{
 	pub x:i32,
 	pub y:i32,

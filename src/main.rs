@@ -2,13 +2,17 @@ mod widgets;
 mod view;
 mod colour;
 pub mod surface;
+pub mod text;
+use text::render_text;
 use widgets::container::Container;
 use widgets::stack::{Stack,StackDirection};
 use widgets::rect::Rect;
-use std::fs;
+use std::fs::{self, File};
+use std::io::Write;
 use glium::{
 	glutin::surface::WindowSurface, Display, Program
 };
+use text_to_png::TextRenderer;
 use crate::surface::Surface;
 use crate::widgets::Widget;
 use crate::view::View;
@@ -18,6 +22,20 @@ extern crate glium;
 
 
 fn main() {
+	//run_app();
+	text();
+}
+
+fn text() {
+	let renderer = TextRenderer::default();
+	let text_image = renderer.render_text_to_png_data("Hello world", 64, "#000000").unwrap();
+	let image = File::create("render.png").unwrap();
+	let mut k = std::io::BufWriter::new(&image);
+	let l = text_image.data;
+	k.write(&l).unwrap();
+}
+
+fn run_app() {
 	let event_loop = winit::
 		event_loop::EventLoopBuilder::new()
 		.build()
@@ -36,6 +54,7 @@ fn main() {
 
 	let container = Container::new(300, 100, 20, rgb(20, 250,50), box5);
 	let container2 = Container::new(300, 250, 20, rgb(255, 200,550), box2);
+	
 	let test = vstack!{
 		spacing:150,
 		width:200,
@@ -54,7 +73,8 @@ fn main() {
 				winit::event::WindowEvent::CloseRequested => window_target.exit(),
 				winit::event::WindowEvent::RedrawRequested => {
 
-					page.render(&display, &window, &program);
+					//page.render(&display, &window, &program);
+					//render_text(&display,&program);
 
 				}
 				_ => {}
@@ -68,6 +88,9 @@ fn main() {
 	});
 }
 
+
+/// A struct which hold all the vertex attributes ie. color
+/// and position
 #[derive(Debug,Clone,Copy)]
 struct Vertex{
 	position: [i32;2],
