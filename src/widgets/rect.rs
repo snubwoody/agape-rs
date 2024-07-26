@@ -3,7 +3,7 @@ use glium::{
 };
 use winit::window::Window;
 use crate::widgets::Widget;
-use crate::Vertex;
+use crate::vertex::Vertex;
 use crate::RenderContext;
 
 

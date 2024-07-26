@@ -2,7 +2,7 @@ use crate::{RenderContext, Widget};
 use crate::text::TextSurface;
 
 
-
+#[derive(Debug)]
 pub struct Text{
 	surface:TextSurface,
 	text:String,
@@ -24,6 +24,7 @@ impl Widget for Text {
 		window:&winit::window::Window,
 		context:&RenderContext,
 	) {
+		self.surface.build(display);
 		self.surface.render(display, frame, window, &context.text_program);
 	}
 

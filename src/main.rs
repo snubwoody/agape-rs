@@ -3,16 +3,15 @@ mod view;
 mod colour;
 pub mod surface;
 pub mod text;
-use glium::Frame;
-use text::render_text;
+pub mod vertex;
 use widgets::container::Container;
 use widgets::stack::{Stack,StackDirection};
 use widgets::rect::Rect;
+use widgets::text::Text;
 use std::fs;
 use glium::{
 	glutin::surface::WindowSurface, Display, Program,
 };
-use winit::window::{self, Window};
 use crate::surface::Surface;
 use crate::widgets::Widget;
 use crate::view::View;
@@ -37,6 +36,7 @@ fn run_app<'a>() {
 
 	let surface_program = create_program(&display,"shaders/triangle.vert","shaders/triangle.frag");
 	let text_program = create_program(&display,"shaders/text.vert","shaders/text.frag");
+
 	let mut box1 = Rect::new(0, 0, 100, 50, rgb(100, 250, 230));
 	let mut box2 = Rect::new(0, 0, 100, 50, rgb(100, 25, 230));
 	let mut box5 = Rect::new(0, 0, 100, 50, rgb(255, 255, 255));
@@ -44,13 +44,15 @@ fn run_app<'a>() {
 	let container = Container::new(300, 100, 20, rgb(20, 250,50), box5);
 
 	let context = RenderContext::new(surface_program, text_program);
+	let text = Text::new(0, 0, "Hello", "#000", 18);
 	
 	let test = vstack!{
 		spacing:150,
 		width:200,
 		height:400,
 		box1,
-		container
+		container,
+		text
 	};	
 
 	let mut page = View{
@@ -94,44 +96,7 @@ impl RenderContext {
 		Self { surface_program, text_program }
 	}
 }
-/// A struct which hold all the vertex attributes ie. color
-/// and position
-#[derive(Debug,Clone,Copy)]
-pub struct Vertex{
-	position: [i32;2],
-	colour:[f32;4],
-	uv:[f32;2],
-}
 
-impl Vertex {
-	pub fn new(x:i32,y:i32,colour:[f32;4]) -> Self{
-		let r = colour[0];
-		let g = colour[1];
-		let b = colour[2];
-		let a = colour[3];
-
-		Self { 
-			position: [x,y],
-			colour:[r,g,b,a],
-			uv:[1.0,1.0],
-		}
-	}
-
-	pub fn new_with_texture(x:i32,y:i32,colour:[f32;4],texture_coords:[f32;2]) -> Self {
-		let r = colour[0];
-		let g = colour[1];
-		let b = colour[2];
-		let a = colour[3];
-
-		Self { 
-			position: [x,y],
-			colour:[r,g,b,a],
-			uv:texture_coords,
-		}
-	}
-}
-
-implement_vertex!(Vertex,position,colour,uv);
 
 pub struct Position{
 	x:i32,

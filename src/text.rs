@@ -1,11 +1,18 @@
-use std::{io::Cursor, str::Chars};
+use std::io::Cursor;
 use glium::{
-	glutin::surface::WindowSurface, index, texture::RawImage2d, Blend, Display, DrawParameters, Program, Surface, Texture2d, VertexBuffer 
+	glutin::surface::WindowSurface, 
+	index, 
+	texture::RawImage2d, 
+	Blend, 
+	Display, 
+	DrawParameters, 
+	Surface, 
+	Texture2d, 
+	VertexBuffer 
 };
 use text_to_png::{Size, TextRenderer};
 use winit::window::Window;
-use crate::{colour::rgb, Vertex};
-use crate::RenderContext;
+use crate::{colour::rgb, vertex::Vertex,RenderContext};
 
 pub fn render_text(display:&Display<WindowSurface>,context:&RenderContext,window:&Window){
 	let mut frame = display.draw();
@@ -24,6 +31,7 @@ pub fn render_text(display:&Display<WindowSurface>,context:&RenderContext,window
 /// A single character rendered onto a surface.  
 /// After making new character call the [`build`] method
 /// to rasterize it and store the texture for use when rendering
+#[derive(Debug)]
 pub struct TextSurface{
 	pub x:i32,
 	pub y:i32,

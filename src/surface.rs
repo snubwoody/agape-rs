@@ -1,12 +1,12 @@
 use glium::{
 	glutin::surface::WindowSurface, index, Blend, DrawParameters, Surface as GliumSurface, VertexBuffer
 };
-use crate::Vertex;
+use crate::vertex::Vertex;
 
 /// This is a primitive that draws to the screen. This holds
 /// essential information about the [`Widget`], ie.
 /// the colour, coordinates and size.
-#[derive(Debug,Clone, Copy)]
+#[derive(Debug,Clone,Copy,PartialEq)]
 pub struct Surface{
 	pub x:i32,
 	pub y:i32,

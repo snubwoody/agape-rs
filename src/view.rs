@@ -1,5 +1,5 @@
 use glium::{
-	glutin::surface::WindowSurface, Display, Program, Surface,
+	glutin::surface::WindowSurface, Display, Surface,
 };
 use winit::window::Window;
 use crate::{widgets::Widget, RenderContext};
