@@ -18,28 +18,32 @@ pub fn render_text(display:&Display<WindowSurface>,program:&Program,window:&Wind
 	let mut frame = display.draw();
 	frame.clear_color(1.0,1.0,1.0,1.0);
 	
-	let text = TextSurface::new(0, 0, "HELLO", 64,display);
+	let text = TextSurface::new(0, 0, "Hi", 64,16,display);
 	text.render(display, &mut frame, window, program);
 	
 	frame.finish().unwrap();
 }
 
 //TODO change all size, position and colours from i32 to u32 
-
+// TODO maybe change this to a build step instead of when creating
+/// An array of [`CharSurface`] rendered as a word
 pub struct TextSurface{
 	x:i32,
 	y:i32,
 	text:Vec<CharSurface>,
-	font_size:u8
+	font_size:u8,
+	letter_spacing:i32,
 }
 
 impl TextSurface {
-	pub fn new(x:i32,y:i32,text:&str,font_size:u8,display:&Display<WindowSurface>) -> Self {
+	pub fn new(x:i32,y:i32,text:&str,font_size:u8,spacing:i32,display:&Display<WindowSurface>) -> Self {
 		let mut letters:Vec<CharSurface> = vec![];
-
+		let mut x_offset = 0;
 		text.chars().for_each(|character|{
-			let mut char_surface = CharSurface::new(x,y, character, font_size);
+			let mut char_surface = CharSurface::new(x+x_offset,y, character, font_size);
 			char_surface.build(display);
+			let size = char_surface.size.expect("Null size");
+			x_offset += size.width as i32 + spacing;
 			letters.push(char_surface);
 		});
 
@@ -47,7 +51,8 @@ impl TextSurface {
 			x,
 			y,
 			text:letters,
-			font_size
+			font_size,
+			letter_spacing:spacing
 		}
 	}
 
