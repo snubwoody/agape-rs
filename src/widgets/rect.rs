@@ -4,6 +4,7 @@ use glium::{
 use winit::window::Window;
 use crate::widgets::Widget;
 use crate::Vertex;
+use crate::RenderContext;
 
 
 /// A simple rectangle
@@ -49,13 +50,14 @@ impl Rect {
 	}
 }
 
+//FIXME replace this with surface
 impl Widget for Rect {
 	fn render(
 		&mut self,
 		display:&Display<WindowSurface>,
 		frame:&mut Frame,
 		window:&Window,
-		program:&Program,
+		context:&RenderContext,
 	){
 		let vertices:Vec<Vertex> = self.to_vertices();
 		let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
@@ -67,7 +69,7 @@ impl Widget for Rect {
 		frame.draw(
 			&vertex_buffer, 
 			&indices, 
-			&program, 
+			&context.surface_program, 
 			&uniform! {
 				width:screen_width,
 				height:screen_height,

@@ -4,7 +4,7 @@ use glium::{
 	glutin::surface::WindowSurface, Display, Frame, Program, 
 };
 use winit::window::Window;
-use crate::{surface::Surface, widgets::Widget};
+use crate::{surface::Surface, widgets::Widget, RenderContext};
 
 
 pub enum StackDirection {
@@ -27,13 +27,13 @@ impl Widget for Stack {
 		display:&Display<WindowSurface>,
 		frame:&mut Frame,
 		window:&Window,
-		program:&Program,
+		context:&RenderContext,
 	){
-		self.surface.render(display, frame, window, program);
+		self.surface.render(display, frame, window, &context.surface_program);
 		let mut offset = 0;
 		self.children.iter_mut().for_each(|child|{
 			let position = offset;
-			child.render(display, frame, window, program);
+			child.render(display, frame, window, &context);
 
 			// TODO might cause issues due to setting the other position to 0
 			// Try setting the position of the child during initialization

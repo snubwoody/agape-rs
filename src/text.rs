@@ -5,14 +5,15 @@ use glium::{
 use text_to_png::{Size, TextRenderer};
 use winit::window::Window;
 use crate::{colour::rgb, Vertex};
+use crate::RenderContext;
 
-pub fn render_text(display:&Display<WindowSurface>,program:&Program,window:&Window){
+pub fn render_text(display:&Display<WindowSurface>,context:&RenderContext,window:&Window){
 	let mut frame = display.draw();
 	frame.clear_color(1.0,1.0,1.0,1.0);
 	
 	let mut text = TextSurface::new(0, 0, "Hello world","#000", 64);
 	text.build(display);
-	text.render(display, &mut frame, window, program);
+	text.render(display, &mut frame, window, &context.surface_program);
 	
 	frame.finish().unwrap();
 }
@@ -23,7 +24,6 @@ pub fn render_text(display:&Display<WindowSurface>,program:&Program,window:&Wind
 /// A single character rendered onto a surface.  
 /// After making new character call the [`build`] method
 /// to rasterize it and store the texture for use when rendering
-#[derive(Debug)]
 pub struct TextSurface{
 	pub x:i32,
 	pub y:i32,
@@ -46,7 +46,7 @@ impl TextSurface {
 			texture:None 
 		}
 	}
-
+/// Rasterize the text and store the texture 
 	pub fn build(&mut self,display:&Display<WindowSurface>) -> &Self{
 		let (texture,size) = self.rasterize(display);
 		self.texture = Some(texture);

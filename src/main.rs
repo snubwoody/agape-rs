@@ -3,14 +3,16 @@ mod view;
 mod colour;
 pub mod surface;
 pub mod text;
+use glium::Frame;
 use text::render_text;
 use widgets::container::Container;
 use widgets::stack::{Stack,StackDirection};
 use widgets::rect::Rect;
 use std::fs;
 use glium::{
-	glutin::surface::WindowSurface, Display, Program
+	glutin::surface::WindowSurface, Display, Program,
 };
+use winit::window::{self, Window};
 use crate::surface::Surface;
 use crate::widgets::Widget;
 use crate::view::View;
@@ -23,7 +25,7 @@ fn main() {
 	run_app();
 }
 
-fn run_app() {
+fn run_app<'a>() {
 	let event_loop = winit::
 		event_loop::EventLoopBuilder::new()
 		.build()
@@ -38,8 +40,11 @@ fn run_app() {
 	let mut box1 = Rect::new(0, 0, 100, 50, rgb(100, 250, 230));
 	let mut box2 = Rect::new(0, 0, 100, 50, rgb(100, 25, 230));
 	let mut box5 = Rect::new(0, 0, 100, 50, rgb(255, 255, 255));
-
+	
 	let container = Container::new(300, 100, 20, rgb(20, 250,50), box5);
+
+	let context = RenderContext::new(surface_program, text_program);
+	
 	let test = vstack!{
 		spacing:150,
 		width:200,
@@ -49,6 +54,7 @@ fn run_app() {
 	};	
 
 	let mut page = View{
+		context:context,
 		child:test
 	};
 
@@ -58,8 +64,8 @@ fn run_app() {
 				winit::event::WindowEvent::CloseRequested => window_target.exit(),
 				winit::event::WindowEvent::RedrawRequested => {
 
-					//page.render(&display, &window, &surface_program);
-					render_text(&display,&text_program,&window);
+					page.render(&display, &window);
+					//render_text(&display,&text_program,&window);
 
 				}
 				_ => {}
@@ -73,12 +79,21 @@ fn run_app() {
 	});
 }
 
-
-struct Renderers{
-	surface_renderer:Program,
-	text_renderer:Program
+/// Contains all the data required for a surface to 
+/// be rendered to the screen
+struct RenderContext{
+	pub surface_program:Program,
+	pub text_program:Program,
 }
 
+impl RenderContext {
+	pub fn new(
+		surface_program:Program,
+		text_program:Program
+	) -> Self {
+		Self { surface_program, text_program }
+	}
+}
 /// A struct which hold all the vertex attributes ie. color
 /// and position
 #[derive(Debug,Clone,Copy)]
@@ -117,6 +132,16 @@ impl Vertex {
 }
 
 implement_vertex!(Vertex,position,colour,uv);
+
+pub struct Position{
+	x:i32,
+	y:i32
+}
+
+pub struct Size{
+	width:u32,
+	height:u32
+}
 
 
 /// Map value from one range to another. Any overflow is clipped to the min or max

@@ -1,5 +1,6 @@
 use crate::widgets::Widget;
 use crate::surface::Surface;
+use crate::RenderContext;
 
 
 /// A container [`Widget`] that can only have one child
@@ -26,11 +27,11 @@ impl<T> Widget for Container<T> where T:Widget {
 		display:&glium::Display<glium::glutin::surface::WindowSurface>,
 		frame:&mut glium::Frame,
 		window:&winit::window::Window,
-		program:&glium::Program,
+		context:&RenderContext
 	) {
-		self.surface.render(display, frame, window, program);
+		self.surface.render(display, frame, window, &context.surface_program);
 		self.child.position(self.surface.x, self.surface.y);
-		self.child.render(display, frame, window, program);
+		self.child.render(display, frame, window,context);
 	}
 
 	fn get_size(&mut self) -> [i32;2] {

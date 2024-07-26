@@ -12,6 +12,7 @@ I get the basics up and running. If that's even a good idea
 - Code must be descriptive ie the reader must be able to tell the layout of a page without seeing the output
 
 ## TODO
-- Add font rendering
+- Code is HORRIBLY coupled one change adds a ripple effect I have to rewrite
 - Add borders
 - Add rounded corners
+- Add a colour struct

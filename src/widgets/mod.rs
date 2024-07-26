@@ -1,10 +1,13 @@
 pub mod rect;
 pub mod stack;
 pub mod container;
+pub mod text;
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame, Program,
 };
 use winit::window::Window;
+
+use crate::RenderContext;
 
 /// Widget trait that all widgets must inherit from
 pub trait Widget {
@@ -13,7 +16,7 @@ pub trait Widget {
 		display:&Display<WindowSurface>,
 		frame:&mut Frame,
 		window:&Window,
-		program:&Program,
+		context:&RenderContext,
 	);
 	
 	/// Set the position of the [`Widget`]  
