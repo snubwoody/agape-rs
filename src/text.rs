@@ -10,73 +10,41 @@ pub fn render_text(display:&Display<WindowSurface>,program:&Program,window:&Wind
 	let mut frame = display.draw();
 	frame.clear_color(1.0,1.0,1.0,1.0);
 	
-	let text = TextSurface::new(0, 0, "Hello world", 64,16,display);
+	let mut text = TextSurface::new(0, 0, "Hello world","#000", 64);
+	text.build(display);
 	text.render(display, &mut frame, window, program);
 	
 	frame.finish().unwrap();
 }
 
 //TODO change all size, position and colours from i32 to u32 
-// TODO maybe change this to a build step instead of when creating
-// FIXME whitespace cannot be rendered
-/// An array of [`CharSurface`] rendered as a word
-pub struct TextSurface{
-	x:i32,
-	y:i32,
-	text:Vec<CharSurface>,
-	font_size:u8,
-	letter_spacing:i32,
-}
 
-impl TextSurface {
-	pub fn new(x:i32,y:i32,text:&str,font_size:u8,spacing:i32,display:&Display<WindowSurface>) -> Self {
-		let mut letters:Vec<CharSurface> = vec![];
-		let mut x_offset = 0;
-		text.chars().for_each(|character|{
-			let mut char_surface = CharSurface::new(x+x_offset,y, character, font_size);
-			char_surface.build(display);
-			let size = char_surface.size.expect("Null size");
-			x_offset += size.width as i32 + spacing;
-			letters.push(char_surface);
-		});
-
-		Self {
-			x,
-			y,
-			text:letters,
-			font_size,
-			letter_spacing:spacing
-		}
-	}
-
-	pub fn render(
-		&self,
-		display:&Display<WindowSurface>,
-		frame:&mut glium::Frame,
-		window:&winit::window::Window,
-		program:&glium::Program,
-	) {
-		//FIXME whitespace returns error
-		self.text.iter().for_each(|letter|letter.render(display, frame, window, program))		
-	}
-}
-
+//FIXME change the colour to take rgb or maybe a color enum
 /// A single character rendered onto a surface.  
 /// After making new character call the [`build`] method
 /// to rasterize it and store the texture for use when rendering
 #[derive(Debug)]
-pub struct CharSurface{
+pub struct TextSurface{
 	pub x:i32,
 	pub y:i32,
-	pub character:char,
+	pub text:String,
 	pub font_size:u8,
+	colour:String,
 	size:Option<Size>,
 	texture:Option<Texture2d>
 }
 
-impl CharSurface {
-	pub fn new(x:i32,y:i32,character:char,font_size:u8) -> Self{
-		Self { x, y, character, font_size, size:None, texture:None }
+impl TextSurface {
+	pub fn new(x:i32,y:i32,text:&str,colour:&str,font_size:u8) -> Self{
+		Self { 
+			x, 
+			y, 
+			text:String::from(text), 
+			font_size, 
+			colour:String::from(colour),
+			size:None, 
+			texture:None 
+		}
 	}
 
 	pub fn build(&mut self,display:&Display<WindowSurface>) -> &Self{
@@ -94,7 +62,6 @@ impl CharSurface {
 		program:&glium::Program,
 	) {
 		
-		//FIXME blending not working properly
 		let params = DrawParameters{
 			blend:Blend::alpha_blending(),
 			..Default::default()
@@ -145,28 +112,12 @@ impl CharSurface {
 		let text_renderer = TextRenderer::default();
 		let raw_image:RawImage2d<_>;
 		let image_size:Size;
-		match self.character.to_string().as_str() {
-			" " => {
-				let mut img = image::RgbaImage::new(self.font_size as u32, self.font_size as u32);
-				for x in 0..self.font_size{
-					for y in 0..self.font_size{
-						img.put_pixel(x as u32, y as u32, image::Rgba([0,0,0,0]))
-					}
-				}
-				image_size = Size::new(self.font_size as u32, self.font_size as u32);
-				raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(&img.into_raw(),(self.font_size as u32,self.font_size as u32));
-			}
-			letter => {
-				let text_image = text_renderer.render_text_to_png_data(self.character.to_string(), self.font_size, "#F24F31").unwrap();
-				image_size = text_image.size;
-				let img = image::load(Cursor::new(text_image.data), image::ImageFormat::Png).unwrap().to_rgba8().into_raw();
-				raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(&img,(image_size.width,image_size.height));
 
-			}
-		}
-		
-		
-	
+		let text_image = text_renderer.render_text_to_png_data(self.text.as_str(), self.font_size, self.colour.as_str()).unwrap();
+		image_size = text_image.size;
+		let img = image::load(Cursor::new(text_image.data), image::ImageFormat::Png).unwrap().to_rgba8().into_raw();
+		raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(&img,(image_size.width,image_size.height));
+
 		let texture = glium::texture::Texture2d::new(display, raw_image).unwrap();
 
 		return (texture,image_size);
