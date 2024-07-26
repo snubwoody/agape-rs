@@ -1,4 +1,4 @@
-use std::io::Cursor;
+use std::{io::Cursor, str::Chars};
 use glium::{
 	glutin::surface::WindowSurface, 
 	index, 
@@ -15,58 +15,77 @@ use winit::window::Window;
 use crate::{colour::rgb, Vertex};
 
 pub fn render_text(display:&Display<WindowSurface>,program:&Program,window:&Window){
-	
-	let text_renderer = TextRenderer::default();
-	let text_image = text_renderer.render_text_to_png_data("Hello world", 500, "#F24F31").unwrap();
-	let image_size = text_image.size;
-	let img = image::load(Cursor::new(text_image.data), image::ImageFormat::Png).unwrap().to_rgba8().into_raw();
-
-	let raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(&img,(image_size.width,image_size.height));
-	let texture = glium::texture::Texture2d::new(display, raw_image).unwrap();
-	
 	let mut frame = display.draw();
-	frame.clear_color(1.0, 1.0, 1.0, 1.0);
-	/* 
-	let screen_size = window.inner_size();
-
-	let uniforms = uniform! {
-		width:screen_size.width as f32,
-		height:screen_size.height as f32,
-		tex: &texture,
-	};
-
-	let vertex_buffer = glium::VertexBuffer::new(
-		display, 
-		&[		
-			Vertex::new_with_texture(0,0,rgb(255, 255, 255),[0.0,1.0]), //Top left
-			Vertex::new_with_texture(500,0,rgb(255, 255, 255),[1.0,1.0]), // Top right
-			Vertex::new_with_texture(0, 500,rgb(255, 255, 255),[0.0,0.0]), //Bottom left
-			Vertex::new_with_texture(500,0,rgb(255, 255, 255),[1.0,1.0]), //Top right
-			Vertex::new_with_texture(0, 500,rgb(255, 255, 255),[0.0,0.0]), // Bottom left
-			Vertex::new_with_texture(500, 500,rgb(255, 255, 255),[1.0,0.0]), //Bottom right
-	]).unwrap();
-
-	let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
-		
-	frame.draw(&vertex_buffer, &indices, program, &uniforms, &Default::default()).unwrap(); */
-
-	let c = CharSurface::new(0, 0, 'c', 16);
-	c.render(display, &mut frame, window, program);
+	frame.clear_color(1.0,1.0,1.0,1.0);
+	
+	let text = TextSurface::new(0, 0, "HELLO", 64,display);
+	text.render(display, &mut frame, window, program);
+	
 	frame.finish().unwrap();
 }
 
-/// A single character rendered onto a surface
-#[derive(Debug,Clone)]
+//TODO change all size, position and colours from i32 to u32 
+
+pub struct TextSurface{
+	x:i32,
+	y:i32,
+	text:Vec<CharSurface>,
+	font_size:u8
+}
+
+impl TextSurface {
+	pub fn new(x:i32,y:i32,text:&str,font_size:u8,display:&Display<WindowSurface>) -> Self {
+		let mut letters:Vec<CharSurface> = vec![];
+
+		text.chars().for_each(|character|{
+			let mut char_surface = CharSurface::new(x,y, character, font_size);
+			char_surface.build(display);
+			letters.push(char_surface);
+		});
+
+		Self {
+			x,
+			y,
+			text:letters,
+			font_size
+		}
+	}
+
+	pub fn render(
+		&self,
+		display:&Display<WindowSurface>,
+		frame:&mut glium::Frame,
+		window:&winit::window::Window,
+		program:&glium::Program,
+	) {
+		//FIXME whitespace returns error
+		self.text.iter().for_each(|letter|letter.render(display, frame, window, program))		
+	}
+}
+// FIXME rasterize in the init step instead of every frame
+/// A single character rendered onto a surface.  
+/// After making new character call the [`build`] method
+/// to rasterize it and store the texture for use when rendering
+#[derive(Debug)]
 pub struct CharSurface{
 	pub x:i32,
 	pub y:i32,
 	pub character:char,
-	pub font_size:i8,
+	pub font_size:u8,
+	size:Option<Size>,
+	texture:Option<Texture2d>
 }
 
 impl CharSurface {
-	pub fn new(x:i32,y:i32,character:char,font_size:i8) -> Self{
-		Self { x, y, character, font_size }
+	pub fn new(x:i32,y:i32,character:char,font_size:u8) -> Self{
+		Self { x, y, character, font_size, size:None, texture:None }
+	}
+
+	pub fn build(&mut self,display:&Display<WindowSurface>) -> &Self{
+		let (texture,size) = self.rasterize(display);
+		self.texture = Some(texture);
+		self.size = Some(size);
+		self
 	}
 
 	pub fn render(
@@ -86,12 +105,13 @@ impl CharSurface {
 		let screen_width = window.inner_size().width as f32;
 		let screen_height = window.inner_size().height as f32;
 
-		let (texture,size) = self.rasterize(display);
+		let texture = self.texture.as_ref().expect("Null texture, call build before render");
+		let size = self.size.as_ref().expect("Null size, call build before render");
 
 		let uniforms = uniform! {
 			width:screen_width,
 			height:screen_height,
-			tex: &texture,
+			tex: texture,
 		};
 
 		let vertices:Vec<Vertex> = self.to_vertices(size.width as i32, size.height as i32);
@@ -125,7 +145,7 @@ impl CharSurface {
 	fn rasterize(&self,display:&Display<WindowSurface>) -> (Texture2d,Size) {
 	
 		let text_renderer = TextRenderer::default();
-		let text_image = text_renderer.render_text_to_png_data(self.character.to_string(), 64, "#F24F31").unwrap();
+		let text_image = text_renderer.render_text_to_png_data(self.character.to_string(), self.font_size, "#F24F31").unwrap();
 		let image_size = text_image.size;
 		let img = image::load(Cursor::new(text_image.data), image::ImageFormat::Png).unwrap().to_rgba8().into_raw();
 	

@@ -7,12 +7,10 @@ use text::render_text;
 use widgets::container::Container;
 use widgets::stack::{Stack,StackDirection};
 use widgets::rect::Rect;
-use std::fs::{self, File};
-use std::io::Write;
+use std::fs;
 use glium::{
 	glutin::surface::WindowSurface, Display, Program
 };
-use text_to_png::TextRenderer;
 use crate::surface::Surface;
 use crate::widgets::Widget;
 use crate::view::View;
