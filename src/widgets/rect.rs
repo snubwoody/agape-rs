@@ -1,8 +1,8 @@
 use glium::{
-	glutin::surface::WindowSurface, index, Display, Frame, Program, Surface, VertexBuffer
+	glutin::surface::WindowSurface, index, Display, Frame, Program, Surface as GliumSurface, VertexBuffer
 };
 use winit::window::Window;
-use crate::widgets::Widget;
+use crate::{widgets::Widget,Surface};
 use crate::vertex::Vertex;
 use crate::RenderContext;
 
@@ -10,44 +10,18 @@ use crate::RenderContext;
 /// A simple rectangle
 // TODO change this to use surface
 pub struct Rect{
-	pub x:i32,
-	pub y:i32,
-	pub width:i32,
-	pub height:i32,
-	pub colour:[f32;4]
+	surface:Surface
 }
 
 impl Rect {
 	pub fn new(x:i32,y:i32,width:i32,height:i32,colour:[f32;4]) -> Self {
-		Self{x, y, width, height, colour }
-	}
-
-	pub fn to_vertices(&self) -> Vec<Vertex>{
-
-		let vertex1 = Vertex::new(self.x, self.y,self.colour); //Top left
-		let vertex2 = Vertex::new(self.x+self.width, self.y,self.colour); // Top right
-		let vertex3 = Vertex::new(self.x, self.y+self.height,self.colour); //Bottom left
-		let vertex4 = Vertex::new(self.x+self.width, self.y,self.colour); //Top right
-		let vertex5 = Vertex::new(self.x, self.y+self.height,self.colour); // Bottom left
-		let vertex6 = Vertex::new(self.x+self.width, self.y+self.height,self.colour); //Bottom right
-
-		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
-	}
-
-	pub fn translate(&mut self,x:i32,y:i32){
-		self.x += x;
-		self.y += y;
-	}
-
-	pub fn colour(&self,colour:[f32;4]) -> Self{
+		
 		Self{
-			x:self.x,
-			y:self.y,
-			width:self.width,
-			height:self.height,
-			colour:colour
+			surface:Surface::new(x,y,width,height,colour)
 		}
 	}
+
+
 }
 
 //FIXME replace this with surface
@@ -59,30 +33,15 @@ impl Widget for Rect {
 		window:&Window,
 		context:&RenderContext,
 	){
-		let vertices:Vec<Vertex> = self.to_vertices();
-		let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
-		let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
-
-		let screen_width = window.inner_size().width as f32;
-		let screen_height = window.inner_size().height as f32;
-
-		frame.draw(
-			&vertex_buffer, 
-			&indices, 
-			&context.surface_program, 
-			&uniform! {
-				width:screen_width,
-				height:screen_height,
-			},
-			&Default::default()).unwrap();
+		self.surface.render(display, frame, window, &context.surface_program);
 	}
 
 	fn position(&mut self,x:i32,y:i32){
-		self.x = x;
-		self.y = y;
+		self.surface.x = x;
+		self.surface.y = y;
 	}
 
 	fn get_size(&mut self) -> [i32;2] {
-		return [self.width,self.height];
+		return [self.surface.height,self.surface.height];
 	}
 }
