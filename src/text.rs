@@ -1,14 +1,6 @@
 use std::{io::Cursor, str::Chars};
 use glium::{
-	glutin::surface::WindowSurface, 
-	index, 
-	Blend, 
-	Display, 
-	DrawParameters, 
-	Program, 
-	Surface, 
-	VertexBuffer,
-	Texture2d 
+	glutin::surface::WindowSurface, index, texture::RawImage2d, Blend, Display, DrawParameters, Program, Surface, Texture2d, VertexBuffer 
 };
 use text_to_png::{Size, TextRenderer};
 use winit::window::Window;
@@ -18,7 +10,7 @@ pub fn render_text(display:&Display<WindowSurface>,program:&Program,window:&Wind
 	let mut frame = display.draw();
 	frame.clear_color(1.0,1.0,1.0,1.0);
 	
-	let text = TextSurface::new(0, 0, "Hi", 64,16,display);
+	let text = TextSurface::new(0, 0, "Hello world", 64,16,display);
 	text.render(display, &mut frame, window, program);
 	
 	frame.finish().unwrap();
@@ -26,6 +18,7 @@ pub fn render_text(display:&Display<WindowSurface>,program:&Program,window:&Wind
 
 //TODO change all size, position and colours from i32 to u32 
 // TODO maybe change this to a build step instead of when creating
+// FIXME whitespace cannot be rendered
 /// An array of [`CharSurface`] rendered as a word
 pub struct TextSurface{
 	x:i32,
@@ -67,7 +60,7 @@ impl TextSurface {
 		self.text.iter().for_each(|letter|letter.render(display, frame, window, program))		
 	}
 }
-// FIXME rasterize in the init step instead of every frame
+
 /// A single character rendered onto a surface.  
 /// After making new character call the [`build`] method
 /// to rasterize it and store the texture for use when rendering
@@ -150,11 +143,30 @@ impl CharSurface {
 	fn rasterize(&self,display:&Display<WindowSurface>) -> (Texture2d,Size) {
 	
 		let text_renderer = TextRenderer::default();
-		let text_image = text_renderer.render_text_to_png_data(self.character.to_string(), self.font_size, "#F24F31").unwrap();
-		let image_size = text_image.size;
-		let img = image::load(Cursor::new(text_image.data), image::ImageFormat::Png).unwrap().to_rgba8().into_raw();
+		let raw_image:RawImage2d<_>;
+		let image_size:Size;
+		match self.character.to_string().as_str() {
+			" " => {
+				let mut img = image::RgbaImage::new(self.font_size as u32, self.font_size as u32);
+				for x in 0..self.font_size{
+					for y in 0..self.font_size{
+						img.put_pixel(x as u32, y as u32, image::Rgba([0,0,0,0]))
+					}
+				}
+				image_size = Size::new(self.font_size as u32, self.font_size as u32);
+				raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(&img.into_raw(),(self.font_size as u32,self.font_size as u32));
+			}
+			letter => {
+				let text_image = text_renderer.render_text_to_png_data(self.character.to_string(), self.font_size, "#F24F31").unwrap();
+				image_size = text_image.size;
+				let img = image::load(Cursor::new(text_image.data), image::ImageFormat::Png).unwrap().to_rgba8().into_raw();
+				raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(&img,(image_size.width,image_size.height));
+
+			}
+		}
+		
+		
 	
-		let raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(&img,(image_size.width,image_size.height));
 		let texture = glium::texture::Texture2d::new(display, raw_image).unwrap();
 
 		return (texture,image_size);
