@@ -4,7 +4,7 @@ use glium::{
 use winit::window::Window;
 use crate::{widgets::Widget,Surface};
 use crate::vertex::Vertex;
-use crate::RenderContext;
+use crate::view::RenderContext;
 
 
 /// A simple rectangle
@@ -32,7 +32,7 @@ impl Widget for Rect {
 		frame:&mut Frame,
 		window:&Window,
 		context:&RenderContext,
-	){
+	) {
 		self.surface.render(display, frame, window, &context.surface_program);
 	}
 

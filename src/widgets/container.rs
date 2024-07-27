@@ -1,21 +1,19 @@
 use crate::widgets::Widget;
 use crate::surface::Surface;
-use crate::RenderContext;
+use crate::view::RenderContext;
 
 
 /// A container [`Widget`] that can only have one child
 pub struct Container<T>{
 	surface:Surface,
-	padding:i32, 
 	child:T
 }
 
 impl<T> Container<T> where T:Widget {
-	pub fn new(width:i32,height:i32,padding:i32,colour:[f32;4],child:T) -> Self{
+	pub fn new(width:i32,height:i32,colour:[f32;4],child:T) -> Self{
 		let surface = Surface::new(0, 0, width, height, colour);
 		Self {
 			surface,
-			padding,
 			child:child
 		}
 	}

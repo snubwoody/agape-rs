@@ -4,7 +4,7 @@ use glium::{
 	glutin::surface::WindowSurface, Display, Frame, Program, 
 };
 use winit::window::Window;
-use crate::{surface::Surface, widgets::Widget, RenderContext};
+use crate::{surface::Surface, widgets::Widget, view::RenderContext};
 
 
 pub enum StackDirection {

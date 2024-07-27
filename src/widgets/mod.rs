@@ -3,11 +3,11 @@ pub mod stack;
 pub mod container;
 pub mod text;
 use glium::{
-	glutin::surface::WindowSurface, Display, Frame, Program,
+	glutin::surface::WindowSurface, Display, Frame, 
 };
 use winit::window::Window;
 
-use crate::RenderContext;
+use crate::view::RenderContext;
 
 /// Widget trait that all widgets must inherit from
 pub trait Widget {

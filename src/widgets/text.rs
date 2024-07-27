@@ -1,4 +1,4 @@
-use crate::{RenderContext, Widget};
+use crate::{view::RenderContext, Widget};
 use crate::text::TextSurface;
 
 

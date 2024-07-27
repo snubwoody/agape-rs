@@ -12,7 +12,7 @@ use glium::{
 };
 use text_to_png::{Size, TextRenderer};
 use winit::window::Window;
-use crate::{colour::rgb, vertex::Vertex,RenderContext};
+use crate::{colour::rgb, vertex::Vertex,view::RenderContext};
 
 pub fn render_text(display:&Display<WindowSurface>,context:&RenderContext,window:&Window){
 	let mut frame = display.draw();

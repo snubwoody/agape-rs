@@ -14,7 +14,9 @@ use glium::{
 };
 use crate::surface::Surface;
 use crate::widgets::Widget;
-use crate::view::View;
+use crate::view::{
+	View,RenderContext
+};
 use crate::colour::rgb;
 #[macro_use]
 extern crate glium;
@@ -41,7 +43,7 @@ fn run_app<'a>() {
 	let mut box2 = Rect::new(0, 0, 100, 50, rgb(100, 25, 230));
 	let mut box5 = Rect::new(0, 0, 100, 50, rgb(255, 255, 255));
 	
-	let container = Container::new(300, 100, 20, rgb(20, 250,50), box5);
+	let container = Container::new(300, 100, rgb(20, 250,50), box5);
 
 	let context = RenderContext::new(surface_program, text_program);
 	let text = Text::new(0, 0, "Hello", "#000", 18);
@@ -79,22 +81,6 @@ fn run_app<'a>() {
 		}
 
 	});
-}
-
-/// Contains all the data required for a surface to 
-/// be rendered to the screen
-struct RenderContext{
-	pub surface_program:Program,
-	pub text_program:Program,
-}
-
-impl RenderContext {
-	pub fn new(
-		surface_program:Program,
-		text_program:Program
-	) -> Self {
-		Self { surface_program, text_program }
-	}
 }
 
 
