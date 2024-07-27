@@ -63,3 +63,14 @@ impl Surface {
 		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
 	}
 }
+
+
+pub struct Position{
+	x:i32,
+	y:i32
+}
+
+pub struct Size{
+	width:u32,
+	height:u32
+}

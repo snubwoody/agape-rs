@@ -8,7 +8,6 @@ use crate::widgets::Widget;
 /// A page-like structure that holds multiple widgets below it and renders them.  
 /// It can only have one [`Widget`] child
 pub struct View<W:Widget>{
-	pub context:RenderContext,
 	pub child:W
 }
 
@@ -17,22 +16,22 @@ impl<W> View<W> where W:Widget {
 		&mut self,
 		display:&Display<WindowSurface>,
 		window:&Window,
+		context:&RenderContext
 	){
 		// Create a frame that will be drawn to
 		let mut frame = display.draw();
 		frame.clear_color(1.0, 1.0, 1.0, 1.0);
 
 		//Render the children, passing the objects down the widget tree
-		self.child.render(display,&mut frame,window,&self.context);
+		self.child.render(display,&mut frame,window,context);
 
 		//Swap the buffers
 		frame.finish().unwrap();
 	}
 }
 
-
-/// Contains all the data required for a surface to 
-/// be rendered to the screen
+/// Contains the compiled shader programs
+#[derive(Debug)]
 pub struct RenderContext{
 	pub surface_program:Program,
 	pub text_program:Program,
@@ -46,4 +45,3 @@ impl RenderContext {
 		Self { surface_program, text_program }
 	}
 }
-

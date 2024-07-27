@@ -1,4 +1,5 @@
 use std::io::Cursor;
+use text_to_png::{Size, TextRenderer};
 use glium::{
 	glutin::surface::WindowSurface, 
 	index, 
@@ -10,27 +11,16 @@ use glium::{
 	Texture2d, 
 	VertexBuffer 
 };
-use text_to_png::{Size, TextRenderer};
-use winit::window::Window;
-use crate::{colour::rgb, vertex::Vertex,view::RenderContext};
+use crate::{
+	colour::rgb,
+	vertex::Vertex
+};
 
-pub fn render_text(display:&Display<WindowSurface>,context:&RenderContext,window:&Window){
-	let mut frame = display.draw();
-	frame.clear_color(1.0,1.0,1.0,1.0);
-	
-	let mut text = TextSurface::new(0, 0, "Hello world","#000", 64);
-	text.build(display);
-	text.render(display, &mut frame, window, &context.surface_program);
-	
-	frame.finish().unwrap();
-}
 
 //TODO change all size, position and colours from i32 to u32 
 
 //FIXME change the colour to take rgb or maybe a color enum
-/// A single character rendered onto a surface.  
-/// After making new character call the [`build`] method
-/// to rasterize it and store the texture for use when rendering
+/// A rasterized texture of text  
 #[derive(Debug)]
 pub struct TextSurface{
 	pub x:i32,
@@ -54,7 +44,8 @@ impl TextSurface {
 			texture:None 
 		}
 	}
-/// Rasterize the text and store the texture 
+	
+	/// Rasterize the text and store the texture 
 	pub fn build(&mut self,display:&Display<WindowSurface>) -> &Self{
 		let (texture,size) = self.rasterize(display);
 		self.texture = Some(texture);
@@ -116,7 +107,6 @@ impl TextSurface {
 	}
 
 	fn rasterize(&self,display:&Display<WindowSurface>) -> (Texture2d,Size) {
-	
 		let text_renderer = TextRenderer::default();
 		let raw_image:RawImage2d<_>;
 		let image_size:Size;

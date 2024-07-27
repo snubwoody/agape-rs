@@ -45,4 +45,3 @@ impl<T> Widget for Container<T> where T:Widget {
 
 }
 
-// Do i need the children do be mutable or not? And should i have a reference or ownership?
