@@ -1,7 +1,7 @@
 use glium::{
 	glutin::surface::WindowSurface, Display, Surface,Program
 };
-use winit::window::Window;
+use winit::window::{self, Window};
 use crate::{layout::Layout, widgets::Widget};
 
 /// A page-like structure that holds multiple widgets below it and renders them.  
@@ -15,12 +15,18 @@ impl<W> View<W> where W:Widget + Layout {
 	pub fn new(child:W) -> Self{
 		Self{child}
 	}
+
+	pub fn arrange_widgets(&mut self,window:&Window) {
+		let size = window.inner_size();
+		self.child.arrange_widgets([size.width,size.height]);
+	}
+
 	pub fn render(
 		&mut self,
 		display:&Display<WindowSurface>,
 		window:&Window,
 		context:&RenderContext
-	){
+	) {
 		// Create a frame that will be drawn to
 		let mut frame = display.draw();
 		frame.clear_color(1.0, 1.0, 1.0, 1.0);

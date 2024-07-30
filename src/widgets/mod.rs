@@ -6,7 +6,6 @@ use glium::{
 	glutin::surface::WindowSurface, Display, Frame, 
 };
 use winit::window::Window;
-
 use crate::view::RenderContext;
 
 /// Widget trait that all widgets must inherit from
@@ -22,10 +21,23 @@ pub trait Widget {
 	/// Set the position of the [`Widget`]  
 	/// Note that positions start from the upper left 
 	/// corner
-	fn position(&mut self,x:i32,y:i32);
+	fn position(&mut self,x:i32,y:i32);	
 	
-	//fn get_surface(&self) -> Surface;	
+	/// Set the size of the widget
+	fn size(&mut self,width:u32,height:u32);
 
-	///Returns the size
-	fn get_size(&self) -> [i32;2];
+	/// Get the size of the widget
+	fn get_size(&self) -> (u32,u32);
+
+}
+
+/// Represents the sizing constraints a widget should have ie.
+/// `Fit` the children, `Fill` the parent, `Relative` to the
+/// parent as a percentage or a `Fixed` size in pixels
+#[derive(Debug,Clone,Copy,PartialEq)] 
+pub enum SizeContraint{
+	Fill,
+	Fit,
+	Relative(f32,f32),
+	Fixed(u32,u32)
 }

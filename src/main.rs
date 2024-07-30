@@ -8,6 +8,7 @@ pub mod text;
 pub mod vertex;
 use colour::rgb;
 use layout::Layout;
+use widgets::container::Container;
 use widgets::rect::Rect;
 use widgets::text::Text;
 use crate::surface::Surface;
@@ -24,7 +25,8 @@ fn main() {
 
 fn run_app<'a>() {
 	let rect = Rect::new(50, 150, 400, 500, rgb(234, 104, 34));
-	let page = View::new(rect);
+	let container = Container::new(rect);
+	let page = View::new(container);
 
 	let app = 
 		App::new()

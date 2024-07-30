@@ -5,10 +5,9 @@ use winit::window::Window;
 use crate::{widgets::Widget,Surface};
 use crate::layout::Layout;
 use crate::view::RenderContext;
-
+use super::SizeContraint;
 
 /// A simple rectangle
-// TODO change this to use surface
 pub struct Rect{
 	surface:Surface
 }
@@ -17,7 +16,7 @@ impl Rect {
 	pub fn new(x:i32,y:i32,width:i32,height:i32,colour:[f32;4]) -> Self {
 		
 		Self{
-			surface:Surface::new(x,y,width,height,colour)
+			surface:Surface::new(x,y,width,height,colour,SizeContraint::Fixed(width as u32, height as u32))
 		}
 	}
 
@@ -41,13 +40,19 @@ impl Widget for Rect {
 		self.surface.y = y;
 	}
 
-	fn get_size(&self) -> [i32;2] {
-		return [self.surface.height,self.surface.height];
+
+	fn size(&mut self,width:u32,height:u32) {
+		self.surface.width = width as i32;
+		self.surface.height = height as i32;
+	}
+
+	fn get_size(&self) -> (u32,u32) {
+		(self.surface.width as u32,self.surface.height as u32)
 	}
 }
 
 impl Layout for Rect {
-	fn arrange_widgets(&self){
-
+	fn arrange_widgets(&mut self,space:[u32;2]){
+		let (max_width,max_height) = (space[0],space[1]);
 	}
 }

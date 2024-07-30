@@ -1,25 +1,30 @@
-use crate::widgets::Widget;
-use crate::surface::Surface;
-use crate::view::RenderContext;
-
+use crate::{
+	colour::rgb, 
+	layout::Layout, 
+	surface::Surface, 
+	view::RenderContext, 
+	widgets::Widget
+};
+use super::SizeContraint;
 
 /// A container [`Widget`] that can only have one child
-pub struct Container<T>{
+pub struct Container<W:Widget>{
 	surface:Surface,
-	child:T
+	child:W
 }
 
-impl<T> Container<T> where T:Widget {
-	pub fn new(width:i32,height:i32,colour:[f32;4],child:T) -> Self{
-		let surface = Surface::new(0, 0, width, height, colour);
+impl<W:Widget> Container<W>{
+	pub fn new(child:W) -> Self{
+		let surface = Surface::new(0, 0, 0, 0, rgb(255, 255, 255), SizeContraint::Fit);
+
 		Self {
 			surface,
-			child:child
+			child
 		}
 	}
 }
 
-impl<T> Widget for Container<T> where T:Widget {
+impl<W:Widget> Widget for Container<W> {
 	fn render(
 		&mut self,
 		display:&glium::Display<glium::glutin::surface::WindowSurface>,
@@ -32,16 +37,34 @@ impl<T> Widget for Container<T> where T:Widget {
 		self.child.render(display, frame, window,context);
 	}
 
-	fn get_size(&self) -> [i32;2] {
-		let width = self.surface.width;
-		let height = self.surface.height;
-		return [width,height] ;	
-	}
-
 	fn position(&mut self,x:i32,y:i32) {
 		self.surface.x = x;
 		self.surface.y = y;
 	}
 
+	fn size(&mut self,width:u32,height:u32) {
+		self.surface.width = width as i32;
+		self.surface.height = height as i32;
+	}
+
+	fn get_size(&self) -> (u32,u32) {
+		(self.surface.width as u32,self.surface.height as u32)
+	}
+
+
 }
+
+impl<W> Layout for Container<W>
+where W:Widget + Layout
+{
+	fn arrange_widgets(&mut self,space:[u32;2]){
+		self.child.arrange_widgets(space);
+		let (child_width,child_height) = self.child.get_size();
+		dbg!(self.get_size());
+		self.size(child_width,child_height);
+		dbg!(self.get_size());
+	}
+
+}
+
 

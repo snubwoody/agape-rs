@@ -39,13 +39,13 @@ impl Widget for Stack {
 			// Then try translating instead
 			match self.direction {
 				StackDirection::Horizontal => {
-					let size = child.get_size();
-					offset += self.spacing + size[0];
+					let (width,hight) = child.get_size();
+					offset += self.spacing + width as i32;
 					child.position(position, 0);
 				},
 				StackDirection::Vertical => {
-					let size = child.get_size();
-					offset += self.spacing + size[1];
+					let (width,height) = child.get_size();
+					offset += self.spacing + height as i32;
 					child.position(0, position);
 				}
 			}
@@ -57,12 +57,18 @@ impl Widget for Stack {
 		self.surface.y = y;
 	}
 
-	fn get_size(&self) -> [i32;2] {
-		return [self.surface.width,self.surface.height];
+	fn size(&mut self,width:u32,height:u32) {
+		self.surface.width = width as i32;
+		self.surface.height = height as i32;
 	}
+
+	fn get_size(&self) -> (u32,u32) {
+		(self.surface.width as u32,self.surface.height as u32)
+	}
+
 }
 
-
+/// FIXME this will panic, change to individual structs
 #[macro_export]
 /// A Phantom [`Widget`] that returns a stack with a horizontal direction
 macro_rules! hstack {
