@@ -114,7 +114,15 @@ impl Widget for VStack {
 	}
 
 	fn arrange_widgets(&mut self,max_size:[u32;2]) {
-		
+		let mut total_width = 0;
+		let mut totol_height = 0;
+		self.children.iter_mut().for_each(|child|{
+			let (width,height) = child.get_size();
+			total_width += width;
+			totol_height += height + self.spacing;
+		});
+
+		dbg!(total_width,totol_height);
 	}
 }
 
