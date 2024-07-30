@@ -6,7 +6,7 @@ use glium::{
 use winit::{
 	event::{Event, WindowEvent}, event_loop::{ControlFlow, EventLoop}, window::Window
 };
-use crate::{layout::Layout, widgets::Widget};
+use crate::{ widgets::Widget};
 use crate::view::{View,RenderContext};
 
 
@@ -21,7 +21,7 @@ pub struct App<W:Widget>{
 	index:usize
 }
 
-impl<W> App<W> where W:Widget + Layout {
+impl<W> App<W> where W:Widget{
 	pub fn new() -> Self {
 		let event_loop = EventLoop::new().unwrap();
 

@@ -2,7 +2,8 @@ use glium::{
 	glutin::surface::WindowSurface, Display, Frame,  
 };
 use winit::window::Window;
-use crate::{surface::Surface, view::RenderContext, widgets::Widget};
+use crate::{colour::rgb, surface::{self, Surface}, view::RenderContext, widgets::Widget};
+use super::SizeContraint;
 
 
 pub enum StackDirection {
@@ -66,66 +67,98 @@ impl Widget for Stack {
 		(self.surface.width as u32,self.surface.height as u32)
 	}
 
+	fn arrange_widgets(&mut self,max_size:[u32;2]) {
+		
+	}
+
 }
 
-/// FIXME this will panic, change to individual structs
-#[macro_export]
-/// A Phantom [`Widget`] that returns a stack with a horizontal direction
-macro_rules! hstack {
-	(
-		spacing:$spacing:expr, 
-		width:$width:expr,
-		height:$height:expr,
-		$($x:expr),
-		*
-	) => {
-		{
-			
-            let mut children = Vec::new();
-
-            $(
-                children.push(Box::new($x) as Box<dyn Widget>);
-            )*
-
-            let surface = Surface::new(0, 0, $width, $height, rgb(255,255,255));
-
-            Stack{
-				surface,
-				direction:StackDirection::Horizontal,
-				spacing:$spacing,
-				children:children
-			}
-        }
-	};
+pub struct VStack{
+	surface:Surface,
+	spacing:u32,
+	children:Vec<Box<dyn Widget>>
 }
 
-#[macro_export]
-/// A Phantom [`Widget`] that returns a stack with a vertical direction
-macro_rules! vstack {
-	(
-		spacing:$spacing:expr, 
-		width:$width:expr,
-		height:$height:expr,
-		$($x:expr),
-		*
-	) => {
-		{
-			
-            let mut children = Vec::new();
-
-            $(
-                children.push(Box::new($x) as Box<dyn Widget>);
-            )*
-
-			let surface = Surface::new(0, 0, $width, $height, rgb(255,255,255));
-
-            Stack{
-				surface,
-				direction:StackDirection::Vertical,
-				spacing:$spacing,
-				children:children
-			}
-        }
-	};
+impl VStack {
+	pub fn new(spacing:u32,children:Vec<Box<dyn Widget>>) -> Self{
+		let surface = Surface::new(0, 0, 0, 0, rgb(255, 255, 255), SizeContraint::Fit);
+		Self { surface, spacing, children }
+	}
 }
 
+impl Widget for VStack {
+	fn render(
+		&mut self,
+		display:&Display<WindowSurface>,
+		frame:&mut Frame,
+		window:&Window,
+		context:&RenderContext,
+	) {
+		self.surface.render(display, frame, window, &context.surface_program);
+		self.children.iter_mut().for_each(|child|{
+			child.render(display, frame, window, context)
+		})
+	}
+
+	fn position(&mut self,x:i32,y:i32) {
+		self.surface.x = x;
+		self.surface.y = y;
+	}
+
+	fn size(&mut self,width:u32,height:u32) {
+		
+	}
+
+	fn get_size(&self) -> (u32,u32) {
+		(self.surface.width as u32,self.surface.height as u32)
+	}
+
+	fn arrange_widgets(&mut self,max_size:[u32;2]) {
+		
+	}
+}
+
+pub struct HStack{
+	surface:Surface,
+	spacing:u32,
+	children:Vec<Box<dyn Widget>>
+}
+
+impl HStack {
+	pub fn new(spacing:u32,children:Vec<Box<dyn Widget>>) -> Self{
+		let surface = Surface::new(0, 0, 0, 0, rgb(255, 255, 255), SizeContraint::Fit);
+		Self { surface, spacing, children }
+	}
+}
+
+impl Widget for HStack {
+	fn render(
+		&mut self,
+		display:&Display<WindowSurface>,
+		frame:&mut Frame,
+		window:&Window,
+		context:&RenderContext,
+	) {
+		self.surface.render(display, frame, window, &context.surface_program);
+		self.children.iter_mut().for_each(|child|{
+			child.render(display, frame, window, context)
+		})
+	}
+
+	fn position(&mut self,x:i32,y:i32) {
+		self.surface.x = x;
+		self.surface.y = y;
+	}
+
+	fn size(&mut self,width:u32,height:u32) {
+		
+	}
+
+	fn get_size(&self) -> (u32,u32) {
+		(self.surface.width as u32,self.surface.height as u32)
+	}
+
+	fn arrange_widgets(&mut self,max_size:[u32;2]) {
+		
+	}
+}

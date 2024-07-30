@@ -42,5 +42,7 @@ impl Widget for Text {
 		(0,0)
 	}
 
-	
+	fn arrange_widgets(&mut self,max_size:[u32;2]) {
+		// Does nothing
+	}
 }

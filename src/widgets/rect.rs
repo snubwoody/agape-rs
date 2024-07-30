@@ -3,7 +3,6 @@ use glium::{
 };
 use winit::window::Window;
 use crate::{widgets::Widget,Surface};
-use crate::layout::Layout;
 use crate::view::RenderContext;
 use super::SizeContraint;
 
@@ -49,10 +48,8 @@ impl Widget for Rect {
 	fn get_size(&self) -> (u32,u32) {
 		(self.surface.width as u32,self.surface.height as u32)
 	}
-}
 
-impl Layout for Rect {
-	fn arrange_widgets(&mut self,space:[u32;2]){
-		let (max_width,max_height) = (space[0],space[1]);
+	fn arrange_widgets(&mut self,max_size:[u32;2]) {
+		
 	}
 }

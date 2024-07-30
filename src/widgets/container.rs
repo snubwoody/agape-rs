@@ -1,6 +1,6 @@
 use crate::{
 	colour::rgb, 
-	layout::Layout, 
+	 
 	surface::Surface, 
 	view::RenderContext, 
 	widgets::Widget
@@ -33,7 +33,7 @@ impl<W:Widget> Widget for Container<W> {
 		context:&RenderContext
 	) {
 		self.surface.render(display, frame, window, &context.surface_program);
-		self.child.position(self.surface.x, self.surface.y);
+		
 		self.child.render(display, frame, window,context);
 	}
 
@@ -51,16 +51,11 @@ impl<W:Widget> Widget for Container<W> {
 		(self.surface.width as u32,self.surface.height as u32)
 	}
 
-
-}
-
-impl<W> Layout for Container<W>
-where W:Widget + Layout
-{
 	fn arrange_widgets(&mut self,space:[u32;2]){
 		self.child.arrange_widgets(space);
 		let (child_width,child_height) = self.child.get_size();
 		dbg!(self.get_size());
+		self.child.position(self.surface.x, self.surface.y);
 		self.size(child_width,child_height);
 		dbg!(self.get_size());
 	}

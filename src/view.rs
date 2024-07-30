@@ -2,7 +2,7 @@ use glium::{
 	glutin::surface::WindowSurface, Display, Surface,Program
 };
 use winit::window::{self, Window};
-use crate::{layout::Layout, widgets::Widget};
+use crate::{ widgets::Widget};
 
 /// A page-like structure that holds multiple widgets below it and renders them.  
 /// It can only have one [`Widget`] child
@@ -11,7 +11,7 @@ pub struct View<W:Widget>{
 	pub child:W
 }
 
-impl<W> View<W> where W:Widget + Layout {
+impl<W> View<W> where W:Widget {
 	pub fn new(child:W) -> Self{
 		Self{child}
 	}
