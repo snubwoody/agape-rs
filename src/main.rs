@@ -2,9 +2,13 @@ mod widgets;
 mod view;
 mod colour;
 mod app;
+pub mod layout;
 pub mod surface;
 pub mod text;
 pub mod vertex;
+use colour::rgb;
+use layout::Layout;
+use widgets::rect::Rect;
 use widgets::text::Text;
 use crate::surface::Surface;
 use crate::widgets::Widget;
@@ -19,11 +23,8 @@ fn main() {
 }
 
 fn run_app<'a>() {
-	let text = Text::new(40, 50, "Click me", "#000", 20);
-
-	let page = View{
-		child:text
-	};
+	let rect = Rect::new(50, 150, 400, 500, rgb(234, 104, 34));
+	let page = View::new(rect);
 
 	let app = 
 		App::new()
@@ -31,31 +32,6 @@ fn run_app<'a>() {
 
 	app.run()
 }
-
-
-
-/* struct EventManager {
-    event_queue: VecDeque<WidgetEvent>,
-}
-
-impl EventManager {
-    fn new() -> Self {
-        EventManager {
-            event_queue: VecDeque::new(),
-        }
-    }
-
-    fn push_event(&mut self, event: WidgetEvent) {
-        self.event_queue.push_back(event);
-    }
-
-    fn process_events(&mut self) {
-        while let Some(event) = self.event_queue.pop_front() {
-            // Process the event
-        }
-    }
-} */
-
 
 /// Map value from one range to another. Any overflow is clipped to the min or max
 fn map(mut value:f32,input_range:[f32;2],output_range:[f32;2]) -> f32{

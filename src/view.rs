@@ -2,16 +2,19 @@ use glium::{
 	glutin::surface::WindowSurface, Display, Surface,Program
 };
 use winit::window::Window;
-use crate::widgets::Widget;
+use crate::{layout::Layout, widgets::Widget};
 
-// TODO change these fields to private and make a new impl
 /// A page-like structure that holds multiple widgets below it and renders them.  
 /// It can only have one [`Widget`] child
+#[derive(Debug)]
 pub struct View<W:Widget>{
 	pub child:W
 }
 
-impl<W> View<W> where W:Widget {
+impl<W> View<W> where W:Widget + Layout {
+	pub fn new(child:W) -> Self{
+		Self{child}
+	}
 	pub fn render(
 		&mut self,
 		display:&Display<WindowSurface>,
@@ -29,6 +32,7 @@ impl<W> View<W> where W:Widget {
 		frame.finish().unwrap();
 	}
 }
+
 
 /// Contains the compiled shader programs
 #[derive(Debug)]

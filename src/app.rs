@@ -1,36 +1,37 @@
 use std::fs;
 use glium::{
+	backend::glutin::SimpleWindowBuilder,
 	glutin::surface::WindowSurface, Display, Program,
 };
 use winit::{
 	event::{Event, WindowEvent}, event_loop::{ControlFlow, EventLoop}, window::Window
 };
-use crate::widgets::Widget;
+use crate::{layout::Layout, widgets::Widget};
 use crate::view::{View,RenderContext};
 
 
-///TODO
+/// This is a singular isolated program. Most projects
+/// will only contain one app
 pub struct App<W:Widget>{
 	event_loop:EventLoop<()>,
 	window:Window,
 	display:Display<WindowSurface>,
 	views:Vec<View<W>>,
 	context:RenderContext,
-	index:u32
+	index:usize
 }
 
-impl<W> App<W> where W:Widget {
+impl<W> App<W> where W:Widget + Layout {
 	pub fn new() -> Self {
 		let event_loop = EventLoop::new().unwrap();
 
-		// Set the control flow to redraw every frame whether or not there
-		// are events to process
+		// Set the control flow to redraw every frame whether
+		// there are events to process or not
 		event_loop.set_control_flow(ControlFlow::Poll);
 		
-		let (window,display) = glium::backend::glutin::
-		SimpleWindowBuilder::new()
-		.build(&event_loop);
+		let (window,display) = SimpleWindowBuilder::new().build(&event_loop);
 
+		// Compile the text and vertex shader
 		let surface_program = create_program(&display,"shaders/surface.vert","shaders/surface.frag");
 		let text_program = create_program(&display,"shaders/text.vert","shaders/text.frag");
 
@@ -50,7 +51,7 @@ impl<W> App<W> where W:Widget {
 				Event::WindowEvent{event,..} => match event{
 					WindowEvent::CloseRequested => window_target.exit(),
 					WindowEvent::RedrawRequested => {
-						self.views[0].render(&self.display, &self.window,&self.context)
+						self.views[self.index].render(&self.display, &self.window,&self.context)
 					},
 					_ => {}
 				}, 

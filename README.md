@@ -13,10 +13,15 @@ I get the basics up and running. If that's even a good idea
 
 I need to start doing these in order now
 
-## TODO
+## Todo
+
 - Add interactions
 - Add rounded corners
 - Add a colour struct
 - Figure out a layout system
 - Add borders
 
+## Ideas
+
+For an on-hover, we keep all the bounds of the widgets in a hash map, then each frame we check
+if the mouse position is one of the widgets then we call the function.s

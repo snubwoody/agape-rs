@@ -32,7 +32,7 @@ impl<T> Widget for Container<T> where T:Widget {
 		self.child.render(display, frame, window,context);
 	}
 
-	fn get_size(&mut self) -> [i32;2] {
+	fn get_size(&self) -> [i32;2] {
 		let width = self.surface.width;
 		let height = self.surface.height;
 		return [width,height] ;	

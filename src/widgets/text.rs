@@ -1,7 +1,6 @@
 use crate::{view::RenderContext, Widget};
 use crate::text::TextSurface;
 
-
 #[derive(Debug)]
 pub struct Text{
 	surface:TextSurface,
@@ -29,7 +28,7 @@ impl Widget for Text {
 	}
 
 	//FIXME change this
-	fn get_size(&mut self) -> [i32;2] {
+	fn get_size(&self) -> [i32;2] {
 		return [0,0];
 	}
 

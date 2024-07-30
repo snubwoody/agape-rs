@@ -27,5 +27,5 @@ pub trait Widget {
 	//fn get_surface(&self) -> Surface;	
 
 	///Returns the size
-	fn get_size(&mut self) -> [i32;2];
+	fn get_size(&self) -> [i32;2];
 }

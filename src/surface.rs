@@ -30,7 +30,7 @@ impl Surface {
 		let vertices:Vec<Vertex> = self.to_vertices();
 		let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
 		let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
-		//FIXME blending not working properly
+
 		let params = DrawParameters{
 			blend:Blend::alpha_blending(),
 			..Default::default()
@@ -62,15 +62,4 @@ impl Surface {
 
 		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
 	}
-}
-
-
-pub struct Position{
-	x:i32,
-	y:i32
-}
-
-pub struct Size{
-	width:u32,
-	height:u32
 }

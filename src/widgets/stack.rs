@@ -1,10 +1,8 @@
-use std::marker;
-
 use glium::{
-	glutin::surface::WindowSurface, Display, Frame, Program, 
+	glutin::surface::WindowSurface, Display, Frame,  
 };
 use winit::window::Window;
-use crate::{surface::Surface, widgets::Widget, view::RenderContext};
+use crate::{surface::Surface, view::RenderContext, widgets::Widget};
 
 
 pub enum StackDirection {
@@ -28,9 +26,10 @@ impl Widget for Stack {
 		frame:&mut Frame,
 		window:&Window,
 		context:&RenderContext,
-	){
+	) {
 		self.surface.render(display, frame, window, &context.surface_program);
 		let mut offset = 0;
+		
 		self.children.iter_mut().for_each(|child|{
 			let position = offset;
 			child.render(display, frame, window, &context);
@@ -58,11 +57,10 @@ impl Widget for Stack {
 		self.surface.y = y;
 	}
 
-	fn get_size(&mut self) -> [i32;2] {
+	fn get_size(&self) -> [i32;2] {
 		return [self.surface.width,self.surface.height];
 	}
 }
-
 
 
 #[macro_export]

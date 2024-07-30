@@ -1,9 +1,9 @@
 use glium::{
-	glutin::surface::WindowSurface, index, Display, Frame, Program, Surface as GliumSurface, VertexBuffer
+	glutin::surface::WindowSurface, Display, Frame, 
 };
 use winit::window::Window;
 use crate::{widgets::Widget,Surface};
-use crate::vertex::Vertex;
+use crate::layout::Layout;
 use crate::view::RenderContext;
 
 
@@ -41,7 +41,13 @@ impl Widget for Rect {
 		self.surface.y = y;
 	}
 
-	fn get_size(&mut self) -> [i32;2] {
+	fn get_size(&self) -> [i32;2] {
 		return [self.surface.height,self.surface.height];
+	}
+}
+
+impl Layout for Rect {
+	fn arrange_widgets(&self){
+
 	}
 }
