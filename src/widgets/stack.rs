@@ -5,11 +5,10 @@ use glium::{
 };
 use winit::window::Window;
 use crate::{colour::rgb, surface::{self, Surface}, view::RenderContext, widgets::Widget};
-use super::{Layout, SizeContraint, VerticalLayout};
+use super::{HorizontalLayout, Layout, SizeContraint, VerticalLayout};
 
 pub struct VStack{
 	surface:Surface,
-	spacing:u32,
 	layout:VerticalLayout,
 	children:Vec<Box<dyn Widget>>
 }
@@ -18,7 +17,7 @@ impl VStack {
 	pub fn new(spacing:u32,children:Vec<Box<dyn Widget>>) -> Self{
 		let surface = Surface::new(0, 0, 0, 0, rgb(255, 255, 255), SizeContraint::Fit);
 		let layout = VerticalLayout::new(spacing);
-		Self { surface, spacing, children,layout }
+		Self { surface, children,layout }
 	}
 
 	pub fn colour(mut self,colour:[f32;4]) -> Self{
@@ -29,7 +28,7 @@ impl VStack {
 	
 	pub fn arrange_widgets(mut self,max_size:[u32;2]) -> Self {
 		let (x,y) = (self.surface.x as u32,self.surface.y as u32);
-		let (max_width,max_height) = self.layout.arrange([x,y],[800,800], &mut self.children);
+		let (max_width,max_height) = self.layout.arrange([x,y], &mut self.children);
 		self.size(max_width,max_height);
 		self
 	}
@@ -69,13 +68,27 @@ impl Widget for VStack {
 pub struct HStack{
 	surface:Surface,
 	spacing:u32,
+	layout:HorizontalLayout,
 	children:Vec<Box<dyn Widget>>
 }
 
 impl HStack {
 	pub fn new(spacing:u32,children:Vec<Box<dyn Widget>>) -> Self{
 		let surface = Surface::new(0, 0, 0, 0, rgb(255, 255, 255), SizeContraint::Fit);
-		Self { surface, spacing, children }
+		let layout = HorizontalLayout::new(spacing);
+		Self { surface,layout, spacing, children }
+	}
+
+	pub fn colour(mut self,colour:[f32;4]) -> Self{
+		self.surface.colour = colour;
+		self
+	}
+
+	pub fn arrange_widgets(mut self,max_size:[u32;2]) -> Self {
+		let (x,y) = (self.surface.x as u32,self.surface.y as u32);
+		let (max_width,max_height) = self.layout.arrange([x,y], &mut self.children);
+		self.size(max_width,max_height);
+		self
 	}
 }
 

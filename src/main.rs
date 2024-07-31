@@ -6,10 +6,8 @@ pub mod surface;
 pub mod text;
 pub mod vertex;
 use colour::rgb;
-use widgets::container::Container;
 use widgets::rect::Rect;
-use widgets::stack::VStack;
-use widgets::text::Text;
+use widgets::stack::{HStack, VStack};
 use crate::surface::Surface;
 use crate::widgets::Widget;
 use crate::view::View;
@@ -22,19 +20,27 @@ fn main() {
 	run_app();
 }
 
-fn run_app<'a>() {
+fn run_app() {
 	let rect = Rect::new(50, 150, 400, 150,rgb(0, 0, 0));
 	let rect2 = Rect::new(50, 150, 400, 150,rgb(0, 0, 0));
 	let rect3 = Rect::new(50, 150, 400, 150,rgb(0, 0, 0));
+	let rect4 = Rect::new(50, 150, 400, 150,rgb(20, 40, 0));
+	let rect5 = Rect::new(50, 150, 400, 150,rgb(0, 20, 40));
 	
-	let stack = VStack::new(12, vec![
+	let vstack = VStack::new(12, vec![
 		Box::new(rect),
 		Box::new(rect2),
 		Box::new(rect3)]
 	).colour(rgb(23, 119, 122))
 	.arrange_widgets([0,0]);
 
-	let page = View::new(stack);
+	let hstack = HStack::new(12,vec![
+		Box::new(rect4),
+		Box::new(rect5),
+		Box::new(vstack),
+	]).colour(rgb(155, 155, 155)).arrange_widgets([0,0]);
+
+	let page = View::new(hstack);
 
 	let app = 
 		App::new()

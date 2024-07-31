@@ -43,7 +43,7 @@ pub enum SizeContraint{
 }
 
 pub trait Layout {
-	fn arrange(&self,position:[u32;2],constraint:[u32;2],children:&mut Vec<Box<dyn Widget>>) -> (u32,u32);
+	fn arrange(&self,position:[u32;2],children:&mut Vec<Box<dyn Widget>>) -> (u32,u32);
 }
 
 struct VerticalLayout{
@@ -57,7 +57,7 @@ impl VerticalLayout {
 }
 
 impl Layout for VerticalLayout {
-	fn arrange(&self,position:[u32;2],constraint:[u32;2],children:&mut Vec<Box<dyn Widget>>) -> (u32,u32) {
+	fn arrange(&self,position:[u32;2],children:&mut Vec<Box<dyn Widget>>) -> (u32,u32) {
 		let mut max_width = 0;
 		let mut max_height = 0;
 		// Iterate over the children to get the required space
@@ -80,6 +80,45 @@ impl Layout for VerticalLayout {
 			let size = child.get_size();
 			child.position(position[0] as i32, current_pos as i32);
 			current_pos += self.spacing + size.1;
+		});
+
+		(max_width,max_height)
+	}
+}
+struct HorizontalLayout{
+	spacing:u32
+}
+
+impl HorizontalLayout {
+	pub fn new(spacing:u32) -> Self{
+		Self { spacing }
+	}
+}
+
+impl Layout for HorizontalLayout {
+	fn arrange(&self,position:[u32;2],children:&mut Vec<Box<dyn Widget>>) -> (u32,u32) {
+		let mut max_width = 0;
+		let mut max_height = 0;
+		// Iterate over the children to get the required space
+		for (index,child) in children.iter().enumerate(){
+			let (width,height) = child.get_size();
+			if height > max_height{
+				max_height = height
+			}
+
+			max_width += width;
+			
+			// Add the spacing for all elements except the last
+			if index != children.len() - 1 {
+				max_width += self.spacing;
+			}
+		};
+
+		let mut current_pos = position[0];
+		children.iter_mut().for_each(|child|{
+			let size = child.get_size();
+			child.position(current_pos as i32, position[1] as i32);
+			current_pos += self.spacing + size.0;
 		});
 
 		(max_width,max_height)
