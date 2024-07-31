@@ -22,7 +22,7 @@ impl Surface {
 	}
 
 	pub fn render(
-		&mut self,
+		&self,
 		display:&glium::Display<WindowSurface>,
 		frame:&mut glium::Frame,
 		window:&winit::window::Window,

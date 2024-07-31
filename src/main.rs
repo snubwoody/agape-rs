@@ -31,7 +31,7 @@ fn run_app<'a>() {
 		Box::new(rect),
 		Box::new(rect2),
 		Box::new(rect3)
-	]);
+	]).colour(rgb(23, 119, 122));
 
 	let page = View::new(stack);
 

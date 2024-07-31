@@ -11,7 +11,7 @@ use crate::view::RenderContext;
 /// Widget trait that all widgets must inherit from
 pub trait Widget {
 	fn render(
-		&mut self,
+		&self,
 		display:&Display<WindowSurface>,
 		frame:&mut Frame,
 		window:&Window,
@@ -42,4 +42,24 @@ pub enum SizeContraint{
 	Fit,
 	Relative(f32,f32),
 	Fixed(u32,u32)
+}
+
+pub trait Layout {
+	fn arrange(&self,constraint:[u32;2],children:Vec<Box<dyn Widget>>) -> (u32,u32);
+}
+
+struct VerticalLayout{
+	spacing:u32
+}
+
+impl VerticalLayout {
+	pub fn new(spacing:u32) -> Self{
+		Self { spacing }
+	}
+}
+
+impl Layout for VerticalLayout {
+	fn arrange(&self,constraint:[u32;2],children:Vec<Box<dyn Widget>>) -> (u32,u32) {
+		(0,0)
+	}
 }

@@ -17,13 +17,13 @@ impl Text {
 
 impl Widget for Text {
 	fn render(
-		&mut self,
+		&self,
 		display:&glium::Display<glium::glutin::surface::WindowSurface>,
 		frame:&mut glium::Frame,
 		window:&winit::window::Window,
 		context:&RenderContext,
 	) {
-		self.surface.build(display);
+		//self.surface.build(display);
 		self.surface.render(display, frame, window, &context.text_program);
 	}
 

@@ -26,7 +26,7 @@ impl<W:Widget> Container<W>{
 
 impl<W:Widget> Widget for Container<W> {
 	fn render(
-		&mut self,
+		&self,
 		display:&glium::Display<glium::glutin::surface::WindowSurface>,
 		frame:&mut glium::Frame,
 		window:&winit::window::Window,
