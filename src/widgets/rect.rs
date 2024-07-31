@@ -48,8 +48,5 @@ impl Widget for Rect {
 	fn get_size(&self) -> (u32,u32) {
 		(self.surface.width as u32,self.surface.height as u32)
 	}
-
-	fn arrange_widgets(&mut self,max_size:[u32;2]) {
 		
-	}
 }

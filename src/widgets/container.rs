@@ -50,16 +50,6 @@ impl<W:Widget> Widget for Container<W> {
 	fn get_size(&self) -> (u32,u32) {
 		(self.surface.width as u32,self.surface.height as u32)
 	}
-
-	fn arrange_widgets(&mut self,space:[u32;2]){
-		self.child.arrange_widgets(space);
-		let (child_width,child_height) = self.child.get_size();
-		dbg!(self.get_size());
-		self.child.position(self.surface.x, self.surface.y);
-		self.size(child_width,child_height);
-		dbg!(self.get_size());
-	}
-
 }
 
 

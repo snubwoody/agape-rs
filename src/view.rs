@@ -16,11 +16,6 @@ impl<W> View<W> where W:Widget {
 		Self{child}
 	}
 
-	pub fn arrange_widgets(&mut self,window:&Window) {
-		let size = window.inner_size();
-		self.child.arrange_widgets([size.width,size.height]);
-	}
-
 	pub fn render(
 		&mut self,
 		display:&Display<WindowSurface>,

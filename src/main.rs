@@ -30,8 +30,9 @@ fn run_app<'a>() {
 	let stack = VStack::new(12, vec![
 		Box::new(rect),
 		Box::new(rect2),
-		Box::new(rect3)
-	]).colour(rgb(23, 119, 122));
+		Box::new(rect3)]
+	).colour(rgb(23, 119, 122))
+	.arrange_widgets([0,0]);
 
 	let page = View::new(stack);
 

@@ -23,10 +23,12 @@ impl Widget for Text {
 		window:&winit::window::Window,
 		context:&RenderContext,
 	) {
+		// FIXME text broken
 		//self.surface.build(display);
 		self.surface.render(display, frame, window, &context.text_program);
 	}
 
+	//FIXME
 	fn position(&mut self,x:i32,y:i32) {
 		
 	}
@@ -40,9 +42,5 @@ impl Widget for Text {
 	//FIXME
 	fn get_size(&self) -> (u32,u32) {
 		(0,0)
-	}
-
-	fn arrange_widgets(&mut self,max_size:[u32;2]) {
-		// Does nothing
 	}
 }
