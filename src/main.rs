@@ -15,7 +15,6 @@ use crate::app::App;
 #[macro_use]
 extern crate glium;
 
-
 fn main() {
 	run_app();
 }
