@@ -25,7 +25,7 @@ impl Rect {
 //FIXME replace this with surface
 impl Widget for Rect {
 	fn render(
-		&self,
+		&mut self,
 		display:&Display<WindowSurface>,
 		frame:&mut Frame,
 		window:&Window,

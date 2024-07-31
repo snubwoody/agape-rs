@@ -31,14 +31,13 @@ fn run_app() {
 		Box::new(rect),
 		Box::new(rect2),
 		Box::new(rect3)]
-	).colour(rgb(23, 119, 122))
-	.arrange_widgets([0,0]);
+	).colour(rgb(23, 119, 122));
 
 	let hstack = HStack::new(12,vec![
 		Box::new(rect4),
 		Box::new(rect5),
-		Box::new(vstack),
-	]).colour(rgb(155, 155, 155)).arrange_widgets([0,0]);
+		Box::new(vstack)
+	]).colour(rgb(155, 155, 155));
 
 	let page = View::new(hstack);
 

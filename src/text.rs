@@ -54,7 +54,7 @@ impl TextSurface {
 	}
 
 	pub fn render(
-		&self,
+		&mut self,
 		display:&Display<WindowSurface>,
 		frame:&mut glium::Frame,
 		window:&winit::window::Window,

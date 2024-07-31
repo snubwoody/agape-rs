@@ -11,7 +11,7 @@ use crate::view::RenderContext;
 /// Widget trait that all widgets must inherit from
 pub trait Widget {
 	fn render(
-		&self,
+		&mut self,
 		display:&Display<WindowSurface>,
 		frame:&mut Frame,
 		window:&Window,
@@ -43,7 +43,7 @@ pub enum SizeContraint{
 }
 
 pub trait Layout {
-	fn arrange(&self,position:[u32;2],children:&mut Vec<Box<dyn Widget>>) -> (u32,u32);
+	fn arrange(&mut self,position:[u32;2],children:&mut Vec<Box<dyn Widget>>) -> (u32,u32);
 }
 
 struct VerticalLayout{
@@ -57,7 +57,7 @@ impl VerticalLayout {
 }
 
 impl Layout for VerticalLayout {
-	fn arrange(&self,position:[u32;2],children:&mut Vec<Box<dyn Widget>>) -> (u32,u32) {
+	fn arrange(&mut self,position:[u32;2],children:&mut Vec<Box<dyn Widget>>) -> (u32,u32) {
 		let mut max_width = 0;
 		let mut max_height = 0;
 		// Iterate over the children to get the required space
@@ -96,9 +96,10 @@ impl HorizontalLayout {
 }
 
 impl Layout for HorizontalLayout {
-	fn arrange(&self,position:[u32;2],children:&mut Vec<Box<dyn Widget>>) -> (u32,u32) {
+	fn arrange(&mut self,position:[u32;2],children:&mut Vec<Box<dyn Widget>>) -> (u32,u32) {
 		let mut max_width = 0;
 		let mut max_height = 0;
+		
 		// Iterate over the children to get the required space
 		for (index,child) in children.iter().enumerate(){
 			let (width,height) = child.get_size();

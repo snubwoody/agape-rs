@@ -17,7 +17,7 @@ impl Text {
 
 impl Widget for Text {
 	fn render(
-		&self,
+		&mut self,
 		display:&glium::Display<glium::glutin::surface::WindowSurface>,
 		frame:&mut glium::Frame,
 		window:&winit::window::Window,

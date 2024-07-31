@@ -1,10 +1,8 @@
-use std::rc::Rc;
-
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame,  
 };
 use winit::window::Window;
-use crate::{colour::rgb, surface::{self, Surface}, view::RenderContext, widgets::Widget};
+use crate::{colour::rgb, surface::Surface, view::RenderContext, widgets::Widget};
 use super::{HorizontalLayout, Layout, SizeContraint, VerticalLayout};
 
 pub struct VStack{
@@ -24,29 +22,28 @@ impl VStack {
 		self.surface.colour = colour;
 		self
 	}
-
 	
-	pub fn arrange_widgets(mut self,max_size:[u32;2]) -> Self {
+	pub fn arrange_widgets(&mut self){
 		let (x,y) = (self.surface.x as u32,self.surface.y as u32);
 		let (max_width,max_height) = self.layout.arrange([x,y], &mut self.children);
 		self.size(max_width,max_height);
-		self
 	}
+
 }
 
 impl Widget for VStack {
 	fn render(
-		&self,
+		&mut self,
 		display:&Display<WindowSurface>,
 		frame:&mut Frame,
 		window:&Window,
 		context:&RenderContext,
 	) {
+		self.arrange_widgets();
 		self.surface.render(display, frame, window, &context.surface_program);
-		self.children.iter().for_each(|child|{
+		self.children.iter_mut().for_each(|child|{
 			child.render(display, frame, window, context)
 		})
-
 	}
 
 	fn position(&mut self,x:i32,y:i32) {
@@ -84,24 +81,24 @@ impl HStack {
 		self
 	}
 
-	pub fn arrange_widgets(mut self,max_size:[u32;2]) -> Self {
+	pub fn arrange_widgets(&mut self) {
 		let (x,y) = (self.surface.x as u32,self.surface.y as u32);
 		let (max_width,max_height) = self.layout.arrange([x,y], &mut self.children);
 		self.size(max_width,max_height);
-		self
 	}
 }
 
 impl Widget for HStack {
 	fn render(
-		&self,
+		&mut self,
 		display:&Display<WindowSurface>,
 		frame:&mut Frame,
 		window:&Window,
 		context:&RenderContext,
 	) {
+		self.arrange_widgets();
 		self.surface.render(display, frame, window, &context.surface_program);
-		self.children.iter().for_each(|child|{
+		self.children.iter_mut().for_each(|child|{
 			child.render(display, frame, window, context)
 		})
 	}
@@ -112,7 +109,8 @@ impl Widget for HStack {
 	}
 
 	fn size(&mut self,width:u32,height:u32) {
-		
+		self.surface.width = width as i32;
+		self.surface.height = height as i32;
 	}
 
 	fn get_size(&self) -> (u32,u32) {
