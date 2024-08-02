@@ -32,6 +32,7 @@ impl<W:Widget> Widget for Container<W> {
 		window:&winit::window::Window,
 		context:&RenderContext
 	) {
+		self.arrange_widgets();
 		self.surface.render(display, frame, window, &context.surface_program);
 		
 		self.child.render(display, frame, window,context);
@@ -49,6 +50,10 @@ impl<W:Widget> Widget for Container<W> {
 
 	fn get_size(&self) -> (u32,u32) {
 		(self.surface.width as u32,self.surface.height as u32)
+	}
+
+	fn arrange_widgets(&mut self) {
+		//Empty
 	}
 }
 

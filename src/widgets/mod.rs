@@ -29,6 +29,8 @@ pub trait Widget {
 	/// Get the size of the widget
 	fn get_size(&self) -> (u32,u32);
 
+	fn arrange_widgets(&mut self);
+
 }
 
 /// Represents the sizing constraints a widget should have ie.

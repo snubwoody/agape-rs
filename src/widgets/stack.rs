@@ -22,13 +22,6 @@ impl VStack {
 		self.surface.colour = colour;
 		self
 	}
-	
-	pub fn arrange_widgets(&mut self){
-		let (x,y) = (self.surface.x as u32,self.surface.y as u32);
-		let (max_width,max_height) = self.layout.arrange([x,y], &mut self.children);
-		self.size(max_width,max_height);
-	}
-
 }
 
 impl Widget for VStack {
@@ -60,6 +53,11 @@ impl Widget for VStack {
 		(self.surface.width as u32,self.surface.height as u32)
 	}
 
+	fn arrange_widgets(&mut self){
+		let (x,y) = (self.surface.x as u32,self.surface.y as u32);
+		let (max_width,max_height) = self.layout.arrange([x,y], &mut self.children);
+		self.size(max_width,max_height);
+	}
 }
 
 pub struct HStack{
@@ -81,11 +79,7 @@ impl HStack {
 		self
 	}
 
-	pub fn arrange_widgets(&mut self) {
-		let (x,y) = (self.surface.x as u32,self.surface.y as u32);
-		let (max_width,max_height) = self.layout.arrange([x,y], &mut self.children);
-		self.size(max_width,max_height);
-	}
+	
 }
 
 impl Widget for HStack {
@@ -115,5 +109,11 @@ impl Widget for HStack {
 
 	fn get_size(&self) -> (u32,u32) {
 		(self.surface.width as u32,self.surface.height as u32)
+	}
+
+	fn arrange_widgets(&mut self) {
+		let (x,y) = (self.surface.x as u32,self.surface.y as u32);
+		let (max_width,max_height) = self.layout.arrange([x,y], &mut self.children);
+		self.size(max_width,max_height);
 	}
 }

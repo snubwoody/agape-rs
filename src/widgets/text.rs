@@ -28,9 +28,9 @@ impl Widget for Text {
 		self.surface.render(display, frame, window, &context.text_program);
 	}
 
-	//FIXME
 	fn position(&mut self,x:i32,y:i32) {
-		
+		self.surface.x = x;
+		self.surface.y = y;
 	}
 
 	//FIXME
@@ -42,5 +42,9 @@ impl Widget for Text {
 	//FIXME
 	fn get_size(&self) -> (u32,u32) {
 		(0,0)
+	}
+
+	fn arrange_widgets(&mut self) {
+		//Empty
 	}
 }

@@ -46,9 +46,6 @@ impl<W> App<W> where W:Widget{
 	}
 
 	pub fn run(mut self){
-		// TODO might want to move this to the event loop
-		//self.views[self.index].arrange_widgets(&self.window);
-
 		self.event_loop.run(move | event,window_target|{
 			match event {
 				Event::WindowEvent{event,..} => match event{
