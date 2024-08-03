@@ -24,6 +24,9 @@ impl Layout<Vertical> {
 	pub fn arrange(&mut self,position:[u32;2],children:&mut Vec<Box<dyn Widget>>) -> (u32,u32) {
 		let mut max_width = 0;
 		let mut max_height = 0;
+
+		
+		
 		// Iterate over the children to get the required space
 		for (index,child) in children.iter().enumerate(){
 			let (width,height) = child.get_size();
@@ -39,12 +42,16 @@ impl Layout<Vertical> {
 			}
 		};
 
-		let mut current_pos = position[1];
+		let mut current_pos = position[1] + self.padding;
+
 		children.iter_mut().for_each(|child|{
 			let size = child.get_size();
-			child.position(position[0] as i32, current_pos as i32);
+			child.position(position[0] as i32 + self.padding as i32, current_pos as i32);
 			current_pos += self.spacing + size.1;
 		});
+
+		max_width += self.padding *2;
+		max_height += self.padding *2;
 
 		(max_width,max_height)
 	}
@@ -54,7 +61,7 @@ impl Layout<Horizontal> {
 	pub fn arrange(&mut self,position:[u32;2],children:&mut Vec<Box<dyn Widget>>) -> (u32,u32) {
 		let mut max_width = 0;
 		let mut max_height = 0;
-		
+	
 		// Iterate over the children to get the required space
 		for (index,child) in children.iter().enumerate(){
 			let (width,height) = child.get_size();
@@ -70,12 +77,15 @@ impl Layout<Horizontal> {
 			}
 		};
 
-		let mut current_pos = position[0];
+		let mut current_pos = position[0] + self.padding;
 		children.iter_mut().for_each(|child|{
 			let size = child.get_size();
-			child.position(current_pos as i32, position[1] as i32);
+			child.position(current_pos as i32, position[1] as i32 + self.padding as i32);
 			current_pos += self.spacing + size.0;
 		});
+
+		max_width += self.padding *2;
+		max_height += self.padding *2;
 
 		(max_width,max_height)
 	}
@@ -87,7 +97,7 @@ impl Layout<Single> {
 		let mut max_height = 0;
 
 		// Position the child in the center of parent widget
-		child.position(self.padding as i32, self.padding as i32);
+		child.position(position[0] as i32 + self.padding as i32,position[1] as i32 + self.padding as i32);
 
 		let child_size = child.get_size();
 

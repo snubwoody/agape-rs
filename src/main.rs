@@ -24,10 +24,18 @@ fn main() {
 
 fn run_app() {
 	let rect = Rect::new(50, 150, 400, 150,rgb(0, 0, 0));
+	let rect2 = Rect::new(50, 150, 400, 150,rgb(0, 200, 20));
 	
-	let containter = Container::new(rect);
+	/// FIXME not sure why its not working
+	//let containter = Container::new(rect);
 
-	let page = View::new(containter);
+
+	let vstack = VStack::new(16, vec![
+		Box::new(rect),
+		Box::new(rect2)
+	]).colour(rgb(25, 25, 125));
+
+	let page = View::new(vstack);
 
 	let app = 
 		App::new()

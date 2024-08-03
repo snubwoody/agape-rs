@@ -14,7 +14,7 @@ pub struct VStack{
 impl VStack {
 	pub fn new(spacing:u32,children:Vec<Box<dyn Widget>>) -> Self{
 		let surface = Surface::new(0, 0, 0, 0, rgb(255, 255, 255));
-		let layout = Layout::new(spacing, 0, Vertical);
+		let layout = Layout::new(spacing, 120, Vertical);
 
 		Self { surface, children,layout }
 	}
@@ -40,7 +40,10 @@ impl Widget for VStack {
 		window:&Window,
 		context:&RenderContext,
 	) {
-		self.arrange_widgets();
+		let position = [self.surface.x as u32,self.surface.y as u32];
+		let (width,height) = self.layout.arrange(position, &mut self.children);
+		self.size(width, height);
+
 		self.surface.render(display, frame, window, &context.surface_program);
 		self.children.iter_mut().for_each(|child|{
 			child.render(display, frame, window, context)
