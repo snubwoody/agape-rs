@@ -3,10 +3,11 @@ name = "rust-graphics"
 version = "0.1.0"
 edition = "2021"
 
-
 [dependencies]
 fontdue = "0.9.2"
 glium = "0.34.0"
 image = "0.25.2"
+quote = "1.0.36"
+syn = "2.0.72"
 text-to-png = "0.2.0"
 winit = "0.29"

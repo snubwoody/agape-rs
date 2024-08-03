@@ -1558,6 +1558,8 @@ dependencies = [
  "fontdue",
  "glium",
  "image",
+ "quote",
+ "syn 2.0.72",
  "text-to-png",
  "winit",
 ]

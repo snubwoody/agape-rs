@@ -15,7 +15,6 @@ I need to start doing these in order now
 
 ## Todo
 
-- Figure out a layout system
 - Add a colour struct
 - Add proc macros for properties
 - Add rounded corners

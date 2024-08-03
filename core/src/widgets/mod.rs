@@ -7,6 +7,7 @@ use glium::{
 };
 use winit::window::Window;
 use crate::view::RenderContext;
+extern crate proc_macro;
 
 /// Widget trait that all widgets must inherit from
 pub trait Widget {
