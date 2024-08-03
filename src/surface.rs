@@ -13,12 +13,11 @@ pub struct Surface{
 	pub width:i32,
 	pub height:i32,
 	pub colour:[f32;4],
-	pub contraint:SizeContraint
 }
 
 impl Surface {
-	pub fn new(x:i32,y:i32,width:i32,height:i32,colour:[f32;4],contraint:SizeContraint) -> Self{
-		Self { x,y,width,height,colour,contraint }
+	pub fn new(x:i32,y:i32,width:i32,height:i32,colour:[f32;4]) -> Self{
+		Self { x,y,width,height,colour }
 	}
 
 	pub fn render(

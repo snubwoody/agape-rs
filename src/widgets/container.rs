@@ -15,7 +15,7 @@ pub struct Container<W:Widget>{
 
 impl<W:Widget> Container<W>{
 	pub fn new(child:W) -> Self{
-		let surface = Surface::new(0, 0, 0, 0, rgb(255, 255, 255), SizeContraint::Fit);
+		let surface = Surface::new(0, 0, 0, 0, rgb(255, 255, 255));
 
 		Self {
 			surface,

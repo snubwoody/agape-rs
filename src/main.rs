@@ -6,6 +6,7 @@ pub mod utils;
 pub mod surface;
 pub mod text;
 pub mod vertex;
+pub mod layout;
 use colour::rgb;
 use widgets::rect::Rect;
 use widgets::stack::{HStack, VStack};

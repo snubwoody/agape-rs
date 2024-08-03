@@ -15,7 +15,7 @@ impl Rect {
 	pub fn new(x:i32,y:i32,width:i32,height:i32,colour:[f32;4]) -> Self {
 		
 		Self{
-			surface:Surface::new(x,y,width,height,colour,SizeContraint::Fixed(width as u32, height as u32))
+			surface:Surface::new(x,y,width,height,colour)
 		}
 	}
 
