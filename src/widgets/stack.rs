@@ -3,18 +3,19 @@ use glium::{
 };
 use winit::window::Window;
 use crate::{colour::rgb, surface::Surface, view::RenderContext, widgets::Widget};
-use super::{HorizontalLayout, Layout, SizeContraint, VerticalLayout};
+use crate::layout::{Horizontal, Layout, Vertical};
 
 pub struct VStack{
 	surface:Surface,
-	layout:VerticalLayout,
+	layout:Layout<Vertical>,
 	children:Vec<Box<dyn Widget>>
 }
 
 impl VStack {
 	pub fn new(spacing:u32,children:Vec<Box<dyn Widget>>) -> Self{
-		let surface = Surface::new(0, 0, 0, 0, rgb(255, 255, 255), SizeContraint::Fit);
-		let layout = VerticalLayout::new(spacing);
+		let surface = Surface::new(0, 0, 0, 0, rgb(255, 255, 255));
+		let layout = Layout::new(spacing, 120, Vertical);
+
 		Self { surface, children,layout }
 	}
 
@@ -32,11 +33,15 @@ impl Widget for VStack {
 		window:&Window,
 		context:&RenderContext,
 	) {
-		self.arrange_widgets();
+		// FIXME cannot properly size children because the parent is rendered before the child
+		let position = [self.surface.x as u32,self.surface.y as u32];
+		let (width,height) = self.layout.arrange(position, &mut self.children);
+		self.size(width, height);
+
 		self.surface.render(display, frame, window, &context.surface_program);
 		self.children.iter_mut().for_each(|child|{
 			child.render(display, frame, window, context)
-		})
+		});
 	}
 
 	fn position(&mut self,x:i32,y:i32) {
@@ -62,16 +67,15 @@ impl Widget for VStack {
 
 pub struct HStack{
 	surface:Surface,
-	spacing:u32,
-	layout:HorizontalLayout,
+	layout:Layout<Horizontal>,
 	children:Vec<Box<dyn Widget>>
 }
 
 impl HStack {
 	pub fn new(spacing:u32,children:Vec<Box<dyn Widget>>) -> Self{
-		let surface = Surface::new(0, 0, 0, 0, rgb(255, 255, 255), SizeContraint::Fit);
-		let layout = HorizontalLayout::new(spacing);
-		Self { surface,layout, spacing, children }
+		let surface = Surface::new(0, 0, 0, 0, rgb(255, 255, 255));
+		let layout = Layout::new(spacing, 0, Horizontal);
+		Self { surface,layout,children }
 	}
 
 	pub fn colour(mut self,colour:[f32;4]) -> Self{

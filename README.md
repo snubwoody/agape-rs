@@ -17,8 +17,9 @@ I need to start doing these in order now
 
 - Figure out a layout system
 - Add a colour struct
-- Add interactions
+- Add proc macros for properties
 - Add rounded corners
+- Add interactions
 - Add borders
 
 ## Ideas
@@ -26,5 +27,3 @@ I need to start doing these in order now
 For an on-hover, we keep all the bounds of the widgets in a hash map, then each frame we check
 if the mouse position is one of the widgets then we call the function.
 
-Might want to remove the layout trait and just make add the layout functionality to the view to
-reduce coupling.

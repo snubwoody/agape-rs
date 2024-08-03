@@ -1,24 +1,25 @@
+use fontdue::layout;
+
 use crate::{
-	colour::rgb, 
-	 
-	surface::Surface, 
-	view::RenderContext, 
-	widgets::Widget
+	colour::rgb, layout::{Layout, Single}, surface::Surface, view::RenderContext, widgets::Widget
 };
 use super::SizeContraint;
 
 /// A container [`Widget`] that can only have one child
 pub struct Container<W:Widget>{
 	surface:Surface,
+	layout:Layout<Single>,
 	child:W
 }
 
 impl<W:Widget> Container<W>{
 	pub fn new(child:W) -> Self{
-		let surface = Surface::new(0, 0, 0, 0, rgb(255, 255, 255), SizeContraint::Fit);
+		let surface = Surface::new(0, 0, 0, 0, rgb(255, 25, 255));
+		let layout = Layout::new(0, 64, Single);
 
 		Self {
 			surface,
+			layout,
 			child
 		}
 	}
@@ -32,9 +33,11 @@ impl<W:Widget> Widget for Container<W> {
 		window:&winit::window::Window,
 		context:&RenderContext
 	) {
-		self.arrange_widgets();
+		let position = [self.surface.x as u32,self.surface.y as u32];
+		let (width,height) = self.layout.arrange(position, &mut self.child);
+		self.size(width, height);
+
 		self.surface.render(display, frame, window, &context.surface_program);
-		
 		self.child.render(display, frame, window,context);
 	}
 

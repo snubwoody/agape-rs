@@ -1,8 +1,8 @@
 use glium::{
-	glutin::surface::WindowSurface, Display, Surface,Program
+	glutin::surface::WindowSurface,Display,Surface,Program
 };
-use winit::window::{self, Window};
-use crate::{ widgets::Widget};
+use winit::window::Window;
+use crate::widgets::Widget;
 
 /// A page-like structure that holds multiple widgets below it and renders them.  
 /// It can only have one [`Widget`] child
@@ -33,7 +33,6 @@ impl<W> View<W> where W:Widget {
 		frame.finish().unwrap();
 	}
 }
-
 
 /// Contains the compiled shader programs
 #[derive(Debug)]
