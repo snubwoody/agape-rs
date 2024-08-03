@@ -32,8 +32,8 @@ impl<W> App<W> where W:Widget{
 		let (window,display) = SimpleWindowBuilder::new().build(&event_loop);
 
 		// Compile the text and vertex shader
-		let surface_program = create_program(&display,"shaders/surface.vert","shaders/surface.frag");
-		let text_program = create_program(&display,"shaders/text.vert","shaders/text.frag");
+		let surface_program = create_program(&display,"core/shaders/surface.vert","core/shaders/surface.frag");
+		let text_program = create_program(&display,"core/shaders/text.vert","core/shaders/text.frag");
 
 		let context = RenderContext::new(surface_program, text_program);
 
@@ -63,8 +63,8 @@ impl<W> App<W> where W:Widget{
 }
 
 pub fn create_program(display:&Display<WindowSurface>,vertex_shader_src:&str,fragment_shader_src:&str) -> Program {
-	let vertex_shader = fs::read_to_string(vertex_shader_src).unwrap();
-	let fragment_shader = fs::read_to_string(fragment_shader_src).unwrap();
+	let vertex_shader = fs::read_to_string(vertex_shader_src).expect("Cannot locate vertex shader file");
+	let fragment_shader = fs::read_to_string(fragment_shader_src).expect("Cannot locate vertex shader file");
 	let program = glium::Program::from_source(display, vertex_shader.as_str(), fragment_shader.as_str(), None).unwrap();
 	return program
 }
