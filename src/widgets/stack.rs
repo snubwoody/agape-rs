@@ -40,6 +40,7 @@ impl Widget for VStack {
 		window:&Window,
 		context:&RenderContext,
 	) {
+		// FIXME cannot properly size children because the parent is rendered before the child
 		let position = [self.surface.x as u32,self.surface.y as u32];
 		let (width,height) = self.layout.arrange(position, &mut self.children);
 		self.size(width, height);
@@ -47,7 +48,7 @@ impl Widget for VStack {
 		self.surface.render(display, frame, window, &context.surface_program);
 		self.children.iter_mut().for_each(|child|{
 			child.render(display, frame, window, context)
-		})
+		});
 	}
 
 	fn position(&mut self,x:i32,y:i32) {

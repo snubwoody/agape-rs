@@ -27,11 +27,11 @@ fn run_app() {
 	let rect2 = Rect::new(50, 150, 400, 150,rgb(0, 200, 20));
 	
 	/// FIXME not sure why its not working
-	//let containter = Container::new(rect);
+	let container = Container::new(rect);
 
 
 	let vstack = VStack::new(16, vec![
-		Box::new(rect),
+		Box::new(container),
 		Box::new(rect2)
 	]).colour(rgb(25, 25, 125));
 
