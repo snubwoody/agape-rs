@@ -1,8 +1,13 @@
 use crate::widgets::Widget;
 
+//The different types of layout a widget can have
 pub struct Horizontal;
 pub struct Vertical;
+pub struct Single;
 
+
+// TODO implement padding
+/// This struct handles the layout of widgets
 pub struct Layout<L>{
 	pub spacing:u32,
 	pub padding:u32,
@@ -71,6 +76,23 @@ impl Layout<Horizontal> {
 			child.position(current_pos as i32, position[1] as i32);
 			current_pos += self.spacing + size.0;
 		});
+
+		(max_width,max_height)
+	}
+}
+
+impl Layout<Single> {
+	pub fn arrange(&mut self,position:[u32;2],child:&mut dyn Widget) -> (u32,u32) {
+		let mut max_width = 0;
+		let mut max_height = 0;
+
+		// Position the child in the center of parent widget
+		child.position(self.padding as i32, self.padding as i32);
+
+		let child_size = child.get_size();
+
+		max_width += child_size.0 + self.padding * 2;
+		max_height += child_size.1 + self.padding * 2;
 
 		(max_width,max_height)
 	}
