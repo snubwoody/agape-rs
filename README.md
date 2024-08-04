@@ -15,8 +15,8 @@ I need to start doing these in order now
 
 ## Todo
 
-- Add a colour struct
-- Add proc macros for properties
+- Fix the trait error for the hstack
+- Fix text not working
 - Add rounded corners
 - Add interactions
 - Add borders

@@ -38,6 +38,10 @@ pub trait Drawable{
 	fn get_size(&self) -> (u32,u32);
 }
 
+//
+pub trait DrawableWidget: Widget + Drawable {}
+impl<T: Widget + Drawable> DrawableWidget for T {}
+
 /// Represents the sizing constraints a widget should have ie.
 /// `Fit` the children, `Fill` the parent, `Relative` to the
 /// parent as a percentage or a `Fixed` size in pixels

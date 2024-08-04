@@ -7,7 +7,7 @@ pub mod surface;
 pub mod text;
 pub mod vertex;
 pub mod layout;
-use colour::rgb;
+use colour::{rgb, Colour};
 use widgets::container::Container;
 use widgets::rect::Rect;
 use widgets::stack::{HStack, VStack};
@@ -23,7 +23,7 @@ fn main() {
 }
 
 fn run_app() {
-	let rect = Rect::new(50, 150, 400, 150,rgb(0, 0, 0));
+	let rect = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 20, 200));
 
 	let page = View::new(rect);
 

@@ -3,6 +3,7 @@ use glium::{
 };
 use properties::Drawable;
 use winit::window::Window;
+use crate::colour::Colour;
 use crate::{widgets::Widget,Surface};
 use crate::view::RenderContext;
 
@@ -14,7 +15,7 @@ pub struct Rect{
 }
 
 impl Rect {
-	pub fn new(x:i32,y:i32,width:i32,height:i32,colour:[f32;4]) -> Self {
+	pub fn new(x:i32,y:i32,width:i32,height:i32,colour:Colour) -> Self {
 		Self{
 			surface:Surface::new(x,y,width,height,colour)
 		}

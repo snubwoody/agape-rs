@@ -1,6 +1,6 @@
 use properties::Drawable;
 use crate::{
-	colour::rgb, layout::{Layout, Single}, surface::Surface, view::RenderContext, widgets::Widget
+	colour::{rgb, Colour}, layout::{Layout, Single}, surface::Surface, view::RenderContext, widgets::Widget
 };
 use super::Drawable;
 
@@ -17,7 +17,7 @@ impl<W> Container<W>
 where W:Widget + Drawable
 {
 	pub fn new(child:W) -> Self{
-		let surface = Surface::new(0, 0, 0, 0, rgb(255, 25, 255));
+		let surface = Surface::new(0, 0, 0, 0, Colour::Rgb(255, 255, 255));
 		let layout = Layout::new(0, 64, Single);
 
 		Self {

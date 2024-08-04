@@ -1,7 +1,7 @@
 use glium::{
 	glutin::surface::WindowSurface, index, Blend, DrawParameters, Surface as GliumSurface, VertexBuffer
 };
-use crate::{vertex::Vertex, widgets::SizeContraint};
+use crate::{colour::Colour, vertex::Vertex, widgets::SizeContraint};
 
 /// This is a primitive that draws to the screen. This holds
 /// essential information about the [`Widget`], ie.
@@ -12,11 +12,11 @@ pub struct Surface{
 	pub y:i32,
 	pub width:i32,
 	pub height:i32,
-	pub colour:[f32;4],
+	pub colour:Colour,
 }
 
 impl Surface {
-	pub fn new(x:i32,y:i32,width:i32,height:i32,colour:[f32;4]) -> Self{
+	pub fn new(x:i32,y:i32,width:i32,height:i32,colour:Colour) -> Self{
 		Self { x,y,width,height,colour }
 	}
 
@@ -53,12 +53,14 @@ impl Surface {
 
 	pub fn to_vertices(&self) -> Vec<Vertex>{
 
-		let vertex1 = Vertex::new(self.x, self.y,self.colour); //Top left
-		let vertex2 = Vertex::new(self.x+self.width, self.y,self.colour); // Top right
-		let vertex3 = Vertex::new(self.x, self.y+self.height,self.colour); //Bottom left
-		let vertex4 = Vertex::new(self.x+self.width, self.y,self.colour); //Top right
-		let vertex5 = Vertex::new(self.x, self.y+self.height,self.colour); // Bottom left
-		let vertex6 = Vertex::new(self.x+self.width, self.y+self.height,self.colour); //Bottom right
+		let colour = self.colour.normalize();
+
+		let vertex1 = Vertex::new(self.x, self.y,colour); //Top left
+		let vertex2 = Vertex::new(self.x+self.width, self.y,colour); // Top right
+		let vertex3 = Vertex::new(self.x, self.y+self.height,colour); //Bottom left
+		let vertex4 = Vertex::new(self.x+self.width, self.y,colour); //Top right
+		let vertex5 = Vertex::new(self.x, self.y+self.height,colour); // Bottom left
+		let vertex6 = Vertex::new(self.x+self.width, self.y+self.height,colour); //Bottom right
 
 		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
 	}
