@@ -4,9 +4,11 @@ use glium::{
 	glutin::surface::WindowSurface, Display, Program,
 };
 use winit::{
-	event::{Event, WindowEvent}, event_loop::{ControlFlow, EventLoop}, window::Window
+	event::{Event, WindowEvent}, 
+	event_loop::{ControlFlow, EventLoop}, 
+	window::Window
 };
-use crate::{ widgets::Widget};
+use crate::widgets::Widget;
 use crate::view::{View,RenderContext};
 
 

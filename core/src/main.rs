@@ -25,16 +25,8 @@ fn main() {
 
 fn run_app() {
 	let rect = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 20, 200));
-	let rect1 = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 20, 200));
-	let hstack = HStack::new(
-		24,
-		vec![
-			Box::new(rect),
-			Box::new(rect1)
-		]
-	);
 
-	let page = View::new(hstack);
+	let page = View::new(rect);
 
 	let app = 
 		App::new()

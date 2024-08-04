@@ -14,9 +14,8 @@ I get the basics up and running. If that's even a good idea
 I need to start doing these in order now
 
 ## Todo
-
-- Add rounded corners
 - Add interactions
+- Add rounded corners
 - Add borders
 
 ## Ideas
