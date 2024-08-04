@@ -1,10 +1,14 @@
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame,  
 };
+use properties::Position;
 use winit::window::Window;
 use crate::{colour::rgb, surface::Surface, view::RenderContext, widgets::Widget};
 use crate::layout::{Horizontal, Layout, Vertical};
 
+use super::Drawable;
+
+#[derive(Position)]
 pub struct VStack{
 	surface:Surface,
 	layout:Layout<Vertical>,
@@ -49,11 +53,11 @@ impl Widget for VStack {
 		self.surface.y = y;
 	}
 
-	fn size(&mut self,width:u32,height:u32) {
+	/* fn size(&mut self,width:u32,height:u32) {
 		self.surface.width = width as i32;	
 		self.surface.height = height as i32;	
 	}
-
+ */
 	fn get_size(&self) -> (u32,u32) {
 		(self.surface.width as u32,self.surface.height as u32)
 	}
@@ -65,6 +69,8 @@ impl Widget for VStack {
 	}
 }
 
+
+#[derive(Position)]
 pub struct HStack{
 	surface:Surface,
 	layout:Layout<Horizontal>,
@@ -106,10 +112,10 @@ impl Widget for HStack {
 		self.surface.y = y;
 	}
 
-	fn size(&mut self,width:u32,height:u32) {
+	/* fn size(&mut self,width:u32,height:u32) {
 		self.surface.width = width as i32;
 		self.surface.height = height as i32;
-	}
+	} */
 
 	fn get_size(&self) -> (u32,u32) {
 		(self.surface.width as u32,self.surface.height as u32)

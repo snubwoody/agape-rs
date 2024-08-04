@@ -30,12 +30,8 @@ fn run_app() {
 	let container = Container::new(rect);
 
 
-	let vstack = VStack::new(16, vec![
-		Box::new(container),
-		Box::new(rect2)
-	]).colour(rgb(25, 25, 125));
-
-	let page = View::new(vstack);
+	
+	let page = View::new(container);
 
 	let app = 
 		App::new()

@@ -1,13 +1,15 @@
-use crate::widgets::Widget;
+use crate::widgets::{Drawable, Widget};
 
 //The different types of layout a widget can have
 pub struct Horizontal;
 pub struct Vertical;
+#[derive(Debug,Clone,Copy)]
 pub struct Single;
 
 
 // TODO implement padding
 /// This struct handles the layout of widgets
+#[derive(Debug,Clone,Copy)]
 pub struct Layout<L>{
 	pub spacing:u32,
 	pub padding:u32,
@@ -92,7 +94,7 @@ impl Layout<Horizontal> {
 }
 
 impl Layout<Single> {
-	pub fn arrange(&mut self,position:[u32;2],child:&mut dyn Widget) -> (u32,u32) {
+	pub fn arrange(&mut self,position:[u32;2],child:&mut dyn Drawable) -> (u32,u32) {
 		let mut max_width = 0;
 		let mut max_height = 0;
 

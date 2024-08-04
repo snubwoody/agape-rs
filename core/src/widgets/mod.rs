@@ -18,20 +18,32 @@ pub trait Widget {
 		window:&Window,
 		context:&RenderContext,
 	);
+
+	// The properties below are empty since there are macros
+	// to implement them, might remove them if I find a way.
 	
 	/// Set the position of the [`Widget`]  
 	/// Note that positions start from the upper left 
 	/// corner
-	fn position(&mut self,x:i32,y:i32);	
+	fn position(&mut self,x:i32,y:i32){
+		//Empty
+	}
 	
 	/// Set the size of the widget
-	fn size(&mut self,width:u32,height:u32);
+	//fn size(&mut self,width:u32,height:u32){}
 
 	/// Get the size of the widget
+	fn get_size(&self) -> (u32,u32){(0,0)}
+
+	fn arrange_widgets(&mut self){}
+
+}
+
+pub trait Drawable{
+	fn position(&mut self, x:i32,y:i32); 
+	fn get_position(&self) -> (i32,i32); 
+	fn size(&mut self,width:u32,height:u32); 
 	fn get_size(&self) -> (u32,u32);
-
-	fn arrange_widgets(&mut self);
-
 }
 
 /// Represents the sizing constraints a widget should have ie.

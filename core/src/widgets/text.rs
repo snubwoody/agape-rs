@@ -33,11 +33,11 @@ impl Widget for Text {
 		self.surface.y = y;
 	}
 
-	//FIXME
+	/* //FIXME
 	fn size(&mut self,width:u32,height:u32) {
 		//self.surface.width = width as i32;
 		//self.surface.height = height as i32;
-	}
+	} */
 
 	//FIXME
 	fn get_size(&self) -> (u32,u32) {
