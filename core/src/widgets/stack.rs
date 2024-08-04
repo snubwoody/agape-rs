@@ -4,8 +4,10 @@ use glium::{
 use properties::Drawable;
 use winit::window::Window;
 use crate::colour::Colour;
-use crate::{colour::rgb, surface::Surface, view::RenderContext, widgets::Widget};
+use crate::{surface::Surface, view::RenderContext, widgets::Widget};
 use crate::layout::{Horizontal, Layout, Vertical};
+
+use super::Drawable;
 
 #[derive(Drawable)]
 pub struct VStack{
@@ -20,6 +22,12 @@ impl VStack {
 		let layout = Layout::new(spacing, 120, Vertical);
 
 		Self { surface, children,layout }
+	}
+
+	fn arrange_widgets(&mut self){
+		let (x,y) = (self.surface.x as u32,self.surface.y as u32);
+		let (max_width,max_height) = self.layout.arrange([x,y], &mut self.children);
+		self.size(max_width,max_height);
 	}
 }
 
@@ -43,11 +51,7 @@ impl Widget for VStack {
 		});
 	}
 
-	fn arrange_widgets(&mut self){
-		let (x,y) = (self.surface.x as u32,self.surface.y as u32);
-		//let (max_width,max_height) = self.layout.arrange([x,y], &mut self.children);
-		//self.size(max_width,max_height);
-	}
+	
 }
 
 
@@ -63,6 +67,12 @@ impl HStack {
 		let surface = Surface::new(0, 0, 0, 0, Colour::Rgb(255, 255, 255));
 		let layout = Layout::new(spacing, 0, Horizontal);
 		Self { surface,layout,children }
+	}
+
+	fn arrange_widgets(&mut self) {
+		let (x,y) = (self.surface.x as u32,self.surface.y as u32);
+		let (max_width,max_height) = self.layout.arrange([x,y], &mut self.children);
+		self.size(max_width,max_height);
 	}
 }
 
@@ -81,9 +91,5 @@ impl Widget for HStack {
 		})
 	}
 
-	fn arrange_widgets(&mut self) {
-		let (x,y) = (self.surface.x as u32,self.surface.y as u32);
-		//let (max_width,max_height) = self.layout.arrange([x,y], &mut self.children);
-		//self.size(max_width,max_height);
-	}
+	
 }

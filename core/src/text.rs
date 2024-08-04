@@ -25,6 +25,8 @@ use crate::{
 pub struct TextSurface{
 	pub x:i32,
 	pub y:i32,
+	pub width:i32,
+	pub height:i32,
 	pub text:String,
 	pub font_size:u8,
 	colour:String,
@@ -37,6 +39,8 @@ impl TextSurface {
 		Self { 
 			x, 
 			y, 
+			width:0,
+			height:0,
 			text:String::from(text), 
 			font_size, 
 			colour:String::from(colour),
@@ -89,8 +93,6 @@ impl TextSurface {
 			&uniforms,
 			&params
 		).unwrap();
-
-
 	}
 
 	fn to_vertices(&self,width:i32,height:i32) -> Vec<Vertex>{

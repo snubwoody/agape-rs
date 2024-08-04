@@ -1,5 +1,10 @@
 use glium::{
-	glutin::surface::WindowSurface, index, Blend, DrawParameters, Surface as GliumSurface, VertexBuffer
+	glutin::surface::WindowSurface, 
+	index, 
+	Blend, 
+	DrawParameters, 
+	Surface as GliumSurface, 
+	VertexBuffer
 };
 use crate::{colour::Colour, vertex::Vertex};
 

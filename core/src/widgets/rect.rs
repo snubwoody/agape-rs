@@ -31,25 +31,5 @@ impl Widget for Rect {
 		context:&RenderContext,
 	) {
 		self.surface.render(display, frame, window, &context.surface_program);
-	}
-
-	/* fn position(&mut self,x:i32,y:i32){
-		self.surface.x = x;
-		self.surface.y = y;
-	} */
-
-
-	/* fn size(&mut self,width:u32,height:u32) {
-		self.surface.width = width as i32;
-		self.surface.height = height as i32;
-	}
-
-	fn get_size(&self) -> (u32,u32) {
-		(self.surface.width as u32,self.surface.height as u32)
-	} */
-
-	fn arrange_widgets(&mut self) {
-		//Empty
-	}
-		
+	}		
 }

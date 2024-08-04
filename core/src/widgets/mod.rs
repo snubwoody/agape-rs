@@ -7,10 +7,9 @@ use glium::{
 };
 use winit::window::Window;
 use crate::view::RenderContext;
-extern crate proc_macro;
 
 /// Widget trait that all widgets must inherit from
-pub trait Widget {
+pub trait Widget:Drawable {
 	fn render(
 		&mut self,
 		display:&Display<WindowSurface>,
@@ -18,10 +17,10 @@ pub trait Widget {
 		window:&Window,
 		context:&RenderContext,
 	);
-
-	fn arrange_widgets(&mut self){}
 }
 
+/// Represents anything that's drawable to the screen ie.
+/// it must have a size and a position
 pub trait Drawable{
 	/// Set the position of the [`Widget`]  
 	/// Note that positions start from the upper left 

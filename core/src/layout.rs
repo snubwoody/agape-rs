@@ -27,7 +27,7 @@ impl<L> Layout<L>  {
 }
 
 impl Layout<Vertical> {
-	pub fn arrange(&mut self,position:[u32;2],children:&mut Vec<Box<dyn Drawable>>) -> (u32,u32) {
+	pub fn arrange(&mut self,position:[u32;2],children:&mut Vec<Box<dyn Widget>>) -> (u32,u32) {
 		let mut max_width = 0;
 		let mut max_height = 0;
 
@@ -64,7 +64,7 @@ impl Layout<Vertical> {
 }
 
 impl Layout<Horizontal> {
-	pub fn arrange(&mut self,position:[u32;2],children:&mut Vec<Box<dyn Drawable>>) -> (u32,u32) {
+	pub fn arrange(&mut self,position:[u32;2],children:&mut Vec<Box<dyn Widget>>) -> (u32,u32) {
 		let mut max_width = 0;
 		let mut max_height = 0;
 	

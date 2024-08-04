@@ -11,6 +11,7 @@ use colour::Colour;
 use widgets::container::Container;
 use widgets::rect::Rect;
 use widgets::stack::{HStack, VStack};
+use widgets::text::Text;
 use crate::surface::Surface;
 use crate::widgets::Widget;
 use crate::view::View;
@@ -24,8 +25,9 @@ fn main() {
 
 fn run_app() {
 	let rect = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 20, 200));
+	let text = Text::new(500, 500, "Hello bro", "#FFF345", 24);
 
-	let page = View::new(rect);
+	let page = View::new(text);
 
 	let app = 
 		App::new()

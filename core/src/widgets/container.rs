@@ -1,6 +1,10 @@
 use properties::Drawable;
 use crate::{
-	colour::{rgb, Colour}, layout::{Layout, Single}, surface::Surface, view::RenderContext, widgets::Widget
+	colour::Colour, 
+	layout::{Layout,Single}, 
+	surface::Surface, 
+	view::RenderContext, 
+	widgets::Widget
 };
 use super::Drawable;
 
@@ -43,19 +47,6 @@ where W:Widget + Drawable {
 
 		self.surface.render(display, frame, window, &context.surface_program);
 		self.child.render(display, frame, window,context);
-	}
-
-	/* fn size(&mut self,width:u32,height:u32) {
-		self.surface.width = width as i32;
-		self.surface.height = height as i32;
-	}
-
-	fn get_size(&self) -> (u32,u32) {
-		(self.surface.width as u32,self.surface.height as u32)
-	} */
-
-	fn arrange_widgets(&mut self) {
-		//Empty
 	}
 }
 

@@ -1,7 +1,9 @@
+use properties::Drawable;
+
 use crate::{view::RenderContext, Widget};
 use crate::text::TextSurface;
 
-#[derive(Debug)]
+#[derive(Debug,Drawable)]
 pub struct Text{
 	surface:TextSurface,
 	text:String,
@@ -24,11 +26,8 @@ impl Widget for Text {
 		context:&RenderContext,
 	) {
 		// FIXME text broken
-		//self.surface.build(display);
+		self.surface.build(display);
 		self.surface.render(display, frame, window, &context.text_program);
 	}
 
-	fn arrange_widgets(&mut self) {
-		//Empty
-	}
 }
