@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input,DeriveInput};
 
-#[proc_macro_derive(Position)]
+#[proc_macro_derive(Drawable)]
 pub fn derive_position(input:TokenStream) -> TokenStream{
 	// Parse the macro input
 	let input = parse_macro_input!(input as DeriveInput);

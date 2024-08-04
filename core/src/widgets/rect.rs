@@ -1,14 +1,14 @@
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame, 
 };
-use properties::Position;
+use properties::Drawable;
 use winit::window::Window;
 use crate::{widgets::Widget,Surface};
 use crate::view::RenderContext;
 
 /// A simple rectangle
 #[derive(Debug,Clone, Copy)]
-#[derive(Position)]
+#[derive(Drawable)]
 pub struct Rect{
 	surface:Surface
 }

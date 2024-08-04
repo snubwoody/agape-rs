@@ -1,4 +1,4 @@
-use properties::Position;
+use properties::Drawable;
 use crate::{
 	colour::rgb, layout::{Layout, Single}, surface::Surface, view::RenderContext, widgets::Widget
 };
@@ -6,7 +6,7 @@ use super::Drawable;
 
 /// A container [`Widget`] that can only have one child
 #[derive(Debug,Clone,Copy)]
-#[derive(Position)]
+#[derive(Drawable)]
 pub struct Container<W:Widget>{
 	surface:Surface,
 	layout:Layout<Single>,

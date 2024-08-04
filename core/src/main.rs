@@ -24,14 +24,8 @@ fn main() {
 
 fn run_app() {
 	let rect = Rect::new(50, 150, 400, 150,rgb(0, 0, 0));
-	let rect2 = Rect::new(50, 150, 400, 150,rgb(0, 200, 20));
-	
-	/// FIXME not sure why its not working
-	let container = Container::new(rect);
 
-
-	
-	let page = View::new(container);
+	let page = View::new(rect);
 
 	let app = 
 		App::new()
