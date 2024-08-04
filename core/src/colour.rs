@@ -1,5 +1,6 @@
 use crate::utils::map;
 
+/// Deprecated
 pub fn rgb(r:u8,g:u8,b:u8) -> [f32;4]{
 	let red = map(r as f32, [0.0,255.0], [0.0,1.0]);
 	let green = map(g as f32, [0.0,255.0], [0.0,1.0]);
@@ -7,6 +8,7 @@ pub fn rgb(r:u8,g:u8,b:u8) -> [f32;4]{
 	return [red,green,blue,1.0]
 }
 
+/// Deprecated
 pub fn rgba(r:u8,g:u8,b:u8,a:u8) -> [f32;4]{
 	let red = map(r as f32, [0.0,255.0], [0.0,1.0]);
 	let green = map(g as f32, [0.0,255.0], [0.0,1.0]);
@@ -16,7 +18,6 @@ pub fn rgba(r:u8,g:u8,b:u8,a:u8) -> [f32;4]{
 }
 
 
-// TODO
 #[derive(Debug,Clone,Copy,PartialEq, Eq, PartialOrd, Ord)]
 pub enum Colour{
 	Rgb(u8,u8,u8),

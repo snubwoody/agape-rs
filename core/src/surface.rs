@@ -1,7 +1,7 @@
 use glium::{
 	glutin::surface::WindowSurface, index, Blend, DrawParameters, Surface as GliumSurface, VertexBuffer
 };
-use crate::{colour::Colour, vertex::Vertex, widgets::SizeContraint};
+use crate::{colour::Colour, vertex::Vertex};
 
 /// This is a primitive that draws to the screen. This holds
 /// essential information about the [`Widget`], ie.

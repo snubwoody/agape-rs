@@ -1,8 +1,12 @@
 use crate::widgets::{Drawable, Widget};
 
 //The different types of layout a widget can have
+#[derive(Debug,Clone,Copy)]
 pub struct Horizontal;
+
+#[derive(Debug,Clone,Copy)]
 pub struct Vertical;
+
 #[derive(Debug,Clone,Copy)]
 pub struct Single;
 

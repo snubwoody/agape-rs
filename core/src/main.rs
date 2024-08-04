@@ -7,7 +7,7 @@ pub mod surface;
 pub mod text;
 pub mod vertex;
 pub mod layout;
-use colour::{rgb, Colour};
+use colour::Colour;
 use widgets::container::Container;
 use widgets::rect::Rect;
 use widgets::stack::{HStack, VStack};
