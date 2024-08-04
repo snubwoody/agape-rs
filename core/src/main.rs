@@ -25,9 +25,16 @@ fn main() {
 
 fn run_app() {
 	let rect = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 20, 200));
-	let text = Text::new(500, 500, "Hello bro", "#FFF345", 24);
+	let rect1 = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 20, 200));
+	let hstack = HStack::new(
+		24,
+		vec![
+			Box::new(rect),
+			Box::new(rect1)
+		]
+	);
 
-	let page = View::new(text);
+	let page = View::new(hstack);
 
 	let app = 
 		App::new()
