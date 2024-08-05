@@ -3,7 +3,7 @@ use crate::{
 	colour::Colour, 
 	layout::{Layout,Single}, 
 	surface::Surface, 
-	view::RenderContext, 
+	app::view::RenderContext, 
 	widgets::Widget
 };
 use super::Drawable;

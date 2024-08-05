@@ -5,7 +5,7 @@ use properties::Drawable;
 use winit::window::Window;
 use crate::colour::Colour;
 use crate::{widgets::Widget,Surface};
-use crate::view::RenderContext;
+use crate::app::view::RenderContext;
 
 /// A simple rectangle
 #[derive(Debug,Clone, Copy)]
@@ -19,6 +19,11 @@ impl Rect {
 		Self{
 			surface:Surface::new(x,y,width,height,colour)
 		}
+	}
+
+	pub fn onhover(self) -> Self {
+		dbg!("I was hovered");
+		self
 	}
 }
 

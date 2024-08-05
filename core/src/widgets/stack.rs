@@ -4,7 +4,7 @@ use glium::{
 use properties::Drawable;
 use winit::window::Window;
 use crate::colour::Colour;
-use crate::{surface::Surface, view::RenderContext, widgets::Widget};
+use crate::{surface::Surface, app::view::RenderContext, widgets::Widget};
 use crate::layout::{Horizontal, Layout, Vertical};
 
 use super::Drawable;

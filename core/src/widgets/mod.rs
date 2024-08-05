@@ -6,7 +6,7 @@ use glium::{
 	glutin::surface::WindowSurface, Display, Frame, 
 };
 use winit::window::Window;
-use crate::view::RenderContext;
+use crate::app::view::RenderContext;
 
 /// Widget trait that all widgets must inherit from
 pub trait Widget:Drawable {
