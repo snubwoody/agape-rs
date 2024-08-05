@@ -2,6 +2,8 @@ pub mod rect;
 pub mod stack;
 pub mod container;
 pub mod text;
+use std::fmt::Debug;
+
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame, 
 };
@@ -9,7 +11,7 @@ use winit::window::Window;
 use crate::app::view::RenderContext;
 
 /// Widget trait that all widgets must inherit from
-pub trait Widget:Drawable {
+pub trait Widget:Debug + Drawable{
 	fn render(
 		&mut self,
 		display:&Display<WindowSurface>,
@@ -17,6 +19,8 @@ pub trait Widget:Drawable {
 		window:&Window,
 		context:&RenderContext,
 	);
+
+	fn get_children(&self) -> Widget;
 }
 
 /// Represents anything that's drawable to the screen ie.

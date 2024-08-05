@@ -6,6 +6,7 @@ pub mod surface;
 pub mod text;
 pub mod vertex;
 pub mod layout;
+use app::view::WidgetTree;
 use colour::Colour;
 use widgets::container::Container;
 use widgets::rect::Rect;
@@ -19,7 +20,8 @@ use crate::app::App;
 extern crate glium;
 
 fn main() {
-	run_app();
+	//run_app();
+	widget_tree()
 }
 
 fn run_app() {
@@ -37,5 +39,19 @@ fn run_app() {
 		.add_view(page);
 
 	app.run()
+}
+
+fn widget_tree() {
+	let rect = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 20, 200));
+	let rect1 = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 20, 200));
+	let rect2 = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 20, 200));
+	let container = Container::new(rect2);
+	let tree = 
+		WidgetTree::new()
+		.add(rect)
+		.add(rect1)
+		.add(container);
+
+	dbg!(tree);
 }
 

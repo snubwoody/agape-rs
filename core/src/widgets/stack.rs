@@ -9,7 +9,7 @@ use crate::layout::{Horizontal, Layout, Vertical};
 
 use super::Drawable;
 
-#[derive(Drawable)]
+#[derive(Drawable,Debug)]
 pub struct VStack{
 	surface:Surface,
 	layout:Layout<Vertical>,
@@ -55,7 +55,7 @@ impl Widget for VStack {
 }
 
 
-#[derive(Drawable)]
+#[derive(Drawable,Debug)]
 pub struct HStack{
 	surface:Surface,
 	layout:Layout<Horizontal>,

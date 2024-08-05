@@ -68,10 +68,6 @@ impl<W> App<W> where W:Widget{
 	}
 }
 
-pub struct EventHandler{
-	
-}
-
 fn create_program(display:&Display<WindowSurface>,vertex_shader_src:&str,fragment_shader_src:&str) -> Program {
 	let vertex_shader = fs::read_to_string(vertex_shader_src).expect("Cannot locate vertex shader file");
 	let fragment_shader = fs::read_to_string(fragment_shader_src).expect("Cannot locate vertex shader file");

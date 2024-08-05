@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use glium::{
 	glutin::surface::WindowSurface,Display,Surface,Program
 };
@@ -49,3 +51,48 @@ impl RenderContext {
 		Self { surface_program, text_program }
 	}
 }
+
+
+type WidgetID = usize;
+
+#[derive(Debug)]
+pub struct WidgetTree{
+	widgets:HashMap<WidgetID,WidgetNode>,
+	root:WidgetID,
+	next:WidgetID
+}
+
+impl WidgetTree where  {
+	pub fn new() -> Self{
+		Self { widgets: HashMap::new(), root: 0, next: 0 }
+	}
+
+	pub fn add(mut self,widget:impl Widget + 'static) -> Self{
+		let parent:Option<WidgetID>;
+		if self.next == 0 {
+			parent = None;
+		}
+		else {
+			parent = Some(self.next)
+		}
+
+		let node = WidgetNode{
+			widget:Box::new(widget),
+			parent,
+			children:vec![1]
+		};
+
+		self.widgets.insert(self.next, node);
+		self.next += 1;
+		self
+	}
+}
+
+#[derive(Debug)]
+pub struct WidgetNode{
+	widget:Box<dyn Widget>,
+	parent:Option<WidgetID>,
+	children:Vec<WidgetID>
+}
+
+
