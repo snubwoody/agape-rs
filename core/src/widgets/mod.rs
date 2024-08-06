@@ -12,18 +12,7 @@ use winit::window::Window;
 use crate::app::view::RenderContext;
 use crate::layout::Layout;
 use crate::Surface;
-/// Widget trait that all widgets must inherit from
-pub trait Widget:Debug + Drawable{
-	fn render(
-		&mut self,
-		display:&Display<WindowSurface>,
-		frame:&mut Frame,
-		window:&Window,
-		context:&RenderContext,
-	);
 
-	fn get_children(self) -> Vec<Box<dyn Widget>>;
-}
 
 /// Represents anything that's drawable to the screen ie.
 /// it must have a size and a position
@@ -43,13 +32,26 @@ pub trait Drawable{
 	fn get_size(&self) -> (u32,u32);
 }
 
-pub trait WidgetBuilder:Debug{
+/// Widget trait that all widgets must inherit from
+
+pub trait Widget:Debug{
 	fn build(&self) -> WidgetBody;
+	fn position(&mut self, x:i32,y:i32){} 
+	
+	/// Get the [`Widget`] position
+	fn get_position(&self) -> (i32,i32){(0,0)} 
+
+	/// Set the size of the widget
+	fn size(&mut self,width:u32,height:u32){} 
+
+	/// Get the size of the widget
+	fn get_size(&self) -> (u32,u32){(0,0)}
 }
 
 #[derive(Debug)]
 pub struct WidgetBody{
 	surface:Surface,
+	layout:Layout
 }
 
 impl WidgetBody {
@@ -79,7 +81,7 @@ impl WidgetTree where  {
 		Self { widgets: HashMap::new(), root: 0, next: 0 }
 	}
 
-	pub fn add(&mut self,widget:impl WidgetBuilder + 'static) {
+	pub fn add(&mut self,widget:impl Widget + 'static) {
 		let parent:Option<WidgetID>;
 		if self.next == 0 {
 			parent = None;
@@ -98,7 +100,7 @@ impl WidgetTree where  {
 		self.next += 1;
 	}
 
-	pub fn build(&mut self,widget:impl WidgetBuilder + 'static) {
+	pub fn build(&mut self,widget:impl Widget + 'static) {
 		self.add(widget);
 	}
 

@@ -1,37 +1,47 @@
 use crate::widgets::{Drawable, Widget};
 
-//The different types of layout a widget can have
-#[derive(Debug,Clone,Copy)]
-pub struct Horizontal;
-
-#[derive(Debug,Clone,Copy)]
-pub struct Vertical;
-
-#[derive(Debug,Clone,Copy)]
-pub struct Single;
-
-
-// TODO implement padding
-/// This struct handles the layout of widgets
-#[derive(Debug,Clone,Copy)]
-pub struct Layout<L>{
-	pub spacing:u32,
-	pub padding:u32,
-	pub layout:L
-}
-
-impl<L> Layout<L>  {
-	pub fn new(spacing:u32,padding:u32,layout:L) -> Self{
-		Self { spacing, padding, layout }
+#[derive(Debug)]
+pub enum Layout{
+	Horizontal{
+		spacing:u32,
+		padding:u32,
+	},
+	Vertical{
+		spacing:u32,
+		padding:u32,
+	},
+	Single{
+		padding:u32,
 	}
 }
 
-impl Layout<Vertical> {
-	pub fn arrange(&mut self,position:[u32;2],children:&mut Vec<Box<dyn Widget>>) -> (u32,u32) {
+impl Layout {
+	pub fn arrange(&self){
+		match self {
+			&Self::Single { padding } => self.arrange_single(),
+			&Self::Vertical { spacing,padding } => self.arrange_vertical(),
+			&Self::Horizontal { spacing,padding } => self.arrange_horizontal(),
+		}
+	}
+
+	fn arrange_single(&self,position:[u32;2],child:&mut dyn Drawable){
 		let mut max_width = 0;
 		let mut max_height = 0;
 
-		
+		// Position the child in the center of parent widget
+		child.position(position[0] as i32 + self.padding as i32,position[1] as i32 + self.padding as i32);
+
+		let child_size = child.get_size();
+
+		max_width += child_size.0 + self.padding * 2;
+		max_height += child_size.1 + self.padding * 2;
+
+		(max_width,max_height)
+	}
+
+	fn arrange_vertical(&self){
+		let mut max_width = 0;
+		let mut max_height = 0;
 		
 		// Iterate over the children to get the required space
 		for (index,child) in children.iter().enumerate(){
@@ -61,10 +71,8 @@ impl Layout<Vertical> {
 
 		(max_width,max_height)
 	}
-}
 
-impl Layout<Horizontal> {
-	pub fn arrange(&mut self,position:[u32;2],children:&mut Vec<Box<dyn Widget>>) -> (u32,u32) {
+	fn arrange_horizontal(&self){
 		let mut max_width = 0;
 		let mut max_height = 0;
 	
@@ -92,23 +100,6 @@ impl Layout<Horizontal> {
 
 		max_width += self.padding *2;
 		max_height += self.padding *2;
-
-		(max_width,max_height)
-	}
-}
-
-impl Layout<Single> {
-	pub fn arrange(&mut self,position:[u32;2],child:&mut dyn Drawable) -> (u32,u32) {
-		let mut max_width = 0;
-		let mut max_height = 0;
-
-		// Position the child in the center of parent widget
-		child.position(position[0] as i32 + self.padding as i32,position[1] as i32 + self.padding as i32);
-
-		let child_size = child.get_size();
-
-		max_width += child_size.0 + self.padding * 2;
-		max_height += child_size.1 + self.padding * 2;
 
 		(max_width,max_height)
 	}

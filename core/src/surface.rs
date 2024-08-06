@@ -70,3 +70,15 @@ impl Surface {
 		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
 	}
 }
+
+impl Default for Surface {
+	fn default() -> Self {
+		Self { 
+			x:0, 
+			y:0, 
+			width:0, 
+			height:0, 
+			colour:Colour::Rgb(255, 255, 255) 
+		}
+	}
+}

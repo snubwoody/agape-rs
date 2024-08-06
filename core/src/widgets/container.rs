@@ -1,58 +1,30 @@
-use properties::Drawable;
 use crate::{
-	colour::Colour, 
-	layout::{Layout,Single}, 
+	colour::Colour,
 	surface::Surface, 
-	app::view::RenderContext, 
-	widgets::Widget
+	widgets::Widget,
+	layout::Layout
 };
-use super::Drawable;
+use super::WidgetBody;
 
 /// A container [`Widget`] that can only have one child
 #[derive(Debug,Clone,Copy)]
-#[derive(Drawable)]
 pub struct Container<W:Widget>{
-	surface:Surface,
-	layout:Layout<Single>,
+	padding:u32,
+	colour:Colour,
 	child:W
 }
 
-impl<W> Container<W>
-where W:Widget + Drawable
-{
-	pub fn new(child:W) -> Self{
-		let surface = Surface::new(0, 0, 0, 0, Colour::Rgb(255, 255, 255));
-		let layout = Layout::new(0, 64, Single);
-
-		Self {
+impl<W> Widget for Container<W> where W:Widget {
+	fn build(&self) -> WidgetBody {
+		let surface = Surface{colour:self.colour,..Default::default()};
+		let layout = Layout::Horizontal { spacing: 12, padding: 12 };
+		WidgetBody{
 			surface,
-			layout,
-			child
+			layout
 		}
 	}
 }
 
-impl<W> Widget for Container<W>
-where W:Widget + Drawable + 'static {
-	fn render(
-		&mut self,
-		display:&glium::Display<glium::glutin::surface::WindowSurface>,
-		frame:&mut glium::Frame,
-		window:&winit::window::Window,
-		context:&RenderContext
-	) {
-		let position = [self.surface.x as u32,self.surface.y as u32];
-		let (width,height) = self.layout.arrange(position, &mut self.child);
-		self.size(width, height);
-
-		self.surface.render(display, frame, window, &context.surface_program);
-		self.child.render(display, frame, window,context);
-	}
-
-	fn get_children(self) -> Vec<Box<dyn Widget>> {
-		vec![Box::new(self.child)]
-	}
-}
 
 
 

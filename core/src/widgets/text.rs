@@ -17,7 +17,7 @@ impl Text {
 	}
 }
 
-impl Widget for Text {
+/* impl Widget for Text {
 	fn render(
 		&mut self,
 		display:&glium::Display<glium::glutin::surface::WindowSurface>,
@@ -33,5 +33,5 @@ impl Widget for Text {
 	fn get_children(self) -> Vec<Box<dyn Widget>> {
 		vec![]
 	}
-
-}
+ 
+}*/

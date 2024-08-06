@@ -1,12 +1,7 @@
-use glium::{
-	glutin::surface::WindowSurface, Display, Frame, 
-};
-use properties::Drawable;
-use winit::window::Window;
-use crate::colour::Colour;
-use crate::{widgets::Widget,Surface};
-use crate::app::view::RenderContext;
-use super::{WidgetBody, WidgetBuilder};
+use crate::{colour::Colour};
+use crate::Surface;
+use super::{Widget, WidgetBody};
+use crate::layout::Layout;
 
 /// A simple rectangle
 #[derive(Debug,Clone,Copy)]
@@ -16,8 +11,9 @@ pub struct Rect{
 	pub colour:Colour
 }
 
-impl WidgetBuilder for Rect {
+impl Widget for Rect {
 	fn build(&self) -> WidgetBody {
+		let layout = Layout::Single { padding: 0 };
 		WidgetBody{ 
 			surface:Surface{ 
 				x:0, 
@@ -25,7 +21,8 @@ impl WidgetBuilder for Rect {
 				width:self.width as i32,
 				height:self.height as i32,
 				colour:self.colour
-			} 
+			},
+			layout
 		}
 	}
 }

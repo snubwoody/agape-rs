@@ -5,99 +5,30 @@ use properties::Drawable;
 use winit::window::Window;
 use crate::colour::Colour;
 use crate::{surface::Surface, app::view::RenderContext, widgets::Widget};
-use crate::layout::{Horizontal, Layout, Vertical};
+use crate::layout::{Layout};
+use crate::widgets::WidgetBody;
 
-use super::Drawable;
 
-#[derive(Drawable,Debug)]
+#[derive(Debug)]
 pub struct VStack{
-	surface:Surface,
-	layout:Layout<Vertical>,
+	spacing:u32,
+	padding:u32,
 	children:Vec<Box<dyn Widget>>
 }
-
-impl VStack {
-	pub fn new(spacing:u32,children:Vec<Box<dyn Widget>>) -> Self{
-		let surface = Surface::new(0, 0, 0, 0, Colour::Rgb(255, 255, 255));
-		let layout = Layout::new(spacing, 120, Vertical);
-
-		Self { surface, children,layout }
-	}
-
-	fn arrange_widgets(&mut self){
-		let (x,y) = (self.surface.x as u32,self.surface.y as u32);
-		let (max_width,max_height) = self.layout.arrange([x,y], &mut self.children);
-		self.size(max_width,max_height);
-	}
-}
-
-impl Widget for VStack {
-	fn render(
-		&mut self,
-		display:&Display<WindowSurface>,
-		frame:&mut Frame,
-		window:&Window,
-		context:&RenderContext,
-	) {
-		// FIXME cannot properly size children because the parent is rendered before the child
-		let position = [self.surface.x as u32,self.surface.y as u32];
-		//FIXME 
-		//let (width,height) = self.layout.arrange(position, &mut self.children);
-		//self.size(width, height);
-
-		self.surface.render(display, frame, window, &context.surface_program);
-		self.children.iter_mut().for_each(|child|{
-			child.render(display, frame, window, context)
-		});
-	}
-
-	fn get_children(self) -> Vec<Box<dyn Widget>> {
-		self.children
-	}
-
-	
-}
-
 
 #[derive(Drawable,Debug)]
 pub struct HStack{
 	surface:Surface,
-	layout:Layout<Horizontal>,
+	layout:Layout,
 	children:Vec<Box<dyn Widget>>
 }
 
 impl HStack {
 	pub fn new(spacing:u32,children:Vec<Box<dyn Widget>>) -> Self{
 		let surface = Surface::new(0, 0, 0, 0, Colour::Rgb(255, 255, 255));
-		let layout = Layout::new(spacing, 0, Horizontal);
+		let layout = Layout::Horizontal { spacing:0, padding: 0 };
 		Self { surface,layout,children }
 	}
-
-	fn arrange_widgets(&mut self) {
-		let (x,y) = (self.surface.x as u32,self.surface.y as u32);
-		let (max_width,max_height) = self.layout.arrange([x,y], &mut self.children);
-		self.size(max_width,max_height);
-	}
 }
 
-impl Widget for HStack {
-	fn render(
-		&mut self,
-		display:&Display<WindowSurface>,
-		frame:&mut Frame,
-		window:&Window,
-		context:&RenderContext,
-	) {
-		self.arrange_widgets();
-		self.surface.render(display, frame, window, &context.surface_program);
-		self.children.iter_mut().for_each(|child|{
-			child.render(display, frame, window, context)
-		})
-	}
 
-	fn get_children(self) -> Vec<Box<dyn Widget>> {
-		self.children
-	}
-
-	
-}
