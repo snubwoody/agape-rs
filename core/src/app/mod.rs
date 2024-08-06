@@ -8,23 +8,22 @@ use winit::{
 	event_loop::{ControlFlow, EventLoop}, 
 	window::Window
 };
-use crate::widgets::Widget;
 use crate::app::view::{View,RenderContext};
 pub mod view;
 
 
 /// This is a singular isolated program. Most projects
 /// will only contain one app
-pub struct App<W:Widget>{
+pub struct App{
 	event_loop:EventLoop<()>,
 	window:Window,
 	display:Display<WindowSurface>,
-	views:Vec<View<W>>,
+	views:Vec<View>,
 	context:RenderContext,
 	index:usize
 }
 
-impl<W> App<W> where W:Widget{
+impl App{
 	pub fn new() -> Self {
 		let event_loop = EventLoop::new().unwrap();
 
@@ -43,7 +42,7 @@ impl<W> App<W> where W:Widget{
 		Self { event_loop,window,display,context,views:vec![],index:0}
 	}
 
-	pub fn add_view(mut self,view:View<W>) -> Self{
+	pub fn add_view(mut self,view:View) -> Self{
 		self.views.push(view);
 		self
 	}

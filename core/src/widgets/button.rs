@@ -7,13 +7,14 @@ use crate::{
 	}
 };
 
+#[derive(Debug)]
 pub struct Button{
-	text:String
+	pub text:String
 }
 
 impl WidgetBuilder for Button {
 	fn build(&self) -> WidgetBody {
-		let surface = Surface::new(0, 0, 500, 500, Colour::Rgb(255, 255, 255));
+		let surface = Surface::new(0, 0, 500, 500, Colour::Rgb(255, 25, 255));
 		WidgetBody { surface }
 	}
 }

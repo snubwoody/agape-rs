@@ -3,6 +3,7 @@ pub mod stack;
 pub mod container;
 pub mod text;
 pub mod button;
+use std::collections::HashMap;
 use std::fmt::Debug;
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame, 
@@ -42,10 +43,81 @@ pub trait Drawable{
 	fn get_size(&self) -> (u32,u32);
 }
 
-pub trait WidgetBuilder{
+pub trait WidgetBuilder:Debug{
 	fn build(&self) -> WidgetBody;
 }
 
+#[derive(Debug)]
 pub struct WidgetBody{
 	surface:Surface,
+}
+
+impl WidgetBody {
+	pub fn render(
+		&mut self,
+		display:&Display<WindowSurface>,
+		frame:&mut Frame,
+		window:&Window,
+		context:&RenderContext,
+	) {
+		self.surface.render(display, frame, window, &context.surface_program);
+	}
+}
+
+
+type WidgetID = usize;
+
+#[derive(Debug)]
+pub struct WidgetTree{
+	widgets:HashMap<WidgetID,WidgetNode>,
+	root:WidgetID,
+	next:WidgetID
+}
+
+impl WidgetTree where  {
+	pub fn new() -> Self{
+		Self { widgets: HashMap::new(), root: 0, next: 0 }
+	}
+
+	pub fn add(&mut self,widget:impl WidgetBuilder + 'static) {
+		let parent:Option<WidgetID>;
+		if self.next == 0 {
+			parent = None;
+		}
+		else {
+			parent = Some(self.next)
+		}
+
+		let node = WidgetNode{
+			widget: widget.build(),
+			parent,
+			children:vec![1]
+		};
+
+		self.widgets.insert(self.next, node);
+		self.next += 1;
+	}
+
+	pub fn build(&mut self,widget:impl WidgetBuilder + 'static) {
+		self.add(widget);
+	}
+
+	pub fn render(
+		&mut self,
+		display:&Display<WindowSurface>,
+		frame:&mut Frame,
+		window:&Window,
+		context:&RenderContext,
+	) {
+		self.widgets.iter_mut().for_each(|widget| {
+			widget.1.widget.render(display, frame, window, context)
+		})
+	}
+}
+
+#[derive(Debug)]
+pub struct WidgetNode{
+	widget:WidgetBody,
+	parent:Option<WidgetID>,
+	children:Vec<WidgetID>
 }

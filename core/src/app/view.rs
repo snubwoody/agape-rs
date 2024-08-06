@@ -1,22 +1,21 @@
-use std::collections::HashMap;
-
 use glium::{
-	glutin::surface::WindowSurface,Display,Surface,Program
+	glutin::surface::WindowSurface,
+	Display,
+	Surface,
+	Program,
 };
 use winit::window::Window;
-use crate::widgets::Widget;
+use crate::widgets::{WidgetTree};
+
 
 /// A page-like structure that holds multiple widgets below it and renders them.  
 /// It can only have one [`Widget`] child
 #[derive(Debug)]
-pub struct View<W:Widget>{
-	pub child:W
+pub struct View{
+	pub widget_tree:WidgetTree
 }
 
-impl<W> View<W> where W:Widget {
-	pub fn new(child:W) -> Self{
-		Self{child}
-	}
+impl View {
 
 	pub fn render(
 		&mut self,
@@ -29,7 +28,7 @@ impl<W> View<W> where W:Widget {
 		frame.clear_color(1.0, 1.0, 1.0, 1.0);
 
 		//Render the children, passing the objects down the widget tree
-		self.child.render(display,&mut frame,window,context);
+		self.widget_tree.render(display,&mut frame,window,context);
 
 		//Swap the buffers
 		frame.finish().unwrap();
@@ -53,53 +52,7 @@ impl RenderContext {
 }
 
 
-type WidgetID = usize;
 
-#[derive(Debug)]
-pub struct WidgetTree{
-	widgets:HashMap<WidgetID,WidgetNode>,
-	root:WidgetID,
-	next:WidgetID
-}
 
-impl WidgetTree where  {
-	pub fn new() -> Self{
-		Self { widgets: HashMap::new(), root: 0, next: 0 }
-	}
-
-	pub fn add(mut self,widget:impl Widget + 'static) -> Self{
-		let parent:Option<WidgetID>;
-		if self.next == 0 {
-			parent = None;
-		}
-		else {
-			parent = Some(self.next)
-		}
-
-		let node = WidgetNode{
-			widget:Box::new(widget),
-			parent,
-			children:vec![1]
-		};
-
-		self.widgets.insert(self.next, node);
-		self.next += 1;
-		self
-	}
-
-	pub fn build(mut self,widget:impl Widget + 'static) -> Self {
-		let children = widget.get_children();
-		
-		dbg!(children);
-		self
-	}
-}
-
-#[derive(Debug)]
-pub struct WidgetNode{
-	widget:Box<dyn Widget>,
-	parent:Option<WidgetID>,
-	children:Vec<WidgetID>
-}
 
 
