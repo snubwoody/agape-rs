@@ -42,16 +42,12 @@ fn run_app() {
 }
 
 fn widget_tree() {
-	let rect = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 20, 200));
+	let rect = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 200, 200));
 	let rect1 = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 20, 200));
-	let rect2 = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 20, 200));
+	let rect2 = Rect::new(50, 150, 400, 150,Colour::Rgb(200, 20, 200));
 	let container = Container::new(rect2);
-	let tree = 
-		WidgetTree::new()
-		.add(rect)
-		.add(rect1)
-		.add(container);
+	let tree = WidgetTree::new().build(container);
+	//dbg!();
 
-	dbg!(tree);
 }
 

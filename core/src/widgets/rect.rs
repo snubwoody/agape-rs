@@ -36,5 +36,9 @@ impl Widget for Rect {
 		context:&RenderContext,
 	) {
 		self.surface.render(display, frame, window, &context.surface_program);
-	}		
+	}	
+
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		vec![]
+	}
 }

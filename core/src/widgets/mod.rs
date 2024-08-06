@@ -2,14 +2,15 @@ pub mod rect;
 pub mod stack;
 pub mod container;
 pub mod text;
+pub mod button;
 use std::fmt::Debug;
-
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame, 
 };
 use winit::window::Window;
 use crate::app::view::RenderContext;
-
+use crate::layout::Layout;
+use crate::Surface;
 /// Widget trait that all widgets must inherit from
 pub trait Widget:Debug + Drawable{
 	fn render(
@@ -20,7 +21,7 @@ pub trait Widget:Debug + Drawable{
 		context:&RenderContext,
 	);
 
-	fn get_children(&self) -> Widget;
+	fn get_children(self) -> Vec<Box<dyn Widget>>;
 }
 
 /// Represents anything that's drawable to the screen ie.
@@ -39,4 +40,12 @@ pub trait Drawable{
 
 	/// Get the size of the widget
 	fn get_size(&self) -> (u32,u32);
+}
+
+pub trait WidgetBuilder{
+	fn build(&self) -> WidgetBody;
+}
+
+pub struct WidgetBody{
+	surface:Surface,
 }

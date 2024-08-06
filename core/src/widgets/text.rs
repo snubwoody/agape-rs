@@ -30,4 +30,8 @@ impl Widget for Text {
 		self.surface.render(display, frame, window, &context.text_program);
 	}
 
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		vec![]
+	}
+
 }

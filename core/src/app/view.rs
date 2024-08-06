@@ -86,6 +86,13 @@ impl WidgetTree where  {
 		self.next += 1;
 		self
 	}
+
+	pub fn build(mut self,widget:impl Widget + 'static) -> Self {
+		let children = widget.get_children();
+		
+		dbg!(children);
+		self
+	}
 }
 
 #[derive(Debug)]

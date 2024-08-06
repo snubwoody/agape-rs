@@ -33,7 +33,7 @@ where W:Widget + Drawable
 }
 
 impl<W> Widget for Container<W>
-where W:Widget + Drawable {
+where W:Widget + Drawable + 'static {
 	fn render(
 		&mut self,
 		display:&glium::Display<glium::glutin::surface::WindowSurface>,
@@ -48,7 +48,12 @@ where W:Widget + Drawable {
 		self.surface.render(display, frame, window, &context.surface_program);
 		self.child.render(display, frame, window,context);
 	}
+
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		vec![Box::new(self.child)]
+	}
 }
+
 
 
 

@@ -51,6 +51,10 @@ impl Widget for VStack {
 		});
 	}
 
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		self.children
+	}
+
 	
 }
 
@@ -89,6 +93,10 @@ impl Widget for HStack {
 		self.children.iter_mut().for_each(|child|{
 			child.render(display, frame, window, context)
 		})
+	}
+
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		self.children
 	}
 
 	
