@@ -6,39 +6,26 @@ use winit::window::Window;
 use crate::colour::Colour;
 use crate::{widgets::Widget,Surface};
 use crate::app::view::RenderContext;
+use super::{WidgetBody, WidgetBuilder};
 
 /// A simple rectangle
-#[derive(Debug,Clone, Copy)]
-#[derive(Drawable)]
+#[derive(Debug,Clone,Copy)]
 pub struct Rect{
-	surface:Surface
+	pub width:u32,
+	pub height:u32,
+	pub colour:Colour
 }
 
-impl Rect {
-	pub fn new(x:i32,y:i32,width:i32,height:i32,colour:Colour) -> Self {
-		Self{
-			surface:Surface::new(x,y,width,height,colour)
+impl WidgetBuilder for Rect {
+	fn build(&self) -> WidgetBody {
+		WidgetBody{ 
+			surface:Surface{ 
+				x:0, 
+				y:0, 
+				width:self.width as i32,
+				height:self.height as i32,
+				colour:self.colour
+			} 
 		}
-	}
-
-	pub fn onhover(self) -> Self {
-		dbg!("I was hovered");
-		self
-	}
-}
-
-impl Widget for Rect {
-	fn render(
-		&mut self,
-		display:&Display<WindowSurface>,
-		frame:&mut Frame,
-		window:&Window,
-		context:&RenderContext,
-	) {
-		self.surface.render(display, frame, window, &context.surface_program);
-	}	
-
-	fn get_children(self) -> Vec<Box<dyn Widget>> {
-		vec![]
 	}
 }

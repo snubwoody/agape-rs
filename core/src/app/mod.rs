@@ -56,7 +56,7 @@ impl App{
 						self.views[self.index].render(&self.display, &self.window,&self.context)
 					},
 					WindowEvent::CursorMoved { position,.. } => {
-						dbg!(position);
+						//dbg!(position);
 					}
 					_ => {}
 				}, 

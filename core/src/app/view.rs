@@ -47,7 +47,7 @@ impl RenderContext {
 		surface_program:Program,
 		text_program:Program
 	) -> Self {
-		Self { surface_program, text_program }
+		Self{ surface_program, text_program }
 	}
 }
 

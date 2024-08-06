@@ -41,13 +41,16 @@ fn main() {
 } */
 
 fn widget_tree() {
-	let rect = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 200, 200));
-	let rect1 = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 20, 200));
-	let rect2 = Rect::new(50, 150, 400, 150,Colour::Rgb(200, 20, 200));
-	let container = Container::new(rect2);
+	let rect = Rect{
+		width:200,
+		height:200,
+		colour:Colour::Rgb(255, 25, 25)
+	};
+
 	let button = Button{text:"Hello world".to_owned()};
 	let mut tree = WidgetTree::new();
-	tree.build(button);
+	tree.build(rect);
+
 	let page = View{
 		widget_tree:tree
 	};
