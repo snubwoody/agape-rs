@@ -51,7 +51,7 @@ fn widget_tree() {
 	let container = Container{
 		padding:20,
 		colour:Colour::Rgb(155,105, 25),
-		child:button
+		child:rect
 	};
 	let mut tree = WidgetTree::new();
 	tree.build(container);

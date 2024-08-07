@@ -18,8 +18,8 @@ impl Widget for Rect {
 			surface:Surface{ 
 				x:0, 
 				y:0, 
-				width:self.width as i32,
-				height:self.height as i32,
+				width:self.width,
+				height:self.height,
 				colour:self.colour
 			},
 			layout,

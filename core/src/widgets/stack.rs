@@ -16,7 +16,7 @@ pub struct VStack{
 	children:Vec<Box<dyn Widget>>
 }
 
-#[derive(Drawable,Debug)]
+#[derive(Debug)]
 pub struct HStack{
 	surface:Surface,
 	layout:Layout,

@@ -15,13 +15,13 @@ use crate::{colour::Colour, vertex::Vertex};
 pub struct Surface{
 	pub x:i32,
 	pub y:i32,
-	pub width:i32,
-	pub height:i32,
+	pub width:u32,
+	pub height:u32,
 	pub colour:Colour,
 }
 
 impl Surface {
-	pub fn new(x:i32,y:i32,width:i32,height:i32,colour:Colour) -> Self{
+	pub fn new(x:i32,y:i32,width:u32,height:u32,colour:Colour) -> Self{
 		Self { x,y,width,height,colour }
 	}
 
@@ -61,11 +61,11 @@ impl Surface {
 		let colour = self.colour.normalize();
 
 		let vertex1 = Vertex::new(self.x, self.y,colour); //Top left
-		let vertex2 = Vertex::new(self.x+self.width, self.y,colour); // Top right
-		let vertex3 = Vertex::new(self.x, self.y+self.height,colour); //Bottom left
-		let vertex4 = Vertex::new(self.x+self.width, self.y,colour); //Top right
-		let vertex5 = Vertex::new(self.x, self.y+self.height,colour); // Bottom left
-		let vertex6 = Vertex::new(self.x+self.width, self.y+self.height,colour); //Bottom right
+		let vertex2 = Vertex::new(self.x+self.width as i32, self.y,colour); // Top right
+		let vertex3 = Vertex::new(self.x, self.y+self.height as i32,colour); //Bottom left
+		let vertex4 = Vertex::new(self.x+self.width as i32, self.y,colour); //Top right
+		let vertex5 = Vertex::new(self.x, self.y+self.height as i32,colour); // Bottom left
+		let vertex6 = Vertex::new(self.x+self.width as i32, self.y+self.height as i32,colour); //Bottom right
 
 		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
 	}
