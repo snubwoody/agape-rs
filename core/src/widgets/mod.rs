@@ -66,8 +66,10 @@ impl WidgetBody {
 	) {
 		// Arrange the children
 		let position = self.get_position();
+		//self.children.iter_mut().for_each(|widget| {widget.layout.arrange([position.0,position.1],&mut widget.children);});
 		let size = self.layout.arrange([position.0,position.1],&mut self.children);
 		self.size(size.0, size.1);
+		dbg!("Arranged widget",&self);
 		
 		// Render the parent and the child
 		self.surface.render(display, frame, window, &context.surface_program);
@@ -144,6 +146,7 @@ impl WidgetTree where  {
 		context:&RenderContext,
 	) {
 		self.widgets.iter_mut().for_each(|widget| {
+			
 			widget.1.widget.render(display, frame, window, context)
 		})
 	}

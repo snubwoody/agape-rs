@@ -27,8 +27,6 @@ impl View {
 		let mut frame = display.draw();
 		frame.clear_color(1.0, 1.0, 1.0, 1.0);
 
-		self.arrange_widget();
-
 		//Render the children, passing the objects down the widget tree
 		self.widget_tree.render(display,&mut frame,window,context);
 
@@ -36,9 +34,7 @@ impl View {
 		frame.finish().unwrap();
 	}
 
-	fn arrange_widget(&self) {
-		dbg!(self);
-	}
+	
 }
 
 /// Contains the compiled shader programs

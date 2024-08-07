@@ -10,6 +10,7 @@ use colour::Colour;
 use widgets::button::Button;
 use widgets::container::Container;
 use widgets::rect::Rect;
+use widgets::stack::{HStack, VStack};
 use widgets::WidgetTree;
 use crate::surface::Surface;
 use crate::widgets::Widget;
@@ -47,13 +48,29 @@ fn widget_tree() {
 		colour:Colour::Rgb(255, 25, 25)
 	};
 
+	let rect2 = Rect{
+		width:200,
+		height:200,
+		colour:Colour::Rgb(25, 125, 225)
+	};
+
 	let container = Container{
 		padding:20,
 		colour:Colour::Rgb(155,105, 25),
 		child:rect
 	};
+
+	let vstack = VStack{
+		spacing:24,
+		padding:12,
+		children:vec![
+			Box::new(container),
+			Box::new(rect2),
+		]
+	};
+
 	let mut tree = WidgetTree::new();
-	tree.build(container);
+	tree.build(vstack);
 
 	let page = View{
 		widget_tree:tree
