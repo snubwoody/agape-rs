@@ -17,7 +17,7 @@ pub struct Container<W:Widget>{
 impl<W> Widget for Container<W> where W:Widget {
 	fn build(&self) -> WidgetBody {
 		let surface = Surface{colour:self.colour,..Default::default()};
-		let layout = Layout::Horizontal { spacing: 12, padding: 12 };
+		let layout = Layout::Single { padding: 12 };
 		let child = self.child.build();
 		WidgetBody{
 			surface,

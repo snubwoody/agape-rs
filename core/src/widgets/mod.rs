@@ -64,29 +64,35 @@ impl WidgetBody {
 		window:&Window,
 		context:&RenderContext,
 	) {
-		self.layout.arrange();
+		// Arrange the children
+		let position = self.get_position();
+		let size = self.layout.arrange([position.0,position.1],&mut self.children);
+		self.size(size.0, size.1);
+		
+		// Render the parent and the child
 		self.surface.render(display, frame, window, &context.surface_program);
 		self.children.iter_mut().for_each(|widget|widget.render(display, frame, window, context));
 	}
 
-	fn position(&mut self, x:i32,y:i32){
+	/// Set the position of the [`Widget`]
+	pub fn position(&mut self, x:i32,y:i32){
 		self.surface.x = x;
 		self.surface.y = y;
 	} 
 	
 	/// Get the [`Widget`] position
-	fn get_position(&self) -> (i32,i32){
+	pub fn get_position(&self) -> (i32,i32){
 		(self.surface.x,self.surface.y)
 	} 
 
-	/// Set the size of the widget
-	fn size(&mut self,width:u32,height:u32){
+	/// Set the size of the [`Widget`]
+	pub fn size(&mut self,width:u32,height:u32){
 		self.surface.width = width;
 		self.surface.height = height;
 	} 
 
-	/// Get the size of the widget
-	fn get_size(&self) -> (u32,u32){
+	/// Get the size of the [`Widget`]
+	pub fn get_size(&self) -> (u32,u32){
 		(self.surface.width,self.surface.height)
 	}
 

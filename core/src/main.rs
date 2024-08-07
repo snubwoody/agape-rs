@@ -47,7 +47,6 @@ fn widget_tree() {
 		colour:Colour::Rgb(255, 25, 25)
 	};
 
-	let button = Button{text:"Hello world".to_owned()};
 	let container = Container{
 		padding:20,
 		colour:Colour::Rgb(155,105, 25),
