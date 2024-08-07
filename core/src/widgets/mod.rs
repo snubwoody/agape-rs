@@ -36,6 +36,7 @@ pub trait Drawable{
 
 pub trait Widget:Debug{
 	fn build(&self) -> WidgetBody;
+
 	fn position(&mut self, x:i32,y:i32){} 
 	
 	/// Get the [`Widget`] position
@@ -51,7 +52,8 @@ pub trait Widget:Debug{
 #[derive(Debug)]
 pub struct WidgetBody{
 	surface:Surface,
-	layout:Layout
+	layout:Layout,
+	children:Vec<Box<WidgetBody>>
 }
 
 impl WidgetBody {
@@ -64,6 +66,17 @@ impl WidgetBody {
 	) {
 		self.surface.render(display, frame, window, &context.surface_program);
 	}
+
+	fn position(&mut self, x:i32,y:i32){} 
+	
+	/// Get the [`Widget`] position
+	fn get_position(&self) -> (i32,i32){(0,0)} 
+
+	/// Set the size of the widget
+	fn size(&mut self,width:u32,height:u32){} 
+
+	/// Get the size of the widget
+	fn get_size(&self) -> (u32,u32){(0,0)}
 }
 
 

@@ -48,8 +48,13 @@ fn widget_tree() {
 	};
 
 	let button = Button{text:"Hello world".to_owned()};
+	let container = Container{
+		padding:20,
+		colour:Colour::Rgb(155,105, 25),
+		child:button
+	};
 	let mut tree = WidgetTree::new();
-	tree.build(rect);
+	tree.build(container);
 
 	let page = View{
 		widget_tree:tree

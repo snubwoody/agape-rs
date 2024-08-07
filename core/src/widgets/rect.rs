@@ -22,7 +22,8 @@ impl Widget for Rect {
 				height:self.height as i32,
 				colour:self.colour
 			},
-			layout
+			layout,
+			children:vec![]
 		}
 	}
 }

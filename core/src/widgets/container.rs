@@ -9,18 +9,20 @@ use super::WidgetBody;
 /// A container [`Widget`] that can only have one child
 #[derive(Debug,Clone,Copy)]
 pub struct Container<W:Widget>{
-	padding:u32,
-	colour:Colour,
-	child:W
+	pub padding:u32,
+	pub colour:Colour,
+	pub child:W
 }
 
 impl<W> Widget for Container<W> where W:Widget {
 	fn build(&self) -> WidgetBody {
 		let surface = Surface{colour:self.colour,..Default::default()};
 		let layout = Layout::Horizontal { spacing: 12, padding: 12 };
+		let child = self.child.build();
 		WidgetBody{
 			surface,
-			layout
+			layout,
+			children:vec![Box::new(child)]
 		}
 	}
 }

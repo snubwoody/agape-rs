@@ -1,5 +1,6 @@
 use crate::widgets::{Drawable, Widget};
 
+/// The types of layout a widget can have
 #[derive(Debug)]
 pub enum Layout{
 	Horizontal{
@@ -24,8 +25,8 @@ impl Layout {
 		}
 	}
 
-	fn arrange_single(&self,position:[u32;2],child:&mut dyn Drawable){
-		let mut max_width = 0;
+	fn arrange_single(&self){
+		/* let mut max_width = 0;
 		let mut max_height = 0;
 
 		// Position the child in the center of parent widget
@@ -36,11 +37,11 @@ impl Layout {
 		max_width += child_size.0 + self.padding * 2;
 		max_height += child_size.1 + self.padding * 2;
 
-		(max_width,max_height)
+		(max_width,max_height) */
 	}
 
 	fn arrange_vertical(&self){
-		let mut max_width = 0;
+		/* let mut max_width = 0;
 		let mut max_height = 0;
 		
 		// Iterate over the children to get the required space
@@ -69,11 +70,11 @@ impl Layout {
 		max_width += self.padding *2;
 		max_height += self.padding *2;
 
-		(max_width,max_height)
+		(max_width,max_height) */
 	}
 
 	fn arrange_horizontal(&self){
-		let mut max_width = 0;
+		/* let mut max_width = 0;
 		let mut max_height = 0;
 	
 		// Iterate over the children to get the required space
@@ -101,7 +102,7 @@ impl Layout {
 		max_width += self.padding *2;
 		max_height += self.padding *2;
 
-		(max_width,max_height)
+		(max_width,max_height) */
 	}
 }
 

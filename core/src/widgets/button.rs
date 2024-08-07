@@ -15,6 +15,6 @@ impl Widget for Button {
 	fn build(&self) -> WidgetBody {
 		let surface = Surface::new(0, 0, 500, 500, Colour::Rgb(255, 25, 255));
 		let layout = Layout::Single { padding: 0 };
-		WidgetBody { surface,layout }
+		WidgetBody { surface,layout,children:vec![] }
 	}
 }
