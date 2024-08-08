@@ -25,7 +25,7 @@ impl Layout {
 		match self {
 			&Self::Single { padding } => self.arrange_single(position,&mut children[0],padding),
 			&Self::Vertical { spacing,padding } => self.arrange_vertical(position,children,padding,spacing),
-			&Self::Horizontal { spacing,padding } => self.arrange_horizontal(),
+			&Self::Horizontal { spacing,padding } => self.arrange_horizontal(position,children,padding,spacing),
 			&Self::SingleChild { width,height} => {(width,height)}
 		}
 	}
@@ -78,8 +78,8 @@ impl Layout {
 		(max_width,max_height)
 	}
 
-	fn arrange_horizontal(&self) -> (u32,u32) {
-		/* let mut max_width = 0;
+	fn arrange_horizontal(&self,position:[i32;2],children:&mut Vec<Box<WidgetBody>>,padding:u32,spacing:u32) -> (u32,u32) {
+		let mut max_width = 0;
 		let mut max_height = 0;
 	
 		// Iterate over the children to get the required space
@@ -93,23 +93,21 @@ impl Layout {
 			
 			// Add the spacing for all elements except the last
 			if index != children.len() - 1 {
-				max_width += self.spacing;
+				max_width += spacing;
 			}
 		};
 
-		let mut current_pos = position[0] + self.padding;
+		let mut current_pos = position[0] + padding as i32;
 		children.iter_mut().for_each(|child|{
 			let size = child.get_size();
-			child.position(current_pos as i32, position[1] as i32 + self.padding as i32);
-			current_pos += self.spacing + size.0;
+			child.position(current_pos as i32, position[1] as i32 + padding as i32);
+			current_pos += spacing as i32 + size.0 as i32;
 		});
 
-		max_width += self.padding *2;
-		max_height += self.padding *2;
+		max_width += padding *2;
+		max_height += padding *2;
 
-		(max_width,max_height) */
-
-		(0,0)
+		(max_width,max_height)
 	}
 }
 

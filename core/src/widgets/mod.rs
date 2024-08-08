@@ -63,20 +63,20 @@ impl WidgetBody {
 		context:&RenderContext,
 	) {
 		// Arrange the children
-		self.arrange();
+		self.arrange_widgets();
 
 		// Render the parent and the child
 		self.surface.render(display, frame, window, &context.surface_program);
 		self.children.iter_mut().for_each(|widget|widget.render(display, frame, window, context));
 	}
 
-	pub fn arrange(&mut self) {
+	pub fn arrange_widgets(&mut self) {
 		// Arrange the children
 		let position = self.get_position();
 		self.children.iter_mut().for_each(|widget| {
 			dbg!("Hello",&widget);
 			let child_position = widget.get_position();
-			widget.arrange();}
+			widget.arrange_widgets();}
 		);
 		let size = self.layout.arrange([position.0,position.1],&mut self.children);
 		self.size(size.0, size.1);

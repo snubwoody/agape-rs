@@ -28,8 +28,23 @@ impl Widget for VStack {
 
 #[derive(Debug)]
 pub struct HStack{
-	surface:Surface,
-	layout:Layout,
-	children:Vec<Box<dyn Widget>>
+	pub spacing:u32,
+	pub padding:u32,
+	pub children:Vec<Box<dyn Widget>>
+}
+
+impl Widget for HStack {
+	fn build(&self) -> WidgetBody {
+		let surface = Surface::default();
+		let layout = Layout::Horizontal  { spacing: self.spacing, padding: self.padding };
+		let children = self.children.iter().map(|widget| Box::new(widget.build())).collect();
+
+		WidgetBody{
+			surface,
+			layout,
+			children
+		}
+
+	}
 }
 

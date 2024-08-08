@@ -60,7 +60,7 @@ fn widget_tree() {
 		child:rect
 	};
 
-	let vstack = VStack{
+	let hstack = HStack{
 		spacing:24,
 		padding:12,
 		children:vec![
@@ -70,7 +70,7 @@ fn widget_tree() {
 	};
 
 	let mut tree = WidgetTree::new();
-	tree.build(vstack);
+	tree.build(hstack);
 
 	let page = View{
 		widget_tree:tree
