@@ -3,7 +3,6 @@ pub mod stack;
 pub mod container;
 pub mod text;
 pub mod button;
-use std::collections::HashMap;
 use std::fmt::Debug;
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame, 
@@ -25,15 +24,14 @@ pub trait Drawable{
 	/// Get the [`Widget`] position
 	fn get_position(&self) -> (i32,i32); 
 
-	/// Set the size of the widget
+	/// Set the size of the [`Widget`]
 	fn size(&mut self,width:u32,height:u32); 
 
-	/// Get the size of the widget
+	/// Get the size of the [`Widget`]
 	fn get_size(&self) -> (u32,u32);
 }
 
 /// Widget trait that all widgets must inherit from
-
 pub trait Widget:Debug{
 	fn build(&self) -> WidgetBody;
 
@@ -65,15 +63,24 @@ impl WidgetBody {
 		context:&RenderContext,
 	) {
 		// Arrange the children
-		let position = self.get_position();
-		//self.children.iter_mut().for_each(|widget| {widget.layout.arrange([position.0,position.1],&mut widget.children);});
-		let size = self.layout.arrange([position.0,position.1],&mut self.children);
-		self.size(size.0, size.1);
-		dbg!("Arranged widget",&self);
-		
+		self.arrange();
+
 		// Render the parent and the child
 		self.surface.render(display, frame, window, &context.surface_program);
 		self.children.iter_mut().for_each(|widget|widget.render(display, frame, window, context));
+	}
+
+	pub fn arrange(&mut self) {
+		// Arrange the children
+		let position = self.get_position();
+		self.children.iter_mut().for_each(|widget| {
+			dbg!("Hello",&widget);
+			let child_position = widget.get_position();
+			widget.arrange();}
+		);
+		let size = self.layout.arrange([position.0,position.1],&mut self.children);
+		self.size(size.0, size.1);
+		dbg!("Arranged widget",&self);
 	}
 
 	/// Set the position of the [`Widget`]
@@ -100,23 +107,23 @@ impl WidgetBody {
 
 }
 
-
 type WidgetID = usize;
 
 #[derive(Debug)]
 pub struct WidgetTree{
-	widgets:HashMap<WidgetID,WidgetNode>,
+	widgets:Vec<WidgetBody>,
 	root:WidgetID,
 	next:WidgetID
 }
 
 impl WidgetTree where  {
 	pub fn new() -> Self{
-		Self { widgets: HashMap::new(), root: 0, next: 0 }
+		Self { widgets: Vec::new(), root: 0, next: 0 }
 	}
 
 	pub fn add(&mut self,widget:impl Widget + 'static) {
 		let parent:Option<WidgetID>;
+
 		if self.next == 0 {
 			parent = None;
 		}
@@ -124,13 +131,9 @@ impl WidgetTree where  {
 			parent = Some(self.next)
 		}
 
-		let node = WidgetNode{
-			widget: widget.build(),
-			parent,
-			children:vec![1]
-		};
+		let node = widget.build();
 
-		self.widgets.insert(self.next, node);
+		self.widgets.push(node);
 		self.next += 1;
 	}
 
@@ -145,16 +148,13 @@ impl WidgetTree where  {
 		window:&Window,
 		context:&RenderContext,
 	) {
+		/* let widgets = vec![];
+		widgets.push(self)
+
+		self.widgets.iter_mut().rev().for_each(|widget|widget.arrange()); */
 		self.widgets.iter_mut().for_each(|widget| {
-			
-			widget.1.widget.render(display, frame, window, context)
+			widget.render(display, frame, window, context)
 		})
 	}
 }
 
-#[derive(Debug)]
-pub struct WidgetNode{
-	widget:WidgetBody,
-	parent:Option<WidgetID>,
-	children:Vec<WidgetID>
-}

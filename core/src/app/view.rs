@@ -16,7 +16,6 @@ pub struct View{
 }
 
 impl View {
-
 	pub fn render(
 		&mut self,
 		display:&Display<WindowSurface>,
@@ -33,8 +32,6 @@ impl View {
 		//Swap the buffers
 		frame.finish().unwrap();
 	}
-
-	
 }
 
 /// Contains the compiled shader programs
