@@ -24,22 +24,6 @@ fn main() {
 	widget_tree()
 }
 
-/* fn run_app() {
-	let rect = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 20, 200));
-	let rect2 = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 20, 200));
-	let rect3 = Rect::new(50, 150, 400, 150,Colour::Rgb(0, 20, 200));
-
-	let container = Container::new(rect);
-	let page = View::new(container);
-
-	dbg!(&page);
-
-	let app = 
-		App::new()
-		.add_view(page);
-
-	app.run()
-} */
 
 fn widget_tree() {
 	let rect = Rect{
@@ -54,20 +38,51 @@ fn widget_tree() {
 		colour:Colour::Rgb(25, 125, 225)
 	};
 
+	let rect3 = Rect{
+		width:200,
+		height:200,
+		colour:Colour::Rgb(25, 125, 225)
+	};
+
+	let rect4 = Rect{
+		width:200,
+		height:200,
+		colour:Colour::Rgb(25, 125, 225)
+	};
+
 	let container = Container{
 		padding:20,
 		colour:Colour::Rgb(155,105, 25),
 		child:rect
 	};
 
-	let hstack = HStack{
-		spacing:24,
-		padding:12,
+	let vstack = VStack{
+		spacing:12,
+		padding:32,
 		children:vec![
 			Box::new(container),
 			Box::new(rect2),
 		]
 	};
+
+	let vstack2 = VStack{
+		spacing:12,
+		padding:32,
+		children:vec![
+			Box::new(rect3),
+			Box::new(rect4),
+		]
+	};
+
+	let hstack = HStack{
+		spacing:24,
+		padding:12,
+		children:vec![
+			Box::new(vstack),
+			Box::new(vstack2),
+		]
+	};
+
 
 	let mut tree = WidgetTree::new();
 	tree.build(hstack);
