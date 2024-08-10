@@ -4,6 +4,10 @@ use crate::{
 	widgets::{Widget, WidgetBody}
 };
 
+
+// The stacks aren't working, every change breaks the 
+// stacks is some way, it's actually so infuriating, i
+// don't even know what to do about them.
 pub struct VStack{
 	pub spacing:u32,
 	pub padding:u32,

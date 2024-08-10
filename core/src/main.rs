@@ -25,10 +25,7 @@ fn main() {
 
 
 fn widget_tree() {
-	let button = Button{
-		text:"Click me".to_string(),
-		on_click:Box::new(||{dbg!("Testing");})
-	};
+	let button = Button::new("Hello").on_click(||{dbg!("Hello there");});
 
 	let mut tree = WidgetTree::new();
 	tree.build(button);
@@ -42,7 +39,6 @@ fn widget_tree() {
 		.add_view(page);
 
 	app.run();
-	//dbg!(page);
 
 }
 
