@@ -3,7 +3,7 @@ use properties::Drawable;
 use crate::{app::view::RenderContext, Widget};
 use crate::text::TextSurface;
 
-#[derive(Debug,Drawable)]
+#[derive(Debug)]
 pub struct Text{
 	surface:TextSurface,
 	text:String,
@@ -16,22 +16,3 @@ impl Text {
 		Self { surface, text:text.into(), font_size }	
 	}
 }
-
-/* impl Widget for Text {
-	fn render(
-		&mut self,
-		display:&glium::Display<glium::glutin::surface::WindowSurface>,
-		frame:&mut glium::Frame,
-		window:&winit::window::Window,
-		context:&RenderContext,
-	) {
-		// FIXME text broken
-		self.surface.build(display);
-		self.surface.render(display, frame, window, &context.text_program);
-	}
-
-	fn get_children(self) -> Vec<Box<dyn Widget>> {
-		vec![]
-	}
- 
-}*/

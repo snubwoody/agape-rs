@@ -14,27 +14,6 @@ use crate::layout::Layout;
 use crate::utils::Bounds;
 use crate::Surface;
 
-
-/// Represents anything that's drawable to the screen ie.
-/// it must have a size and a position.  
-/// `Deprecated`
-pub trait Drawable{
-	/// Set the position of the [`Widget`]  
-	/// Note that positions start from the upper left 
-	/// corner
-	fn position(&mut self, x:i32,y:i32); 
-	
-	/// Get the [`Widget`] position
-	fn get_position(&self) -> (i32,i32); 
-
-	/// Set the size of the [`Widget`]
-	fn size(&mut self,width:u32,height:u32); 
-
-	/// Get the size of the [`Widget`]
-	fn get_size(&self) -> (u32,u32);
-}
-
-
 /// Widget trait that all widgets must inherit from
 pub trait Widget:Debug{
 	fn build(&self) -> WidgetBody;

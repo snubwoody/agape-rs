@@ -1,4 +1,4 @@
-use crate::widgets::{Drawable, Widget, WidgetBody};
+use crate::widgets::WidgetBody;
 
 /// The types of layout a widget can have
 #[derive(Debug)]
