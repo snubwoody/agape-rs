@@ -16,6 +16,8 @@ I need to start doing these in order now
 ## Todo
 
 - Add interactions
+- Add a position struct
+- Add a size struct
 - Add rounded corners
 - Add borders
 

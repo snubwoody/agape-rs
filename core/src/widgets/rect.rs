@@ -23,7 +23,8 @@ impl Widget for Rect {
 				colour:self.colour
 			},
 			layout,
-			children:vec![]
+			children:vec![],
+			..Default::default()
 		}
 	}
 }

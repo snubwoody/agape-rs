@@ -8,9 +8,8 @@ use winit::window::Window;
 use crate::widgets::WidgetTree;
 
 
-/// A page-like structure that holds multiple widgets below it and renders them.  
-/// It can only have one [`Widget`] child
-#[derive(Debug)]
+
+/// A page
 pub struct View{
 	pub widget_tree:WidgetTree
 }
@@ -26,7 +25,7 @@ impl View {
 		let mut frame = display.draw();
 		frame.clear_color(1.0, 1.0, 1.0, 1.0);
 
-		//Render the children, passing the objects down the widget tree
+		//Render the widget tree
 		self.widget_tree.render(display,&mut frame,window,context);
 
 		//Swap the buffers

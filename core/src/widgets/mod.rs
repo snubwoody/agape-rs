@@ -9,12 +9,15 @@ use glium::{
 };
 use winit::window::Window;
 use crate::app::view::RenderContext;
+use crate::colour::Colour;
 use crate::layout::Layout;
+use crate::utils::Bounds;
 use crate::Surface;
 
 
 /// Represents anything that's drawable to the screen ie.
-/// it must have a size and a position
+/// it must have a size and a position.  
+/// `Deprecated`
 pub trait Drawable{
 	/// Set the position of the [`Widget`]  
 	/// Note that positions start from the upper left 
@@ -31,27 +34,17 @@ pub trait Drawable{
 	fn get_size(&self) -> (u32,u32);
 }
 
+
 /// Widget trait that all widgets must inherit from
 pub trait Widget:Debug{
 	fn build(&self) -> WidgetBody;
-
-	fn position(&mut self, x:i32,y:i32){} 
-	
-	/// Get the [`Widget`] position
-	fn get_position(&self) -> (i32,i32){(0,0)} 
-
-	/// Set the size of the widget
-	fn size(&mut self,width:u32,height:u32){} 
-
-	/// Get the size of the widget
-	fn get_size(&self) -> (u32,u32){(0,0)}
 }
 
-#[derive(Debug)]
 pub struct WidgetBody{
 	surface:Surface,
 	layout:Layout,
-	children:Vec<Box<WidgetBody>>
+	children:Vec<Box<WidgetBody>>,
+	events:Vec<Box<dyn Fn()>>
 }
 
 impl WidgetBody {
@@ -70,17 +63,22 @@ impl WidgetBody {
 		self.children.iter_mut().for_each(|widget|widget.render(display, frame, window, context));
 	}
 
+	pub fn on_hover(&mut self) {
+		self.events.push(Box::new(||{dbg!("It worked");}));
+		for (_,event) in self.events.iter().enumerate(){
+			event()
+		}
+		dbg!("Hello");
+	}
+
 	pub fn arrange_widgets(&mut self) {
 		// Arrange the children
 		let position = self.get_position();
 		self.children.iter_mut().for_each(|widget| {
-			dbg!("Hello",&widget);
-			let child_position = widget.get_position();
 			widget.arrange_widgets();}
 		);
 		let size = self.layout.arrange([position.0,position.1],&mut self.children);
 		self.size(size.0, size.1);
-		dbg!("Arranged widget",&self);
 	}
 
 	/// Set the position of the [`Widget`]
@@ -105,38 +103,44 @@ impl WidgetBody {
 		(self.surface.width,self.surface.height)
 	}
 
+	pub fn get_bounds(&self) -> Bounds{
+		let position = self.get_position();
+		let size = self.get_size();
+		Bounds{
+			x:[position.0,size.0 as i32],
+			y:[position.1,size.1 as i32],
+		}
+	}
+
 }
 
-type WidgetID = usize;
+impl Default for WidgetBody {
+	fn default() -> Self {
+		let surface = Surface::default();
+		let layout = Layout::Single { padding: 0 };
+		Self { surface, layout, children: vec![], events: vec![] }
+	}
+}
 
-#[derive(Debug)]
+
+// TODO maybe implement iter for the widget tree
 pub struct WidgetTree{
-	widgets:Vec<WidgetBody>,
-	root:WidgetID,
-	next:WidgetID
+	pub widgets:Vec<WidgetBody>,
 }
 
 impl WidgetTree where  {
 	pub fn new() -> Self{
-		Self { widgets: Vec::new(), root: 0, next: 0 }
+		Self { widgets: Vec::new()}
 	}
 
 	pub fn add(&mut self,widget:impl Widget + 'static) {
-		let parent:Option<WidgetID>;
-
-		if self.next == 0 {
-			parent = None;
-		}
-		else {
-			parent = Some(self.next)
-		}
 
 		let node = widget.build();
 
 		self.widgets.push(node);
-		self.next += 1;
 	}
 
+	/// Build the widget tree 
 	pub fn build(&mut self,widget:impl Widget + 'static) {
 		self.add(widget);
 	}
@@ -148,10 +152,6 @@ impl WidgetTree where  {
 		window:&Window,
 		context:&RenderContext,
 	) {
-		/* let widgets = vec![];
-		widgets.push(self)
-
-		self.widgets.iter_mut().rev().for_each(|widget|widget.arrange()); */
 		self.widgets.iter_mut().for_each(|widget| {
 			widget.render(display, frame, window, context)
 		})

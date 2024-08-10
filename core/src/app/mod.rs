@@ -4,11 +4,15 @@ use glium::{
 	glutin::surface::WindowSurface, Display, Program,
 };
 use winit::{
-	event::{Event, WindowEvent}, 
-	event_loop::{ControlFlow, EventLoop}, 
+	dpi::PhysicalPosition, 
+	event::WindowEvent, 
+	event_loop::{
+		ControlFlow, 
+		EventLoop
+	}, 
 	window::Window
 };
-use crate::app::view::{View,RenderContext};
+use crate::{app::view::{RenderContext, View}, widgets::WidgetTree};
 pub mod view;
 
 
@@ -50,13 +54,13 @@ impl App{
 	pub fn run(mut self){
 		self.event_loop.run(move | event,window_target|{
 			match event {
-				Event::WindowEvent{event,..} => match event {
+				winit::event::Event::WindowEvent{event,..} => match event {
 					WindowEvent::CloseRequested => window_target.exit(),
 					WindowEvent::RedrawRequested => {
 						self.views[self.index].render(&self.display, &self.window,&self.context)
 					},
 					WindowEvent::CursorMoved { position,.. } => {
-						//dbg!(position);
+						handle_hover_event(&mut self.views[0].widget_tree,position);
 					}
 					_ => {}
 				}, 
@@ -67,6 +71,21 @@ impl App{
 	}
 }
 
+enum Event{
+	OnHover,
+	OnClick,
+}
+
+
+fn handle_hover_event(widget_tree:&mut WidgetTree,position:PhysicalPosition<f64>){
+	for (_,widget) in  widget_tree.widgets.iter_mut().enumerate(){
+		let bounds = widget.get_bounds();
+		let cursor_pos = [position.x as i32,position.y as i32];
+		if bounds.within(cursor_pos){
+			widget.on_hover()
+		}
+	}
+}
 fn create_program(display:&Display<WindowSurface>,vertex_shader_src:&str,fragment_shader_src:&str) -> Program {
 	let vertex_shader = fs::read_to_string(vertex_shader_src).expect("Cannot locate vertex shader file");
 	let fragment_shader = fs::read_to_string(fragment_shader_src).expect("Cannot locate vertex shader file");

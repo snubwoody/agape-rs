@@ -20,72 +20,15 @@ use crate::app::App;
 extern crate glium;
 
 fn main() {
-	//run_app();
 	widget_tree()
 }
 
 
 fn widget_tree() {
-	let rect = Rect{
-		width:200,
-		height:200,
-		colour:Colour::Rgb(255, 25, 25)
-	};
-
-	let rect2 = Rect{
-		width:200,
-		height:200,
-		colour:Colour::Rgb(25, 125, 225)
-	};
-
-	let rect3 = Rect{
-		width:200,
-		height:200,
-		colour:Colour::Rgb(25, 125, 225)
-	};
-
-	let rect4 = Rect{
-		width:200,
-		height:200,
-		colour:Colour::Rgb(25, 125, 225)
-	};
-
-	let container = Container{
-		padding:20,
-		colour:Colour::Rgb(155,105, 25),
-		child:rect
-	};
-
-	let vstack = VStack{
-		spacing:12,
-		padding:32,
-		children:vec![
-			Box::new(container),
-			Box::new(rect2),
-		]
-	};
-
-	let vstack2 = VStack{
-		spacing:12,
-		padding:32,
-		children:vec![
-			Box::new(rect3),
-			Box::new(rect4),
-		]
-	};
-
-	let hstack = HStack{
-		spacing:24,
-		padding:12,
-		children:vec![
-			Box::new(vstack),
-			Box::new(vstack2),
-		]
-	};
-
+	let button = Button{text:"Click me".to_string()};
 
 	let mut tree = WidgetTree::new();
-	tree.build(hstack);
+	tree.build(button);
 
 	let page = View{
 		widget_tree:tree

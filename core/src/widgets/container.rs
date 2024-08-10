@@ -22,7 +22,8 @@ impl<W> Widget for Container<W> where W:Widget {
 		WidgetBody{
 			surface,
 			layout,
-			children:vec![Box::new(child)]
+			children:vec![Box::new(child)],
+			..Default::default()
 		}
 	}
 }
