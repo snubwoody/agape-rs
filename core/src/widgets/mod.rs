@@ -3,20 +3,19 @@ pub mod stack;
 pub mod container;
 pub mod text;
 pub mod button;
-use std::fmt::Debug;
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame, 
 };
 use winit::window::Window;
 use crate::app::view::RenderContext;
-use crate::colour::Colour;
 use crate::layout::Layout;
 use crate::utils::Bounds;
 use crate::Surface;
 
+
 /// Widget trait that all widgets must inherit from
-pub trait Widget:Debug{
-	fn build(&self) -> WidgetBody;
+pub trait Widget{
+	fn build(self) -> WidgetBody;
 }
 
 pub struct WidgetBody{
@@ -43,11 +42,9 @@ impl WidgetBody {
 	}
 
 	pub fn on_hover(&mut self) {
-		self.events.push(Box::new(||{dbg!("It worked");}));
 		for (_,event) in self.events.iter().enumerate(){
 			event()
 		}
-		dbg!("Hello");
 	}
 
 	pub fn arrange_widgets(&mut self) {
@@ -109,11 +106,10 @@ pub struct WidgetTree{
 
 impl WidgetTree where  {
 	pub fn new() -> Self{
-		Self { widgets: Vec::new()}
+		Self { widgets: Vec::new() }
 	}
 
 	pub fn add(&mut self,widget:impl Widget + 'static) {
-
 		let node = widget.build();
 
 		self.widgets.push(node);

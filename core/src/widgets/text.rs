@@ -1,6 +1,3 @@
-use properties::Drawable;
-
-use crate::{app::view::RenderContext, Widget};
 use crate::text::TextSurface;
 
 #[derive(Debug)]

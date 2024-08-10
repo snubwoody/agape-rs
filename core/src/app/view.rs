@@ -7,8 +7,6 @@ use glium::{
 use winit::window::Window;
 use crate::widgets::WidgetTree;
 
-
-
 /// A page
 pub struct View{
 	pub widget_tree:WidgetTree

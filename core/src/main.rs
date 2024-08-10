@@ -25,7 +25,10 @@ fn main() {
 
 
 fn widget_tree() {
-	let button = Button{text:"Click me".to_string()};
+	let button = Button{
+		text:"Click me".to_string(),
+		on_click:Box::new(||{dbg!("Testing");})
+	};
 
 	let mut tree = WidgetTree::new();
 	tree.build(button);

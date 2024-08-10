@@ -12,7 +12,7 @@ pub struct Rect{
 }
 
 impl Widget for Rect {
-	fn build(&self) -> WidgetBody {
+	fn build(self) -> WidgetBody {
 		let layout = Layout::SingleChild{width:self.width,height:self.height};
 		WidgetBody{ 
 			surface:Surface{ 
