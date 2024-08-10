@@ -5,7 +5,7 @@ use glium::{
 	Program,
 };
 use winit::window::Window;
-use crate::widgets::WidgetTree;
+use crate::widgets::{Widget, WidgetTree};
 
 /// A page
 pub struct View{
@@ -13,6 +13,12 @@ pub struct View{
 }
 
 impl View {
+	pub fn new(root_widget:impl Widget + 'static) -> Self {
+		let mut widget_tree = WidgetTree::new();
+		widget_tree.build(root_widget);
+		
+		Self { widget_tree }
+	}
 	pub fn render(
 		&mut self,
 		display:&Display<WindowSurface>,

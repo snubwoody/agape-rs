@@ -23,12 +23,12 @@ use crate::{
 /// A rasterized texture of text  
 #[derive(Debug)]
 pub struct TextSurface{
-	pub x:i32,
-	pub y:i32,
-	pub width:i32,
-	pub height:i32,
-	pub text:String,
-	pub font_size:u8,
+	x:i32,
+	y:i32,
+	width:i32,
+	height:i32,
+	text:String,
+	font_size:u8,
 	colour:String,
 	size:Option<Size>,
 	texture:Option<Texture2d>

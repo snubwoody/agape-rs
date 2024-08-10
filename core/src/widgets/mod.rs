@@ -7,6 +7,7 @@ use glium::{
 	glutin::surface::WindowSurface, Display, Frame, 
 };
 use winit::window::Window;
+use crate::app::events::EventFunction;
 use crate::app::view::RenderContext;
 use crate::layout::Layout;
 use crate::utils::Bounds;
@@ -22,7 +23,7 @@ pub struct WidgetBody{
 	surface:Surface,
 	layout:Layout,
 	children:Vec<Box<WidgetBody>>,
-	events:Vec<Box<dyn Fn()>>
+	pub events:Vec<EventFunction>
 }
 
 impl WidgetBody {
@@ -39,12 +40,6 @@ impl WidgetBody {
 		// Render the parent and the child
 		self.surface.render(display, frame, window, &context.surface_program);
 		self.children.iter_mut().for_each(|widget|widget.render(display, frame, window, context));
-	}
-
-	pub fn on_hover(&mut self) {
-		for (_,event) in self.events.iter().enumerate(){
-			event()
-		}
 	}
 
 	pub fn arrange_widgets(&mut self) {

@@ -1,4 +1,5 @@
 use std::fs;
+use events::EventManager;
 use glium::{
 	backend::glutin::SimpleWindowBuilder,
 	glutin::surface::WindowSurface, Display, Program,
@@ -23,6 +24,7 @@ pub struct App{
 	event_loop:EventLoop<()>,
 	window:Window,
 	display:Display<WindowSurface>,
+	event_manager:EventManager,
 	views:Vec<View>,
 	context:RenderContext,
 	index:usize
@@ -43,11 +45,13 @@ impl App{
 		let text_program = create_program(&display,"core/shaders/text.vert","core/shaders/text.frag");
 
 		let context = RenderContext::new(surface_program, text_program);
+		let event_manager = EventManager;
 
 		Self { 
 			event_loop,
 			window,
 			display,
+			event_manager,
 			context,
 			views:vec![],
 			index:0
@@ -60,6 +64,7 @@ impl App{
 	}
 
 	pub fn run(mut self){
+
 		self.event_loop.run(move | event,window_target|{
 			match event {
 				winit::event::Event::WindowEvent{event,..} => match event {
@@ -68,28 +73,20 @@ impl App{
 						// Re-render the page when the window redraws
 						self.views[self.index].render(&self.display, &self.window,&self.context)
 					},
-					WindowEvent::CursorMoved { position,.. } => {
-						handle_hover_event(&mut self.views[0].widget_tree,position);
-					}, 
-					WindowEvent::MouseInput { device_id, state, button } => {},
-					_ => {}
+					event => {
+						let widget_tree = &mut self.views[0].widget_tree;
+						self.event_manager.handle_events(widget_tree,event)
+					}
 				}, 
 				_ => {}
 			}
 	
 		}).expect("Event loop error occured");
 	}
+
+
 }
 
-fn handle_hover_event(widget_tree:&mut WidgetTree,position:PhysicalPosition<f64>){
-	for (_,widget) in  widget_tree.widgets.iter_mut().enumerate(){
-		let bounds = widget.get_bounds();
-		let cursor_pos = [position.x as i32,position.y as i32];
-		if bounds.within(cursor_pos){
-			widget.on_hover()
-		}
-	}
-}
 fn create_program(display:&Display<WindowSurface>,vertex_shader_src:&str,fragment_shader_src:&str) -> Program {
 	let vertex_shader = fs::read_to_string(vertex_shader_src).expect("Cannot locate vertex shader file");
 	let fragment_shader = fs::read_to_string(fragment_shader_src).expect("Cannot locate vertex shader file");

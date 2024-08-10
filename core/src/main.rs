@@ -25,14 +25,9 @@ fn main() {
 
 
 fn widget_tree() {
-	let button = Button::new("Hello").on_click(||{dbg!("Hello there");});
+	let button = Button::new("Hello").on_hover(||{dbg!("I was hovered over");});
 
-	let mut tree = WidgetTree::new();
-	tree.build(button);
-
-	let page = View{
-		widget_tree:tree
-	};
+	let page = View::new(button);
 
 	let app = 
 		App::new()
