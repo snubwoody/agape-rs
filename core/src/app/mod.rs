@@ -14,6 +14,7 @@ use winit::{
 };
 use crate::{app::view::{RenderContext, View}, widgets::WidgetTree};
 pub mod view;
+pub mod events;
 
 
 /// This is a singular isolated program. Most projects
@@ -43,7 +44,14 @@ impl App{
 
 		let context = RenderContext::new(surface_program, text_program);
 
-		Self { event_loop,window,display,context,views:vec![],index:0}
+		Self { 
+			event_loop,
+			window,
+			display,
+			context,
+			views:vec![],
+			index:0
+		}
 	}
 
 	pub fn add_view(mut self,view:View) -> Self{
@@ -57,11 +65,13 @@ impl App{
 				winit::event::Event::WindowEvent{event,..} => match event {
 					WindowEvent::CloseRequested => window_target.exit(),
 					WindowEvent::RedrawRequested => {
+						// Re-render the page when the window redraws
 						self.views[self.index].render(&self.display, &self.window,&self.context)
 					},
 					WindowEvent::CursorMoved { position,.. } => {
 						handle_hover_event(&mut self.views[0].widget_tree,position);
-					}
+					}, 
+					WindowEvent::MouseInput { device_id, state, button } => {},
 					_ => {}
 				}, 
 				_ => {}
@@ -70,12 +80,6 @@ impl App{
 		}).expect("Event loop error occured");
 	}
 }
-
-enum Event{
-	OnHover,
-	OnClick,
-}
-
 
 fn handle_hover_event(widget_tree:&mut WidgetTree,position:PhysicalPosition<f64>){
 	for (_,widget) in  widget_tree.widgets.iter_mut().enumerate(){

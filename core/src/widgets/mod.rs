@@ -79,6 +79,7 @@ impl WidgetBody {
 		(self.surface.width,self.surface.height)
 	}
 
+	/// Get the bounds of the [`Widget`]
 	pub fn get_bounds(&self) -> Bounds{
 		let position = self.get_position();
 		let size = self.get_size();
