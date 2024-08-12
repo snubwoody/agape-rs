@@ -6,8 +6,7 @@ use super::Widget;
 pub struct Button{
 	pub text:String,
 	pub colour:Colour,
-	pub on_click:Option<EventFunction>,
-	pub on_hover:Option<EventFunction>,
+	events:Vec<EventFunction>
 }
 
 impl Button {
@@ -15,8 +14,7 @@ impl Button {
 		Self { 
 			text:text.into(), 
 			colour:Colour::Rgb(255, 255, 255),
-			on_click:None,
-			on_hover:None,
+			events:Vec::new()
 		}
 	}
 
@@ -25,39 +23,31 @@ impl Button {
 		self
 	}
 
-	pub fn on_hover(mut self,f:impl Fn() + 'static) -> Self{
-		self.on_click = Some(EventFunction::OnHover(Box::new(f)));
-		self
+	pub fn on_hover(&mut self,f:impl Fn() + 'static){
+		self.events.push(EventFunction::OnHover(Box::new(f)));
 	}
 
-	pub fn on_click(mut self,f:impl Fn() + 'static) -> Self{
-		self.on_click = Some(EventFunction::OnClick(Box::new(f)));
-		self
+	pub fn on_click(&mut self,f:impl Fn() + 'static){
+		self.events.push(EventFunction::OnClick(Box::new(f)));
+	}
+
+	// TODO
+	/// Set the button to fill its parent's width
+	pub fn fill(){
+
 	}
 }
 
 impl Widget for Button {
 	fn build(self) -> WidgetBody {
-		let surface = Surface::new(0, 0, 200, 70, Colour::Rgb(255, 225, 255));
+		let surface = Surface::new(0, 0, 200, 70, Colour::Rgb(255, 255, 255));
 		let layout = Layout::SingleChild { width: 250, height: 70 };
-		let mut events = vec![];
-
-		match self.on_click {
-			Some(function) => events.push(function),
-			None => {}
-		}
-
-		match self.on_hover {
-			Some(function) => events.push(function),
-			None => {}
-		}
-
+		
 		WidgetBody { 
 			surface,
 			layout,
 			children:vec![],
-			events 
+			events:self.events
 		}
-
 	}
 }

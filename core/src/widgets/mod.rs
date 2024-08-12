@@ -90,7 +90,12 @@ impl Default for WidgetBody {
 	fn default() -> Self {
 		let surface = Surface::default();
 		let layout = Layout::Single { padding: 0 };
-		Self { surface, layout, children: vec![], events: vec![] }
+		Self { 
+			surface, 
+			layout, 
+			children:vec![], 
+			events:Vec::new() 
+		}
 	}
 }
 

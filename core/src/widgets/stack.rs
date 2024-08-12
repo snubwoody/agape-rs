@@ -1,6 +1,5 @@
 use crate::{
 	layout::Layout, 
-	surface::Surface, 
 	widgets::{Widget, WidgetBody}
 };
 
@@ -17,13 +16,15 @@ pub struct VStack{
 impl Widget for VStack {
 	fn build(self) -> WidgetBody {
 		let layout = Layout::Vertical { spacing: self.spacing, padding: self.padding };
-		//let children = self.children.iter().map(|widget| Box::new(widget.build())).collect();
+		let children:Vec<Box<WidgetBody>> = self.children.iter().map(|widget| {
+			Box::new(widget.build())
+		}).collect();
 
 		WidgetBody{
 			layout,
+			children,
 			..Default::default()
 		}
-
 	}
 }
 
@@ -36,12 +37,14 @@ pub struct HStack{
 impl Widget for HStack {
 	fn build(self) -> WidgetBody {
 		let layout = Layout::Horizontal  { spacing: self.spacing, padding: self.padding };
-		/* let children = self.children.iter().map(|widget|{
+		
+		let children:Vec<Box<WidgetBody>> = self.children.iter().map(|widget|{
 			Box::new(widget.build())
-		}).collect(); */
+		}).collect();
 
 		WidgetBody{
 			layout,
+			children,
 			..Default::default()
 		}
 
