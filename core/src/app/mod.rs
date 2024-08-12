@@ -45,7 +45,7 @@ impl App{
 		let text_program = create_program(&display,"core/shaders/text.vert","core/shaders/text.frag");
 
 		let context = RenderContext::new(surface_program, text_program);
-		let event_manager = EventManager;
+		let event_manager = EventManager::new();
 
 		Self { 
 			event_loop,

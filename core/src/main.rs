@@ -25,7 +25,7 @@ fn main() {
 
 
 fn widget_tree() {
-	let button = Button::new("Hello").on_hover(||{dbg!("I was hovered over");});
+	let button = Button::new("Hello").on_click(||{dbg!("I was hovered over");});
 
 	let page = View::new(button);
 
