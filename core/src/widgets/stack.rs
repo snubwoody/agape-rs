@@ -3,7 +3,6 @@ use crate::{
 	widgets::{Widget, WidgetBody}
 };
 
-
 // The stacks aren't working, every change breaks the 
 // stacks is some way, it's actually so infuriating, i
 // don't even know what to do about them.
@@ -14,11 +13,14 @@ pub struct VStack{
 }
 
 impl Widget for VStack {
-	fn build(self) -> WidgetBody {
+	fn build(&self) -> WidgetBody {
 		let layout = Layout::Vertical { spacing: self.spacing, padding: self.padding };
-		let children:Vec<Box<WidgetBody>> = self.children.iter().map(|widget| {
+		
+
+		let children = self.children.iter().map(|widget|{
 			Box::new(widget.build())
 		}).collect();
+
 
 		WidgetBody{
 			layout,
@@ -35,10 +37,10 @@ pub struct HStack{
 }
 
 impl Widget for HStack {
-	fn build(self) -> WidgetBody {
+	fn build(&self) -> WidgetBody {
 		let layout = Layout::Horizontal  { spacing: self.spacing, padding: self.padding };
 		
-		let children:Vec<Box<WidgetBody>> = self.children.iter().map(|widget|{
+		let children = self.children.iter().map(|widget|{
 			Box::new(widget.build())
 		}).collect();
 

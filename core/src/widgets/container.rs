@@ -19,6 +19,7 @@ impl<W> Widget for Container<W> where W:Widget {
 		let surface = Surface{colour:self.colour,..Default::default()};
 		let layout = Layout::Single { padding: 12 };
 		let child = self.child.build();
+
 		WidgetBody{
 			surface,
 			layout,

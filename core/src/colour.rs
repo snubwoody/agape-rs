@@ -31,8 +31,7 @@ impl Colour {
 			Self::Rgb(r,g,b) => [r,g,b,100],
 			Self::Rgba(r,g,b,mut a) => {
 				if a > 100 {
-					a = 100
-				}
+					a = 100}
 				[r,g,b,a]
 			},
 		}

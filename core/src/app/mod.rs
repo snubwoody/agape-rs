@@ -64,7 +64,6 @@ impl App{
 	}
 
 	pub fn run(mut self){
-
 		self.event_loop.run(move | event,window_target|{
 			match event {
 				winit::event::Event::WindowEvent{event,..} => match event {

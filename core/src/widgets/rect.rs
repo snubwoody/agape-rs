@@ -14,13 +14,13 @@ pub struct Rect{
 impl Widget for Rect {
 	fn build(&self) -> WidgetBody {
 		let layout = Layout::SingleChild{width:self.width,height:self.height};
+		
 		WidgetBody{ 
 			surface:Surface{ 
-				x:0, 
-				y:0, 
 				width:self.width,
 				height:self.height,
-				colour:self.colour
+				colour:self.colour,
+				..Default::default()
 			},
 			layout,
 			children:vec![],

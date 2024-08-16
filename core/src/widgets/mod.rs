@@ -16,7 +16,7 @@ use crate::Surface;
 
 /// Widget trait that all widgets must inherit from
 pub trait Widget{
-	fn build(self) -> WidgetBody;
+	fn build(&self) -> WidgetBody;
 }
 
 pub struct WidgetBody{
