@@ -14,6 +14,26 @@ pub struct Container<W:Widget>{
 	pub child:W
 }
 
+impl<W> Container<W> where W:Widget {
+	pub fn new(child:W) -> Self{
+		Container { 
+			padding:0, 
+			colour:Colour::Rgb(255, 255, 255), 
+			child 
+		}
+	}
+
+	pub fn colour(mut self,colour:Colour) -> Self{
+		self.colour = colour;
+		self
+	}
+
+	pub fn padding(mut self,padding:u32) -> Self{
+		self.padding = padding;
+		self
+	}
+}
+
 impl<W> Widget for Container<W> where W:Widget {
 	fn build(&self) -> WidgetBody {
 		let surface = Surface{colour:self.colour,..Default::default()};

@@ -23,12 +23,14 @@ impl Button {
 		self
 	}
 
-	pub fn on_hover(&mut self,f:impl Fn() + 'static){
+	pub fn on_hover(mut self,f:impl Fn() + 'static) -> Self {
 		self.events.push(EventFunction::OnHover(Box::new(f)));
+		self
 	}
 
-	pub fn on_click(&mut self,f:impl Fn() + 'static){
+	pub fn on_click(mut self,f:impl Fn() + 'static) -> Self{
 		self.events.push(EventFunction::OnClick(Box::new(f)));
+		self
 	}
 
 	// TODO
@@ -42,12 +44,12 @@ impl Widget for Button {
 	fn build(&self) -> WidgetBody {
 		let surface = Surface::new(0, 0, 200, 70, Colour::Rgb(255, 255, 255));
 		let layout = Layout::SingleChild { width: 250, height: 70 };
-		
+		// FIXME
+
 		WidgetBody { 
 			surface,
 			layout,
-			children:vec![],
-			events:self.events
+			..Default::default()
 		}
 	}
 }

@@ -25,9 +25,11 @@ fn main() {
 
 
 fn widget_tree() {
-	let button = Button::new("Hello").on_click(||{dbg!("I was hovered over");});
+	let rect = Rect::new(500, 200, Colour::Rgb(24, 24, 24));
 
-	let page = View::new(button);
+	let container = Container::new(rect).padding(12).colour(Colour::Rgb(255, 25, 255));
+
+	let page = View::new(container);
 
 	let app = 
 		App::new()

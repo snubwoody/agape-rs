@@ -6,6 +6,10 @@ pub enum EventFunction {
 	OnHover(Box<dyn Fn()>),
 }
 
+enum WidgetFunction {
+	OnClick(fn())
+}
+
 /// Manages User interaction events
 pub struct EventManager{
 	cursor_pos:Position

@@ -11,6 +11,12 @@ pub struct Rect{
 	pub colour:Colour
 }
 
+impl Rect {
+	pub fn new(width:u32,height:u32,colour:Colour) -> Self{
+		Self { width, height, colour }
+	}
+}
+
 impl Widget for Rect {
 	fn build(&self) -> WidgetBody {
 		let layout = Layout::SingleChild{width:self.width,height:self.height};
