@@ -1,6 +1,6 @@
 use crate::{
 	colour::Colour,
-	surface::Surface, 
+	surface::RectSurface, 
 	widgets::Widget,
 	layout::Layout
 };
@@ -36,7 +36,10 @@ impl<W> Container<W> where W:Widget {
 
 impl<W> Widget for Container<W> where W:Widget {
 	fn build(&self) -> WidgetBody {
-		let surface = Surface{colour:self.colour,..Default::default()};
+		let surface = Box::new(
+			RectSurface{colour:self.colour,..Default::default()}
+		);
+		
 		let layout = Layout::Single { padding: 12 };
 		let child = self.child.build();
 

@@ -1,5 +1,6 @@
+use crate::surface::Surface;
 use crate::{colour::Colour};
-use crate::Surface;
+use crate::RectSurface;
 use super::{Widget, WidgetBody};
 use crate::layout::Layout;
 
@@ -20,14 +21,17 @@ impl Rect {
 impl Widget for Rect {
 	fn build(&self) -> WidgetBody {
 		let layout = Layout::SingleChild{width:self.width,height:self.height};
-		
-		WidgetBody{ 
-			surface:Surface{ 
+		let surface = Box::new(
+			RectSurface{ 
 				width:self.width,
 				height:self.height,
 				colour:self.colour,
 				..Default::default()
-			},
+			}
+		);
+		
+		WidgetBody{ 
+			surface,
 			layout,
 			children:vec![],
 			..Default::default()

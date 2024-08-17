@@ -11,8 +11,9 @@ use winit::window::Window;
 use crate::app::events::EventFunction;
 use crate::app::view::RenderContext;
 use crate::layout::Layout;
+use crate::surface::Surface;
 use crate::utils::Bounds;
-use crate::Surface;
+use crate::RectSurface;
 
 
 /// Widget trait that all widgets must inherit from
@@ -21,7 +22,7 @@ pub trait Widget{
 }
 
 pub struct WidgetBody{
-	surface:Surface,
+	pub surface:Box<dyn Surface>,
 	layout:Layout,
 	children:Vec<Box<WidgetBody>>,
 	pub events:Vec<EventFunction>
@@ -39,22 +40,22 @@ impl WidgetBody {
 		self.arrange_widgets();
 
 		// Render the parent and the child
-		self.surface.render(display, frame, window, &context.surface_program);
+		self.surface.draw(display, frame, window, &context.surface_program);
 		self.children.iter_mut().for_each(|widget|widget.render(display, frame, window, context));
 	}
 
 	pub fn arrange_widgets(&mut self) {
 		// Arrange the children
-		let position = self.get_position();
+		let position = self.surface.get_position();
 		self.children.iter_mut().for_each(|widget| {
 			widget.arrange_widgets();}
 		);
 
 		let size = self.layout.arrange([position.0,position.1],&mut self.children);
-		self.size(size.0, size.1);
+		self.surface.size(size.0, size.1);
 	}
 
-	/// Set the position of the [`Widget`]
+	/* /// Set the position of the [`Widget`]
 	pub fn position(&mut self, x:i32,y:i32){
 		self.surface.x = x;
 		self.surface.y = y;
@@ -84,14 +85,16 @@ impl WidgetBody {
 			x:[position.0,size.0 as i32],
 			y:[position.1,size.1 as i32],
 		}
-	}
+	} */
 }
 
 impl Default for WidgetBody {
 	fn default() -> Self {
-		let surface = Surface::default();
+		let surface = Box::new(
+			RectSurface::default()
+		);
 		let layout = Layout::Single { padding: 0 };
-		
+
 		Self { 
 			surface, 
 			layout, 

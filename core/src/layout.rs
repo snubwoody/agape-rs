@@ -35,9 +35,9 @@ impl Layout {
 		let mut max_height = 0;
 
 		// Position the child in the center of parent widget
-		child.position(position[0] + padding as i32,position[1] + padding as i32);
+		child.surface.position(position[0] + padding as i32,position[1] + padding as i32);
 
-		let child_size = child.get_size();
+		let child_size = child.surface.get_size();
 
 		max_width += child_size.0 + padding * 2;
 		max_height += child_size.1 + padding * 2;
@@ -51,7 +51,7 @@ impl Layout {
 		
 		// Iterate over the children to get the required space
 		for (index,child) in children.iter().enumerate(){
-			let (width,height) = child.get_size();
+			let (width,height) = child.surface.get_size();
 			if width > max_width{
 				max_width = width
 			}
@@ -67,8 +67,8 @@ impl Layout {
 		let mut current_pos = position[1] + padding as i32;
 
 		children.iter_mut().for_each(|child|{
-			let size = child.get_size();
-			child.position(position[0] as i32 + padding as i32, current_pos as i32);
+			let size = child.surface.get_size();
+			child.surface.position(position[0] as i32 + padding as i32, current_pos as i32);
 			current_pos += spacing as i32 + size.1 as i32;
 		});
 
@@ -84,7 +84,8 @@ impl Layout {
 	
 		// Iterate over the children to get the required space
 		for (index,child) in children.iter().enumerate(){
-			let (width,height) = child.get_size();
+			let (width,height) = child.surface.get_size();
+			
 			if height > max_height{
 				max_height = height
 			}
@@ -99,8 +100,8 @@ impl Layout {
 
 		let mut current_pos = position[0] + padding as i32;
 		children.iter_mut().for_each(|child|{
-			let size = child.get_size();
-			child.position(current_pos as i32, position[1] as i32 + padding as i32);
+			let size = child.surface.get_size();
+			child.surface.position(current_pos as i32, position[1] as i32 + padding as i32);
 			current_pos += spacing as i32 + size.0 as i32;
 		});
 

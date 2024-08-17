@@ -1,5 +1,5 @@
 use crate::{
-	app::events::EventFunction, colour::Colour, layout::Layout, surface::Surface, widgets::WidgetBody
+	app::events::EventFunction, colour::Colour, layout::Layout, surface::RectSurface, widgets::WidgetBody
 };
 use super::Widget;
 
@@ -42,7 +42,10 @@ impl Button {
 
 impl Widget for Button {
 	fn build(&self) -> WidgetBody {
-		let surface = Surface::new(0, 0, 200, 70, Colour::Rgb(255, 255, 255));
+		let surface = Box::new(
+			RectSurface::new(0, 0, 200, 70, Colour::Rgb(255, 255, 255))
+		);
+
 		let layout = Layout::SingleChild { width: 250, height: 70 };
 		// FIXME
 

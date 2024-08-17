@@ -6,14 +6,39 @@ use glium::{
 	Surface as GliumSurface, 
 	VertexBuffer
 };
-use crate::{colour::Colour, vertex::Vertex};
+use crate::{colour::Colour, utils::Bounds, vertex::Vertex};
+
+pub trait Surface {
+	fn draw(
+		&mut self,
+		display:&glium::Display<WindowSurface>,
+		frame:&mut glium::Frame,
+		window:&winit::window::Window,
+		program:&glium::Program,
+	);
+
+	/// Set the position of the [`Widget`]
+	fn position(&mut self, x:i32,y:i32);	
+	
+	/// Get the [`Widget`] position
+	fn get_position(&self) -> (i32,i32);
+
+	/// Set the size of the [`Widget`]
+	fn size(&mut self,width:u32,height:u32);
+
+	/// Get the size of the [`Widget`]
+	fn get_size(&self) -> (u32,u32);
+
+	/// Get the bounds of the [`Widget`]
+	fn get_bounds(&self) -> Bounds;
+}
 
 /// This is a primitive that draws to the screen. This holds
 /// essential information about the [`Widget`], ie.
 /// the colour, coordinates and size.
 // TODO change x and y to position
 #[derive(Debug,Clone,Copy,PartialEq)]
-pub struct Surface{
+pub struct RectSurface{
 	pub x:i32,
 	pub y:i32,
 	pub width:u32,
@@ -21,7 +46,7 @@ pub struct Surface{
 	pub colour:Colour,
 }
 
-impl Surface {
+impl RectSurface {
 	pub fn new(x:i32,y:i32,width:u32,height:u32,colour:Colour) -> Self{
 		Self { x,y,width,height,colour }
 	}
@@ -72,7 +97,67 @@ impl Surface {
 	}
 }
 
-impl Default for Surface {
+impl Surface for RectSurface {
+	fn draw(
+		&mut self,
+		display:&glium::Display<WindowSurface>,
+		frame:&mut glium::Frame,
+		window:&winit::window::Window,
+		program:&glium::Program,
+	) {
+		let vertices:Vec<Vertex> = self.to_vertices();
+		let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
+		let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+
+		let params = DrawParameters{
+			blend:Blend::alpha_blending(),
+			..Default::default()
+		};
+
+		let screen_width = window.inner_size().width as f32;
+		let screen_height = window.inner_size().height as f32;
+
+		frame.draw(
+			&vertex_buffer, 
+			&indices, 
+			&program, 
+			&uniform! {
+				width:screen_width,
+				height:screen_height,
+			},
+			&params
+		).unwrap();
+	}
+
+	fn position(&mut self, x:i32,y:i32){
+		self.x = x;
+		self.y = y;
+	} 
+	
+	fn get_position(&self) -> (i32,i32){
+		(self.x,self.y)
+	} 
+
+	fn size(&mut self,width:u32,height:u32){
+		self.width = width;
+		self.height = height;
+	} 
+
+	fn get_size(&self) -> (u32,u32){
+		(self.width,self.height)
+	}
+
+	fn get_bounds(&self) -> Bounds{
+		let position = self.get_position();
+		let size = self.get_size();
+		Bounds{
+			x:[position.0,size.0 as i32],
+			y:[position.1,size.1 as i32],
+		}
+	}
+}
+
+impl Default for RectSurface {
 	fn default() -> Self {
 		Self { 
 			x:0, 

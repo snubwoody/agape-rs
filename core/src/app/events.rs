@@ -35,7 +35,7 @@ impl EventManager {
 
 	pub fn handle_mouse_press(&self,widget_tree:&mut WidgetTree,state:ElementState,button:MouseButton) {
 		for (_,widget) in  widget_tree.widgets.iter_mut().enumerate(){
-			let bounds = widget.get_bounds();
+			let bounds = widget.surface.get_bounds();
 			if bounds.within(&self.cursor_pos){
 				for (_,event_function) in widget.events.iter().enumerate(){
 					match event_function {
@@ -49,7 +49,7 @@ impl EventManager {
 
 	pub fn handle_hover_event(&self,widget_tree:&mut WidgetTree,position:PhysicalPosition<f64>){
 		for (_,widget) in  widget_tree.widgets.iter_mut().enumerate(){
-			let bounds = widget.get_bounds();
+			let bounds = widget.surface.get_bounds();
 			if bounds.within(&self.cursor_pos){
 				for (_,event_function) in widget.events.iter().enumerate(){
 					match event_function {

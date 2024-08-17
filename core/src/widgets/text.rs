@@ -3,8 +3,8 @@ use super::{Widget, WidgetBody};
 
 #[derive(Debug)]
 pub struct Text{
-	text:String,
-	font_size:u8
+	pub text:String,
+	pub font_size:u8
 }
 
 impl Text {
@@ -13,6 +13,11 @@ impl Text {
 			text:text.into(), 
 			font_size:16 
 		}	
+	}
+
+	pub fn font_size(mut self,size:u8) -> Self{
+		self.font_size = size;
+		self
 	}
 }
 
@@ -23,7 +28,7 @@ impl Widget for Text {
 			0, 
 			self.text.as_str(),
 			"#000" , 
-			16
+			self.font_size
 		);
 		WidgetBody{
 			..Default::default()
