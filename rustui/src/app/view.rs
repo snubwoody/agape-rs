@@ -42,14 +42,20 @@ impl View {
 pub struct RenderContext{
 	pub surface_program:Program,
 	pub text_program:Program,
+	pub image_program:Program
 }
 
 impl RenderContext {
 	pub fn new(
 		surface_program:Program,
-		text_program:Program
+		text_program:Program,
+		image_program:Program
 	) -> Self {
-		Self{ surface_program, text_program }
+		Self{ 
+			surface_program, 
+			text_program,
+			image_program
+		}
 	}
 }
 

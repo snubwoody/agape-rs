@@ -4,6 +4,7 @@ pub mod container;
 pub mod text;
 pub mod button;
 pub mod list;
+pub mod image;
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame, 
 };

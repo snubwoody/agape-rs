@@ -1,5 +1,6 @@
 pub mod rect;
 pub mod text;
+pub mod image;
 use glium::{
 	glutin::surface::WindowSurface, 
 	index, 

@@ -1,11 +1,14 @@
 use rustui::{
 	app::{view::View, App}, 
-	widgets::text::Text
+	widgets::{image::Image, text::Text}
 };
 
 fn main() {
 	let greeting = Text::new("Hello world");
-	let home = View::new(greeting);
+	let image = Image{
+		path:"example/images/Frank Ocean Blonde.jpg".to_owned()
+	};
+	let home = View::new(image);
 	let app = 
 		App::new()
 		.add_view(home);

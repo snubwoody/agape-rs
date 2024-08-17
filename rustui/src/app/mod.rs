@@ -41,10 +41,11 @@ impl App{
 		let (window,display) = SimpleWindowBuilder::new().build(&event_loop);
 
 		// Compile the shaders
-		let surface_program = create_program(&display,"rustui/shaders/surface.vert","rustui/shaders/surface.frag");
-		let text_program = create_program(&display,"rustui/shaders/text.vert","rustui/shaders/text.frag");
+		let surface_program = create_program(&display,"rustui/shaders/surface/surface.vert","rustui/shaders/surface/surface.frag");
+		let text_program = create_program(&display,"rustui/shaders/text/text.vert","rustui/shaders/text/text.frag");
+		let image_program = create_program(&display,"rustui/shaders/image/image.vert","rustui/shaders/image/image.frag");
 
-		let context = RenderContext::new(surface_program, text_program);
+		let context = RenderContext::new(surface_program, text_program,image_program);
 		let event_manager = EventManager::new();
 
 		Self { 
