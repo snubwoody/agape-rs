@@ -1,5 +1,5 @@
 use crate::{
-	app::events::EventFunction, colour::Colour, layout::Layout, surface::RectSurface, widgets::WidgetBody
+	app::events::EventFunction, colour::Colour, layout::Layout, surface::rect::RectSurface, widgets::WidgetBody
 };
 use super::Widget;
 

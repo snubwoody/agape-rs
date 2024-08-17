@@ -1,6 +1,6 @@
 use crate::{
 	colour::Colour,
-	surface::RectSurface, 
+	surface::rect::RectSurface, 
 	widgets::Widget,
 	layout::Layout
 };

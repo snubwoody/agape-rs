@@ -1,4 +1,7 @@
-use crate::{layout::Layout, surface::Surface, text::TextSurface};
+use crate::{
+	layout::Layout, 
+	surface::{text::TextSurface, Surface}, 
+};
 use super::{Widget, WidgetBody};
 
 #[derive(Debug,Clone,PartialEq,Eq)]

@@ -1,4 +1,4 @@
-use crate::surface::RectSurface;
+use crate::surface::rect::RectSurface;
 use crate::{colour::Colour};
 use super::{Widget, WidgetBody};
 use crate::layout::Layout;

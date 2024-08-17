@@ -13,7 +13,7 @@ use crate::app::view::RenderContext;
 use crate::layout::Layout;
 use crate::surface::{
 	Surface,
-	RectSurface
+	rect::RectSurface
 };
 
 

@@ -3,7 +3,6 @@ use text_to_png::{Size, TextRenderer};
 use glium::{
 	glutin::surface::WindowSurface, 
 	index, 
-	texture::RawImage2d, 
 	Blend, 
 	Display, 
 	DrawParameters, 
@@ -12,7 +11,11 @@ use glium::{
 	VertexBuffer 
 };
 use crate::{
-	app::view::RenderContext, colour::rgb, surface::Surface, utils::{Bounds, Position}, vertex::Vertex
+	app::view::RenderContext, 
+	colour::rgb, 
+	surface::Surface, 
+	utils::{Bounds, Position}, 
+	vertex::Vertex
 };
 
 // TODO make a size struct
@@ -33,7 +36,6 @@ impl TextSurface {
 	pub fn new(text:&str,colour:&str,font_size:u8) -> Self{
 		let text_renderer = TextRenderer::default();
 
-		//let raw_image:RawImage2d<_>;
 		let image_size:Size;
 
 		// Render the text as a png

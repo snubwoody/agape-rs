@@ -1,4 +1,8 @@
-use crate::{layout::{self, Layout}, surface::Surface, text::TextSurface};
+use crate::{
+	layout::{self, Layout}, 
+	surface::Surface, 
+	surface::text::TextSurface
+};
 
 use super::{Widget, WidgetBody};
 
