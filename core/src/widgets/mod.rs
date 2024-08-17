@@ -40,7 +40,7 @@ impl WidgetBody {
 		self.arrange_widgets();
 
 		// Render the parent and the child
-		self.surface.draw(display, frame, window, &context.surface_program);
+		self.surface.draw(display, frame, window, context);
 		self.children.iter_mut().for_each(|widget|widget.render(display, frame, window, context));
 	}
 

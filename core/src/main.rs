@@ -11,6 +11,7 @@ use widgets::button::Button;
 use widgets::container::Container;
 use widgets::rect::Rect;
 use widgets::stack::{HStack, VStack};
+use widgets::text::Text;
 use widgets::WidgetTree;
 use crate::surface::RectSurface;
 use crate::widgets::Widget;
@@ -25,11 +26,9 @@ fn main() {
 
 
 fn widget_tree() {
-	let rect = Rect::new(500, 200, Colour::Rgb(24, 24, 24));
+	let text = Text::new("Hello worlf");
 
-	let container = Container::new(rect).padding(12).colour(Colour::Rgb(255, 25, 255));
-
-	let page = View::new(container);
+	let page = View::new(text);
 
 	let app = 
 		App::new()

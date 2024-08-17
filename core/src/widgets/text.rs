@@ -1,7 +1,7 @@
-use crate::text::TextSurface;
+use crate::{layout::Layout, text::TextSurface};
 use super::{Widget, WidgetBody};
 
-#[derive(Debug)]
+#[derive(Debug,Clone,PartialEq,Eq)]
 pub struct Text{
 	pub text:String,
 	pub font_size:u8
@@ -22,15 +22,22 @@ impl Text {
 }
 
 impl Widget for Text {
-	fn build(&self) -> super::WidgetBody {
-		let surface = TextSurface::new(
-			0, 
-			0, 
-			self.text.as_str(),
-			"#000" , 
-			self.font_size
+	fn build(&self) -> WidgetBody {
+		let surface = Box::new(
+			TextSurface::new(
+				200, 
+				200, 
+				self.text.as_str(),
+				"#000000" , 
+				self.font_size
+			)
 		);
+
+		let layout = Layout::SingleChild { width: 97, height: 12 };
+
 		WidgetBody{
+			surface,
+			layout,
 			..Default::default()
 		}
 	}

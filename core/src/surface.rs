@@ -6,7 +6,7 @@ use glium::{
 	Surface as GliumSurface, 
 	VertexBuffer
 };
-use crate::{colour::Colour, utils::Bounds, vertex::Vertex};
+use crate::{app::view::RenderContext, colour::Colour, utils::Bounds, vertex::Vertex};
 
 pub trait Surface {
 	fn draw(
@@ -14,7 +14,7 @@ pub trait Surface {
 		display:&glium::Display<WindowSurface>,
 		frame:&mut glium::Frame,
 		window:&winit::window::Window,
-		program:&glium::Program,
+		program:&RenderContext
 	);
 
 	/// Set the position of the [`Widget`]
@@ -103,7 +103,7 @@ impl Surface for RectSurface {
 		display:&glium::Display<WindowSurface>,
 		frame:&mut glium::Frame,
 		window:&winit::window::Window,
-		program:&glium::Program,
+		context:&RenderContext
 	) {
 		let vertices:Vec<Vertex> = self.to_vertices();
 		let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
@@ -120,7 +120,7 @@ impl Surface for RectSurface {
 		frame.draw(
 			&vertex_buffer, 
 			&indices, 
-			&program, 
+			&context.surface_program, 
 			&uniform! {
 				width:screen_width,
 				height:screen_height,

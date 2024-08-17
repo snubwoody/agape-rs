@@ -7,13 +7,12 @@ use glium::{
 	Blend, 
 	Display, 
 	DrawParameters, 
-	Surface, 
+	Surface as GliumSurface, 
 	Texture2d, 
 	VertexBuffer 
 };
 use crate::{
-	colour::rgb,
-	vertex::Vertex
+	app::view::RenderContext, colour::rgb, surface::Surface, utils::Bounds, vertex::Vertex
 };
 
 
@@ -24,8 +23,8 @@ use crate::{
 pub struct TextSurface{
 	x:i32,
 	y:i32,
-	width:i32,
-	height:i32,
+	width:u32,
+	height:u32,
 	text:String,
 	font_size:u8,
 	colour:String,
@@ -35,6 +34,29 @@ pub struct TextSurface{
 
 impl TextSurface {
 	pub fn new(x:i32,y:i32,text:&str,colour:&str,font_size:u8) -> Self{
+
+		/* let text_renderer = TextRenderer::default();
+		let raw_image:RawImage2d<_>;
+		let image_size:Size;
+
+		// Render the text as a png
+		let text_image = text_renderer.render_text_to_png_data(
+			text, 
+			font_size, 
+			colour
+		).unwrap();
+		image_size = text_image.size;
+
+		// Get the raw pixel values for the image
+		let img = image::load(Cursor::new(text_image.data), image::ImageFormat::Png).unwrap().to_rgba8().into_raw();
+		
+		// Create an opengl raw image 
+		raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(&img,(image_size.width,image_size.height));
+
+		// Create the texture from the image
+		let texture = glium::texture::Texture2d::new(display, raw_image).unwrap(); */
+
+		
 		Self { 
 			x, 
 			y, 
@@ -63,7 +85,6 @@ impl TextSurface {
 		window:&winit::window::Window,
 		program:&glium::Program,
 	) {
-		
 		let params = DrawParameters{
 			blend:Blend::alpha_blending(),
 			..Default::default()
@@ -72,9 +93,11 @@ impl TextSurface {
 		let screen_width = window.inner_size().width as f32;
 		let screen_height = window.inner_size().height as f32;
 
+		
 		let texture = self.texture.as_ref().expect("Null texture, call build before render");
 		let size = self.size.as_ref().expect("Null size, call build before render");
 
+		
 		let uniforms = uniform! {
 			width:screen_width,
 			height:screen_height,
@@ -130,5 +153,76 @@ impl TextSurface {
 		let texture = glium::texture::Texture2d::new(display, raw_image).unwrap();
 
 		return (texture,image_size);
+	}
+}
+
+impl Surface for TextSurface {
+	fn draw(
+		&mut self,
+		display:&glium::Display<WindowSurface>,
+		frame:&mut glium::Frame,
+		window:&winit::window::Window,
+		context:&RenderContext,
+	) {
+
+		let params = DrawParameters{
+			blend:Blend::alpha_blending(),
+			..Default::default()
+		};
+
+		let screen_width = window.inner_size().width as f32;
+		let screen_height = window.inner_size().height as f32;
+
+		self.build(display);
+
+		let texture = self.texture.as_ref().expect("Null texture, call build before render");
+		let size = self.size.as_ref().expect("Null size, call build before render");
+
+		let uniforms = uniform! {
+			width:screen_width,
+			height:screen_height,
+			tex: texture,
+		};
+
+		dbg!(texture,size);
+
+
+		let vertices:Vec<Vertex> = self.to_vertices(size.width as i32, size.height as i32);
+		let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
+		let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+		
+		frame.draw(
+			&vertex_buffer, 
+			&indices, 
+			&context.text_program, 
+			&uniforms,
+			&params
+		).unwrap();
+		
+	}
+
+	fn size(&mut self,width:u32,height:u32) {
+		self.width = width;
+		self.height = height;
+	}
+	
+	fn get_size(&self) -> (u32,u32) {
+		(self.width,self.height)
+	}
+
+	fn get_bounds(&self) -> Bounds {
+		Bounds{
+			x:[self.x,self.x + self.width as i32],
+			y:[self.y,self.y + self.height as i32]
+		}
+	}
+
+	fn position(&mut self, x:i32,y:i32) {
+		self.x = x;
+		self.y = y;
+	}
+
+	fn get_position(&self) -> (i32,i32) {
+		(self.x,self.y)
 	}
 }
