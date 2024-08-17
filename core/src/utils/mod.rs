@@ -22,7 +22,6 @@ impl Bounds{
 	}
 }
 
-//TODO change this to floating point number for better accuracy
 /// Represents the position of any structure
 #[derive(Debug,Clone,Copy,PartialEq,PartialOrd)]
 pub struct Position{

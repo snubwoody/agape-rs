@@ -32,12 +32,6 @@ impl Button {
 		self.events.push(EventFunction::OnClick(Box::new(f)));
 		self
 	}
-
-	// TODO
-	/// Set the button to fill its parent's width
-	pub fn fill(){
-
-	}
 }
 
 impl Widget for Button {

@@ -11,8 +11,10 @@ use winit::window::Window;
 use crate::app::events::EventFunction;
 use crate::app::view::RenderContext;
 use crate::layout::Layout;
-use crate::surface::Surface;
-use crate::RectSurface;
+use crate::surface::{
+	Surface,
+	RectSurface
+};
 
 
 // TODO change position and size to floating point values

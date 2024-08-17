@@ -23,7 +23,6 @@ impl Text {
 
 impl Widget for Text {
 	fn build(&self) -> WidgetBody {
-		// FIXME set the actual width here
 		let textsurface = TextSurface::new(
 			self.text.as_str(),
 			"#000000" , 

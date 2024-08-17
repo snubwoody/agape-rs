@@ -98,6 +98,7 @@ impl Layout {
 			}
 		};
 
+		// TODO decide whether to place objects at the baseline or at the top
 		let mut current_pos = position[0] + padding as f32;
 		children.iter_mut().for_each(|child|{
 			let size = child.surface.get_size();

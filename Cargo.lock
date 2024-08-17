@@ -515,6 +515,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "example"
+version = "0.1.0"
+
+[[package]]
 name = "exr"
 version = "1.72.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1567,20 +1571,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust-graphics"
-version = "0.1.0"
-dependencies = [
- "fontdue",
- "glium",
- "image",
- "properties",
- "quote",
- "syn 2.0.72",
- "text-to-png",
- "winit",
-]
-
-[[package]]
 name = "rustc-demangle"
 version = "0.1.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1597,6 +1587,20 @@ dependencies = [
  "libc",
  "linux-raw-sys",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "rustui"
+version = "0.1.0"
+dependencies = [
+ "fontdue",
+ "glium",
+ "image",
+ "properties",
+ "quote",
+ "syn 2.0.72",
+ "text-to-png",
+ "winit",
 ]
 
 [[package]]
