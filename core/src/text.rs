@@ -26,15 +26,14 @@ pub struct TextSurface{
 	text:String,
 	font_size:u8,
 	colour:String,
-	size:Option<Size>,
-	texture:Option<Texture2d>
+	img:Vec<u8>
 }
 
 impl TextSurface {
 	pub fn new(text:&str,colour:&str,font_size:u8) -> Self{
 
 		let text_renderer = TextRenderer::default();
-		let raw_image:RawImage2d<_>;
+		//let raw_image:RawImage2d<_>;
 		let image_size:Size;
 
 		// Render the text as a png
@@ -43,13 +42,14 @@ impl TextSurface {
 			font_size, 
 			colour
 		).unwrap();
+
 		image_size = text_image.size;
 
 		// Get the raw pixel values for the image
 		let img = image::load(Cursor::new(text_image.data), image::ImageFormat::Png).unwrap().to_rgba8().into_raw();
 		
 		// Create an opengl raw image 
-		raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(&img,(image_size.width,image_size.height));
+		//raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(&img,(image_size.width,image_size.height));
 
 		// Create the texture from the image
 		//let texture = glium::texture::Texture2d::new(display, raw_image).unwrap();
@@ -63,56 +63,26 @@ impl TextSurface {
 			text:String::from(text), 
 			font_size, 
 			colour:String::from(colour),
-			size:None, 
-			texture:None 
+			img
 		}
 	}
 	
 	/// Rasterize the text and store the texture 
-	pub fn build(&mut self,display:&Display<WindowSurface>) -> &Self{
-		let (texture,size) = self.rasterize(display);
-		self.texture = Some(texture);
-		self.size = Some(size);
-		self
-	}
+	pub fn build(&mut self,display:&Display<WindowSurface>) -> Texture2d{
+		let texture = self.rasterize(display);
 
-	pub fn render(
-		&mut self,
-		display:&Display<WindowSurface>,
-		frame:&mut glium::Frame,
-		window:&winit::window::Window,
-		program:&glium::Program,
-	) {
-		let params = DrawParameters{
-			blend:Blend::alpha_blending(),
-			..Default::default()
-		};
+		// Create an opengl raw image 
+		let raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(
+			&self.img,(
+				self.width,
+				self.height
+		));
 
-		let screen_width = window.inner_size().width as f32;
-		let screen_height = window.inner_size().height as f32;
+		// Create the texture from the image
+		let texture = glium::texture::Texture2d::new(display, raw_image).unwrap();
 
-		
-		let texture = self.texture.as_ref().expect("Null texture, call build before render");
-		let size = self.size.as_ref().expect("Null size, call build before render");
+		return texture;
 
-		
-		let uniforms = uniform! {
-			width:screen_width,
-			height:screen_height,
-			tex: texture,
-		};
-
-		let vertices:Vec<Vertex> = self.to_vertices(size.width as i32, size.height as i32);
-		let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
-		let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
-		
-		frame.draw(
-			&vertex_buffer, 
-			&indices, 
-			&program, 
-			&uniforms,
-			&params
-		).unwrap();
 	}
 
 	fn to_vertices(&self,width:i32,height:i32) -> Vec<Vertex>{
@@ -130,7 +100,7 @@ impl TextSurface {
 		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
 	}
 
-	fn rasterize(&self,display:&Display<WindowSurface>) -> (Texture2d,Size) {
+	fn rasterize(&self,display:&Display<WindowSurface>) -> Texture2d {
 		let text_renderer = TextRenderer::default();
 		let raw_image:RawImage2d<_>;
 		let image_size:Size;
@@ -152,7 +122,7 @@ impl TextSurface {
 		// Create the texture from the image
 		let texture = glium::texture::Texture2d::new(display, raw_image).unwrap();
 
-		return (texture,image_size);
+		return texture;
 	}
 }
 
@@ -173,10 +143,7 @@ impl Surface for TextSurface {
 		let screen_width = window.inner_size().width as f32;
 		let screen_height = window.inner_size().height as f32;
 
-		self.build(display);
-
-		let texture = self.texture.as_ref().expect("Null texture, call build before render");
-		let size = self.size.as_ref().expect("Null size, call build before render");
+		let texture = self.build(display);
 
 		let uniforms = uniform! {
 			width:screen_width,
@@ -184,7 +151,7 @@ impl Surface for TextSurface {
 			tex: texture,
 		};
 
-		let vertices:Vec<Vertex> = self.to_vertices(size.width as i32, size.height as i32);
+		let vertices:Vec<Vertex> = self.to_vertices(self.width as i32, self.height as i32);
 		let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
 		let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 		
