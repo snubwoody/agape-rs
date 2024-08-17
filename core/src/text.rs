@@ -31,8 +31,8 @@ pub struct TextSurface{
 
 impl TextSurface {
 	pub fn new(text:&str,colour:&str,font_size:u8) -> Self{
-
 		let text_renderer = TextRenderer::default();
+
 		//let raw_image:RawImage2d<_>;
 		let image_size:Size;
 
@@ -48,14 +48,6 @@ impl TextSurface {
 		// Get the raw pixel values for the image
 		let img = image::load(Cursor::new(text_image.data), image::ImageFormat::Png).unwrap().to_rgba8().into_raw();
 		
-		// Create an opengl raw image 
-		//raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(&img,(image_size.width,image_size.height));
-
-		// Create the texture from the image
-		//let texture = glium::texture::Texture2d::new(display, raw_image).unwrap();
-
-
-		
 		Self {
 			position:Position::new(0.0, 0.0), 
 			width:image_size.width,
@@ -69,14 +61,10 @@ impl TextSurface {
 	
 	/// Rasterize the text and store the texture 
 	pub fn build(&mut self,display:&Display<WindowSurface>) -> Texture2d{
-		let texture = self.rasterize(display);
-
 		// Create an opengl raw image 
 		let raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(
-			&self.img,(
-				self.width,
-				self.height
-		));
+			&self.img,(self.width,self.height)
+		);
 
 		// Create the texture from the image
 		let texture = glium::texture::Texture2d::new(display, raw_image).unwrap();
@@ -99,31 +87,6 @@ impl TextSurface {
 	
 		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
 	}
-
-	fn rasterize(&self,display:&Display<WindowSurface>) -> Texture2d {
-		let text_renderer = TextRenderer::default();
-		let raw_image:RawImage2d<_>;
-		let image_size:Size;
-
-		// Render the text as a png
-		let text_image = text_renderer.render_text_to_png_data(
-			self.text.as_str(), 
-			self.font_size, 
-			self.colour.as_str()
-		).unwrap();
-		image_size = text_image.size;
-
-		// Get the raw pixel values for the image
-		let img = image::load(Cursor::new(text_image.data), image::ImageFormat::Png).unwrap().to_rgba8().into_raw();
-		
-		// Create an opengl raw image 
-		raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(&img,(image_size.width,image_size.height));
-
-		// Create the texture from the image
-		let texture = glium::texture::Texture2d::new(display, raw_image).unwrap();
-
-		return texture;
-	}
 }
 
 impl Surface for TextSurface {
@@ -134,7 +97,6 @@ impl Surface for TextSurface {
 		window:&winit::window::Window,
 		context:&RenderContext,
 	) {
-
 		let params = DrawParameters{
 			blend:Blend::alpha_blending(),
 			..Default::default()

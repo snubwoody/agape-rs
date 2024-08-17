@@ -1,4 +1,4 @@
-use crate::{layout::Layout, text::TextSurface};
+use crate::{layout::Layout, surface::Surface, text::TextSurface};
 use super::{Widget, WidgetBody};
 
 #[derive(Debug,Clone,PartialEq,Eq)]
@@ -24,15 +24,15 @@ impl Text {
 impl Widget for Text {
 	fn build(&self) -> WidgetBody {
 		// FIXME set the actual width here
-		let surface = Box::new(
-			TextSurface::new(
-				self.text.as_str(),
-				"#000000" , 
-				self.font_size
-			)
+		let textsurface = TextSurface::new(
+			self.text.as_str(),
+			"#000000" , 
+			self.font_size
 		);
+		let size = textsurface.get_size();
+		let surface = Box::new(textsurface);
 
-		let layout = Layout::SingleChild { width: 97, height: 12 };
+		let layout = Layout::SingleChild { width: size.0, height: size.1 };
 
 		WidgetBody{
 			surface,

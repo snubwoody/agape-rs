@@ -7,8 +7,7 @@ pub mod text;
 pub mod vertex;
 pub mod layout;
 use colour::Colour;
-use widgets::button::Button;
-use widgets::container::Container;
+use widgets::list::TextList;
 use widgets::rect::Rect;
 use widgets::stack::{HStack, VStack};
 use widgets::text::Text;
@@ -24,16 +23,21 @@ fn main() {
 	widget_tree()
 }
 
-
 fn widget_tree() {
-	let text = Text::new("Hello worlf");
+	let text = Text::new("Three frogs flew through france");
 	let rect = Rect::new(500, 50, Colour::Rgb(35,35, 35));
+	let text_list = TextList::new(vec![
+		"First item",
+		"Second item"
+	]);
+
 	let vstack = VStack{
 		spacing:12,
 		padding:12,
 		children:vec![
 			Box::new(text),
 			Box::new(rect),
+			Box::new(text_list),
 		]
 	};
 
@@ -44,6 +48,5 @@ fn widget_tree() {
 		.add_view(page);
 
 	app.run();
-
 }
 
