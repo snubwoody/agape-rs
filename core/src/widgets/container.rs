@@ -6,7 +6,7 @@ use crate::{
 };
 use super::WidgetBody;
 
-/// A container [`Widget`] that can only have one child
+/// A container [`Widget`] that wraps its child
 #[derive(Debug,Clone,Copy)]
 pub struct Container<W:Widget>{
 	pub padding:u32,

@@ -11,6 +11,7 @@ use crate::{colour::Colour, vertex::Vertex};
 /// This is a primitive that draws to the screen. This holds
 /// essential information about the [`Widget`], ie.
 /// the colour, coordinates and size.
+// TODO change x and y to position
 #[derive(Debug,Clone,Copy,PartialEq)]
 pub struct Surface{
 	pub x:i32,

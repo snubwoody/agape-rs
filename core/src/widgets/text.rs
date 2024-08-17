@@ -1,15 +1,34 @@
 use crate::text::TextSurface;
+use super::{Widget, WidgetBody};
 
 #[derive(Debug)]
 pub struct Text{
-	surface:TextSurface,
 	text:String,
 	font_size:u8
 }
 
 impl Text {
-	pub fn new(x:i32,y:i32,text:&str,colour:&str,font_size:u8) -> Self{
-		let surface = TextSurface::new(x, y, text, colour, font_size);
-		Self { surface, text:text.into(), font_size }	
+	pub fn new(text:&str) -> Self{
+		Self { 
+			text:text.into(), 
+			font_size:16 
+		}	
 	}
 }
+
+impl Widget for Text {
+	fn build(&self) -> super::WidgetBody {
+		let surface = TextSurface::new(
+			0, 
+			0, 
+			self.text.as_str(),
+			"#000" , 
+			16
+		);
+		WidgetBody{
+			..Default::default()
+		}
+	}
+}
+
+

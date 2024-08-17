@@ -14,13 +14,14 @@ pub struct VStack{
 
 impl Widget for VStack {
 	fn build(&self) -> WidgetBody {
-		let layout = Layout::Vertical { spacing: self.spacing, padding: self.padding };
-		
+		let layout = Layout::Vertical { 
+			spacing:self.spacing, 
+			padding:self.padding 
+		};
 
 		let children = self.children.iter().map(|widget|{
 			Box::new(widget.build())
 		}).collect();
-
 
 		WidgetBody{
 			layout,

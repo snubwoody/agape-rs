@@ -17,9 +17,8 @@ use crate::{
 };
 
 
-//TODO change all size, position and colours from i32 to u32 
 
-//FIXME change the colour to take rgb or maybe a color enum
+//FIXME change the colour to Colour enum
 /// A rasterized texture of text  
 #[derive(Debug)]
 pub struct TextSurface{
@@ -113,11 +112,21 @@ impl TextSurface {
 		let raw_image:RawImage2d<_>;
 		let image_size:Size;
 
-		let text_image = text_renderer.render_text_to_png_data(self.text.as_str(), self.font_size, self.colour.as_str()).unwrap();
+		// Render the text as a png
+		let text_image = text_renderer.render_text_to_png_data(
+			self.text.as_str(), 
+			self.font_size, 
+			self.colour.as_str()
+		).unwrap();
 		image_size = text_image.size;
+
+		// Get the raw pixel values for the image
 		let img = image::load(Cursor::new(text_image.data), image::ImageFormat::Png).unwrap().to_rgba8().into_raw();
+		
+		// Create an opengl raw image 
 		raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(&img,(image_size.width,image_size.height));
 
+		// Create the texture from the image
 		let texture = glium::texture::Texture2d::new(display, raw_image).unwrap();
 
 		return (texture,image_size);

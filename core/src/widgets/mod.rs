@@ -3,6 +3,7 @@ pub mod stack;
 pub mod container;
 pub mod text;
 pub mod button;
+pub mod list;
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame, 
 };
@@ -48,6 +49,7 @@ impl WidgetBody {
 		self.children.iter_mut().for_each(|widget| {
 			widget.arrange_widgets();}
 		);
+
 		let size = self.layout.arrange([position.0,position.1],&mut self.children);
 		self.size(size.0, size.1);
 	}
@@ -83,13 +85,13 @@ impl WidgetBody {
 			y:[position.1,size.1 as i32],
 		}
 	}
-
 }
 
 impl Default for WidgetBody {
 	fn default() -> Self {
 		let surface = Surface::default();
 		let layout = Layout::Single { padding: 0 };
+		
 		Self { 
 			surface, 
 			layout, 
