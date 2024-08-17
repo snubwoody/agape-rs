@@ -12,9 +12,10 @@ use crate::app::events::EventFunction;
 use crate::app::view::RenderContext;
 use crate::layout::Layout;
 use crate::surface::Surface;
-use crate::utils::Bounds;
 use crate::RectSurface;
 
+
+// TODO change position and size to floating point values
 
 /// Widget trait that all widgets must inherit from
 pub trait Widget{

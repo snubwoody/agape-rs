@@ -21,7 +21,7 @@ pub enum Layout{
 }
 
 impl Layout {
-	pub fn arrange(&self,position:[i32;2],children:&mut Vec<Box<WidgetBody>>) -> (u32,u32) {
+	pub fn arrange(&self,position:[f32;2],children:&mut Vec<Box<WidgetBody>>) -> (u32,u32) {
 		match self {
 			&Self::Single { padding } => self.arrange_single(position,&mut children[0],padding),
 			&Self::Vertical { spacing,padding } => self.arrange_vertical(position,children,padding,spacing),
@@ -30,12 +30,12 @@ impl Layout {
 		}
 	}
 
-	fn arrange_single(&self,position:[i32;2],child:&mut WidgetBody,padding:u32) -> (u32,u32) {
+	fn arrange_single(&self,position:[f32;2],child:&mut WidgetBody,padding:u32) -> (u32,u32) {
 		let mut max_width = 0;
 		let mut max_height = 0;
 
 		// Position the child in the center of parent widget
-		child.surface.position(position[0] + padding as i32,position[1] + padding as i32);
+		child.surface.position(position[0] + padding as f32,position[1] + padding as f32);
 
 		let child_size = child.surface.get_size();
 
@@ -45,7 +45,7 @@ impl Layout {
 		(max_width,max_height) 
 	}
 
-	fn arrange_vertical(&self,position:[i32;2],children:&mut Vec<Box<WidgetBody>>,padding:u32,spacing:u32) -> (u32,u32) {
+	fn arrange_vertical(&self,position:[f32;2],children:&mut Vec<Box<WidgetBody>>,padding:u32,spacing:u32) -> (u32,u32) {
 		let mut max_width = 0;
 		let mut max_height = 0;
 		
@@ -64,12 +64,12 @@ impl Layout {
 			}
 		};
 
-		let mut current_pos = position[1] + padding as i32;
+		let mut current_pos = position[1] + padding as f32;
 
 		children.iter_mut().for_each(|child|{
 			let size = child.surface.get_size();
-			child.surface.position(position[0] as i32 + padding as i32, current_pos as i32);
-			current_pos += spacing as i32 + size.1 as i32;
+			child.surface.position(position[0] + padding as f32, current_pos);
+			current_pos += spacing as f32 + size.1 as f32;
 		});
 
 		max_width += padding *2;
@@ -78,7 +78,7 @@ impl Layout {
 		(max_width,max_height)
 	}
 
-	fn arrange_horizontal(&self,position:[i32;2],children:&mut Vec<Box<WidgetBody>>,padding:u32,spacing:u32) -> (u32,u32) {
+	fn arrange_horizontal(&self,position:[f32;2],children:&mut Vec<Box<WidgetBody>>,padding:u32,spacing:u32) -> (u32,u32) {
 		let mut max_width = 0;
 		let mut max_height = 0;
 	
@@ -98,11 +98,11 @@ impl Layout {
 			}
 		};
 
-		let mut current_pos = position[0] + padding as i32;
+		let mut current_pos = position[0] + padding as f32;
 		children.iter_mut().for_each(|child|{
 			let size = child.surface.get_size();
-			child.surface.position(current_pos as i32, position[1] as i32 + padding as i32);
-			current_pos += spacing as i32 + size.0 as i32;
+			child.surface.position(current_pos, position[1] + padding as f32);
+			current_pos += spacing as f32 + size.0 as f32;
 		});
 
 		max_width += padding *2;

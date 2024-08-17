@@ -23,10 +23,9 @@ impl Text {
 
 impl Widget for Text {
 	fn build(&self) -> WidgetBody {
+		// FIXME set the actual width here
 		let surface = Box::new(
 			TextSurface::new(
-				200, 
-				200, 
 				self.text.as_str(),
 				"#000000" , 
 				self.font_size

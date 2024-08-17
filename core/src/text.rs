@@ -12,17 +12,15 @@ use glium::{
 	VertexBuffer 
 };
 use crate::{
-	app::view::RenderContext, colour::rgb, surface::Surface, utils::Bounds, vertex::Vertex
+	app::view::RenderContext, colour::rgb, surface::Surface, utils::{Bounds, Position}, vertex::Vertex
 };
 
-
-
+// TODO make a size struct
 //FIXME change the colour to Colour enum
 /// A rasterized texture of text  
 #[derive(Debug)]
 pub struct TextSurface{
-	x:i32,
-	y:i32,
+	position:Position,
 	width:u32,
 	height:u32,
 	text:String,
@@ -33,9 +31,9 @@ pub struct TextSurface{
 }
 
 impl TextSurface {
-	pub fn new(x:i32,y:i32,text:&str,colour:&str,font_size:u8) -> Self{
+	pub fn new(text:&str,colour:&str,font_size:u8) -> Self{
 
-		/* let text_renderer = TextRenderer::default();
+		let text_renderer = TextRenderer::default();
 		let raw_image:RawImage2d<_>;
 		let image_size:Size;
 
@@ -54,14 +52,14 @@ impl TextSurface {
 		raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(&img,(image_size.width,image_size.height));
 
 		// Create the texture from the image
-		let texture = glium::texture::Texture2d::new(display, raw_image).unwrap(); */
+		//let texture = glium::texture::Texture2d::new(display, raw_image).unwrap();
+
 
 		
-		Self { 
-			x, 
-			y, 
-			width:0,
-			height:0,
+		Self {
+			position:Position::new(0.0, 0.0), 
+			width:image_size.width,
+			height:image_size.height,
 			text:String::from(text), 
 			font_size, 
 			colour:String::from(colour),
@@ -119,13 +117,15 @@ impl TextSurface {
 
 	fn to_vertices(&self,width:i32,height:i32) -> Vec<Vertex>{
 		let colour = rgb(255, 255, 255);
+		let x = self.position.x as i32;
+		let y = self.position.y as i32;
 
-		let vertex1 = Vertex::new_with_texture(self.x,self.y,colour,[0.0,1.0]); //Top left
-		let vertex2 = Vertex::new_with_texture(self.x+width,self.y,colour,[1.0,1.0]); // Top right
-		let vertex3 = Vertex::new_with_texture(self.x, self.y+height,colour,[0.0,0.0]); //Bottom left
-		let vertex4 = Vertex::new_with_texture(self.x+width,self.y,colour,[1.0,1.0]); //Top right
-		let vertex5 = Vertex::new_with_texture(self.x, self.y+height,colour,[0.0,0.0]); // Bottom left
-		let vertex6 = Vertex::new_with_texture(self.x+width, self.y+height,colour,[1.0,0.0]); //Bottom right
+		let vertex1 = Vertex::new_with_texture(x,y,colour,[0.0,1.0]); //Top left
+		let vertex2 = Vertex::new_with_texture(x+width,y,colour,[1.0,1.0]); // Top right
+		let vertex3 = Vertex::new_with_texture(x, y+height,colour,[0.0,0.0]); //Bottom left
+		let vertex4 = Vertex::new_with_texture(x+width,y,colour,[1.0,1.0]); //Top right
+		let vertex5 = Vertex::new_with_texture(x, y+height,colour,[0.0,0.0]); // Bottom left
+		let vertex6 = Vertex::new_with_texture(x+width, y+height,colour,[1.0,0.0]); //Bottom right
 	
 		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
 	}
@@ -184,9 +184,6 @@ impl Surface for TextSurface {
 			tex: texture,
 		};
 
-		dbg!(texture,size);
-
-
 		let vertices:Vec<Vertex> = self.to_vertices(size.width as i32, size.height as i32);
 		let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
 		let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
@@ -212,17 +209,17 @@ impl Surface for TextSurface {
 
 	fn get_bounds(&self) -> Bounds {
 		Bounds{
-			x:[self.x,self.x + self.width as i32],
-			y:[self.y,self.y + self.height as i32]
+			x:[self.position.x,self.position.x + self.width as f32],
+			y:[self.position.y,self.position.y + self.height as f32]
 		}
 	}
 
-	fn position(&mut self, x:i32,y:i32) {
-		self.x = x;
-		self.y = y;
+	fn position(&mut self, x:f32,y:f32) {
+		self.position.x = x;
+		self.position.y = y;
 	}
 
-	fn get_position(&self) -> (i32,i32) {
-		(self.x,self.y)
+	fn get_position(&self) -> (f32,f32) {
+		(self.position.x,self.position.y)
 	}
 }

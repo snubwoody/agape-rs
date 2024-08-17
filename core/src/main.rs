@@ -27,8 +27,17 @@ fn main() {
 
 fn widget_tree() {
 	let text = Text::new("Hello worlf");
+	let rect = Rect::new(500, 50, Colour::Rgb(35,35, 35));
+	let vstack = VStack{
+		spacing:12,
+		padding:12,
+		children:vec![
+			Box::new(text),
+			Box::new(rect),
+		]
+	};
 
-	let page = View::new(text);
+	let page = View::new(vstack);
 
 	let app = 
 		App::new()

@@ -17,7 +17,7 @@ pub struct EventManager{
 
 impl EventManager {
 	pub fn new() -> Self{
-		Self { cursor_pos: Position::new(0, 0) }
+		Self { cursor_pos: Position::new(0.0, 0.0) }
 	}
 
 	pub fn handle_events(&mut self,widget_tree:&mut WidgetTree,event:WindowEvent){

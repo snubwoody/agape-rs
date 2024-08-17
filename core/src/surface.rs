@@ -18,10 +18,10 @@ pub trait Surface {
 	);
 
 	/// Set the position of the [`Widget`]
-	fn position(&mut self, x:i32,y:i32);	
+	fn position(&mut self, x:f32,y:f32);	
 	
 	/// Get the [`Widget`] position
-	fn get_position(&self) -> (i32,i32);
+	fn get_position(&self) -> (f32,f32);
 
 	/// Set the size of the [`Widget`]
 	fn size(&mut self,width:u32,height:u32);
@@ -39,15 +39,15 @@ pub trait Surface {
 // TODO change x and y to position
 #[derive(Debug,Clone,Copy,PartialEq)]
 pub struct RectSurface{
-	pub x:i32,
-	pub y:i32,
+	pub x:f32,
+	pub y:f32,
 	pub width:u32,
 	pub height:u32,
 	pub colour:Colour,
 }
 
 impl RectSurface {
-	pub fn new(x:i32,y:i32,width:u32,height:u32,colour:Colour) -> Self{
+	pub fn new(x:f32,y:f32,width:u32,height:u32,colour:Colour) -> Self{
 		Self { x,y,width,height,colour }
 	}
 
@@ -85,13 +85,15 @@ impl RectSurface {
 	pub fn to_vertices(&self) -> Vec<Vertex>{
 
 		let colour = self.colour.normalize();
+		let x = self.x as i32;
+		let y = self.y as i32;
 
-		let vertex1 = Vertex::new(self.x, self.y,colour); //Top left
-		let vertex2 = Vertex::new(self.x+self.width as i32, self.y,colour); // Top right
-		let vertex3 = Vertex::new(self.x, self.y+self.height as i32,colour); //Bottom left
-		let vertex4 = Vertex::new(self.x+self.width as i32, self.y,colour); //Top right
-		let vertex5 = Vertex::new(self.x, self.y+self.height as i32,colour); // Bottom left
-		let vertex6 = Vertex::new(self.x+self.width as i32, self.y+self.height as i32,colour); //Bottom right
+		let vertex1 = Vertex::new(x, y,colour); //Top left
+		let vertex2 = Vertex::new(x+self.width as i32, y,colour); // Top right
+		let vertex3 = Vertex::new(x, y+self.height as i32,colour); //Bottom left
+		let vertex4 = Vertex::new(x+self.width as i32, y,colour); //Top right
+		let vertex5 = Vertex::new(x, y+self.height as i32,colour); // Bottom left
+		let vertex6 = Vertex::new(x+self.width as i32, y+self.height as i32,colour); //Bottom right
 
 		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
 	}
@@ -129,12 +131,12 @@ impl Surface for RectSurface {
 		).unwrap();
 	}
 
-	fn position(&mut self, x:i32,y:i32){
+	fn position(&mut self, x:f32,y:f32){
 		self.x = x;
 		self.y = y;
 	} 
 	
-	fn get_position(&self) -> (i32,i32){
+	fn get_position(&self) -> (f32,f32){
 		(self.x,self.y)
 	} 
 
@@ -151,8 +153,8 @@ impl Surface for RectSurface {
 		let position = self.get_position();
 		let size = self.get_size();
 		Bounds{
-			x:[position.0,size.0 as i32],
-			y:[position.1,size.1 as i32],
+			x:[position.0,size.0 as f32],
+			y:[position.1,size.1 as f32],
 		}
 	}
 }
@@ -160,8 +162,8 @@ impl Surface for RectSurface {
 impl Default for RectSurface {
 	fn default() -> Self {
 		Self { 
-			x:0, 
-			y:0, 
+			x:0.0, 
+			y:0.0, 
 			width:0, 
 			height:0, 
 			colour:Colour::Rgb(255, 255, 255) 

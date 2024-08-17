@@ -3,8 +3,8 @@ use winit::dpi::PhysicalPosition;
 /// The bounds of any object that has a size 
 /// and position
 pub struct Bounds {
-	pub x:[i32;2],
-	pub y:[i32;2],
+	pub x:[f32;2],
+	pub y:[f32;2],
 }
 
 impl Bounds{
@@ -24,24 +24,25 @@ impl Bounds{
 
 //TODO change this to floating point number for better accuracy
 /// Represents the position of any structure
+#[derive(Debug,Clone,Copy,PartialEq,PartialOrd)]
 pub struct Position{
-	pub x:i32,
-	pub y:i32
+	pub x:f32,
+	pub y:f32,
 }
 
 impl Position {
-	pub fn new(x:i32,y:i32) -> Self {
+	pub fn new(x:f32,y:f32) -> Self {
 		Self{x,y}
 	}
 
 	/// Translate the position
-	pub fn translate(&mut self,x:i32,y:i32) {
+	pub fn translate(&mut self,x:f32,y:f32) {
 		self.x += x;
 		self.y += y;
 	}
 
 	/// Set the position
-	pub fn set(&mut self,x:i32,y:i32){
+	pub fn set(&mut self,x:f32,y:f32){
 		self.x = x;
 		self.y = y;
 	}
@@ -51,8 +52,8 @@ impl Position {
 impl From<PhysicalPosition<f64>> for Position {
 	fn from(position: PhysicalPosition<f64>) -> Self {
 		Self { 
-			x:position.x as i32,
-			y:position.y as i32 
+			x:position.x as f32,
+			y:position.y as f32 
 		}
 	}
 }
