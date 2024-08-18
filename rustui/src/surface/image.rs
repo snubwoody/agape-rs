@@ -1,5 +1,5 @@
 use std::io::Cursor;
-use image::GenericImageView;
+use image::{imageops::FilterType, GenericImageView};
 use text_to_png::{Size, TextRenderer};
 use glium::{
 	glutin::surface::WindowSurface, 
@@ -18,7 +18,9 @@ use crate::{
 	utils::{Bounds, Position}, 
 	vertex::Vertex
 };
-  
+
+
+///TODO
 #[derive(Debug)]
 pub struct ImageSurface{
 	position:Position,
@@ -28,16 +30,17 @@ pub struct ImageSurface{
 }
 
 impl ImageSurface {
-	pub fn new(path:&str) -> Self{
+	pub fn new(path:&str,width:u32,height:u32) -> Self{
 
 		// Get the raw pixel values for the image
 		let img = image::ImageReader::open(path).unwrap().decode().unwrap();
-		let raw_image = img.to_rgba8().into_raw();
+		
+		let raw_image = img.resize(width, height, FilterType::Gaussian).to_rgba8().into_raw();
 		
 		Self {
 			position:Position::new(0.0, 0.0), 
-			width:img.dimensions().0,
-			height:img.dimensions().1,
+			width,
+			height,
 			img:raw_image
 		}
 	}

@@ -6,7 +6,9 @@ use rustui::{
 fn main() {
 	let greeting = Text::new("Hello world");
 	let image = Image{
-		path:"example/images/Frank Ocean Blonde.jpg".to_owned()
+		path:"example/images/Frank Ocean Blonde.jpg".to_owned(),
+		width:500,
+		height:500
 	};
 	let home = View::new(image);
 	let app = 
