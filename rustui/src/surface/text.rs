@@ -19,7 +19,7 @@ use crate::{
 };
 
 // TODO make a size struct
-//FIXME change the colour to Colour enum
+// FIXME change the colour to Colour enum
 /// A rasterized texture of text  
 #[derive(Debug)]
 pub struct TextSurface{

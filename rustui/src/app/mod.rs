@@ -74,6 +74,7 @@ impl App{
 						self.views[self.index].render(&self.display, &self.window,&self.context)
 					},
 					event => {
+						// Send all other window events to the event manager
 						let widget_tree = &mut self.views[0].widget_tree;
 						self.event_manager.handle_events(widget_tree,event)
 					}

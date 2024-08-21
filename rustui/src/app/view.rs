@@ -19,6 +19,7 @@ impl View {
 		
 		Self { widget_tree }
 	}
+	
 	pub fn render(
 		&mut self,
 		display:&Display<WindowSurface>,

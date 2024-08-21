@@ -5,6 +5,7 @@ pub mod text;
 pub mod button;
 pub mod list;
 pub mod image;
+pub mod flex;
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame, 
 };
@@ -18,10 +19,11 @@ use crate::surface::{
 };
 
 
-// TODO change position and size to floating point values
+// TODO change size to floating point values
 
 /// Widget trait that all widgets must inherit from
 pub trait Widget{
+	/// Build the [`Widget`] into a primitive [`WidgetBody`]
 	fn build(&self) -> WidgetBody;
 }
 
@@ -33,6 +35,7 @@ pub struct WidgetBody{
 }
 
 impl WidgetBody {
+	/// Render the [`WidgetBody`] to the screen
 	pub fn render(
 		&mut self,
 		display:&Display<WindowSurface>,
@@ -58,38 +61,6 @@ impl WidgetBody {
 		let size = self.layout.arrange([position.0,position.1],&mut self.children);
 		self.surface.size(size.0, size.1);
 	}
-
-	/* /// Set the position of the [`Widget`]
-	pub fn position(&mut self, x:i32,y:i32){
-		self.surface.x = x;
-		self.surface.y = y;
-	} 
-	
-	/// Get the [`Widget`] position
-	pub fn get_position(&self) -> (i32,i32){
-		(self.surface.x,self.surface.y)
-	} 
-
-	/// Set the size of the [`Widget`]
-	pub fn size(&mut self,width:u32,height:u32){
-		self.surface.width = width;
-		self.surface.height = height;
-	} 
-
-	/// Get the size of the [`Widget`]
-	pub fn get_size(&self) -> (u32,u32){
-		(self.surface.width,self.surface.height)
-	}
-
-	/// Get the bounds of the [`Widget`]
-	pub fn get_bounds(&self) -> Bounds{
-		let position = self.get_position();
-		let size = self.get_size();
-		Bounds{
-			x:[position.0,size.0 as i32],
-			y:[position.1,size.1 as i32],
-		}
-	} */
 }
 
 impl Default for WidgetBody {
@@ -108,7 +79,7 @@ impl Default for WidgetBody {
 	}
 }
 
-
+// FIXME kind of unnecessary right not so maybe remove it
 // TODO maybe implement iter for the widget tree
 pub struct WidgetTree{
 	pub widgets:Vec<WidgetBody>,

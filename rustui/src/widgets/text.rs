@@ -18,6 +18,7 @@ impl Text {
 		}	
 	}
 
+	/// Set the font size
 	pub fn font_size(mut self,size:u8) -> Self{
 		self.font_size = size;
 		self
@@ -26,11 +27,13 @@ impl Text {
 
 impl Widget for Text {
 	fn build(&self) -> WidgetBody {
+		// Create the text surface to be rendered
 		let textsurface = TextSurface::new(
 			self.text.as_str(),
 			"#000000" , 
 			self.font_size
 		);
+
 		let size = textsurface.get_size();
 		let surface = Box::new(textsurface);
 
