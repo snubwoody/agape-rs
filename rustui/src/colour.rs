@@ -29,6 +29,7 @@ pub enum Colour{
 
 // TODO impl From
 impl Colour {
+	/// Parse any type of coulour to rgba values
 	pub fn to_rgba(&self) -> [u8;4] {		
 		match self {
 			Self::Rgb(r,g,b) => [*r,*g,*b,100],
@@ -36,10 +37,28 @@ impl Colour {
 				if a > 100 {a = 100}
 				[*r,*g,*b,a]
 			},
-			Self::Hex(colour) => {[0,0,0,0]}
+			Self::Hex(colour) => {
+				self.hex_to_rgba(&colour)
+			}
 		}
 	}
 
+	fn hex_to_rgba(&self,hex:&str) -> [u8;4] {
+		// FIXME handle the errors
+		let (r,g,b) = (
+			&hex[0..2],
+			&hex[2..4],
+			&hex[4..6],
+		);
+
+		let r = u8::from_str_radix(r, 16).unwrap();
+		let g = u8::from_str_radix(g, 16).unwrap();
+		let b = u8::from_str_radix(b, 16).unwrap();
+
+		[r,g,b,100]
+	}
+
+	/// Normalize the colours to a 0 to 1 scale
 	pub fn normalize(&self) -> [f32;4] {
 		let rgba = self.to_rgba();
 
