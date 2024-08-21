@@ -48,7 +48,10 @@ impl TextSurface {
 		image_size = text_image.size;
 
 		// Get the raw pixel values for the image
-		let img = image::load(Cursor::new(text_image.data), image::ImageFormat::Png).unwrap().to_rgba8().into_raw();
+		let img = image::load(
+			Cursor::new(text_image.data), 
+			image::ImageFormat::Png
+		).unwrap().to_rgba8().into_raw();
 		
 		Self {
 			position:Position::new(0.0, 0.0), 

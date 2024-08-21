@@ -7,7 +7,7 @@ use crate::{
 use super::WidgetBody;
 
 /// A container [`Widget`] that wraps its child
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug,Clone,PartialEq, Eq)]
 pub struct Container<W:Widget>{
 	pub padding:u32,
 	pub colour:Colour,
@@ -37,7 +37,10 @@ impl<W> Container<W> where W:Widget {
 impl<W> Widget for Container<W> where W:Widget {
 	fn build(&self) -> WidgetBody {
 		let surface = Box::new(
-			RectSurface{colour:self.colour,..Default::default()}
+			RectSurface{
+				colour:self.colour.clone(),
+				..Default::default()
+			}
 		);
 		
 		let layout = Layout::Single { padding: 12 };

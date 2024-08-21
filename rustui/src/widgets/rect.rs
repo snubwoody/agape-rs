@@ -4,7 +4,7 @@ use super::{Widget, WidgetBody};
 use crate::layout::Layout;
 
 /// A simple rectangle
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug,Clone,PartialEq, Eq)]
 pub struct Rect{
 	pub width:u32,
 	pub height:u32,
@@ -24,7 +24,7 @@ impl Widget for Rect {
 			RectSurface{ 
 				width:self.width,
 				height:self.height,
-				colour:self.colour,
+				colour:self.colour.clone(),
 				..Default::default()
 			}
 		);

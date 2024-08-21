@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use crate::utils::map;
 
 /// Deprecated
@@ -18,26 +20,27 @@ pub fn rgba(r:u8,g:u8,b:u8,a:u8) -> [f32;4]{
 }
 
 
-#[derive(Debug,Clone,Copy,PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug,Clone,PartialEq, Eq, PartialOrd, Ord)]
 pub enum Colour{
 	Rgb(u8,u8,u8),
 	Rgba(u8,u8,u8,u8),
+	Hex(String)
 } 
 
 // TODO impl From
 impl Colour {
-	pub fn to_rgba(self) -> [u8;4] {		
+	pub fn to_rgba(&self) -> [u8;4] {		
 		match self {
-			Self::Rgb(r,g,b) => [r,g,b,100],
+			Self::Rgb(r,g,b) => [*r,*g,*b,100],
 			Self::Rgba(r,g,b,mut a) => {
-				if a > 100 {
-					a = 100}
-				[r,g,b,a]
+				if a > 100 {a = 100}
+				[*r,*g,*b,a]
 			},
+			Self::Hex(colour) => {[0,0,0,0]}
 		}
 	}
 
-	pub fn normalize(self) -> [f32;4] {
+	pub fn normalize(&self) -> [f32;4] {
 		let rgba = self.to_rgba();
 
 		let r = map(rgba[0] as f32, [0.0,255.0], [0.0,1.0]);

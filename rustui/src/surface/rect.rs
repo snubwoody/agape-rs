@@ -18,7 +18,7 @@ use crate::{
 /// essential information about the [`Widget`], ie.
 /// the colour, coordinates and size.
 // TODO change x and y to position
-#[derive(Debug,Clone,Copy,PartialEq)]
+#[derive(Debug,Clone,PartialEq)]
 pub struct RectSurface{
 	pub x:f32,
 	pub y:f32,

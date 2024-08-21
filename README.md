@@ -35,5 +35,9 @@ can start planning things and stop wondering about different things randomly.
 
 ## Projects
 
-### Layout system revamp
+## Issues
+
+### Image size issue
+When the window is smaller than the image, the image resizes to fit the window which shouldn't happen
+
 
