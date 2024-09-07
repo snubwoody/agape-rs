@@ -6,7 +6,7 @@ pub mod button;
 pub mod list;
 pub mod image;
 pub mod flex;
-use std::fmt::Debug;
+use std::{fmt::Debug, ops::Deref};
 
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame, 
@@ -23,6 +23,7 @@ use crate::{
 	},
 	layout::Layout,
 };
+
 
 // TODO change size to floating point values
 // TODO change render name to draw
@@ -91,11 +92,11 @@ impl Default for WidgetBody {
 	}
 }
 
+#[derive(Debug)]
 pub struct WidgetNode{
-	body:WidgetBody,
-	id:usize,
-	parent:usize,
-	children:Vec<usize>
+	pub body:Box<dyn Widget>,
+	pub id:usize,
+	pub parent:Option<usize>,
 }
 
 // FIXME kind of unnecessary right not so maybe remove it
@@ -103,21 +104,30 @@ pub struct WidgetNode{
 
 /// Central structure that holds all the [`Widget`]'s, this is 
 /// where rendering, layouts and events are processed from.
+#[derive(Debug)]
 pub struct WidgetTree{
-	pub widgets:Vec<WidgetBody>,
-	pub index:usize
+	pub widgets:Vec<WidgetNode>,
 }
 
 impl WidgetTree where  {
 	pub fn new() -> Self{
 		Self { 
 			widgets:Vec::new(),
-			index:0 
 		}
 	}
 
-	pub fn add(&mut self,widget:impl Widget + 'static) {
-		let node = widget.build();
+	/// Add a [`WidgetNode`] to the tree
+	pub fn add(
+		&mut self,
+		widget:impl Widget + 'static,
+		id:usize,
+		parent_id:Option<usize>
+	) {
+		let node = WidgetNode{
+			body:Box::new(widget),
+			id,
+			parent:parent_id
+		};
 
 		self.widgets.push(node);
 	}
@@ -137,7 +147,7 @@ impl WidgetTree where  {
 		context:&RenderContext,
 	) {
 		self.widgets.iter_mut().for_each(|widget| {
-			widget.render(display, frame, window, context)
+			widget.body.build().render(display, frame, window, context);
 		})
 	}
 }
