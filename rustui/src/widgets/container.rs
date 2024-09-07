@@ -7,19 +7,19 @@ use crate::{
 use super::WidgetBody;
 
 /// A container [`Widget`] that wraps its child
-#[derive(Debug,Clone,PartialEq, Eq)]
-pub struct Container<W:Widget>{
+#[derive(Debug)]
+pub struct Container{
 	pub padding:u32,
 	pub colour:Colour,
-	pub child:W
+	pub child:Box<dyn Widget>
 }
 
-impl<W> Container<W> where W:Widget {
-	pub fn new(child:W) -> Self{
+impl Container {
+	pub fn new(child:impl Widget + 'static) -> Self{
 		Container { 
 			padding:0, 
 			colour:Colour::Rgb(255, 255, 255), 
-			child 
+			child:Box::new(child)
 		}
 	}
 
@@ -34,7 +34,7 @@ impl<W> Container<W> where W:Widget {
 	}
 }
 
-impl<W> Widget for Container<W> where W:Widget {
+impl Widget for Container {
 	fn build(&self) -> WidgetBody {
 		let surface = Box::new(
 			RectSurface{
@@ -53,10 +53,8 @@ impl<W> Widget for Container<W> where W:Widget {
 			..Default::default()
 		}
 	}
+
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		return vec![self.child];
+	}
 }
-
-
-
-
-
-

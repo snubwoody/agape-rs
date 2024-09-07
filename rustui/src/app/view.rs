@@ -47,6 +47,7 @@ pub struct RenderContext{
 }
 
 impl RenderContext {
+	// TODO change this to use the from source method of the Program struct
 	pub fn new(
 		surface_program:Program,
 		text_program:Program,

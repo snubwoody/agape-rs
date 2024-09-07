@@ -3,10 +3,11 @@ use crate::{
 };
 use super::Widget;
 
+#[derive(Debug)]
 pub struct Button{
 	pub text:String,
 	pub colour:Colour,
-	events:Vec<EventFunction>
+	//events:Vec<EventFunction>
 }
 
 impl Button {
@@ -14,7 +15,7 @@ impl Button {
 		Self { 
 			text:text.into(), 
 			colour:Colour::Rgb(255, 255, 255),
-			events:Vec::new()
+			//events:Vec::new()
 		}
 	}
 
@@ -23,7 +24,7 @@ impl Button {
 		self
 	}
 
-	pub fn on_hover(mut self,f:impl Fn() + 'static) -> Self {
+	/* pub fn on_hover(mut self,f:impl Fn() + 'static) -> Self {
 		self.events.push(EventFunction::OnHover(Box::new(f)));
 		self
 	}
@@ -31,7 +32,7 @@ impl Button {
 	pub fn on_click(mut self,f:impl Fn() + 'static) -> Self{
 		self.events.push(EventFunction::OnClick(Box::new(f)));
 		self
-	}
+	} */
 }
 
 impl Widget for Button {
@@ -48,5 +49,9 @@ impl Widget for Button {
 			layout,
 			..Default::default()
 		}
+	}
+
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		vec![]
 	}
 }

@@ -36,4 +36,8 @@ impl Widget for Rect {
 			..Default::default()
 		}
 	}
+
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		vec![]
+	}
 }

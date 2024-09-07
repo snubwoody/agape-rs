@@ -1,10 +1,12 @@
 use super::{WidgetBody,Widget};
 
+#[derive(Debug)]
 pub enum FlexDirection {
 	Vertical,
 	Horizontal
 }
 
+#[derive(Debug)]
 pub struct Flex{
 	order:Vec<u8>,
 	direction:FlexDirection,
@@ -21,5 +23,9 @@ impl Widget for Flex {
 			children,
 			..Default::default()
 		}
+	}
+
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		self.children
 	}
 }

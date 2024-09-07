@@ -58,6 +58,25 @@ impl From<PhysicalPosition<f64>> for Position {
 }
 
 
+// TODO
+pub struct Size{
+	width:f32,
+	height:f32
+}
+
+impl Size {
+	pub fn scale(&mut self,factor:f32) {
+		self.width *= factor;
+		self.height *= factor;
+	}
+
+	pub fn set(&mut self,width:f32,height:f32) {
+		self.width = width;
+		self.height = height;
+	}
+}
+
+
 /// Map value from one range to another. Any overflow is clipped to the min or max
 pub fn map(mut value:f32,input_range:[f32;2],output_range:[f32;2]) -> f32{
 	if value > input_range[1]{

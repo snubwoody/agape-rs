@@ -113,3 +113,10 @@ impl Layout {
 	}
 }
 
+
+pub enum SizeConstraint {
+	Fill,
+	Fit,
+	Flex,
+	Relative(f32)	
+}

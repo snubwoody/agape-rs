@@ -45,6 +45,10 @@ impl Widget for Text {
 			..Default::default()
 		}
 	}
+	
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		vec![]
+	}
 }
 
 

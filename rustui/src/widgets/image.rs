@@ -5,8 +5,8 @@ use crate::{
 };
 
 
-// TODO add width and height
 /// Simple image widget
+#[derive(Debug)]
 pub struct Image{
 	pub path:String,
 	pub width:u32,
@@ -30,5 +30,9 @@ impl Widget for Image {
 			layout,
 			..Default::default()
 		}
+	}
+
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		vec![]
 	}
 }

@@ -7,6 +7,7 @@ use crate::{
 use super::{Widget, WidgetBody};
 
 /// A simple text list
+#[derive(Debug)]
 pub struct TextList{
 	pub items:Vec<String>
 }
@@ -65,5 +66,8 @@ impl Widget for TextList {
 			children:bodies,
 			..Default::default()
 		}
+	}
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		vec![]
 	}
 }

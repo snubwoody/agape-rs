@@ -3,9 +3,7 @@ use crate::{
 	widgets::{Widget, WidgetBody}
 };
 
-// The stacks aren't working, every change breaks the 
-// stacks is some way, it's actually so infuriating, i
-// don't even know what to do about them.
+#[derive(Debug)]
 pub struct VStack{
 	pub spacing:u32,
 	pub padding:u32,
@@ -29,7 +27,13 @@ impl Widget for VStack {
 			..Default::default()
 		}
 	}
+
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		self.children
+	}
 }
+
+#[derive(Debug)]
 
 pub struct HStack{
 	pub spacing:u32,
@@ -51,6 +55,10 @@ impl Widget for HStack {
 			..Default::default()
 		}
 
+	}
+
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		self.children
 	}
 }
 

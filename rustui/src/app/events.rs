@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use crate::{utils::Position, widgets::WidgetTree};
 use winit::{dpi::PhysicalPosition, event::{ElementState, MouseButton, WindowEvent}};
 
