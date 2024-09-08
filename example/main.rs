@@ -14,8 +14,8 @@ fn main() {
 
 fn new_app(){
 	let _box = Rect::new(200, 150, Colour::Rgb(244, 144, 244));
-	let _box2 = Rect::new(100, 50, Colour::Rgb(244, 1, 99));
-	let _box3 = Rect::new(100, 50, Colour::Rgb(44, 1, 99));
+	let _box2 = Rect::new(10, 55, Colour::Rgb(244, 1, 99));
+	let _box3 = Rect::new(150, 25, Colour::Rgb(44, 1, 99));
 	let _box4 = Rect::new(100, 50, Colour::Rgb(144, 10, 199));
 	let column = VStack{
 		spacing:32,

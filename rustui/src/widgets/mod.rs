@@ -155,10 +155,11 @@ impl<'a> Iterator for WidgetTreeIter<'a> {
 	type Item = &'a WidgetBody;
 
 	fn next(&mut self) -> Option<Self::Item> {
+		// Get the curr
 		let widget = self.stack.pop();
 		match widget {
 			Some(current_widget) => {
-				current_widget.children.iter().for_each(|node|{
+				current_widget.children.iter().rev().for_each(|node|{
 					self.stack.push(node)
 				});
 			},
