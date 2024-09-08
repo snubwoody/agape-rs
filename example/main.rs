@@ -9,7 +9,6 @@ use rustui::{
 };
 
 fn main() {
-	//app();
 	new_app();
 }
 
@@ -23,14 +22,11 @@ fn new_app(){
 		children:vec![]
 	};
 
-	widget_tree.add(hstack, 0, None);
-	widget_tree.add(greeting, 1, Some(0));
-	widget_tree.add(_box, 2, Some(0));
+	widget_tree.add(hstack, 0, None,vec![1,2]);
+	widget_tree.add(greeting, 1, Some(0),vec![]);
+	widget_tree.add(_box, 2, Some(0),vec![]);
 
-	dbg!(&widget_tree);
-	
 	let home = View::new(widget_tree);
-
 
 	let app = 
 		App::new()

@@ -1,4 +1,5 @@
 use crate::surface::rect::RectSurface;
+use crate::utils::Size;
 use crate::{colour::Colour};
 use super::{Widget, WidgetBody};
 use crate::layout::Layout;
@@ -22,8 +23,7 @@ impl Widget for Rect {
 		let layout = Layout::SingleChild{width:self.width,height:self.height};
 		let surface = Box::new(
 			RectSurface{ 
-				width:self.width,
-				height:self.height,
+				size:Size::new(self.width as f32, self.height as f32),
 				colour:self.colour.clone(),
 				..Default::default()
 			}

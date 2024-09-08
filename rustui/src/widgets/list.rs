@@ -22,7 +22,7 @@ impl TextList {
 	fn build_list_item(&self,list_item:&String,index:usize) -> WidgetBody{
 		let text_surface = TextSurface::new(list_item, "#000000", 16);
 		let text_size = text_surface.get_size();
-		let text_layout = Layout::SingleChild { width: text_size.0, height: text_size.1 };
+		let text_layout = Layout::SingleChild { width: text_size.width as u32, height: text_size.height as u32 };
 
 		let text_body = WidgetBody{
 			surface:Box::new(text_surface),
@@ -32,7 +32,7 @@ impl TextList {
 
 		let style_surface = TextSurface::new(index.to_string().as_str(), "#000000", 16);
 		let style_size = style_surface.get_size();
-		let style_layout = Layout::SingleChild { width: style_size.0, height: style_size.1 };
+		let style_layout = Layout::SingleChild { width: style_size.width as u32, height: style_size.height as u32 };
 
 		let style_body = WidgetBody{
 			surface:Box::new(style_surface),

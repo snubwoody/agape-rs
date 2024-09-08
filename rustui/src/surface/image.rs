@@ -1,6 +1,6 @@
 use std::io::Cursor;
 use image::{imageops::FilterType, GenericImageView};
-use text_to_png::{Size, TextRenderer};
+use text_to_png::{Size as ImageSize, TextRenderer};
 use glium::{
 	glutin::surface::WindowSurface, 
 	index, 
@@ -15,7 +15,7 @@ use crate::{
 	app::view::RenderContext, 
 	colour::rgb, 
 	surface::Surface, 
-	utils::{Bounds, Position}, 
+	utils::{Bounds, Position,Size}, 
 	vertex::Vertex
 };
 
@@ -24,23 +24,21 @@ use crate::{
 #[derive(Debug)]
 pub struct ImageSurface{
 	position:Position,
-	width:u32,
-	height:u32,
+	size:Size,
 	img:Vec<u8>
 }
 
 impl ImageSurface {
-	pub fn new(path:&str,width:u32,height:u32) -> Self{
+	pub fn new(path:&str,width:f32,height:f32) -> Self{
 
 		// Get the raw pixel values for the image
 		let img = image::ImageReader::open(path).unwrap().decode().unwrap();
 		
-		let raw_image = img.resize(width, height, FilterType::Gaussian).to_rgba8().into_raw();
+		let raw_image = img.resize(width as u32, height as u32, FilterType::Gaussian).to_rgba8().into_raw();
 		
 		Self {
 			position:Position::new(0.0, 0.0), 
-			width,
-			height,
+			size:Size::new(width, height),
 			img:raw_image
 		}
 	}
@@ -49,14 +47,13 @@ impl ImageSurface {
 	pub fn build(&mut self,display:&Display<WindowSurface>) -> Texture2d{
 		// Create an opengl raw image 
 		let raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(
-			&self.img,(self.width,self.height)
+			&self.img,(self.size.width as u32,self.size.height as u32)
 		);
 
 		// Create the texture from the image
 		let texture = glium::texture::Texture2d::new(display, raw_image).unwrap();
 
 		return texture;
-
 	}
 
 	fn to_vertices(&self,width:i32,height:i32) -> Vec<Vertex>{
@@ -99,7 +96,7 @@ impl Surface for ImageSurface {
 			tex: texture,
 		};
 
-		let vertices:Vec<Vertex> = self.to_vertices(self.width as i32, self.height as i32);
+		let vertices:Vec<Vertex> = self.to_vertices(self.size.width as i32, self.size.height as i32);
 		let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
 		let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 		
@@ -113,19 +110,19 @@ impl Surface for ImageSurface {
 		
 	}
 
-	fn size(&mut self,width:u32,height:u32) {
-		self.width = width;
-		self.height = height;
+	fn size(&mut self,width:f32,height:f32) {
+		self.size.width = width;
+		self.size.height = height;
 	}
 	
-	fn get_size(&self) -> (u32,u32) {
-		(self.width,self.height)
+	fn get_size(&self) -> Size {
+		self.size
 	}
 
 	fn get_bounds(&self) -> Bounds {
 		Bounds{
-			x:[self.position.x,self.position.x + self.width as f32],
-			y:[self.position.y,self.position.y + self.height as f32]
+			x:[self.position.x,self.position.x + self.size.width],
+			y:[self.position.y,self.position.y + self.size.height]
 		}
 	}
 

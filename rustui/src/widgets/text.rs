@@ -37,7 +37,7 @@ impl Widget for Text {
 		let size = textsurface.get_size();
 		let surface = Box::new(textsurface);
 
-		let layout = Layout::SingleChild { width: size.0, height: size.1 };
+		let layout = Layout::SingleChild { width: size.width as u32, height: size.height as u32 };
 
 		WidgetBody{
 			surface,

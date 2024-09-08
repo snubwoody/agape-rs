@@ -1,6 +1,6 @@
 use crate::widgets::WidgetBody;
 
-/// The types of layout a widget can have
+/// The types of layout a [`Widget`] can have.
 #[derive(Debug)]
 pub enum Layout{
 	Horizontal{
@@ -39,8 +39,8 @@ impl Layout {
 
 		let child_size = child.surface.get_size();
 
-		max_width += child_size.0 + padding * 2;
-		max_height += child_size.1 + padding * 2;
+		max_width += child_size.width as u32 + padding * 2;
+		max_height += child_size.height as u32 + padding * 2;
 
 		(max_width,max_height) 
 	}
@@ -51,12 +51,12 @@ impl Layout {
 		
 		// Iterate over the children to get the required space
 		for (index,child) in children.iter().enumerate(){
-			let (width,height) = child.surface.get_size();
-			if width > max_width{
-				max_width = width
+			let size = child.surface.get_size();
+			if size.width as u32 > max_width{
+				max_width = size.width as u32
 			}
 
-			max_height += height;
+			max_height += size.height as u32;
 			
 			// Add the spacing for all elements except the last
 			if index != children.len() - 1 {
@@ -69,7 +69,7 @@ impl Layout {
 		children.iter_mut().for_each(|child|{
 			let size = child.surface.get_size();
 			child.surface.position(position[0] + padding as f32, current_pos);
-			current_pos += spacing as f32 + size.1 as f32;
+			current_pos += spacing as f32 + size.height as f32;
 		});
 
 		max_width += padding *2;
@@ -84,13 +84,13 @@ impl Layout {
 	
 		// Iterate over the children to get the required space
 		for (index,child) in children.iter().enumerate(){
-			let (width,height) = child.surface.get_size();
+			let size = child.surface.get_size();
 			
-			if height > max_height{
-				max_height = height
+			if size.height as u32 > max_height{
+				max_height = size.height as u32
 			}
 
-			max_width += width;
+			max_width += size.width as u32;
 			
 			// Add the spacing for all elements except the last
 			if index != children.len() - 1 {
@@ -103,7 +103,7 @@ impl Layout {
 		children.iter_mut().for_each(|child|{
 			let size = child.surface.get_size();
 			child.surface.position(current_pos, position[1] + padding as f32);
-			current_pos += spacing as f32 + size.0 as f32;
+			current_pos += spacing as f32 + size.width as f32;
 		});
 
 		max_width += padding *2;
@@ -114,6 +114,7 @@ impl Layout {
 }
 
 
+#[derive(Debug)]
 pub enum SizeConstraint {
 	Fill,
 	Fit,

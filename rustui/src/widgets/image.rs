@@ -21,9 +21,11 @@ impl Image {
 
 impl Widget for Image {
 	fn build(&self) -> WidgetBody {
-		let surface = Box::new(ImageSurface::new(&self.path,self.width,self.height));
+		let surface = Box::new(
+			ImageSurface::new(&self.path,self.width as f32,self.height as f32)
+		);
 		let size = surface.get_size();
-		let layout = Layout::SingleChild { width: size.0, height:size.1 };
+		let layout = Layout::SingleChild { width: size.width as u32, height:size.height as u32 };
 
 		WidgetBody{
 			surface,

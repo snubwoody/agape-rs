@@ -58,13 +58,16 @@ impl From<PhysicalPosition<f64>> for Position {
 }
 
 
-// TODO
+#[derive(Debug,Clone,Copy,PartialEq,PartialOrd)]
 pub struct Size{
-	width:f32,
-	height:f32
+	pub width:f32,
+	pub height:f32
 }
 
 impl Size {
+	pub fn new(width:f32,height:f32) -> Self {
+		Self { width, height }
+	}
 	pub fn scale(&mut self,factor:f32) {
 		self.width *= factor;
 		self.height *= factor;

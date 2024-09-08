@@ -1,5 +1,5 @@
 use std::io::Cursor;
-use text_to_png::{Size, TextRenderer};
+use text_to_png::{Size as ImageSize, TextRenderer};
 use glium::{
 	glutin::surface::WindowSurface, 
 	index, 
@@ -14,7 +14,7 @@ use crate::{
 	app::view::RenderContext, 
 	colour::rgb, 
 	surface::Surface, 
-	utils::{Bounds, Position}, 
+	utils::{Bounds, Position,Size}, 
 	vertex::Vertex
 };
 
@@ -24,8 +24,7 @@ use crate::{
 #[derive(Debug)]
 pub struct TextSurface{
 	position:Position,
-	width:u32,
-	height:u32,
+	size:Size,
 	text:String,
 	font_size:u8,
 	colour:String,
@@ -36,7 +35,7 @@ impl TextSurface {
 	pub fn new(text:&str,colour:&str,font_size:u8) -> Self{
 		let text_renderer = TextRenderer::default();
 
-		let image_size:Size;
+		let image_size:ImageSize;
 
 		// Render the text as a png
 		let text_image = text_renderer.render_text_to_png_data(
@@ -55,8 +54,7 @@ impl TextSurface {
 		
 		Self {
 			position:Position::new(0.0, 0.0), 
-			width:image_size.width,
-			height:image_size.height,
+			size:Size::new(image_size.width as f32, image_size.height as f32),
 			text:String::from(text), 
 			font_size, 
 			colour:String::from(colour),
@@ -68,7 +66,7 @@ impl TextSurface {
 	pub fn build(&mut self,display:&Display<WindowSurface>) -> Texture2d{
 		// Create an opengl raw image 
 		let raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(
-			&self.img,(self.width,self.height)
+			&self.img,(self.size.width as u32,self.size.height as u32)
 		);
 
 		// Create the texture from the image
@@ -118,7 +116,7 @@ impl Surface for TextSurface {
 			tex: texture,
 		};
 
-		let vertices:Vec<Vertex> = self.to_vertices(self.width as i32, self.height as i32);
+		let vertices:Vec<Vertex> = self.to_vertices(self.size.width as i32, self.size.height as i32);
 		let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
 		let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 		
@@ -132,19 +130,19 @@ impl Surface for TextSurface {
 		
 	}
 
-	fn size(&mut self,width:u32,height:u32) {
-		self.width = width;
-		self.height = height;
+	fn size(&mut self,width:f32,height:f32) {
+		self.size.width = width;
+		self.size.height = height;
 	}
 	
-	fn get_size(&self) -> (u32,u32) {
-		(self.width,self.height)
+	fn get_size(&self) -> Size {
+		self.size
 	}
 
 	fn get_bounds(&self) -> Bounds {
 		Bounds{
-			x:[self.position.x,self.position.x + self.width as f32],
-			y:[self.position.y,self.position.y + self.height as f32]
+			x:[self.position.x,self.position.x + self.size.width],
+			y:[self.position.y,self.position.y + self.size.height]
 		}
 	}
 
