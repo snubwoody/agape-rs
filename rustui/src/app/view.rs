@@ -35,6 +35,7 @@ impl View {
 	}
 }
 
+// TODO try fitting the window and display in the render context
 /// Contains the compiled shader programs
 #[derive(Debug)]
 pub struct RenderContext{

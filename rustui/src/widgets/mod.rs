@@ -6,9 +6,9 @@ pub mod button;
 pub mod list;
 pub mod image;
 pub mod flex;
-use std::{collections::HashMap, fmt::Debug, ops::Deref};
+use std::fmt::Debug;
 use glium::{
-	glutin::surface::WindowSurface, Display, Frame, 
+	glutin::surface::WindowSurface, texture::srgb_cubemap, Display, Frame 
 };
 use winit::window::Window;
 use crate::{
@@ -37,6 +37,7 @@ pub trait Widget:Debug{
 
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
+#[derive(Debug)]
 pub struct WidgetBody{
 	pub surface:Box<dyn Surface>,
 	pub layout:Layout,
@@ -59,7 +60,7 @@ impl WidgetBody {
 
 		// Render the parent then the children
 		self.surface.draw(display, frame, window, context);
-		self.children.iter_mut().for_each(|widget|widget.render(display, frame, window, context));
+		//self.children.iter_mut().for_each(|widget|widget.render(display, frame, window, context));
 	}
 
 	/// TODO
@@ -95,6 +96,7 @@ impl Default for WidgetBody {
 // TODO maybe implement iter for the widget tree
 /// Central structure that holds all the [`Widget`]'s, this is 
 /// where rendering, layouts and events are processed from.
+#[derive(Debug)]
 pub struct WidgetTree{
 	pub root_widget:WidgetBody,
 }
@@ -106,11 +108,27 @@ impl WidgetTree where  {
 		}
 	}
 
-	fn walk(&self){
-	
+	/// Walk the [`WidgetTree`] by depth first.
+	fn walk(
+		&self,
+		root_widget:&mut WidgetBody,
+		display:&Display<WindowSurface>,
+		frame:&mut Frame,
+		window:&Window,
+		context:&RenderContext,
+	) {
+		root_widget.render(display, frame, window, context);
+		for (_,child) in root_widget.children.iter_mut().enumerate(){
+			dbg!(&child.layout);
+			self.walk(&mut *child,display,frame,window,context);
+		}
 	}
 
-	fn arrange_layouts(&self){
+	/// Returns an iterator for the [`WidgetTree`].
+	pub fn iter(&self) -> WidgetTreeIter {
+		WidgetTreeIter{
+			stack:vec![&self.root_widget]
+		}
 	}
 
 	/// Draw the [`WidgetTree`] to the screen.
@@ -121,10 +139,32 @@ impl WidgetTree where  {
 		window:&Window,
 		context:&RenderContext,
 	) {
-		self.root_widget.render(display, frame, window, context)
-		/* self.widgets.iter_mut().for_each(|widget| {
-			widget.render(display, frame, window, context);
-		}) */
+		//self.walk(&mut self.root_widget,display,frame,window,context);
+		for (_,node) in self.iter().enumerate(){
+			dbg!(&node.layout);
+		}
+	}
+}
+
+/// An [`Iterator`] for the [`WidgetTree`].
+pub struct WidgetTreeIter<'a>{
+	stack:Vec<&'a WidgetBody>
+}
+
+impl<'a> Iterator for WidgetTreeIter<'a> {
+	type Item = &'a WidgetBody;
+
+	fn next(&mut self) -> Option<Self::Item> {
+		let widget = self.stack.pop();
+		match widget {
+			Some(current_widget) => {
+				current_widget.children.iter().for_each(|node|{
+					self.stack.push(node)
+				});
+			},
+			None => {}
+		}
+		widget
 	}
 }
 

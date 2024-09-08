@@ -3,7 +3,7 @@ use rustui::{
 	colour::Colour,
 	widgets::{
 		rect::Rect, 
-		stack::HStack, 
+		stack::{HStack, VStack}, 
 		text::Text, WidgetTree
 	}
 };
@@ -13,17 +13,30 @@ fn main() {
 }
 
 fn new_app(){
-	let greeting = Text::new("Hello world");
 	let _box = Rect::new(200, 150, Colour::Rgb(244, 144, 244));
+	let _box2 = Rect::new(100, 50, Colour::Rgb(244, 1, 99));
+	let _box3 = Rect::new(100, 50, Colour::Rgb(44, 1, 99));
+	let _box4 = Rect::new(100, 50, Colour::Rgb(144, 10, 199));
+	let column = VStack{
+		spacing:32,
+		padding:0,
+		children:vec![
+			Box::new(_box3),
+			Box::new(_box4),
+		]
+	};
+
 	let hstack = HStack{
 		spacing:12,
 		padding:0,
 		children:vec![
-			Box::new(greeting),
-			Box::new(_box)
+			Box::new(_box2),
+			Box::new(_box),
+			Box::new(column)
 		]
 	};
 	let widget_tree = WidgetTree::new(hstack);
+	//dbg!(&widget_tree);
 
 	let home = View::new(widget_tree);
 
