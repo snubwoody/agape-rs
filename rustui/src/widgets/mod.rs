@@ -92,41 +92,19 @@ impl Default for WidgetBody {
 	}
 }
 
-pub struct WidgetNode{
-	pub body:WidgetBody,
-	pub id:usize,
-	pub parent:Option<usize>,
-	pub children:Vec<usize>
-}
-
-// FIXME kind of unnecessary right not so maybe remove it
 // TODO maybe implement iter for the widget tree
-
 /// Central structure that holds all the [`Widget`]'s, this is 
 /// where rendering, layouts and events are processed from.
 pub struct WidgetTree{
-	pub widgets:Vec<WidgetBody>,
+	pub root_widget:WidgetBody,
 }
 
 impl WidgetTree where  {
-	pub fn new() -> Self{
+	pub fn new(widget:impl Widget + 'static) -> Self{
 		Self { 
-			widgets:Vec::new(),
+			root_widget:widget.build(),
 		}
 	}
-
-	/// Add a [`WidgetNode`] to the tree
-	pub fn add(
-		&mut self,
-		widget:impl Widget + 'static,
-		id:usize,
-		parent_id:Option<usize>,
-		children:Vec<usize>
-	) {
-
-		self.widgets.push(widget.build());
-	}
-
 
 	fn walk(&self){
 	
@@ -143,9 +121,10 @@ impl WidgetTree where  {
 		window:&Window,
 		context:&RenderContext,
 	) {
-		self.widgets.iter_mut().for_each(|widget| {
+		self.root_widget.render(display, frame, window, context)
+		/* self.widgets.iter_mut().for_each(|widget| {
 			widget.render(display, frame, window, context);
-		})
+		}) */
 	}
 }
 
