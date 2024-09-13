@@ -21,7 +21,7 @@ use crate::{
 
 
 ///TODO
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct ImageSurface{
 	position:Position,
 	size:Size,
@@ -30,7 +30,6 @@ pub struct ImageSurface{
 
 impl ImageSurface {
 	pub fn new(path:&str,width:f32,height:f32) -> Self{
-
 		// Get the raw pixel values for the image
 		let img = image::ImageReader::open(path).unwrap().decode().unwrap();
 		
@@ -44,7 +43,7 @@ impl ImageSurface {
 	}
 	
 	/// Rasterize the text and store the texture 
-	pub fn build(&mut self,display:&Display<WindowSurface>) -> Texture2d{
+	pub fn build(&self,display:&Display<WindowSurface>) -> Texture2d{
 		// Create an opengl raw image 
 		let raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(
 			&self.img,(self.size.width as u32,self.size.height as u32)
@@ -74,7 +73,7 @@ impl ImageSurface {
 
 impl Surface for ImageSurface {
 	fn draw(
-		&mut self,
+		&self,
 		display:&glium::Display<WindowSurface>,
 		frame:&mut glium::Frame,
 		window:&winit::window::Window,

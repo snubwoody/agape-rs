@@ -1,7 +1,7 @@
 use winit::dpi::PhysicalPosition;
 
-/// The bounds of any object that has a size 
-/// and position
+/// The bounds of any object that has a [`Size`] 
+/// and [`Position`].
 pub struct Bounds {
 	pub x:[f32;2],
 	pub y:[f32;2],
@@ -68,6 +68,7 @@ impl Size {
 	pub fn new(width:f32,height:f32) -> Self {
 		Self { width, height }
 	}
+	
 	pub fn scale(&mut self,factor:f32) {
 		self.width *= factor;
 		self.height *= factor;

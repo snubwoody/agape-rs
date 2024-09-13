@@ -21,7 +21,7 @@ use crate::{
 // TODO make a size struct
 // FIXME change the colour to Colour enum
 /// A rasterized texture of text  
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct TextSurface{
 	position:Position,
 	size:Size,
@@ -63,7 +63,7 @@ impl TextSurface {
 	}
 	
 	/// Rasterize the text and store the texture 
-	pub fn build(&mut self,display:&Display<WindowSurface>) -> Texture2d{
+	pub fn build(&self,display:&Display<WindowSurface>) -> Texture2d{
 		// Create an opengl raw image 
 		let raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(
 			&self.img,(self.size.width as u32,self.size.height as u32)
@@ -94,7 +94,7 @@ impl TextSurface {
 
 impl Surface for TextSurface {
 	fn draw(
-		&mut self,
+		&self,
 		display:&glium::Display<WindowSurface>,
 		frame:&mut glium::Frame,
 		window:&winit::window::Window,

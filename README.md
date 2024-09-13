@@ -38,6 +38,21 @@ can start planning things and stop wondering about different things randomly.
 ## Issues
 
 ### Image size issue
+
 When the window is smaller than the image, the image resizes to fit the window which shouldn't happen
+
+
+## Layout system
+
+Widgets should have intrinsic sizes, which means they have a size that they want to be. I.e:
+
+- Fill the parent
+- Fit the children
+- Relative
+- Flex 
+- Fixed
+
+This should allow us to define complex layouts, which not-so-complex code. The widget_tree starts at the root
+widgets and goes down the tree depth first calculating the layouts. 
 
 

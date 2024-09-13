@@ -1,7 +1,7 @@
 use crate::widgets::WidgetBody;
 
 /// The types of layout a [`Widget`] can have.
-#[derive(Debug)]
+#[derive(Debug,Clone, Copy)]
 pub enum Layout{
 	Horizontal{
 		spacing:u32,
@@ -114,8 +114,8 @@ impl Layout {
 }
 
 
-#[derive(Debug)]
-pub enum SizeConstraint {
+#[derive(Debug,Clone, Copy)]
+pub enum IntrinsicSize {
 	Fill,
 	Fit,
 	Flex,

@@ -15,14 +15,11 @@ use crate::{
 	app::{
 		events::EventFunction,
 		view::RenderContext
-	}, layout::{Layout, SizeConstraint}, surface::{
+	}, layout::{Layout, IntrinsicSize}, surface::{
 		rect::RectSurface, Surface
 	}
 };
 
-
-// TODO change size to floating point values
-// TODO change render name to draw
 
 /// Widget trait that all widgets must inherit from.
 pub trait Widget:Debug{
@@ -42,28 +39,26 @@ pub struct WidgetBody{
 	pub surface:Box<dyn Surface>,
 	pub layout:Layout,
 	pub children:Vec<Box<WidgetBody>>,
-	pub constraint:SizeConstraint
+	pub constraint:IntrinsicSize
 	//pub events:Vec<EventFunction>
 }
 
 impl WidgetBody {
 	/// Draw the [`WidgetBody`] to the screen.
 	pub fn render(
-		&mut self,
+		&self,
 		display:&Display<WindowSurface>,
 		frame:&mut Frame,
 		window:&Window,
 		context:&RenderContext,
 	) {
-		// Arrange the children
-		self.arrange_widgets();
+		/* // Arrange the children
+		self.arrange_widgets(); */
 
 		// Render the parent then the children
 		self.surface.draw(display, frame, window, context);
-		//self.children.iter_mut().for_each(|widget|widget.render(display, frame, window, context));
 	}
 
-	/// TODO
 	pub fn arrange_widgets(&mut self) {
 		// Arrange the children
 		let position = self.surface.get_position();
@@ -87,13 +82,12 @@ impl Default for WidgetBody {
 			surface, 
 			layout, 
 			children:vec![], 
-			constraint:SizeConstraint::Fit
+			constraint:IntrinsicSize::Fit
 			//events:vec![]
 		}
 	}
 }
 
-// TODO maybe implement iter for the widget tree
 /// Central structure that holds all the [`Widget`]'s, this is 
 /// where rendering, layouts and events are processed from.
 #[derive(Debug)]
@@ -130,6 +124,7 @@ impl WidgetTree where  {
 			stack:vec![&self.root_widget]
 		}
 	}
+	
 
 	/// Draw the [`WidgetTree`] to the screen.
 	pub fn render(
@@ -140,9 +135,9 @@ impl WidgetTree where  {
 		context:&RenderContext,
 	) {
 		//self.walk(&mut self.root_widget,display,frame,window,context);
-		for (_,node) in self.iter().enumerate(){
-			dbg!(&node.layout);
-		}
+		self.iter().for_each(|widget|{
+			widget.render(display, frame, window, context)
+		});
 	}
 }
 
@@ -155,8 +150,11 @@ impl<'a> Iterator for WidgetTreeIter<'a> {
 	type Item = &'a WidgetBody;
 
 	fn next(&mut self) -> Option<Self::Item> {
-		// Get the curr
+		// Get the current widget from the top of the stack
 		let widget = self.stack.pop();
+
+		// Add the widgets children to the stack in reverse
+		// for a depth first search
 		match widget {
 			Some(current_widget) => {
 				current_widget.children.iter().rev().for_each(|node|{
@@ -165,7 +163,10 @@ impl<'a> Iterator for WidgetTreeIter<'a> {
 			},
 			None => {}
 		}
+
 		widget
 	}
 }
+
+
 

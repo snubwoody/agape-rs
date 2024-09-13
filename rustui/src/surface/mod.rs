@@ -10,7 +10,7 @@ use crate::{app::view::RenderContext,utils::{Bounds,Size}};
 pub trait Surface:Debug {
 	/// Draw the surface onto the screen
 	fn draw(
-		&mut self,
+		&self,
 		display:&glium::Display<WindowSurface>,
 		frame:&mut glium::Frame,
 		window:&winit::window::Window,

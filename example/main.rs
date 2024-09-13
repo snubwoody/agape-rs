@@ -2,9 +2,7 @@ use rustui::{
 	app::{view::View, App}, 
 	colour::Colour,
 	widgets::{
-		rect::Rect, 
-		stack::{HStack, VStack}, 
-		text::Text, WidgetTree
+		container::Container, rect::Rect, stack::{HStack, VStack}, text::Text, WidgetTree
 	}
 };
 
@@ -17,6 +15,9 @@ fn new_app(){
 	let _box2 = Rect::new(10, 55, Colour::Rgb(244, 1, 99));
 	let _box3 = Rect::new(150, 25, Colour::Rgb(44, 1, 99));
 	let _box4 = Rect::new(100, 50, Colour::Rgb(144, 10, 199));
+	let _box5 = Rect::new(100, 50, Colour::Rgb(44, 10, 199));
+	let container = Container::new(_box5);
+
 	let column = VStack{
 		spacing:32,
 		padding:0,
@@ -31,6 +32,7 @@ fn new_app(){
 		padding:0,
 		children:vec![
 			Box::new(_box2),
+			Box::new(container),
 			Box::new(_box),
 			Box::new(column)
 		]

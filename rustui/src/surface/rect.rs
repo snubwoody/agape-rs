@@ -29,37 +29,6 @@ impl RectSurface {
 		Self { x,y,size,colour }
 	}
 
-	pub fn render(
-		&mut self,
-		display:&glium::Display<WindowSurface>,
-		frame:&mut glium::Frame,
-		window:&winit::window::Window,
-		program:&glium::Program,
-	) {
-		let vertices:Vec<Vertex> = self.to_vertices();
-		let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
-		let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
-
-		let params = DrawParameters{
-			blend:Blend::alpha_blending(),
-			..Default::default()
-		};
-
-		let screen_width = window.inner_size().width as f32;
-		let screen_height = window.inner_size().height as f32;
-
-		frame.draw(
-			&vertex_buffer, 
-			&indices, 
-			&program, 
-			&uniform! {
-				width:screen_width,
-				height:screen_height,
-			},
-			&params
-		).unwrap();
-	}
-
 	pub fn to_vertices(&self) -> Vec<Vertex>{
 
 		let colour = self.colour.normalize();
@@ -79,7 +48,7 @@ impl RectSurface {
 
 impl Surface for RectSurface {
 	fn draw(
-		&mut self,
+		&self,
 		display:&glium::Display<WindowSurface>,
 		frame:&mut glium::Frame,
 		window:&winit::window::Window,
