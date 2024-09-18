@@ -3,7 +3,7 @@ use crate::{
 };
 use super::Widget;
 
-#[derive(Debug)]
+/* #[derive(Debug)]
 pub struct Button{
 	pub text:String,
 	pub colour:Colour,
@@ -54,4 +54,4 @@ impl Widget for Button {
 	fn get_children(self) -> Vec<Box<dyn Widget>> {
 		vec![]
 	}
-}
+} */

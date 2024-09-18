@@ -4,7 +4,7 @@ use crate::{colour::Colour};
 use super::{Widget, WidgetBody};
 use crate::layout::Layout;
 
-/// A simple rectangle
+/* /// A simple rectangle
 #[derive(Debug,Clone,PartialEq, Eq)]
 pub struct Rect{
 	pub width:u32,
@@ -41,3 +41,4 @@ impl Widget for Rect {
 		vec![]
 	}
 }
+ */

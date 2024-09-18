@@ -15,8 +15,8 @@ use crate::{
 	app::{
 		events::EventFunction,
 		view::RenderContext
-	}, layout::{IntrinsicSize, Layout}, surface::{
-		rect::RectSurface, Surface
+	}, colour::Colour, layout::{IntrinsicSize, Layout}, surface::{
+		image::ImageSurface, rect::RectSurface, text::TextSurface, Surface
 	}, utils::Size
 };
 
@@ -166,6 +166,328 @@ impl<'a> Iterator for WidgetTreeIter<'a> {
 		widget
 	}
 }
+
+
+/// A simple rectangle
+#[derive(Debug,Clone,PartialEq, Eq)]
+pub struct Rect{
+	pub width:u32,
+	pub height:u32,
+	pub colour:Colour
+}
+
+impl Rect {
+	pub fn new(width:u32,height:u32,colour:Colour) -> Self{
+		Self { width, height, colour }
+	}
+}
+
+impl Widget for Rect {
+	fn build(&self) -> WidgetBody {
+		let layout = Layout::SingleChild{width:self.width,height:self.height};
+		let surface = Box::new(
+			RectSurface{ 
+				size:Size::new(self.width as f32, self.height as f32),
+				colour:self.colour.clone(),
+				..Default::default()
+			}
+		);
+		
+		WidgetBody{ 
+			surface,
+			layout,
+			children:vec![],
+			..Default::default()
+		}
+	}
+
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		vec![]
+	}
+}
+
+
+#[derive(Debug)]
+pub struct Button{
+	pub text:String,
+	pub colour:Colour,
+	//events:Vec<EventFunction>
+}
+
+impl Button {
+	pub fn new(text:&str) -> Self {
+		Self { 
+			text:text.into(), 
+			colour:Colour::Rgb(255, 255, 255),
+			//events:Vec::new()
+		}
+	}
+
+	pub fn colour(mut self,colour:Colour) -> Self {
+		self.colour = colour;
+		self
+	}
+
+	/* pub fn on_hover(mut self,f:impl Fn() + 'static) -> Self {
+		self.events.push(EventFunction::OnHover(Box::new(f)));
+		self
+	}
+
+	pub fn on_click(mut self,f:impl Fn() + 'static) -> Self{
+		self.events.push(EventFunction::OnClick(Box::new(f)));
+		self
+	} */
+}
+
+impl Widget for Button {
+	fn build(&self) -> WidgetBody {
+		let surface = Box::new(
+			RectSurface::new(0.0, 0.0, 200, 70, Colour::Rgb(255, 255, 255))
+		);
+
+		let layout = Layout::SingleChild { width: 250, height: 70 };
+		// FIXME
+
+		WidgetBody { 
+			surface,
+			layout,
+			..Default::default()
+		}
+	}
+
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		vec![]
+	}
+}
+
+
+
+/// A container [`Widget`] that wraps its child
+#[derive(Debug)]
+pub struct Container{
+	pub padding:u32,
+	pub colour:Colour,
+	pub child:Box<dyn Widget>
+}
+
+impl Container {
+	pub fn new(child:impl Widget + 'static) -> Self{
+		Container { 
+			padding:0, 
+			colour:Colour::Rgb(255, 255, 255), 
+			child:Box::new(child)
+		}
+	}
+
+	pub fn colour(mut self,colour:Colour) -> Self{
+		self.colour = colour;
+		self
+	}
+
+	pub fn padding(mut self,padding:u32) -> Self{
+		self.padding = padding;
+		self
+	}
+}
+
+impl Widget for Container {
+	fn build(&self) -> WidgetBody {
+		let surface = Box::new(
+			RectSurface{
+				colour:self.colour.clone(),
+				..Default::default()
+			}
+		);
+		
+		let layout = Layout::Single { padding: 12 };
+		let child = self.child.build();
+
+		WidgetBody{
+			surface,
+			layout,
+			children:vec![Box::new(child)],
+			..Default::default()
+		}
+	}
+
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		return vec![self.child];
+	}
+}
+
+
+
+#[derive(Debug)]
+pub enum FlexDirection {
+	Vertical,
+	Horizontal
+}
+
+#[derive(Debug)]
+pub struct Flex{
+	order:Vec<u8>,
+	direction:FlexDirection,
+	children:Vec<Box<dyn Widget>>
+}
+
+impl Widget for Flex {
+	fn build(&self) -> WidgetBody {
+		let children = self.children.iter().map(|widget|{
+			Box::new(widget.build())
+		}).collect();
+
+		WidgetBody{
+			children,
+			..Default::default()
+		}
+	}
+
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		self.children
+	}
+}
+
+/// Simple image widget
+#[derive(Debug)]
+pub struct Image{
+	pub path:String,
+	pub width:u32,
+	pub height:u32
+}
+
+impl Image {
+	pub fn new(path:&str,width:u32,height:u32) -> Self{
+		Self { path:path.to_owned(), width, height }
+	}
+}
+
+impl Widget for Image {
+	fn build(&self) -> WidgetBody {
+		let surface = Box::new(
+			ImageSurface::new(&self.path,self.width as f32,self.height as f32)
+		);
+		let size = surface.get_size();
+		let layout = Layout::SingleChild { width: size.width as u32, height:size.height as u32 };
+
+		WidgetBody{
+			surface,
+			layout,
+			..Default::default()
+		}
+	}
+
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		vec![]
+	}
+}
+
+
+#[derive(Debug,Clone,PartialEq,Eq)]
+pub struct Text{
+	pub text:String,
+	pub font_size:u8
+}
+
+impl Text {
+	pub fn new(text:&str) -> Self{
+		Self { 
+			text:text.into(), 
+			font_size:16 
+		}	
+	}
+
+	/// Set the font size
+	pub fn font_size(mut self,size:u8) -> Self{
+		self.font_size = size;
+		self
+	}
+}
+
+impl Widget for Text {
+	fn build(&self) -> WidgetBody {
+		// Create the text surface to be rendered
+		let textsurface = TextSurface::new(
+			self.text.as_str(),
+			"#000000" , 
+			self.font_size
+		);
+
+		let size = textsurface.get_size();
+		let surface = Box::new(textsurface);
+
+		let layout = Layout::SingleChild { width: size.width as u32, height: size.height as u32 };
+
+		WidgetBody{
+			surface,
+			layout,
+			..Default::default()
+		}
+	}
+	
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		vec![]
+	}
+}
+
+#[derive(Debug)]
+pub struct VStack{
+	pub spacing:u32,
+	pub padding:u32,
+	pub children:Vec<Box<dyn Widget>>
+}
+
+impl Widget for VStack {
+	fn build(&self) -> WidgetBody {
+		let layout = Layout::Vertical { 
+			spacing:self.spacing, 
+			padding:self.padding 
+		};
+
+		let children = self.children.iter().map(|widget|{
+			Box::new(widget.build())
+		}).collect();
+
+		WidgetBody{
+			layout,
+			children,
+			..Default::default()
+		}
+	}
+
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		self.children
+	}
+}
+
+#[derive(Debug)]
+
+pub struct HStack{
+	pub spacing:u32,
+	pub padding:u32,
+	pub children:Vec<Box<dyn Widget>>
+}
+
+impl Widget for HStack {
+	fn build(&self) -> WidgetBody {
+		let layout = Layout::Horizontal  { spacing: self.spacing, padding: self.padding };
+		
+		let children = self.children.iter().map(|widget|{
+			Box::new(widget.build())
+		}).collect();
+
+		WidgetBody{
+			layout,
+			children,
+			..Default::default()
+		}
+
+	}
+
+	fn get_children(self) -> Vec<Box<dyn Widget>> {
+		self.children
+	}
+}
+
 
 
 

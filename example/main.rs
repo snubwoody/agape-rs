@@ -2,10 +2,9 @@ use rustui::{
 	app::{view::View, App}, 
 	colour::{self, Colour},
 	widgets::{
-		container::Container, 
-		rect::Rect, 
 		stack::{HStack, VStack}, 
-		text::Text, 
+		text::Text,
+		Rect, 
 		Widget, 
 		WidgetNode, 
 		WidgetTree
@@ -13,20 +12,25 @@ use rustui::{
 };
 
 macro_rules! view {
-	($widget:expr) => {
-		let widget = $widget;
-		return rustui::widgets::container::widget{}
+	($widget:ident{$($field:ident: $value:expr,)*}) => {
+		rustui::widgets::$widget{
+			$($field: $value,)*
+		}
 	};
 }
 
+
 fn main() {
 	let k = view!{
-		Container{
-			child:Box::new(Rect::new(200, 100, Colour::Rgb(255, 10, 100))),
-			padding:20,
-			colour:Colour::Rgb(255, 255, 255)
+		Rect{
+			width:200,
+			height:150,
+			colour:Colour::Rgb(255,240,242),
 		}
 	};
+
+	let k = stringify!("").to_lowercase();
+
 	//new_app();
 }
 
