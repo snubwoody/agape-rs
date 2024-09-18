@@ -6,7 +6,7 @@ pub mod button;
 pub mod list;
 pub mod image;
 pub mod flex;
-use std::fmt::Debug;
+use std::{collections::HashMap, fmt::Debug};
 use glium::{
 	glutin::surface::WindowSurface, texture::srgb_cubemap, Display, Frame 
 };
@@ -15,9 +15,9 @@ use crate::{
 	app::{
 		events::EventFunction,
 		view::RenderContext
-	}, layout::{Layout, IntrinsicSize}, surface::{
+	}, layout::{IntrinsicSize, Layout}, surface::{
 		rect::RectSurface, Surface
-	}
+	}, utils::Size
 };
 
 
@@ -52,11 +52,9 @@ impl WidgetBody {
 		window:&Window,
 		context:&RenderContext,
 	) {
-		/* // Arrange the children
-		self.arrange_widgets(); */
-
 		// Render the parent then the children
 		self.surface.draw(display, frame, window, context);
+		self.children.iter().for_each(|child|child.render(display, frame, window, context));
 	}
 
 	pub fn arrange_widgets(&mut self) {
@@ -69,8 +67,6 @@ impl WidgetBody {
 		let size = self.layout.arrange([position.0,position.1],&mut self.children);
 		self.surface.size(size.0 as f32, size.1 as f32);
 	}
-
-
 }
 
 impl Default for WidgetBody {
@@ -88,43 +84,49 @@ impl Default for WidgetBody {
 	}
 }
 
+#[derive(Debug)]
+pub struct WidgetNode {
+	pub body:WidgetBody,
+	pub parent:Option<usize>,
+	pub children:Vec<usize>
+}
+
 /// Central structure that holds all the [`Widget`]'s, this is 
 /// where rendering, layouts and events are processed from.
 #[derive(Debug)]
 pub struct WidgetTree{
-	pub root_widget:WidgetBody,
+	root:usize,
+	widgets:HashMap<usize,WidgetNode>
 }
 
 impl WidgetTree where  {
-	pub fn new(widget:impl Widget + 'static) -> Self{
+	pub fn new() -> Self {
 		Self { 
-			root_widget:widget.build(),
+			root:0,
+			widgets:HashMap::new()
 		}
 	}
 
-	/// Walk the [`WidgetTree`] by depth first.
-	fn walk(
-		&self,
-		root_widget:&mut WidgetBody,
-		display:&Display<WindowSurface>,
-		frame:&mut Frame,
-		window:&Window,
-		context:&RenderContext,
-	) {
-		root_widget.render(display, frame, window, context);
-		for (_,child) in root_widget.children.iter_mut().enumerate(){
-			dbg!(&child.layout);
-			self.walk(&mut *child,display,frame,window,context);
-		}
+	pub fn build(mut self,widget:impl Widget + 'static) -> Self {
+		/* let body = widget.build();
+		for (index,child) in body.children.iter().enumerate(){
+			let node = WidgetNode{
+				parent:Some(0),
+				body:child,
+				children:vec![]
+			};
+			self.widgets.insert(index + 1, node);
+		} */
+		//self.widgets.insert(0, body);
+		self
 	}
 
-	/// Returns an iterator for the [`WidgetTree`].
+	/* /// Returns an iterator for the [`WidgetTree`].
 	pub fn iter(&self) -> WidgetTreeIter {
 		WidgetTreeIter{
 			stack:vec![&self.root_widget]
 		}
-	}
-	
+	} */
 
 	/// Draw the [`WidgetTree`] to the screen.
 	pub fn render(
@@ -134,10 +136,7 @@ impl WidgetTree where  {
 		window:&Window,
 		context:&RenderContext,
 	) {
-		//self.walk(&mut self.root_widget,display,frame,window,context);
-		self.iter().for_each(|widget|{
-			widget.render(display, frame, window, context)
-		});
+		//self.widgets.get(&0)
 	}
 }
 

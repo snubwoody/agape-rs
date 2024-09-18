@@ -1,13 +1,33 @@
 use rustui::{
 	app::{view::View, App}, 
-	colour::Colour,
+	colour::{self, Colour},
 	widgets::{
-		container::Container, rect::Rect, stack::{HStack, VStack}, text::Text, WidgetTree
+		container::Container, 
+		rect::Rect, 
+		stack::{HStack, VStack}, 
+		text::Text, 
+		Widget, 
+		WidgetNode, 
+		WidgetTree
 	}
 };
 
+macro_rules! view {
+	($widget:expr) => {
+		let widget = $widget;
+		return rustui::widgets::container::widget{}
+	};
+}
+
 fn main() {
-	new_app();
+	let k = view!{
+		Container{
+			child:Box::new(Rect::new(200, 100, Colour::Rgb(255, 10, 100))),
+			padding:20,
+			colour:Colour::Rgb(255, 255, 255)
+		}
+	};
+	//new_app();
 }
 
 fn new_app(){
@@ -37,7 +57,11 @@ fn new_app(){
 			Box::new(column)
 		]
 	};
-	let widget_tree = WidgetTree::new(hstack);
+
+	
+
+
+	let widget_tree = WidgetTree::new().build(hstack);
 	//dbg!(&widget_tree);
 
 	let home = View::new(widget_tree);
@@ -47,5 +71,7 @@ fn new_app(){
 		.add_view(home);
 	app.run();
 }
+
+
 
 
