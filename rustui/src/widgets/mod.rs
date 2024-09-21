@@ -6,7 +6,9 @@ pub mod button;
 pub mod list;
 pub mod image;
 pub mod flex;
-use std::{collections::HashMap, fmt::Debug};
+use std::{
+	collections::HashMap, fmt::Debug, hash::Hash
+};
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame 
 };
@@ -18,7 +20,7 @@ use crate::{
 	surface::{
 		image::ImageSurface, rect::RectSurface, text::TextSurface, Surface
 	}, 
-	utils::Size
+	utils::{Position, Size}
 };
 
 
@@ -85,59 +87,102 @@ impl Default for WidgetBody {
 	}
 }
 
-pub enum Edge{
-	Parent,
-	Child,
-	Sibling
-}
+type WidgetID = usize;
 
-pub struct Node{
-	id:usize,
-	body:WidgetBody,
-	edges:Vec<Edge>,
+#[derive(Debug)]
+pub enum Edge{
+	Parent(WidgetID),
+	Child(WidgetID),
+	Sibling(WidgetID)
 }
 
 #[derive(Debug)]
-pub struct WidgetNode{
+pub struct Node{
 	pub id:usize,
 	pub body:WidgetBody,
-	pub parent:Option<usize>,
-	pub children:Vec<usize>
+	pub edges:Vec<Edge>,
 }
 
 /// Central structure that holds all the [`Widget`]'s, this is 
 /// where rendering, layouts and events are processed from.
+#[derive(Debug)]
 pub struct WidgetTree{
-	root:usize,
-	pub widgets:HashMap<usize,WidgetNode>,
+	nodes:Vec<Node>,
 }
 
 impl WidgetTree {
 	pub fn new() -> Self{
-		WidgetTree { 
-			root: 0, 
-			widgets: HashMap::new(), 
+		Self{
+			nodes:vec![]
 		}
 	}
 
-	pub fn add(
-		&mut self,
-		widget:impl Widget + 'static,
-		parent:Option<usize>,
-		children:Vec<usize>,
-		id:usize
-	) {
-		let _widget = WidgetNode{
-			id,
-			parent,
-			children,
-			body:widget.build(),
-		};
-		self.widgets.insert(id, _widget);
+	pub fn add(&mut self,node:Node){
+		self.nodes.push(node);
 	}
 
-	pub fn arrange(&self){
-		
+
+	pub fn arrange(&mut self){
+		let mut position_cache:HashMap<WidgetID, Position> = HashMap::new();
+
+		for (_,node) in self.nodes.iter().enumerate(){
+			match node.body.layout {
+				Layout::Horizontal { spacing, padding } => {
+					dbg!("Arranging layout");
+					let mut total_size = Size::new((padding * 2) as f32, 0.0);
+					let mut x_position = padding as f32;
+					let y_position = node.body.surface.get_position().1;
+					for (_,edge) in node.edges.iter().enumerate(){
+						match edge {
+							Edge::Child(id) => {
+								let child = self.lookup(*id).unwrap();
+								let size = child.body.surface.get_size();
+
+								total_size += size;
+								total_size.width += spacing as f32;
+								
+								position_cache.insert(*id, Position::new(x_position, y_position));
+								x_position += spacing as f32 + size.width
+							}
+							_ => {}
+						}
+					}
+				},
+				_ => {}
+			}
+		}
+		self.change_sizes(position_cache);
+	}
+
+	fn change_sizes(&mut self,position_cache:HashMap<WidgetID,Position>){
+		for (_,(id,position)) in position_cache.iter().enumerate(){
+			match self.lookup_mut(*id){
+				Some(node) => {
+					node.body.surface.position(position.x, position.y);
+				}
+				None => {}
+			}
+		}
+	}
+
+	/// Lookup a [`Node`] by it's id
+	fn lookup(&self,id:WidgetID) -> Option<&Node>{
+		for (_,node) in self.nodes.iter().enumerate(){
+			if node.id == id {
+				return Some(node)
+			}
+		}
+		None
+	}
+
+	/// Lookup a [`Node`] by it's id and return a mutable reference
+	fn lookup_mut(&mut self,id:WidgetID) -> Option<&mut Node>{
+		for (_,node) in self.nodes.iter_mut().enumerate(){
+			if node.id == id {
+				return Some(node)
+			}
+		}
+		None
 	}
 
 	pub fn render(
@@ -148,8 +193,8 @@ impl WidgetTree {
 		context:&RenderContext,
 	) {
 		self.arrange();
-		for (_,(id,widget)) in self.widgets.iter().enumerate(){
-			widget.body.render(display, frame, window, context);
+		for (_,node) in self.nodes.iter().enumerate(){
+			node.body.render(display, frame, window, context);
 		}
 	}
 }
