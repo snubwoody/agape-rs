@@ -151,10 +151,7 @@ impl WidgetTree {
 				_ => {}
 			}
 		}
-		self.change_sizes(position_cache);
-	}
 
-	fn change_sizes(&mut self,position_cache:HashMap<WidgetID,Position>){
 		for (_,(id,position)) in position_cache.iter().enumerate(){
 			match self.lookup_mut(*id){
 				Some(node) => {
