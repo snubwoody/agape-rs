@@ -5,7 +5,8 @@ use crate::{
 	layout::Layout
 };
 use super::WidgetBody;
-/* 
+
+
 /// A container [`Widget`] that wraps its child
 #[derive(Debug)]
 pub struct Container{
@@ -58,4 +59,3 @@ impl Widget for Container {
 		return vec![self.child];
 	}
 }
- */

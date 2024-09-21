@@ -3,7 +3,8 @@ use crate::{
 	surface::{text::TextSurface, Surface}, 
 };
 use super::{Widget, WidgetBody};
-/* 
+
+
 #[derive(Debug,Clone,PartialEq,Eq)]
 pub struct Text{
 	pub text:String,
@@ -51,5 +52,3 @@ impl Widget for Text {
 	}
 }
 
-
- */

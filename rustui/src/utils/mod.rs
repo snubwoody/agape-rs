@@ -1,3 +1,5 @@
+use std::ops::AddAssign;
+
 use winit::dpi::PhysicalPosition;
 
 /// The bounds of any object that has a [`Size`] 
@@ -78,6 +80,15 @@ impl Size {
 		self.width = width;
 		self.height = height;
 	}
+}
+
+impl AddAssign for Size {
+    fn add_assign(&mut self, other: Self) {
+        *self = Self {
+            width: self.width + other.width,
+            height: self.height + other.height,
+        };
+    }
 }
 
 

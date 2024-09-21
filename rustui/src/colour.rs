@@ -1,23 +1,13 @@
-use std::ops::Deref;
-
 use crate::utils::map;
 
-/// Deprecated
-pub fn rgb(r:u8,g:u8,b:u8) -> [f32;4]{
-	let red = map(r as f32, [0.0,255.0], [0.0,1.0]);
-	let green = map(g as f32, [0.0,255.0], [0.0,1.0]);
-	let blue = map(b as f32, [0.0,255.0], [0.0,1.0]);
-	return [red,green,blue,1.0]
-}
 
-/// Deprecated
-pub fn rgba(r:u8,g:u8,b:u8,a:u8) -> [f32;4]{
-	let red = map(r as f32, [0.0,255.0], [0.0,1.0]);
-	let green = map(g as f32, [0.0,255.0], [0.0,1.0]);
-	let blue = map(b as f32, [0.0,255.0], [0.0,1.0]);
-	let alpha = map(a as f32, [0.0,100.0], [0.0,1.0]);
-	return [red,green,blue,alpha]
-}
+pub const BLACK:Colour = Colour::Rgb(0, 0, 0);
+pub const WHITE:Colour = Colour::Rgb(255, 255, 255);
+pub const AMBER:Colour = Colour::Rgb(245, 158, 11);
+pub const GREEN:Colour = Colour::Rgb(34, 197, 94);
+pub const TEAL:Colour = Colour::Rgb(20, 184, 166);
+pub const INDIGO:Colour = Colour::Rgb(99, 102, 241);
+pub const PINK:Colour = Colour::Rgb(236, 72, 153);
 
 
 #[derive(Debug,Clone,PartialEq, Eq, PartialOrd, Ord)]
@@ -69,3 +59,22 @@ impl Colour {
 		[r,g,b,a]
 	}
 }
+
+/// Deprecated
+pub fn rgb(r:u8,g:u8,b:u8) -> [f32;4]{
+	let red = map(r as f32, [0.0,255.0], [0.0,1.0]);
+	let green = map(g as f32, [0.0,255.0], [0.0,1.0]);
+	let blue = map(b as f32, [0.0,255.0], [0.0,1.0]);
+	return [red,green,blue,1.0]
+}
+
+/// Deprecated
+pub fn rgba(r:u8,g:u8,b:u8,a:u8) -> [f32;4]{
+	let red = map(r as f32, [0.0,255.0], [0.0,1.0]);
+	let green = map(g as f32, [0.0,255.0], [0.0,1.0]);
+	let blue = map(b as f32, [0.0,255.0], [0.0,1.0]);
+	let alpha = map(a as f32, [0.0,100.0], [0.0,1.0]);
+	return [red,green,blue,alpha]
+}
+
+

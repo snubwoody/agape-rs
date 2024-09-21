@@ -3,7 +3,7 @@ use crate::{
 	widgets::{Widget, WidgetBody}
 };
 
-/* #[derive(Debug)]
+#[derive(Debug)]
 pub struct VStack{
 	pub spacing:u32,
 	pub padding:u32,
@@ -62,4 +62,4 @@ impl Widget for HStack {
 	}
 }
 
- */
+ 

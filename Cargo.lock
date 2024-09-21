@@ -518,6 +518,7 @@ dependencies = [
 name = "example"
 version = "0.1.0"
 dependencies = [
+ "properties",
  "rustui",
 ]
 
@@ -1368,7 +1369,9 @@ dependencies = [
 name = "properties"
 version = "0.1.0"
 dependencies = [
+ "proc-macro2",
  "quote",
+ "rustui",
  "syn 2.0.72",
 ]
 
@@ -1599,7 +1602,6 @@ dependencies = [
  "fontdue",
  "glium",
  "image",
- "properties",
  "quote",
  "syn 2.0.72",
  "text-to-png",

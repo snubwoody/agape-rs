@@ -55,4 +55,8 @@ Widgets should have intrinsic sizes, which means they have a size that they want
 This should allow us to define complex layouts, which not-so-complex code. The widget_tree starts at the root
 widgets and goes down the tree depth first calculating the layouts. 
 
+## Potential names
+
+- Helium
+
 

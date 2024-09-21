@@ -1,9 +1,12 @@
 use crate::{
-	app::events::EventFunction, colour::Colour, layout::Layout, surface::rect::RectSurface, widgets::WidgetBody
+	colour::Colour, 
+	layout::Layout, 
+	surface::rect::RectSurface, 
+	widgets::WidgetBody
 };
 use super::Widget;
 
-/* #[derive(Debug)]
+#[derive(Debug)]
 pub struct Button{
 	pub text:String,
 	pub colour:Colour,
@@ -54,4 +57,4 @@ impl Widget for Button {
 	fn get_children(self) -> Vec<Box<dyn Widget>> {
 		vec![]
 	}
-} */
+}

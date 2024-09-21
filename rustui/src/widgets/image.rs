@@ -5,7 +5,7 @@ use crate::{
 };
 
 
-/* /// Simple image widget
+/// Simple image widget
 #[derive(Debug)]
 pub struct Image{
 	pub path:String,
@@ -37,4 +37,4 @@ impl Widget for Image {
 	fn get_children(self) -> Vec<Box<dyn Widget>> {
 		vec![]
 	}
-} */
+}

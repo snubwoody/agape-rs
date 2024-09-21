@@ -53,6 +53,7 @@ impl TextList {
 
 impl Widget for TextList {
 	fn build(&self) -> WidgetBody {
+		// FIXME this should be broken after the new changes
 		let mut bodies = Vec::new();
 		let layout = Layout::Vertical { spacing: 12, padding: 0 };
 

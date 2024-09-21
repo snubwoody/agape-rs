@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 rustui = {path = "../rustui"}
+properties = {path = "../properties"}
 
 [[bin]]
 name = "example"
