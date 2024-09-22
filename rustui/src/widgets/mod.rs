@@ -10,7 +10,7 @@ use std::{
 	collections::HashMap, fmt::Debug,
 };
 use glium::{
-	glutin::surface::WindowSurface, Display, Frame 
+	glutin::{api::egl, surface::WindowSurface}, Display, Frame 
 };
 use ::image::math;
 use winit::window::Window;
@@ -188,15 +188,38 @@ impl WidgetTree {
 		}
 	}
 
-	fn size_pass(&self,window:&Window){
+	fn size_pass(&mut self,window:&Window){
 		let mut max_sizes:HashMap<usize,Size> = HashMap::new();
-		let root = self.lookup(self.root_id).unwrap();
-		max_sizes.insert(self.root_id, window.inner_size().into());
+
+		let mut max_size = Size::new(0.0, 0.0);
+		max_size.width = window.inner_size().width as f32;
+		max_size.height = window.inner_size().height as f32;
+		max_sizes.insert(self.root_id, max_size);
+
+		// Maybe return the max child size
+		self.get_constraints(self.root_id,&max_size);
+		let root = self.lookup_mut(self.root_id).unwrap();
+		match root.body.constraint{
+			// Maybe add `FillWidth` and `FillHeight`
+			IntrinsicSize::Fill => {
+				root.body.surface.size(max_size.width, max_size.height);
+			},
+			_ => {}
+		}
 	}
 
-	fn get_max_width(&self,id:WidgetID){
+	fn get_constraints(&self,id:WidgetID,max_size:&Size){
 		let node = self.lookup(id).unwrap();
-
+		for (_,edge) in node.edges.iter().enumerate(){
+			dbg!(edge);
+			match edge {
+				Edge::Child(node) => {
+					let max_width = 0;
+					
+				},
+				_ => {}
+			}
+		}
 		
 	}
 

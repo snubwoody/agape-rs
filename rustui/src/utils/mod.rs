@@ -1,6 +1,5 @@
-use std::ops::AddAssign;
-
-use winit::dpi::PhysicalPosition;
+use std::{ops::{Add, AddAssign}};
+use winit::dpi::{PhysicalPosition, PhysicalSize};
 
 /// The bounds of any object that has a [`Size`] 
 /// and [`Position`].
@@ -49,7 +48,7 @@ impl Position {
 	}
 }
 
-
+//TODO change this to a generic
 impl From<PhysicalPosition<f64>> for Position {
 	fn from(position: PhysicalPosition<f64>) -> Self {
 		Self { 
@@ -82,10 +81,6 @@ impl Size {
 	}
 }
 
-//TODO implement into 
-impl  {
-	
-}
 
 impl AddAssign for Size {
     fn add_assign(&mut self, other: Self) {

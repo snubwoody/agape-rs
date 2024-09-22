@@ -13,7 +13,7 @@ fn main() {
 
 fn new_app(){
 	let _rect1_ = Rect::new(200, 150, WHITE);
-	let _rect2_ = Rect::new(150,300,GREEN);
+	let _rect2_ = Rect::new(150,300,WHITE);
 	let _hstack_ = HStack{
 		padding:24,
 		spacing:36,
@@ -45,9 +45,9 @@ fn new_app(){
 	};
 	
 
+	graph.add(hstack);
 	graph.add(rect1);
 	graph.add(rect2);
-	graph.add(hstack);
 	graph.add(button);
 	graph.root(3);
 	//dbg!(&graph);
