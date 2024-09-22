@@ -23,7 +23,7 @@ impl Widget for VStack {
 		WidgetBody{
 			layout,
 			children,
-			constraint:IntrinsicSize::Fill,
+			constraint:IntrinsicSize::FillHeight,
 			..Default::default()
 		}
 	}
@@ -56,7 +56,7 @@ impl Widget for HStack {
 			layout,
 			children,
 			surface:Box::new(surface),
-			constraint:IntrinsicSize::Fill,
+			constraint:IntrinsicSize::FillWidth,
 			..Default::default()
 		}
 

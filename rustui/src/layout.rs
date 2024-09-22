@@ -113,12 +113,17 @@ impl Layout {
 	}
 }
 
-
+// TODO maybe have a constraint struct then add 
+// width and height and give each individual item
+// an instrinsic size
 #[derive(Debug,Clone, Copy)]
 pub enum IntrinsicSize {
 	Fill,
+	FillWidth,
+	FillHeight,
 	Fit,
 	Flex,
+	Fixed(f32,f32),
 	/// Relative to parent
 	Relative(f32)	
 }

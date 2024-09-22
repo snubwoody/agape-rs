@@ -2,7 +2,7 @@ use crate::surface::rect::RectSurface;
 use crate::utils::Size;
 use crate::{colour::Colour};
 use super::{Widget, WidgetBody};
-use crate::layout::Layout;
+use crate::layout::{IntrinsicSize, Layout};
 
 /// A simple rectangle
 #[derive(Debug,Clone,PartialEq, Eq)]
@@ -33,6 +33,7 @@ impl Widget for Rect {
 			surface,
 			layout,
 			children:vec![],
+			constraint:IntrinsicSize::Fixed(self.width as f32, self.height as f32),
 			..Default::default()
 		}
 	}

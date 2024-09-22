@@ -31,7 +31,8 @@ pub trait Widget:Debug{
 
 	/// Get the children and consume the [`Widget`], since this is 
 	/// the last step before the widget is turned to a 
-	/// [`WidgetBody`].
+	/// [`WidgetBody`].  
+	/// *Deprecated*.
 	fn get_children(self) -> Vec<Box<dyn Widget>>;
 }
 
@@ -149,15 +150,18 @@ impl WidgetTree {
 	}
 
 	pub fn arrange(&mut self,window:&Window){
+		// Store the position of all widgets to retrieve later
 		let mut position_cache:HashMap<WidgetID, Position> = HashMap::new();
 
 		for (_,node) in self.nodes.iter().enumerate(){
 			match node.body.layout {
 				Layout::Horizontal { spacing, padding } => {
-					dbg!("Arranging layout");
+
 					let mut total_size = Size::new((padding * 2) as f32, 0.0);
+					// The positions to set the current widget
 					let mut x_position = padding as f32;
 					let y_position = node.body.surface.get_position().1 + padding as f32;
+
 					for (_,edge) in node.edges.iter().enumerate(){
 						match edge {
 							Edge::Child(id) => {
@@ -197,30 +201,52 @@ impl WidgetTree {
 		max_sizes.insert(self.root_id, max_size);
 
 		// Maybe return the max child size
-		self.get_constraints(self.root_id,&max_size);
+		let child_size = self.get_constraints(self.root_id,&max_size);
 		let root = self.lookup_mut(self.root_id).unwrap();
 		match root.body.constraint{
 			// Maybe add `FillWidth` and `FillHeight`
 			IntrinsicSize::Fill => {
 				root.body.surface.size(max_size.width, max_size.height);
 			},
+			IntrinsicSize::FillWidth => {
+				root.body.surface.size(max_size.width, child_size.height);
+			},
+			IntrinsicSize::Fit => {
+				root.body.surface.size(child_size.width + 20.0, child_size.height + 20.0);
+			},
 			_ => {}
 		}
 	}
 
-	fn get_constraints(&self,id:WidgetID,max_size:&Size){
+	/// Size the children and return their size
+	fn get_constraints(&self,id:WidgetID,max_size:&Size) -> Size {
 		let node = self.lookup(id).unwrap();
+		let mut max_height:f32 = 0.0;
+		let mut max_width:f32 = 0.0;
 		for (_,edge) in node.edges.iter().enumerate(){
 			dbg!(edge);
 			match edge {
-				Edge::Child(node) => {
-					let max_width = 0;
-					
+				Edge::Child(id) => {
+					let node = self.lookup(*id).unwrap();
+					match node.body.constraint{
+						IntrinsicSize::Fill => {
+
+						},
+						IntrinsicSize::Fit => {
+
+						},
+						IntrinsicSize::Fixed(width,height) => {
+							max_height = max_height.max(height);
+							max_width = max_width.max(width);
+						}
+						_ => {}
+					}
 				},
 				_ => {}
 			}
 		}
-		
+
+		Size::new(max_width, max_height)
 	}
 
 	pub fn render(
