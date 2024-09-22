@@ -12,6 +12,7 @@ use std::{
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame 
 };
+use ::image::math;
 use winit::window::Window;
 use crate::{
 	app::view::RenderContext, 
@@ -106,12 +107,14 @@ pub struct Node{
 #[derive(Debug)]
 pub struct WidgetTree{
 	nodes:Vec<Node>,
+	root_id:WidgetID
 }
 
 impl WidgetTree {
 	pub fn new() -> Self{
 		Self{
-			nodes:vec![]
+			nodes:vec![],
+			root_id:0
 		}
 	}
 
@@ -119,7 +122,33 @@ impl WidgetTree {
 		self.nodes.push(node);
 	}
 
-	pub fn arrange(&mut self){
+	pub fn root(&mut self,id:WidgetID){
+		self.root_id = id
+	}
+
+	/// Lookup a [`Node`] by it's id return a reference to 
+	/// the node.
+	fn lookup(&self,id:WidgetID) -> Option<&Node>{
+		for (_,node) in self.nodes.iter().enumerate(){
+			if node.id == id {
+				return Some(node)
+			}
+		}
+		None
+	}
+
+	/// Lookup a [`Node`] by it's id and return a 
+	/// mutable reference to the node.
+	fn lookup_mut(&mut self,id:WidgetID) -> Option<&mut Node>{
+		for (_,node) in self.nodes.iter_mut().enumerate(){
+			if node.id == id {
+				return Some(node)
+			}
+		}
+		None
+	}
+
+	pub fn arrange(&mut self,window:&Window){
 		let mut position_cache:HashMap<WidgetID, Position> = HashMap::new();
 
 		for (_,node) in self.nodes.iter().enumerate(){
@@ -159,26 +188,16 @@ impl WidgetTree {
 		}
 	}
 
-	/// Lookup a [`Node`] by it's id return a reference to 
-	/// the node.
-	fn lookup(&self,id:WidgetID) -> Option<&Node>{
-		for (_,node) in self.nodes.iter().enumerate(){
-			if node.id == id {
-				return Some(node)
-			}
-		}
-		None
+	fn size_pass(&self,window:&Window){
+		let mut max_sizes:HashMap<usize,Size> = HashMap::new();
+		let root = self.lookup(self.root_id).unwrap();
+		max_sizes.insert(self.root_id, window.inner_size().into());
 	}
 
-	/// Lookup a [`Node`] by it's id and return a 
-	/// mutable reference to the node.
-	fn lookup_mut(&mut self,id:WidgetID) -> Option<&mut Node>{
-		for (_,node) in self.nodes.iter_mut().enumerate(){
-			if node.id == id {
-				return Some(node)
-			}
-		}
-		None
+	fn get_max_width(&self,id:WidgetID){
+		let node = self.lookup(id).unwrap();
+
+		
 	}
 
 	pub fn render(
@@ -188,7 +207,8 @@ impl WidgetTree {
 		window:&Window,
 		context:&RenderContext,
 	) {
-		self.arrange();
+		self.size_pass(window);
+		self.arrange(window);
 		for (_,node) in self.nodes.iter().enumerate(){
 			node.body.render(display, frame, window, context);
 		}

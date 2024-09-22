@@ -9,7 +9,7 @@ pub const TEAL:Colour = Colour::Rgb(20, 184, 166);
 pub const INDIGO:Colour = Colour::Rgb(99, 102, 241);
 pub const PINK:Colour = Colour::Rgb(236, 72, 153);
 
-
+// TODO start changing to color instead
 #[derive(Debug,Clone,PartialEq, Eq, PartialOrd, Ord)]
 pub enum Colour{
 	Rgb(u8,u8,u8),

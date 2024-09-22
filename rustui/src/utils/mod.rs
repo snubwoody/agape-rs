@@ -82,6 +82,11 @@ impl Size {
 	}
 }
 
+//TODO implement into 
+impl  {
+	
+}
+
 impl AddAssign for Size {
     fn add_assign(&mut self, other: Self) {
         *self = Self {

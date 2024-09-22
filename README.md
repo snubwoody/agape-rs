@@ -31,6 +31,8 @@ We can call the functions that change things about the widgets modifier function
 Okay we have a `kind-of` working library now, not very usefull but still it works. So I think now I
 can start planning things and stop wondering about different things randomly.
 
+Make it work, make it fast, make it reliable.
+
 ## Projects
 
 ## Issues
@@ -62,3 +64,4 @@ widgets and goes down the tree depth first calculating the layouts.
 ## Widgets
 
 - Grid (has flow row and flow column which tells the grid which way to flow)
+- Table

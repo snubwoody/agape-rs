@@ -1,6 +1,6 @@
 use rustui::{
 	app::{view::View, App}, 
-	colour::{self, Colour, BLACK, GREEN, PINK},
+	colour::{self, Colour, BLACK, GREEN, PINK, WHITE},
 	widgets::{
 		button::Button, rect::Rect, stack::HStack, Edge, Node, Widget, WidgetTree
 	}
@@ -12,11 +12,12 @@ fn main() {
 }
 
 fn new_app(){
-	let _rect1_ = Rect::new(200, 150, BLACK);
+	let _rect1_ = Rect::new(200, 150, WHITE);
 	let _rect2_ = Rect::new(150,300,GREEN);
 	let _hstack_ = HStack{
 		padding:24,
 		spacing:36,
+		colour:BLACK,
 		children:vec![]
 	};
 
@@ -48,6 +49,7 @@ fn new_app(){
 	graph.add(rect2);
 	graph.add(hstack);
 	graph.add(button);
+	graph.root(3);
 	//dbg!(&graph);
 
 	let page = View::new(graph);

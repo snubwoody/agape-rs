@@ -1,6 +1,5 @@
 use crate::{
-	layout::Layout, 
-	widgets::{Widget, WidgetBody}
+	colour::Colour, layout::{IntrinsicSize, Layout}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}
 };
 
 #[derive(Debug)]
@@ -24,6 +23,7 @@ impl Widget for VStack {
 		WidgetBody{
 			layout,
 			children,
+			constraint:IntrinsicSize::Fill,
 			..Default::default()
 		}
 	}
@@ -38,11 +38,14 @@ impl Widget for VStack {
 pub struct HStack{
 	pub spacing:u32,
 	pub padding:u32,
-	pub children:Vec<Box<dyn Widget>>
+	pub children:Vec<Box<dyn Widget>>,
+	pub colour:Colour,
 }
 
 impl Widget for HStack {
 	fn build(&self) -> WidgetBody {
+		let mut surface = RectSurface::default();
+		surface.colour(self.colour.clone());
 		let layout = Layout::Horizontal  { spacing: self.spacing, padding: self.padding };
 		
 		let children = self.children.iter().map(|widget|{
@@ -52,6 +55,8 @@ impl Widget for HStack {
 		WidgetBody{
 			layout,
 			children,
+			surface:Box::new(surface),
+			constraint:IntrinsicSize::Fill,
 			..Default::default()
 		}
 

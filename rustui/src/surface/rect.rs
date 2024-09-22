@@ -29,6 +29,10 @@ impl RectSurface {
 		Self { x,y,size,colour }
 	}
 
+	pub fn colour(&mut self,colour:Colour) {
+		self.colour = colour
+	}
+
 	pub fn to_vertices(&self) -> Vec<Vertex>{
 
 		let colour = self.colour.normalize();
@@ -44,6 +48,7 @@ impl RectSurface {
 
 		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
 	}
+
 }
 
 impl Surface for RectSurface {
