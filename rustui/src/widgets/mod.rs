@@ -7,7 +7,7 @@ pub mod list;
 pub mod image;
 pub mod flex;
 use std::{
-	collections::HashMap, fmt::Debug, hash::Hash
+	collections::HashMap, fmt::Debug,
 };
 use glium::{
 	glutin::surface::WindowSurface, Display, Frame 
@@ -15,10 +15,9 @@ use glium::{
 use winit::window::Window;
 use crate::{
 	app::view::RenderContext, 
-	colour::Colour,
 	layout::{IntrinsicSize, Layout}, 
 	surface::{
-		image::ImageSurface, rect::RectSurface, text::TextSurface, Surface
+		rect::RectSurface, Surface
 	}, 
 	utils::{Position, Size}
 };
@@ -55,9 +54,8 @@ impl WidgetBody {
 		window:&Window,
 		context:&RenderContext,
 	) {
-		// Render the parent then the children
+		// Draw the widget to the screen
 		self.surface.draw(display, frame, window, context);
-		//self.children.iter().for_each(|child|child.render(display, frame, window, context));
 	}
 
 	pub fn arrange_widgets(&mut self) {
@@ -121,7 +119,6 @@ impl WidgetTree {
 		self.nodes.push(node);
 	}
 
-
 	pub fn arrange(&mut self){
 		let mut position_cache:HashMap<WidgetID, Position> = HashMap::new();
 
@@ -131,7 +128,7 @@ impl WidgetTree {
 					dbg!("Arranging layout");
 					let mut total_size = Size::new((padding * 2) as f32, 0.0);
 					let mut x_position = padding as f32;
-					let y_position = node.body.surface.get_position().1;
+					let y_position = node.body.surface.get_position().1 + padding as f32;
 					for (_,edge) in node.edges.iter().enumerate(){
 						match edge {
 							Edge::Child(id) => {
@@ -162,7 +159,8 @@ impl WidgetTree {
 		}
 	}
 
-	/// Lookup a [`Node`] by it's id
+	/// Lookup a [`Node`] by it's id return a reference to 
+	/// the node.
 	fn lookup(&self,id:WidgetID) -> Option<&Node>{
 		for (_,node) in self.nodes.iter().enumerate(){
 			if node.id == id {
@@ -172,7 +170,8 @@ impl WidgetTree {
 		None
 	}
 
-	/// Lookup a [`Node`] by it's id and return a mutable reference
+	/// Lookup a [`Node`] by it's id and return a 
+	/// mutable reference to the node.
 	fn lookup_mut(&mut self,id:WidgetID) -> Option<&mut Node>{
 		for (_,node) in self.nodes.iter_mut().enumerate(){
 			if node.id == id {

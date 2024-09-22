@@ -119,5 +119,6 @@ pub enum IntrinsicSize {
 	Fill,
 	Fit,
 	Flex,
+	/// Relative to parent
 	Relative(f32)	
 }

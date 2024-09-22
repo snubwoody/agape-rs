@@ -2,15 +2,9 @@ use rustui::{
 	app::{view::View, App}, 
 	colour::{self, Colour, BLACK, GREEN, PINK},
 	widgets::{
-		rect::Rect, 
-		stack::HStack, 
-		Edge, 
-		Node,
-		Widget, 
-		WidgetTree
+		button::Button, rect::Rect, stack::HStack, Edge, Node, Widget, WidgetTree
 	}
 };
-use properties::view;
 
 
 fn main() {
@@ -21,32 +15,39 @@ fn new_app(){
 	let _rect1_ = Rect::new(200, 150, BLACK);
 	let _rect2_ = Rect::new(150,300,GREEN);
 	let _hstack_ = HStack{
-		padding:0,
-		spacing:12,
+		padding:24,
+		spacing:36,
 		children:vec![]
 	};
 
 	let mut graph = WidgetTree::new();
+	
+	let button = Node{
+		id:4,
+		body:Button::new("Hi").colour(PINK).build(),
+		edges:vec![Edge::Parent(3),Edge::Sibling(1),Edge::Sibling(0)],
+	};
 	let rect1 = Node{
 		id:0,
 		body:_rect1_.build(),
-		edges:vec![Edge::Parent(3),Edge::Sibling(1)]
+		edges:vec![Edge::Parent(3),Edge::Sibling(1),Edge::Sibling(4)]
 	};
 	let rect2 = Node{
 		id:1,
 		body:_rect2_.build(),
-		edges:vec![Edge::Parent(3),Edge::Sibling(0)]
+		edges:vec![Edge::Parent(3),Edge::Sibling(0),Edge::Sibling(4)]
 	};
 	let hstack = Node{
 		id:3,
 		body:_hstack_.build(),
-		edges:vec![Edge::Child(0),Edge::Child(1)]
+		edges:vec![Edge::Child(0),Edge::Child(1),Edge::Child(4)]
 	};
 	
 
 	graph.add(rect1);
 	graph.add(rect2);
 	graph.add(hstack);
+	graph.add(button);
 	//dbg!(&graph);
 
 	let page = View::new(graph);

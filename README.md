@@ -17,7 +17,6 @@ I need to start doing these in order now
 
 - Improve the layout system
   - Add a flex widget
-- Add a size struct
 - Improve the event system
 - Add rounded corners
 - Add borders
@@ -29,8 +28,7 @@ if the mouse position is one of the widgets then we call the function.
 
 We can call the functions that change things about the widgets modifier functions.
 
-
-Okay we have a `kind-of` working library now, not very usefull but still it works. So I think now I 
+Okay we have a `kind-of` working library now, not very usefull but still it works. So I think now I
 can start planning things and stop wondering about different things randomly.
 
 ## Projects
@@ -41,7 +39,6 @@ can start planning things and stop wondering about different things randomly.
 
 When the window is smaller than the image, the image resizes to fit the window which shouldn't happen
 
-
 ## Layout system
 
 Widgets should have intrinsic sizes, which means they have a size that they want to be. I.e:
@@ -49,14 +46,19 @@ Widgets should have intrinsic sizes, which means they have a size that they want
 - Fill the parent
 - Fit the children
 - Relative
-- Flex 
+- Flex
 - Fixed
 
+Some widgets will try to be as big as possible, some will try to fit their children, and some will
+just be a specific size, depending on the context.
+
 This should allow us to define complex layouts, which not-so-complex code. The widget_tree starts at the root
-widgets and goes down the tree depth first calculating the layouts. 
+widgets and goes down the tree depth first calculating the layouts.
 
 ## Potential names
 
 - Helium
 
+## Widgets
 
+- Grid (has flow row and flow column which tells the grid which way to flow)

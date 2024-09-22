@@ -17,7 +17,7 @@ pub trait Surface:Debug {
 		program:&RenderContext
 	);
 
-	/// Set the position of the [`Surface`]
+	/// Set the [`Position`] of the [`Surface`]
 	fn position(&mut self, x:f32,y:f32);	
 	
 	/// Get the [`Surface`] position.
@@ -29,7 +29,7 @@ pub trait Surface:Debug {
 	/// Get the [`Size`] of the [`Surface`].
 	fn get_size(&self) -> Size;
 
-	/// Get the bounds of the [`Surface`]
+	/// Get the [`Bounds`] of the [`Surface`]
 	fn get_bounds(&self) -> Bounds;
 }
 
