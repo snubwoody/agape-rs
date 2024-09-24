@@ -1,4 +1,4 @@
-use std::{ops::{Add, AddAssign}};
+use std::ops::{Add, AddAssign, Sub};
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 
 /// The bounds of any object that has a [`Size`] 
@@ -89,6 +89,17 @@ impl AddAssign for Size {
             height: self.height + other.height,
         };
     }
+}
+
+impl Sub for Size {
+	type Output = Self;
+
+	fn sub(self, rhs: Self) -> Self::Output {
+		Self{
+			width:self.width - rhs.width,
+			height:self.height - rhs.height
+		}
+	}
 }
 
 

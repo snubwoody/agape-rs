@@ -14,6 +14,9 @@ pub enum Layout{
 	Single{
 		padding:u32,
 	},
+	Block{
+		padding:u32,
+	},
 	SingleChild{
 		width:u32,
 		height:u32
@@ -26,7 +29,8 @@ impl Layout {
 			&Self::Single { padding } => self.arrange_single(position,&mut children[0],padding),
 			&Self::Vertical { spacing,padding } => self.arrange_vertical(position,children,padding,spacing),
 			&Self::Horizontal { spacing,padding } => self.arrange_horizontal(position,children,padding,spacing),
-			&Self::SingleChild { width,height} => {(width,height)}
+			&Self::SingleChild { width,height} => {(width,height)},
+			_ => {(0,0)}
 		}
 	}
 
@@ -118,12 +122,10 @@ impl Layout {
 // an instrinsic size
 #[derive(Debug,Clone, Copy)]
 pub enum IntrinsicSize {
-	Fill,
+	Fill{width:bool,height:bool},
 	FillWidth,
 	FillHeight,
-	Fit,
+	Fit{padding:u32},
 	Flex,
 	Fixed(f32,f32),
-	/// Relative to parent
-	Relative(f32)	
 }

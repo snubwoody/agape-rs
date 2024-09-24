@@ -20,6 +20,7 @@ pub trait Surface:Debug {
 	/// Set the [`Position`] of the [`Surface`]
 	fn position(&mut self, x:f32,y:f32);	
 	
+	//TODO replace this with a position struct
 	/// Get the [`Surface`] position.
 	fn get_position(&self) -> (f32,f32);
 

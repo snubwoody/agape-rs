@@ -9,10 +9,11 @@ pub mod flex;
 use std::{
 	collections::HashMap, fmt::Debug,
 };
+use fontdue::layout::HorizontalAlign;
 use glium::{
-	glutin::{api::egl, surface::WindowSurface}, Display, Frame 
+	glutin::{surface::WindowSurface}, Display, Frame 
 };
-use ::image::math;
+
 use winit::window::Window;
 use crate::{
 	app::view::RenderContext, 
@@ -81,7 +82,7 @@ impl Default for WidgetBody {
 			surface, 
 			layout, 
 			children:vec![], 
-			constraint:IntrinsicSize::Fit
+			constraint:IntrinsicSize::Fit{padding:0}
 			//events:vec![]
 		}
 	}
@@ -149,7 +150,7 @@ impl WidgetTree {
 		None
 	}
 
-	pub fn arrange(&mut self,window:&Window){
+	pub fn layout_pass(&mut self,window:&Window){
 		// Store the position of all widgets to retrieve later
 		let mut position_cache:HashMap<WidgetID, Position> = HashMap::new();
 
@@ -178,6 +179,32 @@ impl WidgetTree {
 						}
 					}
 				},
+				Layout::Block { padding } => {
+					let parent_size = node.body.surface.get_size();
+					let parent_position = node.body.surface.get_position();
+					for (_,edge) in node.edges.iter().enumerate(){
+						match edge {
+							Edge::Child(id) => {
+								let child = self.lookup(*id).unwrap();
+
+								// Find the difference between the parent and
+								// the child size.
+								let child_size = child.body.surface.get_size();
+								let difference = parent_size - child_size;
+
+								// Divide by two to put it in the center instead of 
+								// the lower right corner
+								let child_position = Position::new(
+									(parent_position.0 + difference.width)/2.0,
+									(parent_position.1 + difference.height)/2.0
+								);
+
+								position_cache.insert(*id, child_position);
+							},
+							_ => {}
+						}
+					}
+				}
 				_ => {}
 			}
 		}
@@ -200,20 +227,29 @@ impl WidgetTree {
 		max_size.height = window.inner_size().height as f32;
 		max_sizes.insert(self.root_id, max_size);
 
-		// Maybe return the max child size
 		let child_size = self.get_constraints(self.root_id,&max_size);
 		let root = self.lookup_mut(self.root_id).unwrap();
 		match root.body.constraint{
-			// Maybe add `FillWidth` and `FillHeight`
-			IntrinsicSize::Fill => {
-				root.body.surface.size(max_size.width, max_size.height);
+			IntrinsicSize::Fill{width,height} => {
+				if width && height {
+					root.body.surface.size(max_size.width, max_size.height);
+				}
+				else if width {
+					root.body.surface.size(max_size.width, child_size.height);
+				}
+				else if height {
+					root.body.surface.size(child_size.width, max_size.height);
+				}
 			},
 			IntrinsicSize::FillWidth => {
 				root.body.surface.size(max_size.width, child_size.height);
 			},
-			IntrinsicSize::Fit => {
-				root.body.surface.size(child_size.width + 20.0, child_size.height + 20.0);
+			IntrinsicSize::Fit{padding} => {
+				root.body.surface.size(child_size.width + padding as f32, child_size.height + padding as f32);
 			},
+			IntrinsicSize::Fixed(width,height) => {
+				root.body.surface.size(width, height);
+			}
 			_ => {}
 		}
 	}
@@ -229,10 +265,10 @@ impl WidgetTree {
 				Edge::Child(id) => {
 					let node = self.lookup(*id).unwrap();
 					match node.body.constraint{
-						IntrinsicSize::Fill => {
+						IntrinsicSize::Fill{width,height} => {
 
 						},
-						IntrinsicSize::Fit => {
+						IntrinsicSize::Fit{padding} => {
 
 						},
 						IntrinsicSize::Fixed(width,height) => {
@@ -257,7 +293,7 @@ impl WidgetTree {
 		context:&RenderContext,
 	) {
 		self.size_pass(window);
-		self.arrange(window);
+		self.layout_pass(window);
 		for (_,node) in self.nodes.iter().enumerate(){
 			node.body.render(display, frame, window, context);
 		}

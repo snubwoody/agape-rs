@@ -1,8 +1,5 @@
 use crate::{
-	colour::Colour,
-	surface::rect::RectSurface, 
-	widgets::Widget,
-	layout::Layout
+	colour::Colour, layout::{IntrinsicSize, Layout}, surface::rect::RectSurface, widgets::Widget
 };
 use super::WidgetBody;
 
@@ -44,12 +41,13 @@ impl Widget for Container {
 			}
 		);
 		
-		let layout = Layout::Single { padding: 12 };
+		let layout = Layout::Block{ padding: self.padding };
 		let child = self.child.build();
 
 		WidgetBody{
 			surface,
 			layout,
+			constraint:IntrinsicSize::Fit { padding:self.padding },
 			children:vec![Box::new(child)],
 			..Default::default()
 		}
