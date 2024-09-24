@@ -3,17 +3,16 @@ pub mod stack;
 pub mod container;
 pub mod text;
 pub mod button;
-pub mod list;
 pub mod image;
 pub mod flex;
 use std::{
 	collections::HashMap, fmt::Debug,
 };
-use fontdue::layout::HorizontalAlign;
 use glium::{
-	glutin::{surface::WindowSurface}, Display, Frame 
+	glutin::surface::WindowSurface, 
+	Display, 
+	Frame 
 };
-
 use winit::window::Window;
 use crate::{
 	app::view::RenderContext, 
@@ -23,7 +22,6 @@ use crate::{
 	}, 
 	utils::{Position, Size}
 };
-
 
 /// Widget trait that all widgets must inherit from.
 pub trait Widget:Debug{
@@ -61,22 +59,12 @@ impl WidgetBody {
 		self.surface.draw(display, frame, window, context);
 	}
 
-	pub fn arrange_widgets(&mut self) {
-		// Arrange the children
-		let position = self.surface.get_position();
-		self.children.iter_mut().for_each(|widget| {
-			widget.arrange_widgets();
-		});
-
-		let size = self.layout.arrange([position.0,position.1],&mut self.children);
-		self.surface.size(size.0 as f32, size.1 as f32);
-	}
 }
 
 impl Default for WidgetBody {
 	fn default() -> Self {
 		let surface = Box::new(RectSurface::default());
-		let layout = Layout::Single{ padding: 0 };
+		let layout = Layout::Block{ padding: 0 };
 
 		Self { 
 			surface, 
@@ -192,10 +180,9 @@ impl WidgetTree {
 								let child_size = child.body.surface.get_size();
 								let difference = parent_size - child_size;
 
-								// Divide by two to put it in the center instead of 
-								// the lower right corner
 								let child_position = Position::new(
-									(parent_position.0 + difference.width)/2.0,
+									// Divide by 2 to put it in the center
+									(parent_position.0 + difference.width)/2.0, 
 									(parent_position.1 + difference.height)/2.0
 								);
 

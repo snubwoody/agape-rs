@@ -1,5 +1,5 @@
 use crate::{
-	layout::Layout, 
+	layout::{IntrinsicSize, Layout}, 
 	surface::{text::TextSurface, Surface}, 
 };
 use super::{Widget, WidgetBody};
@@ -38,11 +38,12 @@ impl Widget for Text {
 		let size = textsurface.get_size();
 		let surface = Box::new(textsurface);
 
-		let layout = Layout::SingleChild { width: size.width as u32, height: size.height as u32 };
+		let layout = Layout::Block { padding: 0};
 
 		WidgetBody{
 			surface,
 			layout,
+			constraint:IntrinsicSize::Fixed(size.width, size.height),
 			..Default::default()
 		}
 	}

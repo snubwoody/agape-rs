@@ -44,7 +44,7 @@ impl Widget for Button {
 			RectSurface::new(0.0, 0.0, 200, 70, self.colour.clone())
 		);
 
-		let layout = Layout::SingleChild { width: 250, height: 70 };
+		let layout = Layout::Block{ padding: 0};
 		// FIXME
 
 		WidgetBody { 

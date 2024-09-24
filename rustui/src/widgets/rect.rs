@@ -20,7 +20,7 @@ impl Rect {
 
 impl Widget for Rect {
 	fn build(&self) -> WidgetBody {
-		let layout = Layout::SingleChild{width:self.width,height:self.height};
+		let layout = Layout::Block { padding: 0 };
 		let surface = Box::new(
 			RectSurface{ 
 				size:Size::new(self.width as f32, self.height as f32),

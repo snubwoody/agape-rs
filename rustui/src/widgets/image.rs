@@ -25,7 +25,7 @@ impl Widget for Image {
 			ImageSurface::new(&self.path,self.width as f32,self.height as f32)
 		);
 		let size = surface.get_size();
-		let layout = Layout::SingleChild { width: size.width as u32, height:size.height as u32 };
+		let layout = Layout::Block { padding: 0 };
 
 		WidgetBody{
 			surface,
