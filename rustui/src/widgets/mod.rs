@@ -142,28 +142,30 @@ impl WidgetTree {
 
 	pub fn build(&mut self,widget:impl Widget + 'static) {
 		let root = widget.build();
+		let children = self.add_edges(widget,0);
 		self.nodes.push(Node{
 			id:0,
 			body:root,
-			edges:vec![]
+			edges:children
 		});
-		self.add_edges(widget,0);
+		
 	}
 	
-	pub fn add_edges(&mut self,parent:impl Widget + 'static,id:WidgetID){
+	pub fn add_edges(&mut self,parent:Box<dyn Widget>,id:WidgetID) -> Vec<Edge> {
 		let children = parent.get_children();
 		let mut edges = vec![];
 		for (index,child) in children.into_iter().enumerate(){
-			edges.push(index);
+			edges.push(Edge::Child(index + 1));
 			self.nodes.push(
 				Node { 
 					id: index + 1, 
 					body: child.build(), 
-					edges: vec![] 
+					edges: vec![Edge::Parent(id)] 
 				}
 			);
-			//self.add_edges(*child, index);
+			self.add_edges(child, index);
 		}
+		edges
 	}
 
 	pub fn add(&mut self,node:Node){

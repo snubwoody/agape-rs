@@ -1,70 +1,83 @@
 use crate::{
-	colour::Colour, layout::{IntrinsicSize, Layout}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}
+    colour::Colour,
+    layout::{IntrinsicSize, Layout},
+    surface::rect::RectSurface,
+    widgets::{Widget, WidgetBody},
 };
 
 #[derive(Debug)]
-pub struct VStack{
-	pub spacing:u32,
-	pub padding:u32,
-	pub children:Vec<Box<dyn Widget>>
+pub struct VStack {
+    pub spacing: u32,
+    pub padding: u32,
+    pub children: Vec<Box<dyn Widget>>,
 }
 
 impl Widget for VStack {
-	fn build(&self) -> WidgetBody {
-		let layout = Layout::Vertical { 
-			spacing:self.spacing, 
-			padding:self.padding 
-		};
+    fn build(&self) -> WidgetBody {
+        let layout = Layout::Vertical {
+            spacing: self.spacing,
+            padding: self.padding,
+        };
 
-		let children = self.children.iter().map(|widget|{
-			Box::new(widget.build())
-		}).collect();
+        let children = self
+            .children
+            .iter()
+            .map(|widget| Box::new(widget.build()))
+            .collect();
 
-		WidgetBody{
-			layout,
-			children,
-			constraint:IntrinsicSize::Fill { width: false, height: true },
-			..Default::default()
-		}
-	}
+        WidgetBody {
+            layout,
+            children,
+            constraint: IntrinsicSize::Fill {
+                width: false,
+                height: true,
+            },
+            ..Default::default()
+        }
+    }
 
-	fn get_children(self) -> Vec<Box<dyn Widget>> {
-		self.children
-	}
+    fn get_children(self) -> Vec<Box<dyn Widget>> {
+        self.children
+    }
 }
 
 #[derive(Debug)]
 
-pub struct HStack{
-	pub spacing:u32,
-	pub padding:u32,
-	pub children:Vec<Box<dyn Widget>>,
-	pub colour:Colour,
+pub struct HStack {
+    pub spacing: u32,
+    pub padding: u32,
+    pub children: Vec<Box<dyn Widget>>,
+    pub colour: Colour,
 }
 
 impl Widget for HStack {
-	fn build(&self) -> WidgetBody {
-		let mut surface = RectSurface::default();
-		surface.colour(self.colour.clone());
-		let layout = Layout::Horizontal  { spacing: self.spacing, padding: self.padding };
-		
-		let children = self.children.iter().map(|widget|{
-			Box::new(widget.build())
-		}).collect();
+    fn build(&self) -> WidgetBody {
+        let mut surface = RectSurface::default();
+        surface.colour(self.colour.clone());
+        let layout = Layout::Horizontal {
+            spacing: self.spacing,
+            padding: self.padding,
+        };
 
-		WidgetBody{
-			layout,
-			children,
-			surface:Box::new(surface),
-			constraint:IntrinsicSize::Fill { width: true, height: false },
-			..Default::default()
-		}
+        let children = self
+            .children
+            .iter()
+            .map(|widget| Box::new(widget.build()))
+            .collect();
 
-	}
+        WidgetBody {
+            layout,
+            children,
+            surface: Box::new(surface),
+            constraint: IntrinsicSize::Fill {
+                width: true,
+                height: false,
+            },
+            ..Default::default()
+        }
+    }
 
-	fn get_children(self) -> Vec<Box<dyn Widget>> {
-		self.children
-	}
+    fn get_children(self) -> Vec<Box<dyn Widget>> {
+        self.children
+    }
 }
-
- 
