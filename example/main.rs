@@ -1,10 +1,9 @@
 use rustui::{
-	app::{view::View, App}, 
-	colour::{self, Colour, BLACK, GREEN, PINK, WHITE},
-	widgets::{
+	app::{view::View, App}, colour::{self, Colour, BLACK, GREEN, PINK, WHITE}, convert, view, widgets::{
 		button::Button, container::{self, Container}, rect::Rect, stack::HStack, Edge, Node, Widget, WidgetTree
 	}
 };
+use properties::{graph,page};
 
 
 fn main() {
@@ -12,18 +11,22 @@ fn main() {
 }
 
 fn new_app(){
-	let _rect1_ = Rect::new(200, 150, WHITE);
-	let _rect2_ = Rect::new(150,200,WHITE);
+	let rect1 = Rect::new(200, 150, WHITE);
+	let rect2 = Rect::new(150,200,WHITE);
 	let dummy = Rect::new(150,200,WHITE);
-	let _hstack_ = HStack{
-		padding:24,
-		spacing:36,
+	let hstack = HStack{
+		spacing:0,
+		padding:0,
 		colour:BLACK,
-		children:vec![]
+		children:vec![
+			Box::new(rect1),
+			Box::new(rect2)
+		]
 	};
-
-	let mut graph = WidgetTree::new();
 	
+	let mut graph = WidgetTree::new();
+	graph.build(hstack);
+	dbg!(&graph);
 	let button = Node{
 		id:4,
 		body:Button::new("Hi").colour(PINK).build(),
@@ -38,14 +41,6 @@ fn new_app(){
 	graph.add(container);
 	graph.add(button);
 	graph.root(5);
-	//dbg!(&graph);
-
-	let page = View::new(graph);
-	let app = 
-		App::new()
-		.add_view(page);
-
-	app.run();
 }
 
 

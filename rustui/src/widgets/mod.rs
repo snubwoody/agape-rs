@@ -23,9 +23,40 @@ use crate::{
 	utils::{Position, Size}
 };
 
+#[macro_export]
+macro_rules! convert {
+	($widget:expr) => {
+		let mut graph = WidgetTree::new();
+			//println!("{:?}",stringify!($widget));
+		graph.add(
+			Node{
+				id:1,
+				body:$widget.build(),
+				edges:vec![]
+			}
+		);
+
+		graph
+	};
+}
+
+type WidgetID = usize;
+
+#[macro_export]
+macro_rules! view {
+	($widget:ident{$($field:ident: $value:expr),*}) => {
+		rustui::widgets::button::$widget{
+			$(
+				$field:$value,
+			)*
+		};	
+	};
+}
+
 /// Widget trait that all widgets must inherit from.
 pub trait Widget:Debug{
-	/// Build the [`Widget`] into a primitive [`WidgetBody`]
+	/// Build the [`Widget`] into a primitive [`WidgetBody`] for
+	/// rendering.
 	fn build(&self) -> WidgetBody;
 
 	/// Get the children and consume the [`Widget`], since this is 
@@ -34,6 +65,22 @@ pub trait Widget:Debug{
 	/// *Deprecated*.
 	fn get_children(self) -> Vec<Box<dyn Widget>>;
 }
+
+
+#[derive(Debug)]
+pub enum Edge{
+	Parent(WidgetID),
+	Child(WidgetID),
+	Sibling(WidgetID)
+}
+
+#[derive(Debug)]
+pub struct Node{
+	pub id:usize,
+	pub body:WidgetBody,
+	pub edges:Vec<Edge>,
+}
+
 
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
@@ -76,24 +123,9 @@ impl Default for WidgetBody {
 	}
 }
 
-type WidgetID = usize;
-
-#[derive(Debug)]
-pub enum Edge{
-	Parent(WidgetID),
-	Child(WidgetID),
-	Sibling(WidgetID)
-}
-
-#[derive(Debug)]
-pub struct Node{
-	pub id:usize,
-	pub body:WidgetBody,
-	pub edges:Vec<Edge>,
-}
 
 /// Central structure that holds all the [`Widget`]'s, this is 
-/// where rendering, layouts and events are processed from.
+/// where rendering and layouts processed from.
 #[derive(Debug)]
 pub struct WidgetTree{
 	nodes:Vec<Node>,
@@ -108,6 +140,32 @@ impl WidgetTree {
 		}
 	}
 
+	pub fn build(&mut self,widget:impl Widget + 'static) {
+		let root = widget.build();
+		self.nodes.push(Node{
+			id:0,
+			body:root,
+			edges:vec![]
+		});
+		self.add_edges(widget,0);
+	}
+	
+	pub fn add_edges(&mut self,parent:impl Widget + 'static,id:WidgetID){
+		let children = parent.get_children();
+		let mut edges = vec![];
+		for (index,child) in children.into_iter().enumerate(){
+			edges.push(index);
+			self.nodes.push(
+				Node { 
+					id: index + 1, 
+					body: child.build(), 
+					edges: vec![] 
+				}
+			);
+			//self.add_edges(*child, index);
+		}
+	}
+
 	pub fn add(&mut self,node:Node){
 		self.nodes.push(node);
 	}
@@ -116,7 +174,7 @@ impl WidgetTree {
 		self.root_id = id
 	}
 
-	/// Lookup a [`Node`] by it's id return a reference to 
+	/// Look up a [`Node`] by it's id return a reference to 
 	/// the node.
 	fn lookup(&self,id:WidgetID) -> Option<&Node>{
 		for (_,node) in self.nodes.iter().enumerate(){
@@ -127,7 +185,7 @@ impl WidgetTree {
 		None
 	}
 
-	/// Lookup a [`Node`] by it's id and return a 
+	/// Look up a [`Node`] by it's id and return a 
 	/// mutable reference to the node.
 	fn lookup_mut(&mut self,id:WidgetID) -> Option<&mut Node>{
 		for (_,node) in self.nodes.iter_mut().enumerate(){
@@ -247,7 +305,6 @@ impl WidgetTree {
 		let mut max_height:f32 = 0.0;
 		let mut max_width:f32 = 0.0;
 		for (_,edge) in node.edges.iter().enumerate(){
-			dbg!(edge);
 			match edge {
 				Edge::Child(id) => {
 					let node = self.lookup(*id).unwrap();
