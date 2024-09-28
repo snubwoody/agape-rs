@@ -25,19 +25,3 @@ pub enum IntrinsicSize {
 	Fit{padding:u32},
 	Fixed(f32,f32),
 }
-
-#[derive(Debug,Clone, Copy)]
-pub struct LayoutManager{
-	size:IntrinsicSize,
-	layout:Layout
-}
-
-impl LayoutManager {
-	pub fn new(size:IntrinsicSize,layout:Layout) -> Self {
-		Self { size, layout }
-	}
-
-	fn arrange(&mut self,widget_tree:&mut WidgetTree){
-
-	}
-}
