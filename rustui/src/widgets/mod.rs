@@ -81,7 +81,6 @@ pub struct Node{
 	pub edges:Vec<Edge>,
 }
 
-
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
 #[derive(Debug)]
@@ -167,14 +166,6 @@ impl WidgetTree {
 			
 		}
 		edges
-	}
-
-	pub fn add(&mut self,node:Node){
-		self.nodes.push(node);
-	}
-
-	pub fn root(&mut self,id:WidgetID){
-		self.root_id = id
 	}
 
 	/// Look up a [`Node`] by it's id return a reference to 
@@ -277,6 +268,7 @@ impl WidgetTree {
 
 		let child_size = self.get_constraints(self.root_id,&max_size);
 		let root = self.lookup_mut(self.root_id).unwrap();
+
 		match root.body.constraint{
 			IntrinsicSize::Fill{width,height} => {
 				if width && height {
@@ -332,6 +324,28 @@ impl WidgetTree {
 		Size::new(max_width, max_height)
 	}
 
+	fn render_widget(
+		&mut self,
+		display:&Display<WindowSurface>,
+		frame:&mut Frame,
+		window:&Window,
+		context:&RenderContext,
+		id:WidgetID
+	) {
+		let widget = self.lookup(id).unwrap();
+		widget.body.render(display, frame, window, context);
+
+		for (_,edge) in widget.edges.iter().enumerate(){
+			match edge {
+				Edge::Child(id) => {
+					let child = self.lookup(*id).unwrap();
+					child.body.render(display, frame, window, context);
+				}
+				_ => {}
+			}
+		}
+	}
+
 	pub fn render(
 		&mut self,
 		display:&Display<WindowSurface>,
@@ -341,8 +355,6 @@ impl WidgetTree {
 	) {
 		self.size_pass(window);
 		self.layout_pass(window);
-		for (_,node) in self.nodes.iter().enumerate(){
-			node.body.render(display, frame, window, context);
-		}
+		self.render_widget(display, frame, window, context, self.root_id);
 	}
 }
