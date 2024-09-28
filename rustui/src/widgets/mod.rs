@@ -16,7 +16,7 @@ use glium::{
 use winit::window::Window;
 use crate::{
 	app::view::RenderContext, 
-	layout::{IntrinsicSize, Layout}, 
+	layout::{IntrinsicSize, Layout, LayoutManager}, 
 	surface::{
 		rect::RectSurface, Surface
 	}, 
@@ -132,8 +132,7 @@ impl WidgetTree {
 			id:0,
 			body:root,
 			parent:None,
-			children:children
-
+			children:children,
 		});
 		
 	}
