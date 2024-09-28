@@ -1,6 +1,6 @@
 use crate::{
 	colour::Colour, 
-	layout::{IntrinsicSize, Layout}, 
+	layout::{IntrinsicSize, Layout, WidgetSize}, 
 	surface::rect::RectSurface, 
 	widgets::WidgetBody
 };
@@ -50,7 +50,10 @@ impl Widget for Button {
 		WidgetBody { 
 			surface,
 			layout,
-			constraint:IntrinsicSize::Fixed(200.0, 70.0),
+			constraint:IntrinsicSize { 
+				width: WidgetSize::Fit(200.0), 
+				height: WidgetSize::Fit(50.0)
+			},
 			..Default::default()
 		}
 	}

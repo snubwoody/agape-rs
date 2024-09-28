@@ -146,6 +146,14 @@ impl Surface for TextSurface {
 		}
 	}
 
+	fn width(&mut self, width:f32) {
+		self.size.width = width
+	}
+
+	fn height(&mut self, height:f32) {
+		self.size.height = height
+	}
+
 	fn position(&mut self, x:f32,y:f32) {
 		self.position.x = x;
 		self.position.y = y;

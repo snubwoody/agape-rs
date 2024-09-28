@@ -27,6 +27,12 @@ pub trait Surface:Debug {
 	/// Set the [`Size`] of the [`Surface`].
 	fn size(&mut self,width:f32,height:f32);
 
+	/// Set the width of the [`Surface`].
+	fn width(&mut self, width:f32);
+	
+	/// Set the height of the [`Surface`].
+	fn height(&mut self, height:f32);
+
 	/// Get the [`Size`] of the [`Surface`].
 	fn get_size(&self) -> Size;
 

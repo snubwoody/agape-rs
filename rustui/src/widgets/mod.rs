@@ -16,7 +16,7 @@ use glium::{
 use winit::window::Window;
 use crate::{
 	app::view::RenderContext, 
-	layout::{IntrinsicSize, Layout}, 
+	layout::{IntrinsicSize, Layout, WidgetSize}, 
 	surface::{
 		rect::RectSurface, Surface
 	}, 
@@ -25,7 +25,7 @@ use crate::{
 
 type WidgetID = usize;
 
-/// Widget trait that all widgets must inherit from.
+/// The trait that all widgets must implement.
 pub trait Widget:Debug{
 	/// Build the [`Widget`] into a primitive [`WidgetBody`] for
 	/// rendering.
@@ -81,7 +81,10 @@ impl Default for WidgetBody {
 			surface, 
 			layout, 
 			children:vec![], 
-			constraint:IntrinsicSize::Fit{padding:0}
+			constraint:IntrinsicSize { 
+				width: WidgetSize::Fit(0.0), 
+				height: WidgetSize::Fit(0.0) 
+			}
 			//events:vec![]
 		}
 	}
@@ -137,7 +140,23 @@ impl WidgetTree {
 		edges
 	}
 
-	fn size_pass(&self){
+	fn size_pass(&mut self,window:&Window){
+		let root = self.nodes.get_mut(&self.root_id).unwrap();
+		match root.body.constraint.width {
+			WidgetSize::Fill => {
+				root.body.surface.width(
+					window.inner_size().width as f32, 
+				);
+			},
+			WidgetSize::Fit(padding) => {
+				
+			}
+			_ => {}
+		}
+	}
+
+	fn calculate_size(&mut self,id:WidgetID,constraint:Size) -> Size{
+		Size::new(0.0, 0.0)
 	}
 
 	fn render_widget(
@@ -154,7 +173,6 @@ impl WidgetTree {
 		// Render the widgets recursively
 		for (_,edge) in widget.children.iter().enumerate(){
 			let child = self.nodes.get(edge).unwrap();
-			dbg!(&child);
 			child.body.render(display, frame, window, context);
 		}
 	}
@@ -166,7 +184,7 @@ impl WidgetTree {
 		window:&Window,
 		context:&RenderContext,
 	) {
-		self.size_pass();
+		self.size_pass(window);
 		self.render_widget(display, frame, window, context, self.root_id);
 	}
 }

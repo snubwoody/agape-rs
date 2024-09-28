@@ -2,18 +2,18 @@ use crate::surface::rect::RectSurface;
 use crate::utils::Size;
 use crate::{colour::Colour};
 use super::{Widget, WidgetBody};
-use crate::layout::{IntrinsicSize, Layout};
+use crate::layout::{IntrinsicSize, Layout, WidgetSize};
 
 /// A simple rectangle
-#[derive(Debug,Clone,PartialEq, Eq)]
+#[derive(Debug,Clone,PartialEq)]
 pub struct Rect{
-	pub width:u32,
-	pub height:u32,
+	pub width:f32,
+	pub height:f32,
 	pub colour:Colour
 }
 
 impl Rect {
-	pub fn new(width:u32,height:u32,colour:Colour) -> Self{
+	pub fn new(width:f32,height:f32,colour:Colour) -> Self{
 		Self { width, height, colour }
 	}
 }
@@ -33,7 +33,10 @@ impl Widget for Rect {
 			surface,
 			layout,
 			children:vec![],
-			constraint:IntrinsicSize::Fixed(self.width as f32, self.height as f32),
+			constraint:IntrinsicSize{
+				width:WidgetSize::Fixed(self.width),
+				height:WidgetSize::Fixed(self.height),
+			},
 			..Default::default()
 		}
 	}

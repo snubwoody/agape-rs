@@ -118,6 +118,14 @@ impl Surface for ImageSurface {
 		self.size
 	}
 
+	fn width(&mut self, width:f32) {
+		self.size.width = width
+	}
+
+	fn height(&mut self, height:f32) {
+		self.size.height = height
+	}
+
 	fn get_bounds(&self) -> Bounds {
 		Bounds{
 			x:[self.position.x,self.position.x + self.size.width],

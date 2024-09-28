@@ -97,6 +97,14 @@ impl Surface for RectSurface {
 		self.size.height = height;
 	} 
 
+	fn width(&mut self, width:f32) {
+		self.size.width = width
+	}
+
+	fn height(&mut self, height:f32) {
+		self.size.height = height
+	}
+
 	fn get_size(&self) -> Size {
 		self.size
 	}

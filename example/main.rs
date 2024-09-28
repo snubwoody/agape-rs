@@ -15,10 +15,10 @@ fn main() {
 }
 
 fn new_app() {
-    let rect1 = Rect::new(200, 150, INDIGO);
-    let rect2 = Rect::new(150, 200, PINK);
+    let rect1 = Rect::new(200.0, 150.0, INDIGO);
+    let rect2 = Rect::new(150.0, 200.0, PINK);
 
-    let dummy = Container::new(Rect::new(150, 200, GREEN)).colour(TEAL);
+    let dummy = Container::new(Rect::new(150.0, 200.0, GREEN)).colour(TEAL);
     let hstack = HStack {
         spacing: 54,
         padding: 10,
