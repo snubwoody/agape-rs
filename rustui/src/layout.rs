@@ -1,5 +1,3 @@
-use crate::widgets::WidgetBody;
-
 /// The types of layout a [`Widget`] can have.
 #[derive(Debug,Clone, Copy)]
 pub enum Layout{
@@ -19,12 +17,18 @@ pub enum Layout{
 // TODO maybe have a constraint struct then add 
 // width and height and give each individual item
 // an instrinsic size
-#[derive(Debug,Clone, Copy)]
+#[derive(Debug,Clone,Copy)]
 pub enum IntrinsicSize {
 	Fill{width:bool,height:bool},
-	FillWidth,
-	FillHeight,
 	Fit{padding:u32},
-	Flex,
 	Fixed(f32,f32),
+}
+
+pub struct LayoutManager{
+	size:IntrinsicSize,
+	layout:Layout
+}
+
+impl LayoutManager {
+	
 }

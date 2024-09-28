@@ -25,7 +25,7 @@ fn new_app() {
 
     let mut graph = WidgetTree::new();
     graph.build(hstack);
-    dbg!(&graph);
+    //dbg!(&graph);
    
     let page = View::new(graph);
     let app = App::new().add_view(page);

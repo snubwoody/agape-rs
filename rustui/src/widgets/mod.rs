@@ -23,35 +23,7 @@ use crate::{
 	utils::{Position, Size}
 };
 
-#[macro_export]
-macro_rules! convert {
-	($widget:expr) => {
-		let mut graph = WidgetTree::new();
-			//println!("{:?}",stringify!($widget));
-		graph.add(
-			Node{
-				id:1,
-				body:$widget.build(),
-				edges:vec![]
-			}
-		);
-
-		graph
-	};
-}
-
 type WidgetID = usize;
-
-#[macro_export]
-macro_rules! view {
-	($widget:ident{$($field:ident: $value:expr),*}) => {
-		rustui::widgets::button::$widget{
-			$(
-				$field:$value,
-			)*
-		};	
-	};
-}
 
 /// Widget trait that all widgets must inherit from.
 pub trait Widget:Debug{
@@ -62,23 +34,37 @@ pub trait Widget:Debug{
 	/// Get the children and consume the [`Widget`], since this is 
 	/// the last step before the widget is turned to a 
 	/// [`WidgetBody`].  
-	/// *Deprecated*.
 	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>>;
 }
 
-
-#[derive(Debug)]
-pub enum Edge{
-	Parent(WidgetID),
-	Child(WidgetID),
-	Sibling(WidgetID)
-}
-
+/// A node in the widget tree
 #[derive(Debug)]
 pub struct Node{
 	pub id:usize,
 	pub body:WidgetBody,
-	pub edges:Vec<Edge>,
+	pub parent:Option<WidgetID>,
+	pub children: Vec<WidgetID>
+}
+
+impl Node {
+	fn size(&mut self,widget_tree:&mut WidgetTree,max_size:Size) {
+		
+		for (_,edge) in self.children.iter().enumerate(){
+			let child = widget_tree.lookup_mut(*edge).unwrap();
+		}
+		match self.body.constraint {
+			IntrinsicSize::Fill { width, height } => {
+				self.body.surface.size(
+					max_size.width, 
+					max_size.height
+				);
+			},
+			IntrinsicSize::Fit { padding } => {
+
+			}
+			_ => {}
+		}
+	}
 }
 
 /// Primitive structure that holds all the information
@@ -145,23 +131,28 @@ impl WidgetTree {
 		self.nodes.push(Node{
 			id:0,
 			body:root,
-			edges:children
+			parent:None,
+			children:children
+
 		});
 		
 	}
 	
-	pub fn add_edges(&mut self,parent:Box<dyn Widget>,id:WidgetID) -> Vec<Edge> {
+	pub fn add_edges(&mut self,parent:Box<dyn Widget>,id:WidgetID) -> Vec<WidgetID> {
 		let children = parent.get_children();
 		let mut edges = vec![];
+		
 		for (_,child) in children.into_iter().enumerate(){
 			let child_id = rand::random::<usize>();
-			edges.push(Edge::Child(child_id));
-			let mut child = Node { 
+			edges.push(child_id);
+
+			let child = Node { 
 				id: child_id, 
-				body: child.build(), 
-				edges: self.add_edges(child, child_id) 
+				body: child.build(),
+				parent:Some(id),
+				children:self.add_edges(child, child_id)
 			};
-			child.edges.push(Edge::Parent(id));
+
 			self.nodes.push(child);
 			
 		}
@@ -199,49 +190,38 @@ impl WidgetTree {
 				Layout::Horizontal { spacing, padding } => {
 
 					let mut total_size = Size::new((padding * 2) as f32, 0.0);
+					
 					// The positions to set the current widget
 					let mut x_position = padding as f32;
 					let y_position = node.body.surface.get_position().1 + padding as f32;
 
-					for (_,edge) in node.edges.iter().enumerate(){
-						match edge {
-							Edge::Child(id) => {
-								let child = self.lookup(*id).unwrap();
-								let size = child.body.surface.get_size();
-
-								total_size += size;
-								total_size.width += spacing as f32;
-								
-								position_cache.insert(*id, Position::new(x_position, y_position));
-								x_position += spacing as f32 + size.width
-							}
-							_ => {}
-						}
+					for (_,edge) in node.children.iter().enumerate(){
+						let child = self.lookup(*edge).unwrap();
+						let size = child.body.surface.get_size();
+						
+						total_size += size;
+						total_size.width += spacing as f32;
+						
+						position_cache.insert(*edge, Position::new(x_position, y_position));
+						x_position += spacing as f32 + size.width
 					}
 				},
 				Layout::Block { padding } => {
 					let parent_size = node.body.surface.get_size();
 					let parent_position = node.body.surface.get_position();
-					for (_,edge) in node.edges.iter().enumerate(){
-						match edge {
-							Edge::Child(id) => {
-								let child = self.lookup(*id).unwrap();
-
-								// Find the difference between the parent and
-								// the child size.
-								let child_size = child.body.surface.get_size();
-								let difference = parent_size - child_size;
-
-								let child_position = Position::new(
-									// Divide by 2 to put it in the center
-									(parent_position.0 + difference.width)/2.0, 
-									(parent_position.1 + difference.height)/2.0
-								);
-
-								position_cache.insert(*id, child_position);
-							},
-							_ => {}
-						}
+					for (_,edge) in node.children.iter().enumerate(){
+							let child = self.lookup(*edge).unwrap();
+							
+							// Find the difference between the parent and
+							// the child size.
+							let child_size = child.body.surface.get_size();
+							let difference = parent_size - child_size;
+							let child_position = Position::new(
+								// Divide by 2 to put it in the center
+								(parent_position.0 + difference.width)/2.0, 
+								(parent_position.1 + difference.height)/2.0
+							);
+							position_cache.insert(*edge, child_position);
 					}
 				}
 				_ => {}
@@ -261,31 +241,45 @@ impl WidgetTree {
 	fn size_pass(&mut self,window:&Window){
 		let mut max_sizes:HashMap<usize,Size> = HashMap::new();
 
-		let mut max_size = Size::new(0.0, 0.0);
-		max_size.width = window.inner_size().width as f32;
-		max_size.height = window.inner_size().height as f32;
-		max_sizes.insert(self.root_id, max_size);
+		let window_size = Size::new(
+			window.inner_size().width as f32, 
+			window.inner_size().height as f32
+		);
 
-		let child_size = self.get_constraints(self.root_id,&max_size);
+		// Set the max size of the root widget to the 
+		// size of the window.
+		max_sizes.insert(self.root_id, window_size);
+
+		// Get the max size that the children will occupy
+		let child_size = self.get_constraints(self.root_id,&window_size);
 		let root = self.lookup_mut(self.root_id).unwrap();
 
 		match root.body.constraint{
 			IntrinsicSize::Fill{width,height} => {
 				if width && height {
-					root.body.surface.size(max_size.width, max_size.height);
+					root.body.surface.size(
+						window.inner_size().width as f32, 
+						window.inner_size().height as f32
+					);
 				}
 				else if width {
-					root.body.surface.size(max_size.width, child_size.height);
+					root.body.surface.size(
+						window.inner_size().width as f32, 
+						child_size.height
+					);
 				}
 				else if height {
-					root.body.surface.size(child_size.width, max_size.height);
+					root.body.surface.size(
+						child_size.width, 
+						window.inner_size().height as f32
+					);
 				}
 			},
-			IntrinsicSize::FillWidth => {
-				root.body.surface.size(max_size.width, child_size.height);
-			},
 			IntrinsicSize::Fit{padding} => {
-				root.body.surface.size(child_size.width + padding as f32, child_size.height + padding as f32);
+				root.body.surface.size(
+					child_size.width + padding as f32, 
+					child_size.height + padding as f32
+				);
 			},
 			IntrinsicSize::Fixed(width,height) => {
 				root.body.surface.size(width, height);
@@ -294,30 +288,25 @@ impl WidgetTree {
 		}
 	}
 
-	/// Size the children and return their size
+	/// Size the children and return their size.
 	fn get_constraints(&self,id:WidgetID,max_size:&Size) -> Size {
-		let node = self.lookup(id).unwrap();
 		let mut max_height:f32 = 0.0;
 		let mut max_width:f32 = 0.0;
-		for (_,edge) in node.edges.iter().enumerate(){
-			match edge {
-				Edge::Child(id) => {
-					let node = self.lookup(*id).unwrap();
-					match node.body.constraint{
-						IntrinsicSize::Fill{width,height} => {
+		
+		let node = self.lookup(id).unwrap();
 
-						},
-						IntrinsicSize::Fit{padding} => {
-
-						},
-						IntrinsicSize::Fixed(width,height) => {
-							max_height = max_height.max(height);
-							max_width = max_width.max(width);
-						}
-						_ => {}
-					}
+		for (_,edge) in node.children.iter().enumerate(){
+			let node = self.lookup(*edge).unwrap();
+			match node.body.constraint{
+				IntrinsicSize::Fill{width,height} => {
 				},
-				_ => {}
+				IntrinsicSize::Fit{padding} => {
+					let child_size = self.get_constraints(*edge, max_size);
+				},
+				IntrinsicSize::Fixed(width,height) => {
+					max_height = max_height.max(height);
+					max_width = max_width.max(width);
+				}
 			}
 		}
 
@@ -335,14 +324,10 @@ impl WidgetTree {
 		let widget = self.lookup(id).unwrap();
 		widget.body.render(display, frame, window, context);
 
-		for (_,edge) in widget.edges.iter().enumerate(){
-			match edge {
-				Edge::Child(id) => {
-					let child = self.lookup(*id).unwrap();
-					child.body.render(display, frame, window, context);
-				}
-				_ => {}
-			}
+		for (_,edge) in widget.children.iter().enumerate(){
+				let child = self.lookup(*edge).unwrap();
+				dbg!(&child);
+				child.body.render(display, frame, window, context);
 		}
 	}
 
