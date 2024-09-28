@@ -53,7 +53,7 @@ impl Widget for Container {
 		}
 	}
 
-	fn get_children(self) -> Vec<Box<dyn Widget>> {
+	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {
 		return vec![self.child];
 	}
 }

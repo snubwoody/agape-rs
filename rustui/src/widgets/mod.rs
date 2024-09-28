@@ -63,7 +63,7 @@ pub trait Widget:Debug{
 	/// the last step before the widget is turned to a 
 	/// [`WidgetBody`].  
 	/// *Deprecated*.
-	fn get_children(self) -> Vec<Box<dyn Widget>>;
+	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>>;
 }
 
 
@@ -142,7 +142,7 @@ impl WidgetTree {
 
 	pub fn build(&mut self,widget:impl Widget + 'static) {
 		let root = widget.build();
-		let children = self.add_edges(widget,0);
+		let children = self.add_edges(Box::new(widget),0);
 		self.nodes.push(Node{
 			id:0,
 			body:root,
@@ -154,16 +154,17 @@ impl WidgetTree {
 	pub fn add_edges(&mut self,parent:Box<dyn Widget>,id:WidgetID) -> Vec<Edge> {
 		let children = parent.get_children();
 		let mut edges = vec![];
-		for (index,child) in children.into_iter().enumerate(){
-			edges.push(Edge::Child(index + 1));
-			self.nodes.push(
-				Node { 
-					id: index + 1, 
-					body: child.build(), 
-					edges: vec![Edge::Parent(id)] 
-				}
-			);
-			self.add_edges(child, index);
+		for (_,child) in children.into_iter().enumerate(){
+			let child_id = rand::random::<usize>();
+			edges.push(Edge::Child(child_id));
+			let mut child = Node { 
+				id: child_id, 
+				body: child.build(), 
+				edges: self.add_edges(child, child_id) 
+			};
+			child.edges.push(Edge::Parent(id));
+			self.nodes.push(child);
+			
 		}
 		edges
 	}

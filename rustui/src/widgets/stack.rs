@@ -36,7 +36,7 @@ impl Widget for VStack {
         }
     }
 
-    fn get_children(self) -> Vec<Box<dyn Widget>> {
+    fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {
         self.children
     }
 }
@@ -77,7 +77,7 @@ impl Widget for HStack {
         }
     }
 
-    fn get_children(self) -> Vec<Box<dyn Widget>> {
+    fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {
         self.children
     }
 }

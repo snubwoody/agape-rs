@@ -1603,6 +1603,7 @@ dependencies = [
  "glium",
  "image",
  "quote",
+ "rand",
  "syn 2.0.72",
  "text-to-png",
  "winit",
