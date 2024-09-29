@@ -91,6 +91,16 @@ impl AddAssign for Size {
     }
 }
 
+impl Add for Size {
+	type Output = Self;
+
+	fn add(self, rhs: Self) -> Self::Output {
+		Self{
+			width:self.width + rhs.width,
+			height:self.height + rhs.height
+		}
+	}
+}
 impl Sub for Size {
 	type Output = Self;
 

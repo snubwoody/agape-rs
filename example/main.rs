@@ -2,11 +2,7 @@ use properties::{graph, page};
 use rustui::{
     app::{view::View, App},
     colour::{BLACK, GREEN, INDIGO, PINK, TEAL},
-    widgets::{container::Container, 
-		rect::Rect, 
-		stack::HStack, 
-		Node, 
-		WidgetTree
+    widgets::{container::Container, rect::Rect, stack::HStack, Node, Widget, WidgetTree
 	},
 };
 
@@ -26,9 +22,8 @@ fn new_app() {
         children: vec![Box::new(rect1), Box::new(rect2), Box::new(dummy)],
     };
 
-    let mut graph = WidgetTree::new();
-    graph.build(hstack);
-    //dbg!(&graph);
+    let mut graph = WidgetTree::new(hstack.build());
+    dbg!(&graph);
 
     let page = View::new(graph);
     let app = App::new().add_view(page);

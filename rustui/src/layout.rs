@@ -26,7 +26,7 @@ pub enum WidgetSize{
 // width and height and give each individual item
 // an instrinsic size
 #[derive(Debug,Clone,Copy)]
-pub struct  IntrinsicSize {
+pub struct IntrinsicSize {
 	pub width:WidgetSize,
 	pub height:WidgetSize
 }

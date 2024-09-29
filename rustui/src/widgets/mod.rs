@@ -60,14 +60,85 @@ pub struct WidgetBody{
 impl WidgetBody {
 	/// Draw the [`WidgetBody`] to the screen.
 	pub fn render(
-		&self,
+		&mut self,
 		display:&Display<WindowSurface>,
 		frame:&mut Frame,
 		window:&Window,
 		context:&RenderContext,
 	) {
-		// Draw the widget to the screen
+		let child_sizes = self.size_pass(
+			&Size::new(
+				window.inner_size().width as f32, 
+				window.inner_size().height as f32
+			)
+		);
+
+
+		match self.constraint.width {
+			WidgetSize::Fill => {
+				let max_width = child_sizes.iter().max_by(|child,next|{
+					child.height.partial_cmp(&next.width).unwrap()
+
+				}).unwrap();
+				
+				self.surface.size(
+					window.inner_size().width as f32,
+					max_width.height
+				);
+			},
+			_ => {}
+		}
+
+		match self.constraint.height {
+			WidgetSize::Fill => {
+				self.surface.height(window.inner_size().height as f32);
+			},
+			_ => {}
+		}
+
+		
+
+		// Draw the parent then the children to the screen
 		self.surface.draw(display, frame, window, context);
+		self.children.iter_mut().for_each(|child|{
+			child.render(display, frame, window, context);
+		});
+	}
+
+	fn size_pass(&mut self,constraint:&Size) -> Vec<Size>{
+		let mut sizes = vec![];
+
+		for (_,child) in self.children.iter_mut().enumerate(){
+			// Calculate the width
+			match child.constraint.width {
+				WidgetSize::Fit(padding) => {
+
+				},
+				WidgetSize::Fill => {
+
+				},
+				WidgetSize::Fixed(size)=> {
+					self.surface.width(size);
+				}
+			}
+
+			// Calculate the height
+			match child.constraint.height {
+				WidgetSize::Fit(padding) => {
+
+				},
+				WidgetSize::Fill => {
+
+				},
+				WidgetSize::Fixed(size)=> {
+					self.surface.height(size);
+				}
+			}
+			sizes.push(child.surface.get_size());
+			child.size_pass(constraint);
+		}
+
+		sizes
 	}
 
 }
@@ -95,86 +166,12 @@ impl Default for WidgetBody {
 /// where rendering and layouts processed from.
 #[derive(Debug)]
 pub struct WidgetTree{
-	nodes:HashMap<WidgetID,Node>,
-	root_id:WidgetID
+	root:WidgetBody
 }
 
 impl WidgetTree {
-	pub fn new() -> Self{
-		Self{
-			nodes:HashMap::new(),
-			root_id:0
-		}
-	}
-
-	pub fn build(&mut self,widget:impl Widget + 'static) {
-		let root = widget.build();
-		let children = self.add_edges(Box::new(widget),0);
-		self.nodes.insert(0,Node{
-			id:0,
-			body:root,
-			parent:None,
-			children:children,
-		});
-		
-	}
-	
-	pub fn add_edges(&mut self,parent:Box<dyn Widget>,id:WidgetID) -> Vec<WidgetID> {
-		let children = parent.get_children();
-		let mut edges = vec![];
-		
-		for (_,child) in children.into_iter().enumerate(){
-			let child_id = rand::random::<usize>();
-			edges.push(child_id);
-
-			let child = Node { 
-				id: child_id, 
-				body: child.build(),
-				parent:Some(id),
-				children:self.add_edges(child, child_id)
-			};
-
-			self.nodes.insert(child_id, child);
-			
-		}
-		edges
-	}
-
-	fn size_pass(&mut self,window:&Window){
-		let root = self.nodes.get_mut(&self.root_id).unwrap();
-		match root.body.constraint.width {
-			WidgetSize::Fill => {
-				root.body.surface.width(
-					window.inner_size().width as f32, 
-				);
-			},
-			WidgetSize::Fit(padding) => {
-				
-			}
-			_ => {}
-		}
-	}
-
-	fn calculate_size(&mut self,id:WidgetID,constraint:Size) -> Size{
-		Size::new(0.0, 0.0)
-	}
-
-	fn render_widget(
-		&mut self,
-		display:&Display<WindowSurface>,
-		frame:&mut Frame,
-		window:&Window,
-		context:&RenderContext,
-		id:WidgetID
-	) {
-		let widget = self.nodes.get(&id).unwrap();
-		widget.body.render(display, frame, window, context);
-
-		// Render the widgets recursively
-		for (_,edge) in widget.children.iter().enumerate(){
-			let child = self.nodes.get(edge).unwrap();
-			child.body.render(display, frame, window, context);
-		}
+	pub fn new(root:WidgetBody) -> Self{
+		Self{root}
 	}
 
 	pub fn render(
@@ -184,7 +181,6 @@ impl WidgetTree {
 		window:&Window,
 		context:&RenderContext,
 	) {
-		self.size_pass(window);
-		self.render_widget(display, frame, window, context, self.root_id);
+		self.root.render(display, frame, window, context);
 	}
 }
