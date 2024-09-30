@@ -76,6 +76,23 @@ pub enum WidgetSize{
 	Fit(f32)
 }
 
+impl WidgetSize {
+	pub fn size_widgets(&self,constraint:f32,widgets:&mut Vec<Box<WidgetBody>> ) -> f32{
+		match self {
+			Self::Fill => constraint,
+			Self::Fit(padding) => self.size_fit(constraint,widgets),
+			Self::Fixed(size) => *size
+		}
+	}
+
+	fn size_fit(&self,constraint:f32,widgets:&mut Vec<Box<WidgetBody>>) -> f32 {
+		for (_,widget) in widgets.iter_mut().enumerate(){
+			let width = widget.constraint.width.size_widgets(constraint,&mut widget.children);
+		}
+		400.0
+	}
+}
+
 #[derive(Debug,Clone,Copy)]
 pub struct IntrinsicSize {
 	pub width:WidgetSize,

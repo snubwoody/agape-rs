@@ -1,4 +1,3 @@
-use properties::{graph, page};
 use rustui::{
     app::{view::View, App},
     colour::{BLACK, GREEN, INDIGO, PINK, TEAL},
