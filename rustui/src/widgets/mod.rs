@@ -66,6 +66,7 @@ impl WidgetBody {
 		window:&Window,
 		context:&RenderContext,
 	) {
+		// Get the sizes of the children
 		let child_sizes = self.size_pass(
 			&Size::new(
 				window.inner_size().width as f32, 
@@ -73,17 +74,17 @@ impl WidgetBody {
 			)
 		);
 
-
+		// Set the size of the root widget
 		match self.constraint.width {
 			WidgetSize::Fill => {
-				let max_width = child_sizes.iter().max_by(|child,next|{
+				// Get the child widget will the largest height
+				let max_size = child_sizes.iter().max_by(|child,next|{
 					child.height.partial_cmp(&next.width).unwrap()
-
 				}).unwrap();
-				
+
 				self.surface.size(
 					window.inner_size().width as f32,
-					max_width.height
+					max_size.height
 				);
 			},
 			_ => {}
@@ -91,13 +92,22 @@ impl WidgetBody {
 
 		match self.constraint.height {
 			WidgetSize::Fill => {
-				self.surface.height(window.inner_size().height as f32);
+				// Get the child widget will the largest width
+				let max_size = child_sizes.iter().max_by(|child,next|{
+					child.height.partial_cmp(&next.width).unwrap()
+				}).unwrap();
+
+				self.surface.size(
+					max_size.width,
+					window.inner_size().height as f32
+				);
 			},
 			_ => {}
 		}
 
+		// Arrange the children
+		self.layout.arrange_widgets(&mut self.children);
 		
-
 		// Draw the parent then the children to the screen
 		self.surface.draw(display, frame, window, context);
 		self.children.iter_mut().for_each(|child|{
@@ -109,13 +119,21 @@ impl WidgetBody {
 		let mut sizes = vec![];
 
 		for (_,child) in self.children.iter_mut().enumerate(){
+			// Calculate the sizes of the children  
+			let child_sizes = child.size_pass(constraint);
+			
 			// Calculate the width
 			match child.constraint.width {
 				WidgetSize::Fit(padding) => {
-
+					// Get the child widget will the largest width
+					let max_size = child_sizes.iter().max_by(|child,next|{
+						child.width.partial_cmp(&next.width).unwrap()
+					}).unwrap();
+					
+					self.surface.width(max_size.width);
 				},
 				WidgetSize::Fill => {
-
+					self.surface.width(constraint.width);
 				},
 				WidgetSize::Fixed(size)=> {
 					self.surface.width(size);
@@ -125,22 +143,25 @@ impl WidgetBody {
 			// Calculate the height
 			match child.constraint.height {
 				WidgetSize::Fit(padding) => {
-
+					// Get the child widget will the largest width
+					let max_size = child_sizes.iter().max_by(|child,next|{
+						child.height.partial_cmp(&next.height).unwrap()
+					}).unwrap();
+					
+					self.surface.height(max_size.height);
 				},
 				WidgetSize::Fill => {
-
+					self.surface.height(constraint.height);
 				},
 				WidgetSize::Fixed(size)=> {
 					self.surface.height(size);
 				}
 			}
 			sizes.push(child.surface.get_size());
-			child.size_pass(constraint);
 		}
 
 		sizes
 	}
-
 }
 
 impl Default for WidgetBody {

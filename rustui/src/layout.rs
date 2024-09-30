@@ -1,4 +1,4 @@
-use crate::widgets::WidgetTree;
+use crate::widgets::{WidgetBody, WidgetTree};
 
 /// The types of layout a [`Widget`] can have.
 #[derive(Debug,Clone, Copy)]
@@ -16,15 +16,66 @@ pub enum Layout{
 	},
 }
 
+impl Layout {
+	pub fn arrange_widgets(&self,widgets:&mut Vec<Box<WidgetBody>>){
+		match self {
+			Self::Horizontal { spacing, padding } => self.arrange_horizontal(widgets,*padding,*spacing),
+			Self::Vertical { spacing, padding } => self.arrange_vertical(widgets,*padding,*spacing),
+			Self::Block { padding } => self.arrange_block(widgets,*padding),
+		}
+	}
+
+	fn arrange_horizontal(&self,widgets:&mut Vec<Box<WidgetBody>>,padding:u32,spacing:u32){
+		// Set the initial position to the padding
+		let mut current_pos = padding;
+
+		for (_,widget) in widgets.iter_mut().enumerate(){
+			widget.surface.position(current_pos as f32, padding as f32);
+			
+			// Add the spacing and the widget's width to the current
+			// position
+			current_pos += spacing;
+			current_pos += widget.surface.get_size().width as u32;
+
+			// Arrange the widget's children recursively
+			widget.layout.arrange_widgets(&mut widget.children);
+		}
+	}
+
+	fn arrange_vertical(&self,widgets:&mut Vec<Box<WidgetBody>>,padding:u32,spacing:u32){
+		// Set the initial position to the padding
+		let mut current_pos = padding;
+
+		for (_,widget) in widgets.iter_mut().enumerate(){
+			widget.surface.position(padding as f32, current_pos as f32);
+			
+			// Add the spacing and the widget's width to the current
+			// position
+			current_pos += spacing;
+			current_pos += widget.surface.get_size().height as u32;
+
+			// Arrange the widget's children recursively
+			widget.layout.arrange_widgets(&mut widget.children);
+		}
+	}
+
+	fn arrange_block(&self,widgets:&mut Vec<Box<WidgetBody>>,padding:u32){
+		// Block elements should only have one child
+		// so no need to iterate
+		if widgets.is_empty() {
+			return;
+		}
+		widgets[0].surface.position(padding as f32, padding as f32);
+	}
+}
+
 #[derive(Debug,Clone, Copy)]
 pub enum WidgetSize{
 	Fixed(f32),
 	Fill,
 	Fit(f32)
 }
-// TODO maybe have a constraint struct then add 
-// width and height and give each individual item
-// an instrinsic size
+
 #[derive(Debug,Clone,Copy)]
 pub struct IntrinsicSize {
 	pub width:WidgetSize,

@@ -22,8 +22,8 @@ fn new_app() {
         children: vec![Box::new(rect1), Box::new(rect2), Box::new(dummy)],
     };
 
-    let mut graph = WidgetTree::new(hstack.build());
-    dbg!(&graph);
+    let graph = WidgetTree::new(hstack.build());
+    //dbg!(&graph);
 
     let page = View::new(graph);
     let app = App::new().add_view(page);

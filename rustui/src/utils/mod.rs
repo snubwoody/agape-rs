@@ -101,6 +101,7 @@ impl Add for Size {
 		}
 	}
 }
+
 impl Sub for Size {
 	type Output = Self;
 
