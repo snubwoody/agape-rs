@@ -1,7 +1,7 @@
 use rustui::{
     app::{view::View, App},
     colour::{BLACK, GREEN, INDIGO, PINK, TEAL},
-    widgets::{container::Container, rect::Rect, stack::HStack, Node, Widget, WidgetTree
+    widgets::{container::Container, rect::Rect, stack::HStack, Widget, WidgetTree
 	},
 };
 

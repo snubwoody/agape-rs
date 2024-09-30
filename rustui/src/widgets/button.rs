@@ -1,6 +1,6 @@
 use crate::{
 	colour::Colour, 
-	layout::{IntrinsicSize, Layout, WidgetSize}, 
+	layout::{Constraint, IntrinsicSize, Layout, WidgetSize}, 
 	surface::rect::RectSurface, 
 	widgets::WidgetBody
 };
@@ -44,16 +44,12 @@ impl Widget for Button {
 			RectSurface::new(0.0, 0.0, 200, 70, self.colour.clone())
 		);
 
-		let layout = Layout::Block{ padding: 0};
+		let layout = Layout::Block{ padding: 0 };
 		// FIXME
 
 		WidgetBody { 
 			surface,
 			layout,
-			constraint:IntrinsicSize { 
-				width: WidgetSize::Fit(200.0), 
-				height: WidgetSize::Fit(50.0)
-			},
 			..Default::default()
 		}
 	}

@@ -16,14 +16,12 @@ use glium::{
 use winit::window::Window;
 use crate::{
 	app::view::RenderContext, 
-	layout::{IntrinsicSize, Layout, WidgetSize}, 
+	layout::{Constraint, Layout}, 
 	surface::{
 		rect::RectSurface, Surface
 	}, 
-	utils::{Position, Size}
 };
 
-type WidgetID = usize;
 
 /// The trait that all widgets must implement.
 pub trait Widget:Debug{
@@ -37,15 +35,6 @@ pub trait Widget:Debug{
 	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>>;
 }
 
-/// A node in the widget tree
-#[derive(Debug)]
-pub struct Node{
-	pub id:usize,
-	pub body:WidgetBody,
-	pub parent:Option<WidgetID>,
-	pub children: Vec<WidgetID>
-}
-
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
 #[derive(Debug)]
@@ -53,7 +42,7 @@ pub struct WidgetBody{
 	pub surface:Box<dyn Surface>,
 	pub layout:Layout,
 	pub children:Vec<Box<WidgetBody>>,
-	pub constraint:IntrinsicSize
+	pub constraint:Constraint
 	//pub events:Vec<EventFunction>
 }
 
@@ -66,13 +55,6 @@ impl WidgetBody {
 		window:&Window,
 		context:&RenderContext,
 	) {
-		// Calculate the sizes of the widget's children
-		let width = self.constraint.width.size_widgets(window.inner_size().width as f32,&mut self.children);
-		let height = self.constraint.height.size_widgets(window.inner_size().height as f32,&mut self.children);
-
-		self.surface.width(width);
-		self.surface.height(height);
-
 		// Arrange the children
 		self.layout.arrange_widgets(&mut self.children);
 		
@@ -93,10 +75,7 @@ impl Default for WidgetBody {
 			surface, 
 			layout, 
 			children:vec![], 
-			constraint:IntrinsicSize { 
-				width: WidgetSize::Fit(0.0), 
-				height: WidgetSize::Fit(0.0) 
-			}
+			constraint:Constraint::default()
 			//events:vec![]
 		}
 	}

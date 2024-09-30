@@ -80,16 +80,9 @@ impl WidgetSize {
 	pub fn size_widgets(&self,constraint:f32,widgets:&mut Vec<Box<WidgetBody>> ) -> f32{
 		match self {
 			Self::Fill => constraint,
-			Self::Fit(padding) => self.size_fit(constraint,widgets),
+			Self::Fit(padding) => 0.0,
 			Self::Fixed(size) => *size
 		}
-	}
-
-	fn size_fit(&self,constraint:f32,widgets:&mut Vec<Box<WidgetBody>>) -> f32 {
-		for (_,widget) in widgets.iter_mut().enumerate(){
-			let width = widget.constraint.width.size_widgets(constraint,&mut widget.children);
-		}
-		400.0
 	}
 }
 
@@ -97,5 +90,21 @@ impl WidgetSize {
 pub struct IntrinsicSize {
 	pub width:WidgetSize,
 	pub height:WidgetSize
+}
+
+/// The [`Widget`] constraints that are used when calculating
+/// it's size.
+#[derive(Debug,Clone,Copy,PartialEq, PartialOrd,Default)]
+pub struct Constraint{
+	pub max_width:f32,
+	pub min_width:f32,
+	pub max_height:f32,
+	pub min_height:f32,
+}
+
+impl Constraint {
+	pub fn new(max_width:f32,min_width:f32,max_height:f32,min_height:f32) -> Self{
+		Self { max_width, min_width, max_height, min_height }
+	}
 }
 

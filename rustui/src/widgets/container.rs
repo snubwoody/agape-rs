@@ -47,10 +47,6 @@ impl Widget for Container {
 		WidgetBody{
 			surface,
 			layout,
-			constraint:IntrinsicSize{
-				width: WidgetSize::Fit(self.padding as f32),
-				height: WidgetSize::Fit(self.padding as f32),
-			},
 			children:vec![Box::new(child)],
 			..Default::default()
 		}
