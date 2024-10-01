@@ -10,20 +10,9 @@ fn main() {
 }
 
 fn new_app() {
-	let rect_1 = Rect::new(200.0, 50.0, BLACK);
-	let rect_2 = Rect::new(300.0, 150.0, BLACK);
+	let text = Text::new("Hello world");
 
-	let vstack = VStack{
-		padding:12,
-		spacing:24,
-		colour:GREEN,
-		children: vec![
-			Box::new(rect_1),
-			Box::new(rect_2),
-		]
-	};
-
-    let page = View::new(vstack);
+    let page = View::new(text);
     let app = App::new().add_view(page);
     app.run();
 }
