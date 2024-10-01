@@ -2,7 +2,7 @@ use crate::utils::{Position, Size};
 use crate::widgets::WidgetBody;
 
 /// The types of layout a [`Widget`] can have.
-#[derive(Debug,Clone, Copy)]
+#[derive(Debug,Clone,Copy)]
 pub enum Layout{
 	Horizontal{
 		spacing:u32,
@@ -54,14 +54,6 @@ impl Layout {
 			// Set the current widget position
 			widget.surface.position(current_pos as f32, parent_pos.y + padding as f32);
 			
-			// Add the spacing and the widget's width to the current
-			// position and the min width
-			current_pos += spacing as f32;
-			current_pos += widget.surface.get_size().width;
-
-			min_width += spacing as f32;
-			min_width += widget.surface.get_size().width;
-
 			// Set the minimum height to the height of the largest widget
 			min_height = min_height.max(widget.surface.get_size().height);
 
@@ -75,6 +67,8 @@ impl Layout {
 				)
 			);
 
+			dbg!(&widget);
+
 			// Set the widget's size
 			match widget.intrinsic_size.width {
 				WidgetSize::Fill => widget.surface.width(max_size.width),
@@ -87,6 +81,14 @@ impl Layout {
 				WidgetSize::Fit => widget.surface.height(size.height),
 				WidgetSize::Fixed(size) => widget.surface.height(size),
 			}
+
+			// Add the spacing and the widget's width to the current
+			// position and the min width
+			current_pos += spacing as f32;
+			current_pos += widget.surface.get_size().width;
+
+			min_width += spacing as f32;
+			min_width += widget.surface.get_size().width;
 		}
 
 		Size::new(min_width, min_height + (padding * 2) as f32)
@@ -123,7 +125,7 @@ impl Layout {
 			);
 		}
 		
-		Default::default()
+		Size::new(0.0, 500.0)
 	}
 
 	fn arrange_block(
@@ -133,14 +135,19 @@ impl Layout {
 		max_size:&Size,
 		parent_pos:&Position
 	) -> Size{
-		// Block elements should only have one child
-		// so no need to iterate
+		// Return if element has no children
 		if widgets.is_empty() {
-			return Default::default();
+			return Size::new(300.0, 300.0)
 		}
 
+		let mut min_width = padding as f32 * 2.0;
+		let mut min_height = padding as f32 * 2.0;
+
 		for (_,widget) in widgets.iter_mut().enumerate(){
-			widget.surface.position(padding as f32, padding as f32);
+			widget.surface.position(
+				parent_pos.x + padding as f32, 
+				parent_pos.y + padding as f32
+			);
 
 			let size = widget.layout.arrange_widgets(
 				&mut widget.children, 
@@ -150,6 +157,11 @@ impl Layout {
 					widget.surface.get_position().1
 				)
 			);
+
+			//dbg!(&size,&widget);
+
+			min_width += size.width;
+			min_height += size.height;
 			
 			// Set the widget's size
 			match widget.intrinsic_size.width {
@@ -166,8 +178,7 @@ impl Layout {
 		}
 
 		
-
-		Default::default()
+		Size::new(min_width, min_height)
 	}
 }
 
