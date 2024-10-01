@@ -59,7 +59,7 @@ impl From<PhysicalPosition<f64>> for Position {
 }
 
 
-#[derive(Debug,Clone,Copy,PartialEq,PartialOrd)]
+#[derive(Debug,Clone,Copy,PartialEq,PartialOrd,Default)]
 pub struct Size{
 	pub width:f32,
 	pub height:f32

@@ -10,10 +10,13 @@ pub struct VStack {
     pub spacing: u32,
     pub padding: u32,
     pub children: Vec<Box<dyn Widget>>,
+	pub colour: Colour
 }
 
 impl Widget for VStack {
     fn build(&self) -> WidgetBody {
+		let mut surface = RectSurface::default();
+        surface.colour(self.colour.clone());
         let layout = Layout::Vertical {
             spacing: self.spacing,
             padding: self.padding,
@@ -28,6 +31,8 @@ impl Widget for VStack {
         WidgetBody {
             layout,
             children,
+			surface: Box::new(surface),
+			intrinsic_size: IntrinsicSize { width: WidgetSize::Fit, height: WidgetSize::Fill },
             ..Default::default()
         }
     }
@@ -65,6 +70,7 @@ impl Widget for HStack {
             layout,
             children,
             surface: Box::new(surface),
+			intrinsic_size:IntrinsicSize { width: WidgetSize::Fill, height: WidgetSize::Fit },
             ..Default::default()
         }
     }

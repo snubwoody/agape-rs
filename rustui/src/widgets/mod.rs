@@ -16,10 +16,10 @@ use glium::{
 use winit::window::Window;
 use crate::{
 	app::view::RenderContext, 
-	layout::{Constraint, Layout}, 
+	layout::{Constraint, IntrinsicSize, Layout, WidgetSize}, 
 	surface::{
 		rect::RectSurface, Surface
-	}, 
+	}, utils::Size, 
 };
 
 
@@ -42,7 +42,8 @@ pub struct WidgetBody{
 	pub surface:Box<dyn Surface>,
 	pub layout:Layout,
 	pub children:Vec<Box<WidgetBody>>,
-	pub constraint:Constraint
+	pub constraint:Constraint,
+	pub intrinsic_size:IntrinsicSize
 	//pub events:Vec<EventFunction>
 }
 
@@ -56,7 +57,32 @@ impl WidgetBody {
 		context:&RenderContext,
 	) {
 		// Arrange the children
-		self.layout.arrange_widgets(&mut self.children);
+		let size = self.layout.arrange_widgets(&mut self.children);
+
+		// Set the size of the root widget
+		match self.intrinsic_size.width {
+			WidgetSize::Fill => {
+				self.surface.width(window.inner_size().width as f32);
+			},
+			WidgetSize::Fit => {
+				self.surface.width(size.width);
+			},
+			WidgetSize::Fixed(size) => {
+				self.surface.width(size);
+			}
+		}
+
+		match self.intrinsic_size.height {
+			WidgetSize::Fill => {
+				self.surface.height(window.inner_size().height as f32);
+			},
+			WidgetSize::Fit => {
+				self.surface.height(size.height);
+			},
+			WidgetSize::Fixed(size) => {
+				self.surface.height(size);
+			}
+		}
 		
 		// Draw the parent then the children to the screen
 		self.surface.draw(display, frame, window, context);
@@ -75,7 +101,8 @@ impl Default for WidgetBody {
 			surface, 
 			layout, 
 			children:vec![], 
-			constraint:Constraint::default()
+			constraint:Constraint::default(),
+			intrinsic_size: Default::default()
 			//events:vec![]
 		}
 	}

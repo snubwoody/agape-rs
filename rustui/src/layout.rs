@@ -1,3 +1,4 @@
+use crate::utils::Size;
 use crate::widgets::{WidgetBody, WidgetTree};
 
 /// The types of layout a [`Widget`] can have.
@@ -17,7 +18,7 @@ pub enum Layout{
 }
 
 impl Layout {
-	pub fn arrange_widgets(&self,widgets:&mut Vec<Box<WidgetBody>>){
+	pub fn arrange_widgets(&self,widgets:&mut Vec<Box<WidgetBody>>) -> Size{
 		match self {
 			Self::Horizontal { spacing, padding } => self.arrange_horizontal(widgets,*padding,*spacing),
 			Self::Vertical { spacing, padding } => self.arrange_vertical(widgets,*padding,*spacing),
@@ -25,24 +26,36 @@ impl Layout {
 		}
 	}
 
-	fn arrange_horizontal(&self,widgets:&mut Vec<Box<WidgetBody>>,padding:u32,spacing:u32){
+	fn arrange_horizontal(&self,widgets:&mut Vec<Box<WidgetBody>>,padding:u32,spacing:u32) -> Size{
 		// Set the initial position to the padding
 		let mut current_pos = padding;
+		
+		let mut min_width:f32 = (padding * 2) as f32;
+		let mut min_height:f32 = 0.0;
 
 		for (_,widget) in widgets.iter_mut().enumerate(){
+			// Set the current widget position
 			widget.surface.position(current_pos as f32, padding as f32);
 			
 			// Add the spacing and the widget's width to the current
-			// position
+			// position and the min width
 			current_pos += spacing;
 			current_pos += widget.surface.get_size().width as u32;
+
+			min_width += spacing as f32;
+			min_width += widget.surface.get_size().width;
+
+			// Set the minimum height to the height of the largest widget
+			min_height = min_height.max(widget.surface.get_size().height);
 
 			// Arrange the widget's children recursively
 			widget.layout.arrange_widgets(&mut widget.children);
 		}
+
+		Size::new(min_width, min_height + (padding * 2) as f32)
 	}
 
-	fn arrange_vertical(&self,widgets:&mut Vec<Box<WidgetBody>>,padding:u32,spacing:u32){
+	fn arrange_vertical(&self,widgets:&mut Vec<Box<WidgetBody>>,padding:u32,spacing:u32) -> Size{
 		// Set the initial position to the padding
 		let mut current_pos = padding;
 
@@ -57,36 +70,32 @@ impl Layout {
 			// Arrange the widget's children recursively
 			widget.layout.arrange_widgets(&mut widget.children);
 		}
+		
+		Default::default()
 	}
 
-	fn arrange_block(&self,widgets:&mut Vec<Box<WidgetBody>>,padding:u32){
+	fn arrange_block(&self,widgets:&mut Vec<Box<WidgetBody>>,padding:u32) -> Size{
 		// Block elements should only have one child
 		// so no need to iterate
 		if widgets.is_empty() {
-			return;
+			return Default::default();
 		}
 		widgets[0].surface.position(padding as f32, padding as f32);
+
+		Default::default()
 	}
 }
 
-#[derive(Debug,Clone, Copy)]
+#[derive(Debug,Clone, Copy,Default)]
 pub enum WidgetSize{
 	Fixed(f32),
 	Fill,
-	Fit(f32)
+	#[default]
+	Fit,
 }
 
-impl WidgetSize {
-	pub fn size_widgets(&self,constraint:f32,widgets:&mut Vec<Box<WidgetBody>> ) -> f32{
-		match self {
-			Self::Fill => constraint,
-			Self::Fit(padding) => 0.0,
-			Self::Fixed(size) => *size
-		}
-	}
-}
 
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug,Clone,Copy,Default)]
 pub struct IntrinsicSize {
 	pub width:WidgetSize,
 	pub height:WidgetSize
