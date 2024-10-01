@@ -53,9 +53,6 @@ impl Layout {
 		for (_,widget) in widgets.iter_mut().enumerate(){
 			// Set the current widget position
 			widget.surface.position(current_pos as f32, parent_pos.y + padding as f32);
-			
-			// Set the minimum height to the height of the largest widget
-			min_height = min_height.max(widget.surface.get_size().height);
 
 			// Arrange the widget's children recursively and return the min size
 			let size = widget.layout.arrange_widgets(
@@ -66,8 +63,6 @@ impl Layout {
 					widget.surface.get_position().1
 				)
 			);
-
-			dbg!(&widget);
 
 			// Set the widget's size
 			match widget.intrinsic_size.width {
@@ -89,6 +84,9 @@ impl Layout {
 
 			min_width += spacing as f32;
 			min_width += widget.surface.get_size().width;
+
+			// Set the minimum height to the height of the largest widget
+			min_height = min_height.max(widget.surface.get_size().height);
 		}
 
 		Size::new(min_width, min_height + (padding * 2) as f32)
@@ -137,7 +135,7 @@ impl Layout {
 	) -> Size{
 		// Return if element has no children
 		if widgets.is_empty() {
-			return Size::new(300.0, 300.0)
+			Default::default()
 		}
 
 		let mut min_width = padding as f32 * 2.0;
@@ -149,14 +147,20 @@ impl Layout {
 				parent_pos.y + padding as f32
 			);
 
-			let size = widget.layout.arrange_widgets(
-				&mut widget.children, 
-				*max_size,
-				Position::new(
-					widget.surface.get_position().0,
-					widget.surface.get_position().1
+			// If the widget has no children return
+			// it's size 
+			let size = if widget.children.is_empty() {
+				widget.surface.get_size()
+			} else{
+				widget.layout.arrange_widgets(
+					&mut widget.children, 
+					*max_size,
+					Position::new(
+						widget.surface.get_position().0,
+						widget.surface.get_position().1
+					)
 				)
-			);
+			};
 
 			//dbg!(&size,&widget);
 
