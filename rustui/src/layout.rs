@@ -100,18 +100,19 @@ impl Layout {
 		max_size:&Size,
 		parent_pos:&Position
 	) -> Size{
-		// Set the initial position to the padding
-		let mut current_pos = padding;
+		//TODO handle vertical positions
+		// Set the initial position to the padding plus 
+		// the parent position
+		let mut current_pos = padding as f32 + parent_pos.x;
+		
+		let mut min_width:f32 = (padding * 2) as f32;
+		let mut min_height:f32 = 0.0;
 
 		for (_,widget) in widgets.iter_mut().enumerate(){
-			widget.surface.position(padding as f32, current_pos as f32);
-			
-			// Add the spacing and the widget's width to the current
-			// position
-			current_pos += spacing;
-			current_pos += widget.surface.get_size().height as u32;
+			// Set the current widget position
+			widget.surface.position(current_pos as f32, parent_pos.y + padding as f32);
 
-			// Arrange the widget's children recursively
+			// Arrange the widget's children recursively and return the min size
 			let size = widget.layout.arrange_widgets(
 				&mut widget.children,
 				*max_size,
@@ -119,11 +120,34 @@ impl Layout {
 					widget.surface.get_position().0,
 					widget.surface.get_position().1
 				)
-
 			);
+
+			// Set the widget's size
+			match widget.intrinsic_size.width {
+				WidgetSize::Fill => widget.surface.width(max_size.width),
+				WidgetSize::Fit => widget.surface.width(size.width),
+				WidgetSize::Fixed(size) => widget.surface.width(size),
+			}
+
+			match widget.intrinsic_size.height {
+				WidgetSize::Fill => widget.surface.height(max_size.height),
+				WidgetSize::Fit => widget.surface.height(size.height),
+				WidgetSize::Fixed(size) => widget.surface.height(size),
+			}
+
+			// Add the spacing and the widget's width to the current
+			// position and the min width
+			current_pos += spacing as f32;
+			current_pos += widget.surface.get_size().width;
+
+			min_width += spacing as f32;
+			min_width += widget.surface.get_size().width;
+
+			// Set the minimum height to the height of the largest widget
+			min_height = min_height.max(widget.surface.get_size().height);
 		}
-		
-		Size::new(0.0, 500.0)
+
+		Size::new(min_width, min_height + (padding * 2) as f32)
 	}
 
 	fn arrange_block(

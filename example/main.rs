@@ -10,21 +10,10 @@ fn main() {
 }
 
 fn new_app() {
-    let rect1 = Rect::new(200.0, 150.0, INDIGO);
-    let rect2 = Rect::new(150.0, 200.0, PINK);
 
     let dummy = Container::new(Rect::new(150.0, 200.0, GREEN)).colour(AMBER).padding(12);
-    let hstack = HStack {
-        spacing: 54,
-        padding: 10,
-        colour: BLACK,
-        children: vec![Box::new(rect1), Box::new(rect2), Box::new(dummy)],
-    };
 
-    let graph = WidgetTree::new(hstack.build());
-    //dbg!(&graph);
-
-    let page = View::new(graph);
+    let page = View::new(dummy);
     let app = App::new().add_view(page);
     app.run();
 }

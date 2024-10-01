@@ -13,7 +13,8 @@ pub struct View{
 }
 
 impl View {
-	pub fn new(widget_tree:WidgetTree) -> Self {		
+	pub fn new(root_widget:impl Widget + 'static) -> Self {
+		let widget_tree = WidgetTree::new(root_widget.build());		
 		Self { widget_tree }
 	}
 	
