@@ -34,7 +34,8 @@ impl Layout {
 				self.arrange_block(widgets,*padding,&max_size,&parent_pos),
 		}
 	}
-
+	// TODO this function also works for the
+	// vertical layout don't know why
 	fn arrange_horizontal(
 		&self,
 		widgets:&mut Vec<Box<WidgetBody>>,
@@ -100,18 +101,18 @@ impl Layout {
 		max_size:&Size,
 		parent_pos:&Position
 	) -> Size{
-		// Set the initial position to the padding
-		let mut current_pos = padding;
+		// Set the initial position to the padding plus 
+		// the parent position
+		let mut current_pos = padding as f32 + parent_pos.y;
+		
+		let mut min_width:f32 = 0.0;
+		let mut min_height:f32 = (padding * 2) as f32;
 
 		for (_,widget) in widgets.iter_mut().enumerate(){
-			widget.surface.position(padding as f32, current_pos as f32);
-			
-			// Add the spacing and the widget's width to the current
-			// position
-			current_pos += spacing;
-			current_pos += widget.surface.get_size().height as u32;
+			// Set the current widget position
+			widget.surface.position(parent_pos.x + padding as f32,current_pos as f32);
 
-			// Arrange the widget's children recursively
+			// Arrange the widget's children recursively and return the min size
 			let size = widget.layout.arrange_widgets(
 				&mut widget.children,
 				*max_size,
@@ -119,11 +120,34 @@ impl Layout {
 					widget.surface.get_position().0,
 					widget.surface.get_position().1
 				)
-
 			);
+
+			// Set the widget's size
+			match widget.intrinsic_size.width {
+				WidgetSize::Fill => widget.surface.width(max_size.width),
+				WidgetSize::Fit => widget.surface.width(size.width),
+				WidgetSize::Fixed(size) => widget.surface.width(size),
+			}
+
+			match widget.intrinsic_size.height {
+				WidgetSize::Fill => widget.surface.height(max_size.height),
+				WidgetSize::Fit => widget.surface.height(size.height),
+				WidgetSize::Fixed(size) => widget.surface.height(size),
+			}
+
+			// Add the spacing and the widget's width to the current
+			// position and the min width
+			current_pos += spacing as f32;
+			current_pos += widget.surface.get_size().height;
+
+			min_height += spacing as f32;
+			min_height += widget.surface.get_size().height;
+
+			// Set the minimum height to the height of the largest widget
+			min_width = min_width.max(widget.surface.get_size().width);
 		}
-		
-		Size::new(0.0, 500.0)
+
+		Size::new(min_width + (padding * 2) as f32,min_height)
 	}
 
 	fn arrange_block(

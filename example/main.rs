@@ -1,7 +1,7 @@
 use rustui::{
     app::{view::View, App},
     colour::{AMBER, BLACK, GREEN, INDIGO, PINK, TEAL},
-    widgets::{container::Container, rect::Rect, stack::HStack, Widget, WidgetTree
+    widgets::{container::Container, rect::Rect, stack::{HStack, VStack}, text::Text, Widget, WidgetTree
 	},
 };
 
@@ -10,21 +10,9 @@ fn main() {
 }
 
 fn new_app() {
-    let rect1 = Rect::new(200.0, 150.0, INDIGO);
-    let rect2 = Rect::new(150.0, 200.0, PINK);
+	let text = Text::new("Hello world");
 
-    let dummy = Container::new(Rect::new(150.0, 200.0, GREEN)).colour(AMBER).padding(12);
-    let hstack = HStack {
-        spacing: 54,
-        padding: 10,
-        colour: BLACK,
-        children: vec![Box::new(rect1), Box::new(rect2), Box::new(dummy)],
-    };
-
-    let graph = WidgetTree::new(hstack.build());
-    //dbg!(&graph);
-
-    let page = View::new(graph);
+    let page = View::new(text);
     let app = App::new().add_view(page);
     app.run();
 }

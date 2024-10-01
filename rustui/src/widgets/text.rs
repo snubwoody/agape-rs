@@ -39,10 +39,16 @@ impl Widget for Text {
 		let surface = Box::new(textsurface);
 
 		let layout = Layout::Block { padding: 0};
+		let intrinsic_size = IntrinsicSize{
+			width:WidgetSize::Fixed(size.width),
+			height:WidgetSize::Fixed(size.height)
+		};
+		dbg!("Okay");
 
 		WidgetBody{
 			surface,
 			layout,
+			intrinsic_size,
 			constraint: Constraint::new(size.width, size.width, size.height, size.height),
 			..Default::default()
 		}
