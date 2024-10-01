@@ -10,7 +10,12 @@ fn main() {
 }
 
 fn new_app() {
-	let button = Button::new("Click me").padding(12).colour(GREEN);
+	let button = 
+		Button::new("Click me")
+		.padding(12)
+		.colour(GREEN)
+		.width(120.0)
+		.height(40.0);
 
     let page = View::new(button);
     let app = App::new().add_view(page);
