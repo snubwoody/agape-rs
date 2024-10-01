@@ -1,6 +1,6 @@
 use rustui::{
     app::{view::View, App},
-    colour::{BLACK, GREEN, INDIGO, PINK, TEAL},
+    colour::{AMBER, BLACK, GREEN, INDIGO, PINK, TEAL},
     widgets::{container::Container, rect::Rect, stack::HStack, Widget, WidgetTree
 	},
 };
@@ -13,7 +13,7 @@ fn new_app() {
     let rect1 = Rect::new(200.0, 150.0, INDIGO);
     let rect2 = Rect::new(150.0, 200.0, PINK);
 
-    let dummy = Container::new(Rect::new(150.0, 200.0, GREEN)).colour(TEAL);
+    let dummy = Container::new(Rect::new(150.0, 200.0, GREEN)).colour(AMBER).padding(12);
     let hstack = HStack {
         spacing: 54,
         padding: 10,

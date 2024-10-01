@@ -11,7 +11,6 @@ use crate::{
 };
 
 // TODO change x and y to position
-// TODO change width and height to size
 /// This is a primitive that draws to the screen. This holds
 /// essential information about the [`Widget`], ie.
 /// the colour, coordinates and size.
@@ -88,7 +87,7 @@ impl Surface for RectSurface {
 		self.y = y;
 	} 
 	
-	fn get_position(&self) -> (f32,f32){
+	fn get_position(&self) -> (f32,f32) {
 		(self.x,self.y)
 	} 
 

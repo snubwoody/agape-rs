@@ -19,7 +19,7 @@ use crate::{
 	layout::{Constraint, IntrinsicSize, Layout, WidgetSize}, 
 	surface::{
 		rect::RectSurface, Surface
-	}, utils::Size, 
+	}, utils::{Position, Size}, 
 };
 
 
@@ -57,7 +57,14 @@ impl WidgetBody {
 		context:&RenderContext,
 	) {
 		// Arrange the children
-		let size = self.layout.arrange_widgets(&mut self.children);
+		let size = self.layout.arrange_widgets(
+			&mut self.children,
+			Size::new(window.inner_size().width as f32, window.inner_size().height as f32),
+			Position::new(
+				self.surface.get_position().0, 
+				self.surface.get_position().1
+			)
+		);
 
 		// Set the size of the root widget
 		match self.intrinsic_size.width {

@@ -1,6 +1,5 @@
 use crate::utils::map;
 
-
 pub const BLACK:Colour = Colour::Rgb(0, 0, 0);
 pub const WHITE:Colour = Colour::Rgb(255, 255, 255);
 pub const AMBER:Colour = Colour::Rgb(245, 158, 11);
