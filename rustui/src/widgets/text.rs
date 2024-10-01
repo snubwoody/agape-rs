@@ -43,13 +43,11 @@ impl Widget for Text {
 			width:WidgetSize::Fixed(size.width),
 			height:WidgetSize::Fixed(size.height)
 		};
-		dbg!("Okay");
 
 		WidgetBody{
 			surface,
 			layout,
 			intrinsic_size,
-			constraint: Constraint::new(size.width, size.width, size.height, size.height),
 			..Default::default()
 		}
 	}
