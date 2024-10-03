@@ -51,7 +51,7 @@ impl Layout {
 		let mut min_width:f32 = (padding * 2) as f32;
 		let mut min_height:f32 = 0.0;
 
-		for (_,widget) in widgets.iter_mut().enumerate(){
+		widgets.iter_mut().for_each(|widget|{
 			// Set the current widget position
 			widget.surface.position(current_pos as f32, parent_pos.y + padding as f32);
 
@@ -88,7 +88,7 @@ impl Layout {
 
 			// Set the minimum height to the height of the largest widget
 			min_height = min_height.max(widget.surface.get_size().height);
-		}
+		});
 
 		Size::new(min_width, min_height + (padding * 2) as f32)
 	}
@@ -108,7 +108,7 @@ impl Layout {
 		let mut min_width:f32 = 0.0;
 		let mut min_height:f32 = (padding * 2) as f32;
 
-		for (_,widget) in widgets.iter_mut().enumerate(){
+		widgets.iter_mut().for_each(|widget|{
 			// Set the current widget position
 			widget.surface.position(parent_pos.x + padding as f32,current_pos as f32);
 
@@ -145,7 +145,7 @@ impl Layout {
 
 			// Set the minimum height to the height of the largest widget
 			min_width = min_width.max(widget.surface.get_size().width);
-		}
+		});
 
 		Size::new(min_width + (padding * 2) as f32,min_height)
 	}
@@ -165,7 +165,7 @@ impl Layout {
 		let mut min_width = padding as f32 * 2.0;
 		let mut min_height = padding as f32 * 2.0;
 
-		for (_,widget) in widgets.iter_mut().enumerate(){
+		widgets.iter_mut().for_each(|widget|{
 			widget.surface.position(
 				parent_pos.x + padding as f32, 
 				parent_pos.y + padding as f32
@@ -203,7 +203,7 @@ impl Layout {
 				WidgetSize::Fit => widget.surface.height(size.height),
 				WidgetSize::Fixed(size) => widget.surface.height(size),
 			}
-		}
+		});
 
 		
 		Size::new(min_width, min_height)

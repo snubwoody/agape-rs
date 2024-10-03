@@ -1,8 +1,5 @@
 use rustui::{
-    app::{view::View, App},
-    colour::{AMBER, BLACK, GREEN, INDIGO, PINK, TEAL},
-    widgets::{button::Button, container::Container, rect::Rect, stack::{HStack, VStack}, text::Text, Widget, WidgetTree
-	},
+    app::{view::View, App}, colour::{BLACK, BLUE, GREEN}, vstack, widgets::{button::Button, stack::Stack}
 };
 
 fn main() {
@@ -13,11 +10,14 @@ fn new_app() {
 	let button = 
 		Button::new("Click me")
 		.padding(12)
-		.colour(GREEN)
-		.width(120.0)
-		.height(40.0);
+		.colour(GREEN);
 
-    let page = View::new(button);
+	let vstack = vstack!{
+		Button::new("Click me").colour(GREEN).padding(12),
+		Button::new("Click me").colour(BLUE).padding(52)
+	};
+
+    let page = View::new(vstack);
     let app = App::new().add_view(page);
     app.run();
 }
