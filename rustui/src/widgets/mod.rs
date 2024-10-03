@@ -42,7 +42,6 @@ pub struct WidgetBody{
 	pub surface:Box<dyn Surface>,
 	pub layout:Layout,
 	pub children:Vec<Box<WidgetBody>>,
-	pub constraint:Constraint,
 	pub intrinsic_size:IntrinsicSize
 	//pub events:Vec<EventFunction>
 }
@@ -108,7 +107,6 @@ impl Default for WidgetBody {
 			surface, 
 			layout, 
 			children:vec![], 
-			constraint:Constraint::default(),
 			intrinsic_size: Default::default()
 			//events:vec![]
 		}

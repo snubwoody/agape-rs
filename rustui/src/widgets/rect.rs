@@ -37,7 +37,6 @@ impl Widget for Rect {
 				width: WidgetSize::Fixed(self.width), 
 				height: WidgetSize::Fixed(self.height) 
 			},
-			constraint:Constraint::new(self.width, self.width, self.height, self.height),
 			..Default::default()
 		}
 	}
