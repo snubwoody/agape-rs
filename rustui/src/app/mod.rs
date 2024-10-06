@@ -5,7 +5,6 @@ use glium::{
 	glutin::surface::WindowSurface, Display, Program,
 };
 use winit::{
-	dpi::PhysicalPosition, 
 	event::WindowEvent, 
 	event_loop::{
 		ControlFlow, 
@@ -13,7 +12,7 @@ use winit::{
 	}, 
 	window::Window
 };
-use crate::{app::view::{RenderContext, View}, widgets::WidgetTree};
+use crate::{app::view::{RenderContext, View}};
 pub mod view;
 pub mod events;
 
