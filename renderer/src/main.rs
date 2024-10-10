@@ -1,9 +1,16 @@
+use wgpu::util::DeviceExt;
 use winit::{
     event::{ElementState, Event, KeyEvent, WindowEvent},
     event_loop::{self, EventLoop},
     keyboard::{KeyCode, PhysicalKey},
     window::{Window, WindowBuilder},
 };
+
+const VERTICES: &[Vertex] = &[
+    Vertex { position: [0.0, 0.5,], color: [1.0, 0.0, 0.0,1.0] },
+    Vertex { position: [-0.5, -0.5], color: [0.0, 1.0, 0.0,1.0] },
+    Vertex { position: [0.5, -0.5], color: [0.0, 0.0, 1.0,1.0] },
+];
 
 #[tokio::main]
 async fn main() {
@@ -32,7 +39,8 @@ struct State<'a>{
 	config: wgpu::SurfaceConfiguration,
 	size: winit::dpi::PhysicalSize<u32>,
     window: &'a Window,
-	render_pipeline: wgpu::RenderPipeline
+	render_pipeline: wgpu::RenderPipeline,
+	vertex_buffer:wgpu::Buffer
 }
 
 impl<'a> State<'a> {
@@ -99,7 +107,7 @@ impl<'a> State<'a> {
 				module: &shader, 
 				entry_point: "vs_main", 
 				compilation_options: Default::default(), 
-				buffers: &[] 
+				buffers: &[Vertex::decription()] 
 			}, 
 			fragment: Some(wgpu::FragmentState{
 				module:&shader,
@@ -130,6 +138,12 @@ impl<'a> State<'a> {
 			depth_stencil: None, 
 		});
 
+		let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+			label: Some("Vertex buffer"),
+			contents: bytemuck::cast_slice(VERTICES),
+			usage: wgpu::BufferUsages::VERTEX,
+		});
+
 		Self{
 			surface,
 			device,
@@ -137,7 +151,8 @@ impl<'a> State<'a> {
 			config,
 			size,
 			window,
-			render_pipeline
+			render_pipeline,
+			vertex_buffer
 		}
 	}
 
@@ -183,6 +198,7 @@ impl<'a> State<'a> {
 		});
 
 		render_pass.set_pipeline(&self.render_pipeline);
+		render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
 		render_pass.draw(0..3, 0..1);
 
 		// Drop the render pass because it borrows encoder
@@ -194,5 +210,33 @@ impl<'a> State<'a> {
 		output.present();
 
 		Ok(())
+	}
+}
+
+#[repr(C)]
+#[derive(Debug,Clone,Copy,bytemuck::Pod, bytemuck::Zeroable)]
+struct Vertex{
+	position:[f32;2],
+	color: [f32;4]	
+}
+
+impl Vertex {
+	fn decription() -> wgpu::VertexBufferLayout<'static> {
+		wgpu::VertexBufferLayout { 
+			array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress, 
+			step_mode: wgpu::VertexStepMode::Vertex, 
+			attributes: &[
+				wgpu::VertexAttribute{
+					offset: 0,
+					shader_location: 0,
+					format: wgpu::VertexFormat::Float32x3
+				},
+				wgpu::VertexAttribute{
+					offset: size_of::<[f32;3]>() as wgpu::BufferAddress,
+					shader_location: 1,
+					format: wgpu::VertexFormat::Float32x3
+				}
+			]
+		}
 	}
 }
