@@ -2,7 +2,7 @@
 /// and position
 #[derive(Debug,Clone,Copy,PartialEq)]
 pub struct Vertex{
-	position: [i32;2],
+	position: [i32;2], // TODO change to f32
 	colour:[f32;4],
 	uv:[f32;2],
 }
