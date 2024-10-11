@@ -128,10 +128,6 @@ impl<'a> State<'a> {
 		}
 	}
 
-	fn update(&mut self){
-		todo!()
-	}
-
 	fn render(&mut self) -> Result<(),wgpu::SurfaceError> {
 		let output = self.surface.get_current_texture()?;
 		let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
@@ -147,9 +143,9 @@ impl<'a> State<'a> {
 				resolve_target: None,
 				ops: wgpu::Operations {
 					load: wgpu::LoadOp::Clear(wgpu::Color {
-						r: 0.1,
-						g: 0.2,
-						b: 0.3,
+						r: 1.0,
+						g: 1.0,
+						b: 1.0,
 						a: 1.0,
 					}),
 					store: wgpu::StoreOp::Store,
@@ -170,7 +166,6 @@ impl<'a> State<'a> {
 		// mutably
 		drop(render_pass);
 	
-		// submit will accept anything that implements IntoIter
 		self.queue.submit(std::iter::once(encoder.finish()));
 		output.present();
 
@@ -181,26 +176,25 @@ impl<'a> State<'a> {
 /// Holds the compiled shaders
 #[derive(Debug)]
 pub struct RenderContext{
-	rect_pipeline: wgpu::RenderPipeline,
-	text_pipeline: wgpu::RenderPipeline,
-	image_pipeline: wgpu::RenderPipeline
+	pub rect_pipeline: wgpu::RenderPipeline,
+	pub text_pipeline: wgpu::RenderPipeline,
+	pub image_pipeline: wgpu::RenderPipeline
 }
 
 impl RenderContext {
 	pub fn new(device:&wgpu::Device,config:&wgpu::SurfaceConfiguration) -> Self{
 		Self{
-			rect_pipeline:RenderContext::create_rect_pipeline(device, config),
+			rect_pipeline: RenderContext::create_rect_pipeline(device, config),
 			text_pipeline: RenderContext::create_text_pipeline(device, config),
 			image_pipeline: RenderContext::create_image_pipeline(device, config)
 		}
 	}
 
 	fn create_rect_pipeline(device:&wgpu::Device,config:&wgpu::SurfaceConfiguration) -> wgpu::RenderPipeline {
-		// TODO replace this with the actual text shader
 		// Compiled shader
 		let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor { 
 			label: Some("Shader module"), 
-			source: wgpu::ShaderSource::Wgsl(include_str!("../shaders/shader.wgsl").into())
+			source: wgpu::ShaderSource::Wgsl(include_str!("../shaders/rect.wgsl").into())
 		});
 
 		let render_pipeline_layout = 
@@ -256,7 +250,7 @@ impl RenderContext {
 		// Compiled shader
 		let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor { 
 			label: Some("Shader module"), 
-			source: wgpu::ShaderSource::Wgsl(include_str!("../shaders/shader.wgsl").into())
+			source: wgpu::ShaderSource::Wgsl(include_str!("../shaders/rect.wgsl").into())
 		});
 
 		let render_pipeline_layout = 
@@ -312,7 +306,7 @@ impl RenderContext {
 		// Compiled shader
 		let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor { 
 			label: Some("Shader module"), 
-			source: wgpu::ShaderSource::Wgsl(include_str!("../shaders/shader.wgsl").into())
+			source: wgpu::ShaderSource::Wgsl(include_str!("../shaders/rect.wgsl").into())
 		});
 
 		let render_pipeline_layout = 
