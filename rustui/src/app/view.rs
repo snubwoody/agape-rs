@@ -6,6 +6,7 @@ use glium::{
 };
 use winit::window::Window;
 use crate::widgets::{Widget, WidgetTree};
+use super::RenderContext;
 
 /// A page
 pub struct View{
@@ -20,11 +21,13 @@ impl View {
 	
 	pub fn render(
 		&mut self,
-		display:&Display<WindowSurface>,
-		window:&Window,
-		context:&RenderContext
+		context:&RenderContext,
+		device: &wgpu::Device,
+		surface: &wgpu::Surface,
+		queue: &wgpu::Queue,
+		window:&Window
 	) {
-		// Create a frame that will be drawn to
+		/* // Create a frame that will be drawn to
 		let mut frame = display.draw();
 		frame.clear_color(1.0, 1.0, 1.0, 1.0);
 
@@ -32,11 +35,48 @@ impl View {
 		self.widget_tree.render(display,&mut frame,window,context);
 
 		//Swap the buffers
-		frame.finish().unwrap();
+		frame.finish().unwrap(); */
+
+		let output = surface.get_current_texture().unwrap();
+		let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
+
+		let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor{
+			label:Some("Render encoder")
+		});
+
+		let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+			label: Some("Render Pass"),
+			color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+				view: &view,
+				resolve_target: None,
+				ops: wgpu::Operations {
+					load: wgpu::LoadOp::Clear(wgpu::Color {
+						r: 1.0,
+						g: 1.0,
+						b: 1.0,
+						a: 1.0,
+					}),
+					store: wgpu::StoreOp::Store,
+				},
+			})],
+			depth_stencil_attachment: None,
+			occlusion_query_set: None,
+			timestamp_writes: None,
+		});
+
+		self.widget_tree.render(window, context, &render_pass);
+
+		// Drop the render pass because it borrows encoder
+		// mutably
+		drop(render_pass);
+	
+		queue.submit(std::iter::once(encoder.finish()));
+		output.present();
+
 	}
 }
 
-// TODO try fitting the window and display in the render context
+/* // TODO try fitting the window and display in the render context
 /// Contains the compiled shader programs
 #[derive(Debug)]
 pub struct RenderContext{
@@ -60,7 +100,7 @@ impl RenderContext {
 	}
 }
 
-
+ */
 
 
 

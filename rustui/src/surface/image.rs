@@ -12,7 +12,7 @@ use glium::{
 	VertexBuffer 
 };
 use crate::{
-	app::view::RenderContext, 
+	app::RenderContext, 
 	colour::rgb, 
 	surface::Surface, 
 	utils::{Bounds, Position,Size}, 
@@ -55,10 +55,10 @@ impl ImageSurface {
 		return texture;
 	}
 
-	fn to_vertices(&self,width:i32,height:i32) -> Vec<Vertex>{
+	fn to_vertices(&self,width:f32,height:f32) -> Vec<Vertex>{
 		let colour = rgb(255, 255, 255);
-		let x = self.position.x as i32;
-		let y = self.position.y as i32;
+		let x = self.position.x;
+		let y = self.position.y;
 
 		let vertex1 = Vertex::new_with_texture(x,y,colour,[0.0,1.0]); //Top left
 		let vertex2 = Vertex::new_with_texture(x+width,y,colour,[1.0,1.0]); // Top right
@@ -74,39 +74,37 @@ impl ImageSurface {
 impl Surface for ImageSurface {
 	fn draw(
 		&self,
-		display:&glium::Display<WindowSurface>,
-		frame:&mut glium::Frame,
-		window:&winit::window::Window,
-		context:&RenderContext,
+		render_pass:&wgpu::RenderPass,
+		context: &crate::app::RenderContext
 	) {
-		let params = DrawParameters{
-			blend:Blend::alpha_blending(),
-			..Default::default()
-		};
+		// let params = DrawParameters{
+		// 	blend:Blend::alpha_blending(),
+		// 	..Default::default()
+		// };
 
-		let screen_width = window.inner_size().width as f32;
-		let screen_height = window.inner_size().height as f32;
+		// let screen_width = window.inner_size().width as f32;
+		// let screen_height = window.inner_size().height as f32;
 
-		let texture = self.build(display);
+		// let texture = self.build(display);
 
-		let uniforms = uniform! {
-			width:screen_width,
-			height:screen_height,
-			tex: texture,
-		};
+		// let uniforms = uniform! {
+		// 	width:screen_width,
+		// 	height:screen_height,
+		// 	tex: texture,
+		// };
 
-		let vertices:Vec<Vertex> = self.to_vertices(self.size.width as i32, self.size.height as i32);
-		let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
-		let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+		// let vertices:Vec<Vertex> = self.to_vertices(self.size.width, self.size.height);
+		// let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
+		// let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 		
-		frame.draw(
-			&vertex_buffer, 
-			&indices, 
-			&context.text_program, 
-			&uniforms,
-			&params
-		).unwrap();
-		
+		// frame.draw(
+		// 	&vertex_buffer, 
+		// 	&indices, 
+		// 	&context.text_program, 
+		// 	&uniforms,
+		// 	&params
+		// ).unwrap();
+		todo!()
 	}
 
 	fn size(&mut self,width:f32,height:f32) {

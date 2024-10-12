@@ -68,7 +68,7 @@ impl Button {
 impl Widget for Button {
 	fn build(&self) -> WidgetBody {
 		let surface = Box::new(
-			RectSurface::new(0.0, 0.0, 200, 70, self.colour.clone())
+			RectSurface::new(0.0, 0.0, 200.0, 70.0, self.colour.clone())
 		);
 
 		let layout = Layout::Block{ padding: self.padding };

@@ -1,14 +1,15 @@
 /// A struct which hold all the vertex attributes ie. color
 /// and position
-#[derive(Debug,Clone,Copy,PartialEq)]
+#[repr(C)]
+#[derive(Debug,Clone,Copy,PartialEq,bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Vertex{
-	position: [i32;2], // TODO change to f32
+	position: [f32;2], // TODO change to f32
 	colour:[f32;4],
 	uv:[f32;2],
 }
 
 impl Vertex {
-	pub fn new(x:i32,y:i32,colour:[f32;4]) -> Self{
+	pub fn new(x:f32,y:f32,colour:[f32;4]) -> Self{
 		let r = colour[0];
 		let g = colour[1];
 		let b = colour[2];
@@ -21,7 +22,7 @@ impl Vertex {
 		}
 	}
 
-	pub fn new_with_texture(x:i32,y:i32,colour:[f32;4],texture_coords:[f32;2]) -> Self {
+	pub fn new_with_texture(x:f32,y:f32,colour:[f32;4],texture_coords:[f32;2]) -> Self {
 		let r = colour[0];
 		let g = colour[1];
 		let b = colour[2];
@@ -33,6 +34,23 @@ impl Vertex {
 			uv:texture_coords,
 		}
 	}
-}
 
-implement_vertex!(Vertex,position,colour,uv);
+	pub fn decription() -> wgpu::VertexBufferLayout<'static> {
+		wgpu::VertexBufferLayout { 
+			array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress, 
+			step_mode: wgpu::VertexStepMode::Vertex, 
+			attributes: &[
+				wgpu::VertexAttribute{
+					offset: 0,
+					shader_location: 0,
+					format: wgpu::VertexFormat::Float32x3
+				},
+				wgpu::VertexAttribute{
+					offset: size_of::<[f32;3]>() as wgpu::BufferAddress,
+					shader_location: 1,
+					format: wgpu::VertexFormat::Float32x3 // TODO Change this to include alpha channel
+				}
+			]
+		}
+	}
+}

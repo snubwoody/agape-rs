@@ -2,19 +2,15 @@ pub mod rect;
 pub mod text;
 pub mod image;
 use std::fmt::Debug;
-
-use glium::glutin::surface::WindowSurface;
-use crate::{app::view::RenderContext,utils::{Bounds,Size}};
+use crate::{utils::{Bounds,Size}};
 
 /// A primitive object that is drawn to the screen
 pub trait Surface:Debug {
 	/// Draw the surface onto the screen
 	fn draw(
 		&self,
-		display:&glium::Display<WindowSurface>,
-		frame:&mut glium::Frame,
-		window:&winit::window::Window,
-		program:&RenderContext
+		render_pass:&wgpu::RenderPass,
+		context: &crate::app::RenderContext
 	);
 
 	/// Set the [`Position`] of the [`Surface`]

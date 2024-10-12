@@ -15,7 +15,7 @@ use glium::{
 };
 use winit::window::Window;
 use crate::{
-	app::view::RenderContext, 
+	app::RenderContext, 
 	layout::{Constraint, IntrinsicSize, Layout, WidgetSize}, 
 	surface::{
 		rect::RectSurface, Surface
@@ -50,10 +50,9 @@ impl WidgetBody {
 	/// Draw the [`WidgetBody`] to the screen.
 	pub fn render(
 		&mut self,
-		display:&Display<WindowSurface>,
-		frame:&mut Frame,
-		window:&Window,
-		context:&RenderContext,
+		render_pass:&wgpu::RenderPass,
+		context: &RenderContext,
+		window:&Window
 	) {
 		// Arrange the children
 		let size = self.layout.arrange_widgets(
@@ -91,9 +90,9 @@ impl WidgetBody {
 		}
 		
 		// Draw the parent then the children to the screen
-		self.surface.draw(display, frame, window, context);
+		self.surface.draw(render_pass, context);
 		self.children.iter_mut().for_each(|child|{
-			child.render(display, frame, window, context);
+			child.surface.draw(render_pass, context);
 		});
 	}
 }
@@ -113,7 +112,7 @@ impl Default for WidgetBody {
 	}
 }
 
-
+// TODO just move the root widget to the view
 /// Central structure that holds all the [`Widget`]'s, this is 
 /// where rendering and layouts processed from.
 #[derive(Debug)]
@@ -128,11 +127,11 @@ impl WidgetTree {
 
 	pub fn render(
 		&mut self,
-		display:&Display<WindowSurface>,
-		frame:&mut Frame,
 		window:&Window,
 		context:&RenderContext,
+		render_pass:&wgpu::RenderPass,
 	) {
-		self.root.render(display, frame, window, context);
+		
+		self.root.render(render_pass, context, window);
 	}
 }
