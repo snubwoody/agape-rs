@@ -12,3 +12,7 @@ rand = "0.8.5"
 syn = "2.0.72"
 text-to-png = "0.2.0"
 winit = {version = "0.29",features = ["rwh_05"]}
+helium_renderer = {path = "../renderer"}
+tokio = { version = "1.40.0", features = ["full"] }
+wgpu = "22.1.0"
+bytemuck = { version = "1.16", features = [ "derive" ] }
