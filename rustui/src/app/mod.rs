@@ -57,7 +57,8 @@ impl App{
 	pub async fn run(mut self){
 		let state = AppState::new(&self.window).await;
 
-		self.event_loop.run(move | event,window_target|{
+		// TODO removed move; might cause errors
+		self.event_loop.run(| event,window_target|{
 			match event {
 				winit::event::Event::WindowEvent{event,..} => match event {
 					WindowEvent::CloseRequested => window_target.exit(),

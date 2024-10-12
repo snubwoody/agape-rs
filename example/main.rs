@@ -1,12 +1,15 @@
+use std::future::poll_fn;
+
 use rustui::{
     app::{view::View, App}, colour::{BLACK, BLUE, GREEN}, hstack, vstack, widgets::{button::Button, stack::Stack, text::Text}
 };
 
-fn main() {
+#[tokio::main]
+async fn main() {
     new_app();
 }
 
-fn new_app() {
+async fn new_app() {
 	let button = 
 		Button::new("Click me")
 		.padding(12)
@@ -26,6 +29,6 @@ fn new_app() {
 	};
 
     let page = View::new(vstack);
-    let app = App::new().add_view(page);
-    app.run();
+    let app = App::new().await.add_view(page);
+    app.run().await;
 }
