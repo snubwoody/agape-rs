@@ -1,3 +1,5 @@
+use wgpu::util::DeviceExt;
+
 use crate::{
 	app::RenderContext, 
 	colour::Colour, 
@@ -49,8 +51,9 @@ impl RectSurface {
 impl Surface for RectSurface {
 	fn draw(
 		&self,
-		render_pass:&wgpu::RenderPass,
-		context: &RenderContext
+		render_pass:&mut wgpu::RenderPass,
+		context: &RenderContext,
+		device:&wgpu::Device
 	) {
 		let vertices:Vec<Vertex> = self.to_vertices();
 		// let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
@@ -75,12 +78,22 @@ impl Surface for RectSurface {
 		// 	&params
 		// ).unwrap();
 
-		// Set the render pipeline and vertex buffer
-		// render_pass.set_pipeline(context.rect_pipeline);
-		// render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
+		dbg!("All clear");
 
-		// render_pass.draw(0..vertices.len() as u32, 0..1);
-		todo!()
+		let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+			label: Some("Vertex buffer"),
+			contents: bytemuck::cast_slice(&vertices),
+			usage: wgpu::BufferUsages::VERTEX,
+		});
+
+		dbg!("All clear");
+		// Set the render pipeline and vertex buffer
+		render_pass.set_pipeline(&context.rect_pipeline);
+		render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
+		dbg!("All clear");
+
+		render_pass.draw(0..vertices.len() as u32, 0..1);
+		dbg!("All clear");
 	}
 
 	fn position(&mut self, x:f32,y:f32){

@@ -9,8 +9,9 @@ pub trait Surface:Debug {
 	/// Draw the surface onto the screen
 	fn draw(
 		&self,
-		render_pass:&wgpu::RenderPass,
-		context: &crate::app::RenderContext
+		render_pass:&mut wgpu::RenderPass,
+		context: &crate::app::RenderContext,
+		device:&wgpu::Device
 	);
 
 	/// Set the [`Position`] of the [`Surface`]

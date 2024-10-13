@@ -89,8 +89,9 @@ impl TextSurface {
 impl Surface for TextSurface {
 	fn draw(
 		&self,
-		render_pass:&wgpu::RenderPass,
-		context: &crate::app::RenderContext
+		render_pass:&mut wgpu::RenderPass,
+		context: &crate::app::RenderContext,
+		device:&wgpu::Device
 	) {
 		// let params = DrawParameters{
 		// 	blend:Blend::alpha_blending(),

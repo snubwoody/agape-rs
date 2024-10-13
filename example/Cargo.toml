@@ -7,6 +7,8 @@ edition = "2021"
 rustui = {path = "../rustui"}
 properties = {path = "../properties"}
 tokio = { version = "1.40.0", features = ["full"] }
+env_logger = "0.11.5"
+log = "0.4.22"
 
 [[bin]]
 name = "example"

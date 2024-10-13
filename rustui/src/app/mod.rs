@@ -13,7 +13,7 @@ use winit::{
 	}, 
 	window::{Window, WindowBuilder}
 };
-use crate::app::view:: View;
+use crate::{app::view:: View, utils::Size};
 
 
 
@@ -39,7 +39,6 @@ impl App{
 		
 		let event_manager = EventManager::new();
 		
-
 		Self { 
 			event_loop,
 			window,
@@ -56,21 +55,15 @@ impl App{
 
 	pub async fn run(mut self){
 		let state = AppState::new(&self.window).await;
-
+		
 		// TODO removed move; might cause errors
-		self.event_loop.run(| event,window_target|{
+		self.event_loop.run(move| event,window_target|{
 			match event {
 				winit::event::Event::WindowEvent{event,..} => match event {
 					WindowEvent::CloseRequested => window_target.exit(),
 					WindowEvent::RedrawRequested => {
 						// Re-render the page when the window redraws
-						self.views[self.index].render(
-							&state.context,
-							&state.device,
-							&state.surface,
-							&state.queue,
-							&self.window
-						)
+						self.views[self.index].render(&state);
 					},
 					event => { // FIXME clean this and start again
 						// Send all other window events to the event manager
@@ -94,10 +87,13 @@ struct AppState<'a>{
 	pub queue: wgpu::Queue,
 	pub config: wgpu::SurfaceConfiguration,
 	pub context:RenderContext,
+	pub size: Size
 }
 
 impl<'a> AppState<'a> {
 	pub async fn new(window:&'a Window) -> Self{
+		let size = window.inner_size().into();
+
 		// Handle to wpgu for creating a surface and an adapter
 		let instance = wgpu::Instance::new(wgpu::InstanceDescriptor{
 			backends: wgpu::Backends::PRIMARY,
@@ -152,7 +148,8 @@ impl<'a> AppState<'a> {
 			device,
 			queue,
 			config,
-			context
+			context,
+			size
 		}	
 	}
 }

@@ -81,6 +81,15 @@ impl Size {
 	}
 }
 
+impl From<PhysicalSize<u32>> for Size {
+	fn from(size: PhysicalSize<u32>) -> Self {
+		Self { 
+			width: size.width as f32, 
+			height: size.height as f32 
+		}
+	}
+}
+
 
 impl AddAssign for Size {
     fn add_assign(&mut self, other: Self) {

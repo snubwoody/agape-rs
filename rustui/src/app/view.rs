@@ -6,7 +6,7 @@ use glium::{
 };
 use winit::window::Window;
 use crate::widgets::{Widget, WidgetTree};
-use super::RenderContext;
+use super::{AppState, RenderContext};
 
 /// A page
 pub struct View{
@@ -19,28 +19,11 @@ impl View {
 		Self { widget_tree }
 	}
 	
-	pub fn render(
-		&mut self,
-		context:&RenderContext,
-		device: &wgpu::Device,
-		surface: &wgpu::Surface,
-		queue: &wgpu::Queue,
-		window:&Window
-	) {
-		/* // Create a frame that will be drawn to
-		let mut frame = display.draw();
-		frame.clear_color(1.0, 1.0, 1.0, 1.0);
-
-		//Render the widget tree
-		self.widget_tree.render(display,&mut frame,window,context);
-
-		//Swap the buffers
-		frame.finish().unwrap(); */
-
-		let output = surface.get_current_texture().unwrap();
+	pub fn render(&mut self,state:&AppState) {		
+		let output = state.surface.get_current_texture().unwrap();
 		let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
 
-		let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor{
+		let mut encoder = state.device.create_command_encoder(&wgpu::CommandEncoderDescriptor{
 			label:Some("Render encoder")
 		});
 
@@ -64,43 +47,17 @@ impl View {
 			timestamp_writes: None,
 		});
 
-		self.widget_tree.render(window, context, &render_pass);
+		self.widget_tree.render(&state.size, &state.context, &mut render_pass,&state.device);
 
 		// Drop the render pass because it borrows encoder
 		// mutably
 		drop(render_pass);
 	
-		queue.submit(std::iter::once(encoder.finish()));
+		state.queue.submit(std::iter::once(encoder.finish()));
 		output.present();
 
 	}
 }
-
-/* // TODO try fitting the window and display in the render context
-/// Contains the compiled shader programs
-#[derive(Debug)]
-pub struct RenderContext{
-	pub surface_program:Program,
-	pub text_program:Program,
-	pub image_program:Program
-}
-
-impl RenderContext {
-	// TODO change this to use the from source method of the Program struct
-	pub fn new(
-		surface_program:Program,
-		text_program:Program,
-		image_program:Program
-	) -> Self {
-		Self{ 
-			surface_program, 
-			text_program,
-			image_program
-		}
-	}
-}
-
- */
 
 
 

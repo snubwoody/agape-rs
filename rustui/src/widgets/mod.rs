@@ -50,14 +50,15 @@ impl WidgetBody {
 	/// Draw the [`WidgetBody`] to the screen.
 	pub fn render(
 		&mut self,
-		render_pass:&wgpu::RenderPass,
+		render_pass:&mut wgpu::RenderPass,
 		context: &RenderContext,
-		window:&Window
+		window_size:&Size,
+		device:&wgpu::Device
 	) {
 		// Arrange the children
 		let size = self.layout.arrange_widgets(
 			&mut self.children,
-			Size::new(window.inner_size().width as f32, window.inner_size().height as f32),
+			Size::new(window_size.width, window_size.height),
 			Position::new(
 				self.surface.get_position().0, 
 				self.surface.get_position().1
@@ -67,7 +68,7 @@ impl WidgetBody {
 		// Set the size of the root widget
 		match self.intrinsic_size.width {
 			WidgetSize::Fill => {
-				self.surface.width(window.inner_size().width as f32);
+				self.surface.width(window_size.width as f32);
 			},
 			WidgetSize::Fit => {
 				self.surface.width(size.width);
@@ -79,7 +80,7 @@ impl WidgetBody {
 
 		match self.intrinsic_size.height {
 			WidgetSize::Fill => {
-				self.surface.height(window.inner_size().height as f32);
+				self.surface.height(window_size.height as f32);
 			},
 			WidgetSize::Fit => {
 				self.surface.height(size.height);
@@ -90,9 +91,9 @@ impl WidgetBody {
 		}
 		
 		// Draw the parent then the children to the screen
-		self.surface.draw(render_pass, context);
+		self.surface.draw(render_pass, context,device);
 		self.children.iter_mut().for_each(|child|{
-			child.surface.draw(render_pass, context);
+			child.surface.draw(render_pass, context,device);
 		});
 	}
 }
@@ -127,11 +128,11 @@ impl WidgetTree {
 
 	pub fn render(
 		&mut self,
-		window:&Window,
+		size:&Size,
 		context:&RenderContext,
-		render_pass:&wgpu::RenderPass,
+		render_pass:&mut wgpu::RenderPass,
+		device: &wgpu::Device
 	) {
-		
-		self.root.render(render_pass, context, window);
+		self.root.render(render_pass, context, size,device);
 	}
 }
