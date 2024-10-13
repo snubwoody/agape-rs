@@ -78,8 +78,6 @@ impl Surface for RectSurface {
 		// 	&params
 		// ).unwrap();
 
-		dbg!("All clear");
-
 		let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
 			label: Some("Vertex buffer"),
 			contents: bytemuck::cast_slice(&vertices),

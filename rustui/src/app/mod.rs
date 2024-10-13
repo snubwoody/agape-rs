@@ -81,7 +81,7 @@ impl App{
 
 }
 
-struct AppState<'a>{
+pub struct AppState<'a>{
 	pub surface: wgpu::Surface<'a>,
 	pub device: wgpu::Device,
 	pub queue: wgpu::Queue,
@@ -140,6 +140,8 @@ impl<'a> AppState<'a> {
 			view_formats: vec![],
 			desired_maximum_frame_latency: 2
 		};
+
+		surface.configure(&device, &config);
 
 		let context = RenderContext::new(&device, &config);
 
