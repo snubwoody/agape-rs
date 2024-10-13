@@ -20,7 +20,7 @@ use crate::{
 };
 
 
-///TODO
+/// Draws an image to the screen
 #[derive(Debug,Clone)]
 pub struct ImageSurface{
 	position:Position,

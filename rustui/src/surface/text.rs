@@ -12,7 +12,6 @@ use crate::{
 	vertex::Vertex
 };
 
-// TODO make a size struct
 // FIXME change the colour to Colour enum
 /// A rasterized texture of text  
 #[derive(Debug,Clone)]

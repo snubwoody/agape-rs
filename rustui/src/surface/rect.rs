@@ -55,20 +55,19 @@ impl Surface for RectSurface {
 		context: &RenderContext,
 		device:&wgpu::Device
 	) {
-		let vertices:Vec<Vertex> = self.to_vertices();
 		// let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
 		// let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
-
+		
 		// let params = DrawParameters{
 		// 	blend:Blend::alpha_blending(),
 		// 	..Default::default()
 		// };
-
+		
 		// let screen_width = window.inner_size().width as f32;
 		// let screen_height = window.inner_size().height as f32;
-
+		
 		// frame.draw(
-		// 	&vertex_buffer, 
+			// 	&vertex_buffer, 
 		// 	&indices, 
 		// 	&context.surface_program, 
 		// 	&uniform! {
@@ -77,21 +76,19 @@ impl Surface for RectSurface {
 		// 	},
 		// 	&params
 		// ).unwrap();
-
+		
+		let vertices = self.to_vertices();
 		let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
 			label: Some("Vertex buffer"),
 			contents: bytemuck::cast_slice(&vertices),
 			usage: wgpu::BufferUsages::VERTEX,
 		});
 
-		dbg!("All clear");
 		// Set the render pipeline and vertex buffer
 		render_pass.set_pipeline(&context.rect_pipeline);
 		render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
-		dbg!("All clear");
 
 		render_pass.draw(0..vertices.len() as u32, 0..1);
-		dbg!("All clear");
 	}
 
 	fn position(&mut self, x:f32,y:f32){

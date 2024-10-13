@@ -11,6 +11,7 @@ pub const INDIGO:Colour = Colour::Rgb(99, 102, 241);
 pub const PINK:Colour = Colour::Rgb(236, 72, 153);
 
 // TODO start changing to color instead
+/// Represents a color.
 #[derive(Debug,Clone,PartialEq, Eq, PartialOrd, Ord)]
 pub enum Colour{
 	Rgb(u8,u8,u8),
@@ -34,6 +35,7 @@ impl Colour {
 		}
 	}
 
+	/// Convert a hex color to an rgba color.
 	fn hex_to_rgba(&self,hex:&str) -> [u8;4] {
 		// FIXME handle the errors
 		let (r,g,b) = (
@@ -49,7 +51,7 @@ impl Colour {
 		[r,g,b,100]
 	}
 
-	/// Normalize the colours to a 0 to 1 scale
+	/// Normalize the colours to a 0 - 1 scale.
 	pub fn normalize(&self) -> [f32;4] {
 		let rgba = self.to_rgba();
 

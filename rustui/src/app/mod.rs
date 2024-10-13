@@ -258,7 +258,7 @@ impl RenderContext {
 				compilation_options: Default::default(),
 				targets:&[Some(wgpu::ColorTargetState { 
 					format: config.format, 
-					blend: Some(wgpu::BlendState::ALPHA_BLENDING), // TODO check pre-multiplied alpha blending 
+					blend: Some(wgpu::BlendState::ALPHA_BLENDING),
 					write_mask: wgpu::ColorWrites::ALL 
 				})]
 			}), 
@@ -306,7 +306,7 @@ impl RenderContext {
 				module: &shader, 
 				entry_point: "vs_main", 
 				compilation_options: Default::default(), 
-				buffers: &[crate::vertex::Vertex::decription()] // TODO check this
+				buffers: &[crate::vertex::Vertex::decription()]
 			}, 
 			fragment: Some(wgpu::FragmentState{
 				module:&shader,
@@ -314,7 +314,7 @@ impl RenderContext {
 				compilation_options: Default::default(),
 				targets:&[Some(wgpu::ColorTargetState { 
 					format: config.format, 
-					blend: Some(wgpu::BlendState::ALPHA_BLENDING), // TODO check pre-multiplied alpha blending 
+					blend: Some(wgpu::BlendState::ALPHA_BLENDING), 
 					write_mask: wgpu::ColorWrites::ALL 
 				})]
 			}), 

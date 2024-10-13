@@ -39,7 +39,13 @@ impl Widget for Stack {
     }
 }
 
-// TODO add macros for ease of use
+impl Stack {
+	pub fn spacing(mut self,spacing:u32) -> Self{
+		self.spacing = spacing;
+		self
+	}
+}
+
 #[macro_export]
 macro_rules! vstack {
 	(
