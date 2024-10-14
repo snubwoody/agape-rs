@@ -1,6 +1,6 @@
 
 struct VertexOutput{
-	@builtin(position) clip_position: vec4<f32>,
+	@builtin(position) position: vec4<f32>,
 	@location(0) color: vec4<f32>
 }
 
@@ -37,7 +37,7 @@ fn vs_main(model:VertexInput) -> VertexOutput {
 	// Normalize the coordinates
 	var x_pos = normalize_value(model.position.x,0.0,500.0);
 	var y_pos = -normalize_value(model.position.y,0.0,500.0);
-	out.clip_position = vec4<f32>(x_pos,y_pos,1.0,1.0);
+	out.position = vec4<f32>(x_pos,y_pos,1.0,1.0);
 	return out;
 }
 

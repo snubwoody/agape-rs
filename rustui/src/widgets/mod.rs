@@ -1,10 +1,17 @@
-pub mod rect;
-pub mod stack;
-pub mod container;
-pub mod text;
-pub mod button;
-pub mod image;
-pub mod flex;
+mod rect;
+mod stack;
+mod container;
+mod text;
+mod button;
+mod image;
+mod flex;
+pub use rect::Rect;
+pub use text::Text;
+pub use button::Button;
+pub use stack::Stack;
+pub use image::Image;
+pub use flex::Flex;
+
 use std::{
 	collections::HashMap, fmt::Debug,
 };

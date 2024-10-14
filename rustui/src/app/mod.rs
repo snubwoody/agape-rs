@@ -210,7 +210,7 @@ impl RenderContext {
 				topology: wgpu::PrimitiveTopology::TriangleList, 
 				strip_index_format: None, 
 				front_face: wgpu::FrontFace::Ccw, 
-				cull_mode: Some(wgpu::Face::Back), 
+				cull_mode: None, 
 				unclipped_depth: false, 
 				polygon_mode: wgpu::PolygonMode::Fill, 
 				conservative: false 
@@ -266,7 +266,7 @@ impl RenderContext {
 				topology: wgpu::PrimitiveTopology::TriangleList, 
 				strip_index_format: None, 
 				front_face: wgpu::FrontFace::Ccw, 
-				cull_mode: Some(wgpu::Face::Back), 
+				cull_mode: None, 
 				unclipped_depth: false, 
 				polygon_mode: wgpu::PolygonMode::Fill, 
 				conservative: false 
@@ -322,7 +322,7 @@ impl RenderContext {
 				topology: wgpu::PrimitiveTopology::TriangleList, 
 				strip_index_format: None, 
 				front_face: wgpu::FrontFace::Ccw, 
-				cull_mode: Some(wgpu::Face::Back), 
+				cull_mode: None, 
 				unclipped_depth: false, 
 				polygon_mode: wgpu::PolygonMode::Fill, 
 				conservative: false 

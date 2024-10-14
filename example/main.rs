@@ -1,5 +1,7 @@
 use rustui::{
-    app::{view::View, App}, colour::{self, Colour}, hstack, widgets::{button::Button, rect::Rect, stack::Stack, text::Text}
+    app::{view::View, App},
+    colour::{self},
+    widgets::Rect,
 };
 
 #[tokio::main]
@@ -10,12 +12,8 @@ async fn main() {
 
 async fn new_app() {
     let rect = Rect::new(100.0, 100.0, colour::TEAL);
-    let rect2 = Rect::new(100.0, 100.0, colour::TEAL);
 
-	let hstack = hstack![rect,rect2].spacing(200);
-
-
-    let page = View::new(hstack);
+    let page = View::new(rect);
     let app = App::new().await.add_view(page);
     app.run().await;
 }
