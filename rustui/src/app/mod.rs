@@ -1,13 +1,12 @@
 pub mod view;
 pub mod events;
 use events::EventManager;
+use wgpu::{hal::auxil::db, util::DeviceExt, BindGroupDescriptor, BindGroupLayoutDescriptor};
 use winit::{
-	event::WindowEvent, 
-	event_loop::{
+	dpi::PhysicalSize, event::WindowEvent, event_loop::{
 		ControlFlow, 
 		EventLoop
-	}, 
-	window::{Window, WindowBuilder}
+	}, window::{Window, WindowBuilder}
 };
 use crate::{app::view::View, utils::Size};
 use async_std::task;
@@ -19,7 +18,6 @@ use async_std::task;
 pub struct App{
 	event_loop:EventLoop<()>,
 	window:Window,
-	event_manager:EventManager,
 	views:Vec<View>,
 	index:usize,
 }
@@ -34,12 +32,9 @@ impl App{
 		
 		let window = WindowBuilder::new().build(&event_loop).unwrap();
 		
-		let event_manager = EventManager::new();
-		
 		Self { 
 			event_loop,
 			window,
-			event_manager,
 			views:vec![],
 			index:0,
 		}
@@ -51,23 +46,16 @@ impl App{
 	}
 
 	pub fn run(mut self){
-		let state = task::block_on(AppState::new(&self.window));
-		
+		let mut state = task::block_on(AppState::new(&self.window));
+
 		// TODO removed move; might cause errors
 		self.event_loop.run(move| event,window_target|{
 			match event {
 				winit::event::Event::WindowEvent{event,..} => match event {
 					WindowEvent::CloseRequested => window_target.exit(),
-					WindowEvent::RedrawRequested => {
-						// Re-render the page when the window redraws
-						self.views[self.index].render(&state);
-					},
-					event => { // FIXME clean this and start again
-						// Send all other window events to the event manager
-						let widget_tree = &mut self.views[0].widget_tree;
-						// FIXME error here
-						//self.event_manager.handle_events(widget_tree,event)
-					}
+					WindowEvent::RedrawRequested => self.views[self.index].render(&state),
+					WindowEvent::Resized(size) => state.resize(size),
+					_ => {}
 				}, 
 				_ => {}
 			}
@@ -136,9 +124,10 @@ impl<'a> AppState<'a> {
 			desired_maximum_frame_latency: 2
 		};
 
+		// Configure the surface for presentation
 		surface.configure(&device, &config);
 
-		let context = RenderContext::new(&device, &config);
+		let context = RenderContext::new(&device, &config,&size);
 
 		Self{
 			surface,
@@ -149,6 +138,15 @@ impl<'a> AppState<'a> {
 			size
 		}	
 	}
+
+	pub fn resize(&mut self,size:PhysicalSize<u32>) {
+		self.size = size.into();
+		self.queue.write_buffer(
+			&self.context.window_buffer, 
+			0, 
+			bytemuck::cast_slice(&[self.size.width,self.size.height])
+		);
+	}
 }
 
 /// Holds the compiled shaders
@@ -156,31 +154,80 @@ impl<'a> AppState<'a> {
 pub struct RenderContext{
 	pub rect_pipeline: wgpu::RenderPipeline,
 	pub text_pipeline: wgpu::RenderPipeline,
-	pub image_pipeline: wgpu::RenderPipeline
+	pub image_pipeline: wgpu::RenderPipeline,
+	pub window_bind_group: wgpu::BindGroup,
+	pub window_buffer: wgpu::Buffer
 }
 
 impl RenderContext {
-	pub fn new(device:&wgpu::Device,config:&wgpu::SurfaceConfiguration) -> Self{
+	pub fn new(device:&wgpu::Device,config:&wgpu::SurfaceConfiguration,size:&Size) -> Self{
+		let (rect_pipeline,window_bind_group,window_buffer) = 
+			RenderContext::create_rect_pipeline(device, config,size);
+		dbg!("Here");
 		Self{
-			rect_pipeline: RenderContext::create_rect_pipeline(device, config),
+			rect_pipeline,
+			window_bind_group,
+			window_buffer,
 			text_pipeline: RenderContext::create_text_pipeline(device, config),
 			image_pipeline: RenderContext::create_image_pipeline(device, config)
 		}
 	}
 
-	fn create_rect_pipeline(device:&wgpu::Device,config:&wgpu::SurfaceConfiguration) -> wgpu::RenderPipeline {
+	fn create_rect_pipeline(device:&wgpu::Device,config:&wgpu::SurfaceConfiguration,size:&Size) 
+	-> (wgpu::RenderPipeline,wgpu::BindGroup,wgpu::Buffer) {
 		// Compiled shader
 		let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor { 
 			label: Some("Shader module"), 
-			source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/surface/rect.wgsl").into())
+			source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/rect.wgsl").into())
 		});
 
+		let window_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+			label: Some("Window buffer"),
+			// Pass the window size as a uniform
+			contents:bytemuck::cast_slice(&[size.width,size.height]), 
+			usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
+		});
+
+		// The layout for the window uniform 
+		let window_bind_group_layout = device.create_bind_group_layout(
+			&BindGroupLayoutDescriptor{
+				label: Some("Window binding layout"),
+				entries:&[
+					wgpu::BindGroupLayoutEntry{
+						binding:0,
+						visibility:wgpu::ShaderStages::VERTEX,
+						ty: wgpu::BindingType::Buffer { 
+							ty: wgpu::BufferBindingType::Uniform, 
+							has_dynamic_offset: false, 
+							min_binding_size: None 
+						},
+						count: None
+					}
+				],
+			}
+		);
+
+		let window_bind_group = device.create_bind_group(
+			&BindGroupDescriptor{
+				label: Some("Window Bind Group"),
+				layout: &window_bind_group_layout,
+				entries:&[
+					wgpu::BindGroupEntry{
+						binding:0,
+						resource: window_buffer.as_entire_binding()
+					}
+				]
+			}
+		);
+		
 		let render_pipeline_layout = 
-			device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor { 
-				label: Some("Render pipeline layout"), 
-				bind_group_layouts: &[], 
-				push_constant_ranges: &[] 
-			});
+			device.create_pipeline_layout(
+				&wgpu::PipelineLayoutDescriptor { 
+					label: Some("Render pipeline layout"), 
+					bind_group_layouts: &[&window_bind_group_layout], 
+					push_constant_ranges: &[] 
+				}
+			);
 
 		let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor { 
 			label: Some("Render pipeline"), 
@@ -189,7 +236,7 @@ impl RenderContext {
 				module: &shader, 
 				entry_point: "vs_main", 
 				compilation_options: Default::default(), 
-				buffers: &[crate::vertex::Vertex::decription()] 
+				buffers: &[crate::vertex::Vertex::decription()] // Move this to this function
 			}, 
 			fragment: Some(wgpu::FragmentState{
 				module:&shader,
@@ -220,7 +267,7 @@ impl RenderContext {
 			depth_stencil: None, 
 		});
 
-		render_pipeline
+		return (render_pipeline,window_bind_group,window_buffer)
 	}
 
 	fn create_text_pipeline(device:&wgpu::Device,config:&wgpu::SurfaceConfiguration) -> wgpu::RenderPipeline {
@@ -228,7 +275,7 @@ impl RenderContext {
 		// Compiled shader
 		let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor { 
 			label: Some("Shader module"), 
-			source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/surface/rect.wgsl").into())
+			source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/text.wgsl").into())
 		});
 
 		let render_pipeline_layout = 
@@ -275,7 +322,6 @@ impl RenderContext {
 			cache: None, 
 			depth_stencil: None, 
 		});
-
 		render_pipeline
 	}
 
@@ -284,7 +330,7 @@ impl RenderContext {
 		// Compiled shader
 		let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor { 
 			label: Some("Shader module"), 
-			source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/surface/rect.wgsl").into())
+			source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/text.wgsl").into())
 		});
 
 		let render_pipeline_layout = 

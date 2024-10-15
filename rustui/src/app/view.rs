@@ -14,7 +14,6 @@ impl View {
 	}
 	
 	pub fn render(&mut self,state:&AppState) {		
-		
 		let output = state.surface.get_current_texture().unwrap();
 		let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
 

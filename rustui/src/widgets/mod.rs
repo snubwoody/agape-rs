@@ -4,26 +4,16 @@ mod container;
 mod text;
 mod button;
 mod image;
-mod flex;
 pub use rect::Rect;
 pub use text::Text;
 pub use button::Button;
 pub use stack::Stack;
 pub use image::Image;
-pub use flex::Flex;
 
-use std::{
-	collections::HashMap, fmt::Debug,
-};
-use glium::{
-	glutin::surface::WindowSurface, 
-	Display, 
-	Frame 
-};
-use winit::window::Window;
+use std::fmt::Debug;
 use crate::{
 	app::RenderContext, 
-	layout::{Constraint, IntrinsicSize, Layout, WidgetSize}, 
+	layout::{IntrinsicSize, Layout, WidgetSize}, 
 	surface::{
 		rect::RectSurface, Surface
 	}, utils::{Position, Size}, 

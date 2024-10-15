@@ -1,5 +1,4 @@
 use wgpu::util::DeviceExt;
-
 use crate::{
 	app::RenderContext, 
 	colour::Colour, 
@@ -55,37 +54,16 @@ impl Surface for RectSurface {
 		context: &RenderContext,
 		device:&wgpu::Device
 	) {
-		// let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
-		// let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
-		
-		// let params = DrawParameters{
-		// 	blend:Blend::alpha_blending(),
-		// 	..Default::default()
-		// };
-		
-		// let screen_width = window.inner_size().width as f32;
-		// let screen_height = window.inner_size().height as f32;
-		
-		// frame.draw(
-			// 	&vertex_buffer, 
-		// 	&indices, 
-		// 	&context.surface_program, 
-		// 	&uniform! {
-		// 		width:screen_width,
-		// 		height:screen_height,
-		// 	},
-		// 	&params
-		// ).unwrap();
-		
 		let vertices = self.to_vertices();
 		let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
 			label: Some("Vertex buffer"),
-			contents: bytemuck::cast_slice(&vertices),
+			contents: bytemuck::cast_slice(&vertices), // TODO maybe remove bytemuck
 			usage: wgpu::BufferUsages::VERTEX,
 		});
 
 		// Set the render pipeline and vertex buffer
 		render_pass.set_pipeline(&context.rect_pipeline);
+		render_pass.set_bind_group(0, &context.window_bind_group, &[]);
 		render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 
 		render_pass.draw(0..vertices.len() as u32, 0..1);

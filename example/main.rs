@@ -1,5 +1,8 @@
 use rustui::{
-    app::{view::View, App}, colour::{self}, hstack, layout::Layout, widgets::{Rect, Stack}
+    app::{view::View, App}, 
+	colour::{self}, 
+	hstack, 
+	widgets::{Rect, Stack}
 };
 
 fn main() {
