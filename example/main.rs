@@ -1,19 +1,20 @@
 use rustui::{
-    app::{view::View, App},
-    colour::{self},
-    widgets::Rect,
+    app::{view::View, App}, colour::{self}, hstack, layout::Layout, widgets::{Rect, Stack}
 };
 
-#[tokio::main]
-async fn main() {
+fn main() {
     env_logger::init();
-    new_app().await;
+    new_app()
 }
 
-async fn new_app() {
+fn new_app() {
     let rect = Rect::new(100.0, 100.0, colour::TEAL);
+    let rect2 = Rect::new(100.0, 100.0, colour::PINK);
+    let rect3 = Rect::new(100.0, 100.0, colour::INDIGO);
 
-    let page = View::new(rect);
-    let app = App::new().await.add_view(page);
-    app.run().await;
+	let hstack = hstack![rect,rect2,rect3].spacing(20);
+
+    let page = View::new(hstack);
+    let app = App::new().add_view(page);
+    app.run();
 }

@@ -1,10 +1,6 @@
 pub mod view;
 pub mod events;
-use std::fs;
 use events::EventManager;
-use glium::{
-	glutin::surface::WindowSurface, Display, Program,
-};
 use winit::{
 	event::WindowEvent, 
 	event_loop::{
@@ -13,7 +9,8 @@ use winit::{
 	}, 
 	window::{Window, WindowBuilder}
 };
-use crate::{app::view:: View, utils::Size};
+use crate::{app::view::View, utils::Size};
+use async_std::task;
 
 
 
@@ -28,7 +25,7 @@ pub struct App{
 }
 
 impl App{
-	pub async fn new() -> Self {
+	pub fn new() -> Self {
 		let event_loop = EventLoop::new().unwrap();
 
 		// Set the control flow to redraw every frame whether
@@ -53,8 +50,8 @@ impl App{
 		self
 	}
 
-	pub async fn run(mut self){
-		let state = AppState::new(&self.window).await;
+	pub fn run(mut self){
+		let state = task::block_on(AppState::new(&self.window));
 		
 		// TODO removed move; might cause errors
 		self.event_loop.run(move| event,window_target|{
@@ -77,8 +74,6 @@ impl App{
 	
 		}).expect("Event loop error occured");
 	}
-
-
 }
 
 pub struct AppState<'a>{

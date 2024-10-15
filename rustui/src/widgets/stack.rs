@@ -40,8 +40,13 @@ impl Widget for Stack {
 }
 
 impl Stack {
+	// FIXME change this to use the layout of the widget
 	pub fn spacing(mut self,spacing:u32) -> Self{
 		self.spacing = spacing;
+		self.layout = Layout::Horizontal {
+			spacing,
+			padding:self.padding,
+		};
 		self
 	}
 }
@@ -53,7 +58,7 @@ macro_rules! vstack {
 		padding:$padding:expr,
 		$($child:expr),*
 	) => {
-		Stack{
+		rustui::widgets::Stack{
 			spacing:$spacing,
 			padding:$padding,
 			colour:rustui::colour::Colour::Rgb(255,255,255),
@@ -69,7 +74,7 @@ macro_rules! vstack {
 		}
 	};
 	($($child:expr),*) => {
-		Stack{
+		rustui::widgets::Stack{
 			spacing:0,
 			padding:0,
 			colour:rustui::colour::Colour::Rgb(255,255,255),
@@ -93,7 +98,7 @@ macro_rules! hstack {
 		padding:$padding:expr,
 		$($child:expr),*
 	) => {
-		Stack{
+		rustui::widgets::Stack{
 			spacing:$spacing,
 			padding:$padding,
 			colour:rustui::colour::Colour::Rgb(255,255,255),
@@ -109,7 +114,7 @@ macro_rules! hstack {
 		}
 	};
 	($($child:expr),*) => {
-		Stack{
+		rustui::widgets::Stack{
 			spacing:0,
 			padding:0,
 			colour:rustui::colour::Colour::Rgb(255,255,255),
