@@ -55,6 +55,7 @@ impl Surface for RectSurface {
 		device:&wgpu::Device
 	) {
 		let vertices = self.to_vertices();
+		
 		let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
 			label: Some("Vertex buffer"),
 			contents: bytemuck::cast_slice(&vertices), // TODO maybe remove bytemuck
