@@ -2,7 +2,7 @@ use helium::{
     app::{view::View, App}, 
 	colour::{self}, 
 	hstack, 
-	widgets::{Rect, Stack}
+	widgets::Rect
 };
 
 fn main() {

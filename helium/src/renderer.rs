@@ -15,6 +15,7 @@ use wgpu::{
 use crate::{utils::Size, vertex::Vertex};
 
 /// Holds the render pipeline
+#[derive(Debug)]
 pub struct RectRenderer{
 	pub render_pipeline: wgpu::RenderPipeline,
 	pub window_bind_group: wgpu::BindGroup,
@@ -108,7 +109,7 @@ impl RectRenderer {
 			device.create_pipeline_layout(
 				&PipelineLayoutDescriptor{
 					label: Some("Rect Pipeline Layout"),
-					bind_group_layouts: &[],
+					bind_group_layouts: &[&window_bind_group_layout],
 					push_constant_ranges: &[]
 				}
 			);
@@ -154,5 +155,37 @@ impl RectRenderer {
 		);
 
 		(render_pipeline,window_buffer,window_bind_group)
+	}
+}
+
+/// Controls the rendering of text to the screen
+#[derive(Debug)]
+pub struct TextRenderer{
+	pub render_pipeline: wgpu::RenderPipeline
+}
+
+impl TextRenderer {
+	pub fn new(){
+
+	}
+
+	pub fn create_pipeline(){
+		
+	}
+}
+
+/// Controls the rendering of images to the screen
+#[derive(Debug)]
+pub struct ImageRenderer{
+	pub render_pipeline: wgpu::RenderPipeline
+}
+
+impl ImageRenderer {
+	pub fn new(){
+
+	}
+
+	pub fn create_pipeline(){
+		
 	}
 }

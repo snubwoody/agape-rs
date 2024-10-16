@@ -147,34 +147,27 @@ impl<'a> AppState<'a> {
     pub fn resize(&mut self, size: PhysicalSize<u32>) {
         self.size = size.into();
         self.queue.write_buffer(
-            &self.context.window_buffer,
+            &self.context.rect_renderer.window_buffer,
             0,
             bytemuck::cast_slice(&[self.size.width, self.size.height]),
         );
     }
 }
 
-/// Holds the compiled shaders
+/// Contains the renderers
 #[derive(Debug)]
 pub struct RenderContext {
-    pub rect_pipeline: wgpu::RenderPipeline,
-    pub text_pipeline: wgpu::RenderPipeline,
-    pub image_pipeline: wgpu::RenderPipeline,
-    pub window_bind_group: wgpu::BindGroup,
-    pub window_buffer: wgpu::Buffer,
+	pub rect_renderer: RectRenderer,
 }
 
 impl RenderContext {
     pub fn new(device: &wgpu::Device, config: &wgpu::SurfaceConfiguration, size: &Size) -> Self {
         let (rect_pipeline, window_bind_group, window_buffer) =
             RenderContext::create_rect_pipeline(device, config, size);
+		let rect_renderer = RectRenderer::new(device, config, size);
 
         Self {
-            rect_pipeline,
-            window_bind_group,
-            window_buffer,
-            text_pipeline: RenderContext::create_text_pipeline(device, config),
-            image_pipeline: RenderContext::create_image_pipeline(device, config),
+			rect_renderer,
         }
     }
 
