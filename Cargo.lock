@@ -873,9 +873,8 @@ name = "example"
 version = "0.1.0"
 dependencies = [
  "env_logger",
+ "helium",
  "log",
- "properties",
- "rustui",
  "tokio",
 ]
 
@@ -1282,10 +1281,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 
 [[package]]
-name = "helium_renderer"
+name = "helium"
 version = "0.1.0"
 dependencies = [
+ "async-std",
  "bytemuck",
+ "env_logger",
+ "fontdue",
+ "glium",
+ "image",
+ "log",
+ "quote",
+ "rand",
+ "syn 2.0.72",
+ "text-to-png",
  "tokio",
  "wgpu",
  "winit",
@@ -2044,16 +2053,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "properties"
-version = "0.1.0"
-dependencies = [
- "proc-macro2",
- "quote",
- "rustui",
- "syn 2.0.72",
-]
-
-[[package]]
 name = "qoi"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2327,27 +2326,6 @@ dependencies = [
  "libc",
  "linux-raw-sys",
  "windows-sys 0.52.0",
-]
-
-[[package]]
-name = "rustui"
-version = "0.1.0"
-dependencies = [
- "async-std",
- "bytemuck",
- "env_logger",
- "fontdue",
- "glium",
- "helium_renderer",
- "image",
- "log",
- "quote",
- "rand",
- "syn 2.0.72",
- "text-to-png",
- "tokio",
- "wgpu",
- "winit",
 ]
 
 [[package]]
