@@ -6,7 +6,7 @@ use glium::{
 	Texture2d, 
 };
 use crate::{
-	colour::rgb, 
+	colour:: Colour, 
 	surface::Surface, 
 	utils::{Bounds, Position,Size}, 
 	vertex::Vertex
@@ -70,7 +70,7 @@ impl TextSurface {
 	}
 
 	fn to_vertices(&self,width:f32,height:f32) -> Vec<Vertex>{
-		let colour = rgb(255, 255, 255);
+		let colour = Colour::default().normalize();
 		let x = self.position.x;
 		let y = self.position.y;
 
@@ -151,7 +151,7 @@ impl Surface for TextSurface {
 		self.position.y = y;
 	}
 
-	fn get_position(&self) -> (f32,f32) {
-		(self.position.x,self.position.y)
+	fn get_position(&self) -> Position {
+		self.position
 	}
 }

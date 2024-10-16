@@ -24,7 +24,7 @@ impl Bounds{
 }
 
 /// Represents the position of any structure
-#[derive(Debug,Clone,Copy,PartialEq,PartialOrd)]
+#[derive(Debug,Clone,Copy,PartialEq,PartialOrd,Default)]
 pub struct Position{
 	pub x:f32,
 	pub y:f32,
@@ -59,6 +59,7 @@ impl From<PhysicalPosition<f64>> for Position {
 }
 
 
+/// Anything with a width and a height
 #[derive(Debug,Clone,Copy,PartialEq,PartialOrd,Default)]
 pub struct Size{
 	pub width:f32,

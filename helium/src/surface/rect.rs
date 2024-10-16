@@ -3,7 +3,7 @@ use crate::{
 	app::RenderContext, 
 	colour::Colour, 
 	surface::Surface, 
-	utils::{Bounds, Size}, 
+	utils::{Bounds, Position, Size}, 
 	vertex::Vertex
 };
 
@@ -11,10 +11,9 @@ use crate::{
 /// This is a primitive that draws to the screen. This holds
 /// essential information about the [`Widget`], ie.
 /// the colour, coordinates and size.
-#[derive(Debug,Clone,PartialEq)]
+#[derive(Debug,Clone,PartialEq,Default)]
 pub struct RectSurface{
-	pub x:f32,
-	pub y:f32,
+	pub position:Position,
 	pub size:Size,
 	pub colour:Colour,
 }
@@ -22,7 +21,8 @@ pub struct RectSurface{
 impl RectSurface {
 	pub fn new(x:f32,y:f32,width:f32,height:f32,colour:Colour) -> Self{
 		let size = Size::new(width, height);
-		Self { x,y,size,colour }
+		let position = Position::new(x, y);
+		Self { position,size,colour }
 	}
 
 	pub fn colour(&mut self,colour:Colour) {
@@ -32,8 +32,8 @@ impl RectSurface {
 	pub fn to_vertices(&self) -> Vec<Vertex>{
 
 		let colour = self.colour.normalize();
-		let x = self.x;
-		let y = self.y;
+		let x = self.position.x;
+		let y = self.position.y;
 
 		let vertex1 = Vertex::new(x, y,colour); //Top left
 		let vertex2 = Vertex::new(x+self.size.width, y,colour); // Top right
@@ -70,12 +70,11 @@ impl Surface for RectSurface {
 	}
 
 	fn position(&mut self, x:f32,y:f32){
-		self.x = x;
-		self.y = y;
+		self.position = Position::new(x, y);
 	} 
 	
-	fn get_position(&self) -> (f32,f32) {
-		(self.x,self.y)
+	fn get_position(&self) -> Position {
+		self.position
 	} 
 
 	fn size(&mut self,width:f32,height:f32){
@@ -99,19 +98,8 @@ impl Surface for RectSurface {
 		let position = self.get_position();
 		let size = self.get_size();
 		Bounds{
-			x:[position.0,size.width],
-			y:[position.1,size.height],
-		}
-	}
-}
-
-impl Default for RectSurface {
-	fn default() -> Self {
-		Self { 
-			x:0.0, 
-			y:0.0, 
-			size:Size::new(0.0, 0.0),
-			colour:Colour::Rgb(255, 255, 255) 
+			x:[position.x,size.width],
+			y:[position.y,size.height],
 		}
 	}
 }

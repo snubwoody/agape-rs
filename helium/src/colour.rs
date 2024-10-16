@@ -63,21 +63,10 @@ impl Colour {
 	}
 }
 
-/// Deprecated
-pub fn rgb(r:u8,g:u8,b:u8) -> [f32;4]{
-	let red = map(r as f32, [0.0,255.0], [0.0,1.0]);
-	let green = map(g as f32, [0.0,255.0], [0.0,1.0]);
-	let blue = map(b as f32, [0.0,255.0], [0.0,1.0]);
-	return [red,green,blue,1.0]
-}
-
-/// Deprecated
-pub fn rgba(r:u8,g:u8,b:u8,a:u8) -> [f32;4]{
-	let red = map(r as f32, [0.0,255.0], [0.0,1.0]);
-	let green = map(g as f32, [0.0,255.0], [0.0,1.0]);
-	let blue = map(b as f32, [0.0,255.0], [0.0,1.0]);
-	let alpha = map(a as f32, [0.0,100.0], [0.0,1.0]);
-	return [red,green,blue,alpha]
+impl Default for Colour {
+	fn default() -> Self {
+		Self::Rgb(255, 255, 255)
+	}
 }
 
 

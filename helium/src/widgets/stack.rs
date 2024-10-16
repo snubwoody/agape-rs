@@ -98,11 +98,11 @@ macro_rules! hstack {
 		padding:$padding:expr,
 		$($child:expr),*
 	) => {
-		rustui::widgets::Stack{
+		helium::widgets::Stack{
 			spacing:$spacing,
 			padding:$padding,
-			colour:rustui::colour::Colour::Rgb(255,255,255),
-			layout:rustui::layout::Layout::Horizontal {
+			colour:helium::colour::Colour::Rgb(255,255,255),
+			layout:helium::layout::Layout::Horizontal {
 				spacing: $spacing,
 				padding: $padding,
 			},
@@ -114,11 +114,11 @@ macro_rules! hstack {
 		}
 	};
 	($($child:expr),*) => {
-		rustui::widgets::Stack{
+		helium::widgets::Stack{
 			spacing:0,
 			padding:0,
-			colour:rustui::colour::Colour::Rgb(255,255,255),
-			layout:rustui::layout::Layout::Horizontal {
+			colour: helium::colour::Colour::Rgb(255,255,255),
+			layout: helium::layout::Layout::Horizontal {
 				spacing:0,
 				padding:0,
 			},

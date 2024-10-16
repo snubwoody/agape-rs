@@ -1,14 +1,14 @@
 pub mod view;
 pub mod events;
-use events::EventManager;
-use wgpu::{hal::auxil::db, util::DeviceExt, BindGroupDescriptor, BindGroupLayoutDescriptor};
+use wgpu::{util::DeviceExt, BindGroupDescriptor, BindGroupLayoutDescriptor};
 use winit::{
 	dpi::PhysicalSize, event::WindowEvent, event_loop::{
 		ControlFlow, 
 		EventLoop
 	}, window::{Window, WindowBuilder}
 };
-use crate::{app::view::View, utils::Size};
+use view::View;
+use crate::utils::Size;
 use async_std::task;
 
 
@@ -31,7 +31,7 @@ impl App{
 		event_loop.set_control_flow(ControlFlow::Poll);
 		
 		let window = WindowBuilder::new().build(&event_loop).unwrap();
-		
+
 		Self { 
 			event_loop,
 			window,
@@ -48,7 +48,6 @@ impl App{
 	pub fn run(mut self){
 		let mut state = task::block_on(AppState::new(&self.window));
 
-		// TODO removed move; might cause errors
 		self.event_loop.run(move| event,window_target|{
 			match event {
 				winit::event::Event::WindowEvent{event,..} => match event {
@@ -68,7 +67,6 @@ pub struct AppState<'a>{
 	pub surface: wgpu::Surface<'a>,
 	pub device: wgpu::Device,
 	pub queue: wgpu::Queue,
-	pub config: wgpu::SurfaceConfiguration,
 	pub context:RenderContext,
 	pub size: Size
 }
@@ -108,7 +106,7 @@ impl<'a> AppState<'a> {
 			surface_caps
 			.formats
 			.iter()
-			.find(|f|f.is_srgb())
+			.find(|s|s.is_srgb())
 			.copied()
 			.unwrap_or(surface_caps.formats[0]);
 
@@ -133,7 +131,6 @@ impl<'a> AppState<'a> {
 			surface,
 			device,
 			queue,
-			config,
 			context,
 			size
 		}	
@@ -163,8 +160,8 @@ impl RenderContext {
 	pub fn new(device:&wgpu::Device,config:&wgpu::SurfaceConfiguration,size:&Size) -> Self{
 		let (rect_pipeline,window_bind_group,window_buffer) = 
 			RenderContext::create_rect_pipeline(device, config,size);
-		dbg!("Here");
-		Self{
+
+			Self{
 			rect_pipeline,
 			window_bind_group,
 			window_buffer,

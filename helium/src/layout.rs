@@ -60,8 +60,8 @@ impl Layout {
 				&mut widget.children,
 				*max_size,
 				Position::new(
-					widget.surface.get_position().0,
-					widget.surface.get_position().1
+					widget.surface.get_position().x,
+					widget.surface.get_position().y
 				)
 			);
 
@@ -117,8 +117,8 @@ impl Layout {
 				&mut widget.children,
 				*max_size,
 				Position::new(
-					widget.surface.get_position().0,
-					widget.surface.get_position().1
+					widget.surface.get_position().x,
+					widget.surface.get_position().y
 				)
 			);
 
@@ -180,8 +180,8 @@ impl Layout {
 					&mut widget.children, 
 					*max_size,
 					Position::new(
-						widget.surface.get_position().0,
-						widget.surface.get_position().1
+						widget.surface.get_position().x,
+						widget.surface.get_position().y
 					)
 				)
 			};

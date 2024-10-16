@@ -57,8 +57,8 @@ impl WidgetBody {
 			&mut self.children,
 			Size::new(window_size.width, window_size.height),
 			Position::new(
-				self.surface.get_position().0, 
-				self.surface.get_position().1
+				self.surface.get_position().x, 
+				self.surface.get_position().y
 			)
 		);
 

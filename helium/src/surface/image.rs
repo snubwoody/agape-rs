@@ -1,19 +1,11 @@
-use std::io::Cursor;
-use image::{imageops::FilterType, GenericImageView};
-use text_to_png::{Size as ImageSize, TextRenderer};
+use image::{imageops::FilterType};
 use glium::{
 	glutin::surface::WindowSurface, 
-	index, 
-	Blend, 
 	Display, 
-	DrawParameters, 
-	Surface as GliumSurface, 
 	Texture2d, 
-	VertexBuffer 
 };
 use crate::{
-	app::RenderContext, 
-	colour::rgb, 
+	colour::Colour, 
 	surface::Surface, 
 	utils::{Bounds, Position,Size}, 
 	vertex::Vertex
@@ -56,7 +48,7 @@ impl ImageSurface {
 	}
 
 	fn to_vertices(&self,width:f32,height:f32) -> Vec<Vertex>{
-		let colour = rgb(255, 255, 255);
+		let colour = Colour::default().normalize();
 		let x = self.position.x;
 		let y = self.position.y;
 
@@ -137,7 +129,7 @@ impl Surface for ImageSurface {
 		self.position.y = y;
 	}
 
-	fn get_position(&self) -> (f32,f32) {
-		(self.position.x,self.position.y)
+	fn get_position(&self) -> Position {
+		self.position
 	}
 }

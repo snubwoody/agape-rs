@@ -2,7 +2,7 @@ pub mod rect;
 pub mod text;
 pub mod image;
 use std::fmt::Debug;
-use crate::{utils::{Bounds,Size}};
+use crate::utils::{Bounds, Position, Size};
 
 /// A primitive object that is drawn to the screen
 pub trait Surface:Debug {
@@ -17,9 +17,8 @@ pub trait Surface:Debug {
 	/// Set the [`Position`] of the [`Surface`]
 	fn position(&mut self, x:f32,y:f32);	
 	
-	//TODO replace this with a position struct
 	/// Get the [`Surface`] position.
-	fn get_position(&self) -> (f32,f32);
+	fn get_position(&self) -> Position;
 
 	/// Set the [`Size`] of the [`Surface`].
 	fn size(&mut self,width:f32,height:f32);
