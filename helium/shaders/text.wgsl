@@ -1,3 +1,5 @@
+@group(0) @binding(0)
+var<uniform> window_size: vec2<f32>;
 
 struct VertexOutput{
 	@builtin(position) position: vec4<f32>,
@@ -35,8 +37,9 @@ fn vs_main(model:VertexInput) -> VertexOutput {
 	out.color = model.color;
 	
 	// Normalize the coordinates
-	var x_pos = normalize_value(model.position.x,0.0,500.0);
-	var y_pos = -normalize_value(model.position.y,0.0,500.0);
+	var x_pos = normalize_value(model.position.x,0.0,window_size.x);
+	var y_pos = -normalize_value(model.position.y,0.0,window_size.y);
+	
 	out.position = vec4<f32>(x_pos,y_pos,1.0,1.0);
 	return out;
 }

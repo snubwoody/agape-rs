@@ -1,6 +1,6 @@
 pub mod events;
 pub mod view;
-use crate::{renderer::RectRenderer, utils::Size};
+use crate::{renderer::{RectRenderer, TextRenderer}, utils::Size};
 use async_std::task;
 use view::View;
 use wgpu::{util::DeviceExt, BindGroupDescriptor, BindGroupLayoutDescriptor};
@@ -45,7 +45,6 @@ impl App {
 
     pub fn run(mut self) {
         let mut state = task::block_on(AppState::new(&self.window));
-		let rect_renderer = RectRenderer::new(&state.device, &state.config, &state.size);
 
         self.event_loop
             .run(move |event, window_target| match event {
@@ -158,223 +157,17 @@ impl<'a> AppState<'a> {
 #[derive(Debug)]
 pub struct RenderContext {
 	pub rect_renderer: RectRenderer,
+	pub text_renderer: TextRenderer,
 }
 
 impl RenderContext {
     pub fn new(device: &wgpu::Device, config: &wgpu::SurfaceConfiguration, size: &Size) -> Self {
-        let (rect_pipeline, window_bind_group, window_buffer) =
-            RenderContext::create_rect_pipeline(device, config, size);
 		let rect_renderer = RectRenderer::new(device, config, size);
+		let text_renderer = TextRenderer::new(device, config, size);
 
         Self {
 			rect_renderer,
+			text_renderer
         }
-    }
-
-    fn create_rect_pipeline(
-        device: &wgpu::Device,
-        config: &wgpu::SurfaceConfiguration,
-        size: &Size,
-    ) -> (wgpu::RenderPipeline, wgpu::BindGroup, wgpu::Buffer) {
-        // Compiled shader
-        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Shader module"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/rect.wgsl").into()),
-        });
-
-        let window_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Window buffer"),
-            // Pass the window size as a uniform
-            contents: bytemuck::cast_slice(&[size.width, size.height]),
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-        });
-
-        // The layout for the window uniform
-        let window_bind_group_layout =
-            device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-                label: Some("Window binding layout"),
-                entries: &[wgpu::BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: wgpu::ShaderStages::VERTEX,
-                    ty: wgpu::BindingType::Buffer {
-                        ty: wgpu::BufferBindingType::Uniform,
-                        has_dynamic_offset: false,
-                        min_binding_size: None,
-                    },
-                    count: None,
-                }],
-            });
-
-        let window_bind_group = device.create_bind_group(&BindGroupDescriptor {
-            label: Some("Window Bind Group"),
-            layout: &window_bind_group_layout,
-            entries: &[wgpu::BindGroupEntry {
-                binding: 0,
-                resource: window_buffer.as_entire_binding(),
-            }],
-        });
-
-        let render_pipeline_layout =
-            device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                label: Some("Render pipeline layout"),
-                bind_group_layouts: &[&window_bind_group_layout],
-                push_constant_ranges: &[],
-            });
-
-        let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("Render pipeline"),
-            layout: Some(&render_pipeline_layout),
-            vertex: wgpu::VertexState {
-                module: &shader,
-                entry_point: "vs_main",
-                compilation_options: Default::default(),
-                buffers: &[crate::vertex::Vertex::decription()], // Move this to this function
-            },
-            fragment: Some(wgpu::FragmentState {
-                module: &shader,
-                entry_point: "fs_main",
-                compilation_options: Default::default(),
-                targets: &[Some(wgpu::ColorTargetState {
-                    format: config.format,
-                    blend: Some(wgpu::BlendState::ALPHA_BLENDING), // TODO check pre-multiplied alpha blending
-                    write_mask: wgpu::ColorWrites::ALL,
-                })],
-            }),
-            primitive: wgpu::PrimitiveState {
-                topology: wgpu::PrimitiveTopology::TriangleList,
-                strip_index_format: None,
-                front_face: wgpu::FrontFace::Ccw,
-                cull_mode: None,
-                unclipped_depth: false,
-                polygon_mode: wgpu::PolygonMode::Fill,
-                conservative: false,
-            },
-            multisample: wgpu::MultisampleState {
-                count: 1,
-                mask: !0,
-                alpha_to_coverage_enabled: false,
-            },
-            multiview: None,
-            cache: None,
-            depth_stencil: None,
-        });
-
-        return (render_pipeline, window_bind_group, window_buffer);
-    }
-
-    fn create_text_pipeline(
-        device: &wgpu::Device,
-        config: &wgpu::SurfaceConfiguration,
-    ) -> wgpu::RenderPipeline {
-        // Compiled shader
-        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Shader module"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/text.wgsl").into()),
-        });
-
-        let render_pipeline_layout =
-            device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                label: Some("Render pipeline layout"),
-                bind_group_layouts: &[],
-                push_constant_ranges: &[],
-            });
-
-        let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("Render pipeline"),
-            layout: Some(&render_pipeline_layout),
-            vertex: wgpu::VertexState {
-                module: &shader,
-                entry_point: "vs_main",
-                compilation_options: Default::default(),
-                buffers: &[crate::vertex::Vertex::decription()],
-            },
-            fragment: Some(wgpu::FragmentState {
-                module: &shader,
-                entry_point: "fs_main",
-                compilation_options: Default::default(),
-                targets: &[Some(wgpu::ColorTargetState {
-                    format: config.format,
-                    blend: Some(wgpu::BlendState::ALPHA_BLENDING),
-                    write_mask: wgpu::ColorWrites::ALL,
-                })],
-            }),
-            primitive: wgpu::PrimitiveState {
-                topology: wgpu::PrimitiveTopology::TriangleList,
-                strip_index_format: None,
-                front_face: wgpu::FrontFace::Ccw,
-                cull_mode: None,
-                unclipped_depth: false,
-                polygon_mode: wgpu::PolygonMode::Fill,
-                conservative: false,
-            },
-            multisample: wgpu::MultisampleState {
-                count: 1,
-                mask: !0,
-                alpha_to_coverage_enabled: false,
-            },
-            multiview: None,
-            cache: None,
-            depth_stencil: None,
-        });
-        render_pipeline
-    }
-
-    fn create_image_pipeline(
-        device: &wgpu::Device,
-        config: &wgpu::SurfaceConfiguration,
-    ) -> wgpu::RenderPipeline {
-        // TODO replace this with the actual text shader
-        // Compiled shader
-        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Shader module"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/text.wgsl").into()),
-        });
-
-        let render_pipeline_layout =
-            device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                label: Some("Render pipeline layout"),
-                bind_group_layouts: &[],
-                push_constant_ranges: &[],
-            });
-
-        let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("Render pipeline"),
-            layout: Some(&render_pipeline_layout),
-            vertex: wgpu::VertexState {
-                module: &shader,
-                entry_point: "vs_main",
-                compilation_options: Default::default(),
-                buffers: &[crate::vertex::Vertex::decription()],
-            },
-            fragment: Some(wgpu::FragmentState {
-                module: &shader,
-                entry_point: "fs_main",
-                compilation_options: Default::default(),
-                targets: &[Some(wgpu::ColorTargetState {
-                    format: config.format,
-                    blend: Some(wgpu::BlendState::ALPHA_BLENDING),
-                    write_mask: wgpu::ColorWrites::ALL,
-                })],
-            }),
-            primitive: wgpu::PrimitiveState {
-                topology: wgpu::PrimitiveTopology::TriangleList,
-                strip_index_format: None,
-                front_face: wgpu::FrontFace::Ccw,
-                cull_mode: None,
-                unclipped_depth: false,
-                polygon_mode: wgpu::PolygonMode::Fill,
-                conservative: false,
-            },
-            multisample: wgpu::MultisampleState {
-                count: 1,
-                mask: !0,
-                alpha_to_coverage_enabled: false,
-            },
-            multiview: None,
-            cache: None,
-            depth_stencil: None,
-        });
-
-        render_pipeline
     }
 }
