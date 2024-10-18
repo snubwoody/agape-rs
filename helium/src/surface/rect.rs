@@ -1,6 +1,6 @@
 use wgpu::util::DeviceExt;
 use crate::{
-	app::RenderContext, 
+	app::{AppState, RenderContext}, 
 	colour::Colour, 
 	surface::Surface, 
 	utils::{Bounds, Position, Size}, 
@@ -52,11 +52,11 @@ impl Surface for RectSurface {
 		&self,
 		render_pass:&mut wgpu::RenderPass,
 		context: &RenderContext,
-		device:&wgpu::Device
+		state: &AppState
 	) {
 		let vertices = self.to_vertices();
 		
-		let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+		let vertex_buffer = state.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
 			label: Some("Vertex buffer"),
 			contents: bytemuck::cast_slice(&vertices), // TODO maybe remove bytemuck
 			usage: wgpu::BufferUsages::VERTEX,

@@ -164,6 +164,7 @@ pub struct TextRenderer{
 	pub render_pipeline: wgpu::RenderPipeline,
 	pub window_bind_group: wgpu::BindGroup,
     pub window_buffer: wgpu::Buffer,
+	pub texture_bind_group_layout: wgpu::BindGroupLayout
 }
 
 impl TextRenderer {
@@ -172,13 +173,14 @@ impl TextRenderer {
 		config: &wgpu::SurfaceConfiguration,
 		size:&Size
 	) -> Self {
-		let (render_pipeline,window_buffer,window_bind_group) = 
-			RectRenderer::create_pipeline(device, config, size);
+		let (render_pipeline,window_buffer,window_bind_group,texture_bind_group_layout) = 
+			TextRenderer::create_pipeline(device, config, size);
 		
 		Self { 
 			render_pipeline, 
 			window_bind_group, 
-			window_buffer 
+			window_buffer,
+			texture_bind_group_layout
 		}
 	}
 
@@ -186,7 +188,7 @@ impl TextRenderer {
 		device:&wgpu::Device,
 		config:&wgpu::SurfaceConfiguration,
 		size:&Size
-	) -> (wgpu::RenderPipeline,wgpu::Buffer,wgpu::BindGroup) {
+	) -> (wgpu::RenderPipeline,wgpu::Buffer,wgpu::BindGroup,wgpu::BindGroupLayout) {
 		// Compile the shader
 		let shader = device.create_shader_module(
 			ShaderModuleDescriptor{
@@ -227,7 +229,33 @@ impl TextRenderer {
             }],
         });
 
-		let buffer_layout = VertexBufferLayout { 
+		let texture_bind_group_layout = device.create_bind_group_layout(
+			&wgpu::BindGroupLayoutDescriptor { 
+				label: Some("Text bind group layout"), 
+				entries: &[
+					// For the texture
+					wgpu::BindGroupLayoutEntry{
+						binding:0,
+						visibility: wgpu::ShaderStages::FRAGMENT,
+						ty: wgpu::BindingType::Texture { 
+							sample_type: wgpu::TextureSampleType::Float { filterable: true }, 
+							view_dimension: wgpu::TextureViewDimension::D2, 
+							multisampled: false
+						},
+						count:None
+					},
+					wgpu::BindGroupLayoutEntry{
+						binding:1,
+						visibility: wgpu::ShaderStages::FRAGMENT,
+						ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+						count:None
+					}
+				]
+			}
+		);
+
+		// TODO rename this to vertex_buffer_layout
+		let vertex_buffer_layout = VertexBufferLayout { 
 			array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress, 
 			step_mode: wgpu::VertexStepMode::Vertex, 
 			attributes: &[
@@ -253,7 +281,7 @@ impl TextRenderer {
 			device.create_pipeline_layout(
 				&PipelineLayoutDescriptor{
 					label: Some("Text Pipeline Layout"),
-					bind_group_layouts: &[&window_bind_group_layout],
+					bind_group_layouts: &[&window_bind_group_layout,&texture_bind_group_layout],
 					push_constant_ranges: &[]
 				}
 			);
@@ -266,7 +294,7 @@ impl TextRenderer {
 					module: &shader,
 					entry_point: "vs_main",
 					compilation_options: Default::default(),
-					buffers: &[buffer_layout]
+					buffers: &[vertex_buffer_layout]
 				}, 
 				fragment: Some(FragmentState{
 					module: &shader,
@@ -298,7 +326,7 @@ impl TextRenderer {
 			}
 		);
 
-		(render_pipeline,window_buffer,window_bind_group)
+		(render_pipeline,window_buffer,window_bind_group,texture_bind_group_layout)
 	}
 }
 

@@ -2,7 +2,7 @@ pub mod rect;
 pub mod text;
 pub mod image;
 use std::fmt::Debug;
-use crate::utils::{Bounds, Position, Size};
+use crate::{app::AppState, utils::{Bounds, Position, Size}};
 
 /// A primitive object that is drawn to the screen
 pub trait Surface:Debug {
@@ -11,7 +11,7 @@ pub trait Surface:Debug {
 		&self,
 		render_pass:&mut wgpu::RenderPass,
 		context: &crate::app::RenderContext,
-		device:&wgpu::Device
+		state:&AppState
 	);
 
 	/// Set the [`Position`] of the [`Surface`]

@@ -1,15 +1,14 @@
 use std::io::Cursor;
+use image::RgbaImage;
 use text_to_png::{Size as ImageSize, TextRenderer};
 use glium::{
 	glutin::surface::WindowSurface, 
 	Display, 
 	Texture2d, 
 };
+use wgpu::{core::device::queue, util::DeviceExt};
 use crate::{
-	colour:: Colour, 
-	surface::Surface, 
-	utils::{Bounds, Position,Size}, 
-	vertex::Vertex
+	app::AppState, colour::{ Colour, RED}, surface::Surface, utils::{Bounds, Position,Size}, vertex::Vertex
 };
 
 // FIXME change the colour to Colour enum
@@ -21,33 +20,28 @@ pub struct TextSurface{
 	text:String,
 	font_size:u8,
 	colour:String,
-	img:Vec<u8>
+	img: RgbaImage
 }
 
 impl TextSurface {
 	pub fn new(text:&str,colour:&str,font_size:u8) -> Self{
 		let text_renderer = TextRenderer::default();
 
-		let image_size:ImageSize;
-
 		// Render the text as a png
 		let text_image = text_renderer.render_text_to_png_data(
 			text, 
 			font_size, 
-			colour
+			"#000"
 		).unwrap();
 
-		image_size = text_image.size;
-
-		// Get the raw pixel values for the image
 		let img = image::load(
 			Cursor::new(text_image.data), 
 			image::ImageFormat::Png
-		).unwrap().to_rgba8().into_raw();
+		).unwrap().to_rgba8();
 		
 		Self {
 			position:Position::new(0.0, 0.0), 
-			size:Size::new(image_size.width as f32, image_size.height as f32),
+			size:Size::new(text_image.size.width as f32, text_image.size.height as f32),
 			text:String::from(text), 
 			font_size, 
 			colour:String::from(colour),
@@ -56,16 +50,27 @@ impl TextSurface {
 	}
 	
 	/// Rasterize the text and store the texture 
-	pub fn build(&self,display:&Display<WindowSurface>) -> Texture2d{
-		// Create an opengl raw image 
-		let raw_image = glium::texture::RawImage2d::from_raw_rgba_reversed(
-			&self.img,(self.size.width as u32,self.size.height as u32)
+	pub fn build(&self,device: &wgpu::Device,queue: &wgpu::Queue) -> (wgpu::Texture,wgpu::Extent3d) {
+		let texture_size = wgpu::Extent3d{
+			width:self.size.width as u32,
+			height: self.size.height as u32,
+			depth_or_array_layers:1
+		};
+
+		let texture = device.create_texture(
+			&wgpu::TextureDescriptor {
+				size: texture_size,
+				mip_level_count: 1,
+				sample_count: 1,
+				dimension: wgpu::TextureDimension::D2,
+				format: wgpu::TextureFormat::Rgba8UnormSrgb,
+				usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+				label: Some("Text Texture"),
+				view_formats: &[],
+			}
 		);
 
-		// Create the texture from the image
-		let texture = glium::texture::Texture2d::new(display, raw_image).unwrap();
-
-		return texture;
+		return (texture,texture_size);
 
 	}
 
@@ -90,36 +95,75 @@ impl Surface for TextSurface {
 		&self,
 		render_pass:&mut wgpu::RenderPass,
 		context: &crate::app::RenderContext,
-		device:&wgpu::Device
+		state: &AppState
 	) {
-		// let params = DrawParameters{
-		// 	blend:Blend::alpha_blending(),
-		// 	..Default::default()
-		// };
 
-		// let screen_width = window.inner_size().width as f32;
-		// let screen_height = window.inner_size().height as f32;
+		let (texture,texture_size) = self.build(&state.device, &state.queue);
 
-		// let texture = self.build(display);
+		let vertices = self.to_vertices(texture_size.width as f32,texture_size.height as f32);
 
-		// let uniforms = uniform! {
-		// 	width:screen_width,
-		// 	height:screen_height,
-		// 	tex: texture,
-		// };
-
-		// let vertices:Vec<Vertex> = self.to_vertices(self.size.width as i32, self.size.height as i32);
-		// let vertex_buffer = VertexBuffer::new(display, &vertices).unwrap();
-		// let indices = index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+		dbg!(&vertices);
 		
-		// frame.draw(
-		// 	&vertex_buffer, 
-		// 	&indices, 
-		// 	&context.text_program, 
-		// 	&uniforms,
-		// 	&params
-		// ).unwrap();
-		todo!()
+		let vertex_buffer = state.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+			label: Some("Vertex buffer"),
+			contents: bytemuck::cast_slice(&vertices), // TODO maybe remove bytemuck
+			usage: wgpu::BufferUsages::VERTEX,
+		});
+
+		let texture_view = texture.create_view(&Default::default());
+		let texture_sampler = state.device.create_sampler(
+			&wgpu::SamplerDescriptor { 
+				label: Some("Texture sampler"), 
+				address_mode_u: wgpu::AddressMode::ClampToEdge, 
+				address_mode_v: wgpu::AddressMode::ClampToEdge, 
+				address_mode_w: wgpu::AddressMode::ClampToEdge, 
+				mag_filter: wgpu::FilterMode::Linear, 
+				min_filter: wgpu::FilterMode::Nearest, 
+				mipmap_filter: wgpu::FilterMode::Nearest, 
+				..Default::default()
+			}
+		);
+
+		let texture_bind_group = state.device.create_bind_group(
+			&wgpu::BindGroupDescriptor { 
+				label: Some("Text bind group"), 
+				layout:&context.text_renderer.texture_bind_group_layout, 
+				entries: &[
+					wgpu::BindGroupEntry{
+						binding:0,
+						resource:wgpu::BindingResource::TextureView(&texture_view)
+					},
+					wgpu::BindGroupEntry{
+						binding:1,
+						resource:wgpu::BindingResource::Sampler(&texture_sampler)
+					}
+				]
+			}
+		);
+
+		state.queue.write_texture(
+			wgpu::ImageCopyTextureBase { 
+				texture: &texture, 
+				mip_level: 0, 
+				origin: wgpu::Origin3d::ZERO, 
+				aspect: wgpu::TextureAspect::All
+			},
+			&self.img, 
+			wgpu::ImageDataLayout { 
+				offset: 0, 
+				bytes_per_row: Some(4 * self.size.width as u32), 
+				rows_per_image: Some(self.size.height as u32)
+			}, 
+			texture_size
+		);
+
+		// Set the render pipeline and vertex buffer
+		render_pass.set_pipeline(&context.rect_renderer.render_pipeline);
+		render_pass.set_bind_group(0, &context.rect_renderer.window_bind_group, &[]);
+		render_pass.set_bind_group(1, &texture_bind_group, &[]);
+		render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
+
+		render_pass.draw(0..vertices.len() as u32, 0..1);
 	}
 
 	fn size(&mut self,width:f32,height:f32) {

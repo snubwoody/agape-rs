@@ -41,7 +41,7 @@ impl View {
 			timestamp_writes: None,
 		});
 
-		self.widget_tree.render(&state.size, &state.context, &mut render_pass,&state.device);
+		self.widget_tree.render(&state.size, &state.context, &mut render_pass,&state);
 
 		// Drop the render pass because it borrows encoder
 		// mutably

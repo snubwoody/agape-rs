@@ -5,10 +5,7 @@ use glium::{
 	Texture2d, 
 };
 use crate::{
-	colour::Colour, 
-	surface::Surface, 
-	utils::{Bounds, Position,Size}, 
-	vertex::Vertex
+	app::AppState, colour::Colour, surface::Surface, utils::{Bounds, Position,Size}, vertex::Vertex
 };
 
 
@@ -68,7 +65,7 @@ impl Surface for ImageSurface {
 		&self,
 		render_pass:&mut wgpu::RenderPass,
 		context: &crate::app::RenderContext,
-		device:&wgpu::Device
+		state:&AppState
 	) {
 		// let params = DrawParameters{
 		// 	blend:Blend::alpha_blending(),

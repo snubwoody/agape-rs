@@ -12,7 +12,7 @@ pub use image::Image;
 
 use std::fmt::Debug;
 use crate::{
-	app::RenderContext, 
+	app::{AppState, RenderContext}, 
 	layout::{IntrinsicSize, Layout, WidgetSize}, 
 	surface::{
 		rect::RectSurface, Surface
@@ -50,7 +50,7 @@ impl WidgetBody {
 		render_pass:&mut wgpu::RenderPass,
 		context: &RenderContext,
 		window_size:&Size,
-		device:&wgpu::Device
+		state: &AppState
 	) {
 		// Arrange the children
 		let size = self.layout.arrange_widgets(
@@ -88,9 +88,9 @@ impl WidgetBody {
 		}
 		
 		// Draw the parent then the children to the screen
-		self.surface.draw(render_pass, context,device);
+		self.surface.draw(render_pass, context,state);
 		self.children.iter_mut().for_each(|child|{
-			child.surface.draw(render_pass, context,device);
+			child.surface.draw(render_pass, context,state);
 		});
 	}
 }
@@ -105,7 +105,6 @@ impl Default for WidgetBody {
 			layout, 
 			children:vec![], 
 			intrinsic_size: Default::default()
-			//events:vec![]
 		}
 	}
 }
@@ -125,11 +124,11 @@ impl WidgetTree {
 
 	pub fn render(
 		&mut self,
-		size:&Size,
+		size:&Size, // TODO size is already in state
 		context:&RenderContext,
 		render_pass:&mut wgpu::RenderPass,
-		device: &wgpu::Device
+		state: &AppState
 	) {
-		self.root.render(render_pass, context, size,device);
+		self.root.render(render_pass, context, size,state);
 	}
 }
