@@ -50,7 +50,7 @@ impl TextSurface {
 	}
 	
 	/// Rasterize the text and store the texture 
-	pub fn build(&self,device: &wgpu::Device,queue: &wgpu::Queue) -> (wgpu::Texture,wgpu::Extent3d) {
+	pub fn build(&self,device: &wgpu::Device) -> (wgpu::Texture,wgpu::Extent3d) {
 		let texture_size = wgpu::Extent3d{
 			width:self.size.width as u32,
 			height: self.size.height as u32,
@@ -79,12 +79,12 @@ impl TextSurface {
 		let x = self.position.x;
 		let y = self.position.y;
 
-		let vertex1 = Vertex::new_with_texture(x,y,colour,[0.0,1.0]); //Top left
-		let vertex2 = Vertex::new_with_texture(x+width,y,colour,[1.0,1.0]); // Top right
-		let vertex3 = Vertex::new_with_texture(x, y+height,colour,[0.0,0.0]); //Bottom left
-		let vertex4 = Vertex::new_with_texture(x+width,y,colour,[1.0,1.0]); //Top right
-		let vertex5 = Vertex::new_with_texture(x, y+height,colour,[0.0,0.0]); // Bottom left
-		let vertex6 = Vertex::new_with_texture(x+width, y+height,colour,[1.0,0.0]); //Bottom right
+		let vertex1 = Vertex::new_with_texture(x,y,colour,[0.0,0.0]); //Top left
+		let vertex2 = Vertex::new_with_texture(x+width,y,colour,[1.0,0.0]); // Top right
+		let vertex3 = Vertex::new_with_texture(x, y+height,colour,[0.0,1.0]); //Bottom left
+		let vertex4 = Vertex::new_with_texture(x+width,y,colour,[1.0,0.0]); //Top right
+		let vertex5 = Vertex::new_with_texture(x, y+height,colour,[0.0,1.0]); // Bottom left
+		let vertex6 = Vertex::new_with_texture(x+width, y+height,colour,[1.0,1.0]); //Bottom right
 	
 		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
 	}
@@ -98,12 +98,10 @@ impl Surface for TextSurface {
 		state: &AppState
 	) {
 
-		let (texture,texture_size) = self.build(&state.device, &state.queue);
+		let (texture,texture_size) = self.build(&state.device);
 
 		let vertices = self.to_vertices(texture_size.width as f32,texture_size.height as f32);
 
-		dbg!(&vertices);
-		
 		let vertex_buffer = state.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
 			label: Some("Vertex buffer"),
 			contents: bytemuck::cast_slice(&vertices), // TODO maybe remove bytemuck
@@ -158,7 +156,7 @@ impl Surface for TextSurface {
 		);
 
 		// Set the render pipeline and vertex buffer
-		render_pass.set_pipeline(&context.rect_renderer.render_pipeline);
+		render_pass.set_pipeline(&context.text_renderer.render_pipeline);
 		render_pass.set_bind_group(0, &context.rect_renderer.window_bind_group, &[]);
 		render_pass.set_bind_group(1, &texture_bind_group, &[]);
 		render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));

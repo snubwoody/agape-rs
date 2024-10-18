@@ -53,6 +53,5 @@ fn vs_main(model:VertexInput) -> VertexOutput {
 
 @fragment
 fn fs_main(in:VertexOutput) -> @location(0) vec4<f32> {
-	return vec4(0.4,0.2,0.2,1.0);
-	//return textureSample(text_texture,text_sampler,in.uv);
+	return textureSample(text_texture,text_sampler,in.uv);
 }

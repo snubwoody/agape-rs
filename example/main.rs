@@ -11,8 +11,8 @@ fn main() {
 }
 
 fn new_app() {
-	let text = Text::new("Hello world");
-    let page = View::new(text);
+	let hstack = hstack![Text::new("Hello world"),Text::new("Hello world")];
+    let page = View::new(hstack);
     let app = App::new().add_view(page);
     app.run();
 }
