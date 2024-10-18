@@ -3,12 +3,10 @@ mod stack;
 mod container;
 mod text;
 mod button;
-mod image;
 pub use rect::Rect;
 pub use text::Text;
 pub use button::Button;
 pub use stack::Stack;
-pub use image::Image;
 
 use std::fmt::Debug;
 use crate::{
