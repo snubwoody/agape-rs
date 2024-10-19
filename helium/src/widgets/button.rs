@@ -1,7 +1,7 @@
 use crate::{
 	color::Color, 
 	layout::{IntrinsicSize, Layout, WidgetSize}, 
-	surface::{rect::RectSurface, text::TextSurface}, 
+	surface::rect::RectSurface, 
 	widgets::WidgetBody
 };
 use super::{text::Text, Widget};

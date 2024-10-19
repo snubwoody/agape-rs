@@ -51,7 +51,7 @@ impl App {
                     WindowEvent::CloseRequested => window_target.exit(),
                     WindowEvent::RedrawRequested => self.views[self.index].render(&state),
                     WindowEvent::Resized(size) => state.resize(size),
-                    _ => {}
+                    event => {self.views[self.index].handle_events(event);}
                 },
                 _ => {}
             })

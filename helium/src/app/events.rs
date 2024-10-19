@@ -1,14 +1,32 @@
 use std::fmt::Debug;
 
-use crate::{utils::Position};
-use winit::{dpi::PhysicalPosition, event::{ElementState, MouseButton, WindowEvent}};
-
-
-pub enum EventFunction {
-	OnClick(Box<dyn Fn()>),
-	OnHover(Box<dyn Fn()>),
+pub enum EventFunction<W> {
+	OnClick(Box<dyn Fn(&mut W)>),
+	OnHover(Box<dyn Fn(&mut W)>),
 }
 
-enum WidgetFunction {
-	OnClick(fn())
+impl<W> EventFunction<W> {
+	pub fn run(&self,widget:&mut W) {
+		match self{
+			Self::OnClick(func) => func(widget),
+			Self::OnHover(func) => func(widget),
+		}
+	}
 }
+
+impl<W> Debug for EventFunction<W> {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		todo!()
+	}
+}
+
+struct EventHandler{
+
+}
+
+impl EventHandler {
+	pub fn new() -> Self{
+		todo!()
+	}
+}
+

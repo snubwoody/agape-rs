@@ -1,14 +1,18 @@
-use crate::widgets::{Widget, WidgetBody};
+use crate::widgets::Widget;
 use super::AppState;
 
 /// A page
 pub struct View{
-	root_widget:WidgetBody
+	pub root_widget:Box<dyn Widget>
 }
 
 impl View {
 	pub fn new(root_widget:impl Widget + 'static) -> Self {
-		Self { root_widget:root_widget.build() }
+		Self { root_widget:Box::new(root_widget) }
+	}
+
+	pub fn handle_events(&mut self,event: winit::event::WindowEvent){
+		self.root_widget.run_events(event);
 	}
 	
 	pub fn render(&mut self,state:&AppState) {		
@@ -39,7 +43,7 @@ impl View {
 			timestamp_writes: None,
 		});
 
-		self.root_widget.render(&mut render_pass,&state);
+		self.root_widget.build().render(&mut render_pass,&state);
 
 		// Drop the render pass because it borrows encoder
 		// mutably
