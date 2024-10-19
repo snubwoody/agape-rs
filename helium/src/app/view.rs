@@ -1,16 +1,14 @@
-
-use crate::widgets::{Widget, WidgetTree};
-use super::{AppState};
+use crate::widgets::{Widget, WidgetBody};
+use super::AppState;
 
 /// A page
 pub struct View{
-	pub widget_tree:WidgetTree
+	root_widget:WidgetBody
 }
 
 impl View {
 	pub fn new(root_widget:impl Widget + 'static) -> Self {
-		let widget_tree = WidgetTree::new(root_widget.build());		
-		Self { widget_tree }
+		Self { root_widget:root_widget.build() }
 	}
 	
 	pub fn render(&mut self,state:&AppState) {		
@@ -41,7 +39,7 @@ impl View {
 			timestamp_writes: None,
 		});
 
-		self.widget_tree.render(&state.size, &state.context, &mut render_pass,&state);
+		self.root_widget.render(&mut render_pass,&state);
 
 		// Drop the render pass because it borrows encoder
 		// mutably
@@ -49,7 +47,6 @@ impl View {
 	
 		state.queue.submit(std::iter::once(encoder.finish()));
 		output.present();
-
 	}
 }
 

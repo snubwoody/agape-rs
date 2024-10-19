@@ -3,7 +3,6 @@ pub mod view;
 use crate::{renderer::{RectRenderer, TextRenderer}, utils::Size};
 use async_std::task;
 use view::View;
-use wgpu::{util::DeviceExt, BindGroupDescriptor, BindGroupLayoutDescriptor};
 use winit::{
     dpi::PhysicalSize,
     event::WindowEvent,

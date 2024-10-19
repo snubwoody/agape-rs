@@ -24,9 +24,9 @@ pub trait Widget:Debug{
 	/// rendering.
 	fn build(&self) -> WidgetBody;
 
-	/// Get the children and consume the [`Widget`], since this is 
-	/// the last step before the widget is turned to a 
-	/// [`WidgetBody`].  
+	/// Get the children and consume the [`Widget`], 
+	/// since this is the last step before the widget
+	/// is turned to a [`WidgetBody`].  
 	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>>;
 }
 
@@ -46,10 +46,11 @@ impl WidgetBody {
 	pub fn render(
 		&mut self,
 		render_pass:&mut wgpu::RenderPass,
-		context: &RenderContext,
-		window_size:&Size,
 		state: &AppState
 	) {
+		let window_size = &state.size;
+		let context = &state.context;
+		
 		// Arrange the children
 		let size = self.layout.arrange_widgets(
 			&mut self.children,
@@ -104,29 +105,5 @@ impl Default for WidgetBody {
 			children:vec![], 
 			intrinsic_size: Default::default()
 		}
-	}
-}
-
-// TODO just move the root widget to the view
-/// Central structure that holds all the [`Widget`]'s, this is 
-/// where rendering and layouts processed from.
-#[derive(Debug)]
-pub struct WidgetTree{
-	root:WidgetBody
-}
-
-impl WidgetTree {
-	pub fn new(root:WidgetBody) -> Self{
-		Self{root}
-	}
-
-	pub fn render(
-		&mut self,
-		size:&Size, // TODO size is already in state
-		context:&RenderContext,
-		render_pass:&mut wgpu::RenderPass,
-		state: &AppState
-	) {
-		self.root.render(render_pass, context, size,state);
 	}
 }

@@ -4,7 +4,6 @@ use crate::{
 };
 use super::{Widget, WidgetBody};
 
-
 #[derive(Debug,Clone,PartialEq,Eq)]
 pub struct Text{
 	pub text:String,
