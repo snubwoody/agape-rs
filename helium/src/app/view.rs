@@ -1,3 +1,5 @@
+use winit::window::Window;
+
 use crate::widgets::Widget;
 use super::{events::EventHandler, AppState};
 
@@ -16,8 +18,9 @@ impl View {
 		}
 	}
 
-	pub fn handle_events(&mut self,event: winit::event::WindowEvent){
+	pub fn handle_events(&mut self,event: winit::event::WindowEvent,window:&Window){
 		self.event_handler.handle_events(&event,&mut self.root_widget);
+		window.request_redraw();
 	}
 	
 	pub fn render(&mut self,state:&AppState) {		

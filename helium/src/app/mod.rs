@@ -23,8 +23,8 @@ impl App {
     pub fn new() -> Self {
         let event_loop = EventLoop::new().unwrap();
 
-        // Set the control flow to redraw every frame whether
-        // there are events to process or not
+        // Set the event loop to always start a new 
+		// iteration even if there are no events.
         event_loop.set_control_flow(ControlFlow::Poll);
 
         let window = WindowBuilder::new().build(&event_loop).unwrap();
@@ -51,9 +51,8 @@ impl App {
                     WindowEvent::CloseRequested => window_target.exit(),
                     WindowEvent::RedrawRequested => self.views[self.index].render(&state),
                     WindowEvent::Resized(size) => state.resize(size),
-                    event => {self.views[self.index].handle_events(event);}
+                    event => {self.views[self.index].handle_events(event,&self.window);}
                 },
-				winit::event::Event::AboutToWait => self.window.request_redraw(),
                 _ => {}
             })
             .expect("Event loop error occured");
