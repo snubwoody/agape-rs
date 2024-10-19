@@ -7,6 +7,3 @@ pub mod vertex;
 pub mod layout;
 mod renderer;
 
-#[macro_use]
-extern crate glium;
-

@@ -1,6 +1,6 @@
 use crate::{
-	colour::{Colour, BLACK}, 
-	layout::{Constraint, IntrinsicSize, Layout, WidgetSize}, 
+	colour::Colour, 
+	layout::{IntrinsicSize, Layout, WidgetSize}, 
 	surface::{rect::RectSurface, text::TextSurface}, 
 	widgets::WidgetBody
 };
@@ -14,7 +14,6 @@ pub struct Button{
 	pub padding:u32,
 	pub width: WidgetSize,
 	pub height: WidgetSize
-	//events:Vec<EventFunction>
 }
 
 impl Button {
@@ -72,10 +71,8 @@ impl Widget for Button {
 		);
 
 		let layout = Layout::Block{ padding: self.padding };
-		// FIXME
 
 		let text_body = Text::new(&self.text).build();
-
 
 		let intrinsic_size = IntrinsicSize{
 			width:self.width,

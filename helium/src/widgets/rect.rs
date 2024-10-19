@@ -2,7 +2,7 @@ use crate::surface::rect::RectSurface;
 use crate::utils::Size;
 use crate::{colour::Colour};
 use super::{Widget, WidgetBody};
-use crate::layout::{Constraint, IntrinsicSize, Layout, WidgetSize};
+use crate::layout::{IntrinsicSize, Layout, WidgetSize};
 
 /// A simple rectangle
 #[derive(Debug,Clone,PartialEq)]

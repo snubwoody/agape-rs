@@ -569,15 +569,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd16c4719339c4530435d38e511904438d07cce7950afa3718a84ac36c10e89e"
 
 [[package]]
-name = "cgl"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ced0551234e87afee12411d535648dd89d2e7f34c78b753395567aff3d447ff"
-dependencies = [
- "libc",
-]
-
-[[package]]
 name = "codespan-reporting"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -935,12 +926,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fnv"
-version = "1.0.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
-
-[[package]]
 name = "fontdb"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -949,16 +934,6 @@ dependencies = [
  "log",
  "memmap2 0.5.10",
  "ttf-parser 0.12.3",
-]
-
-[[package]]
-name = "fontdue"
-version = "0.9.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "efe23d02309319171d00d794c9ff48d4f903c0e481375b1b04b017470838af04"
-dependencies = [
- "hashbrown",
- "ttf-parser 0.21.1",
 ]
 
 [[package]]
@@ -1071,25 +1046,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "glium"
-version = "0.34.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94d5813c960a54b76e20fe4ef7e54fbeb12545776a11ecf14f42a946a1c65964"
-dependencies = [
- "backtrace",
- "fnv",
- "gl_generator",
- "glutin",
- "glutin-winit",
- "lazy_static",
- "memoffset",
- "raw-window-handle 0.5.2",
- "smallvec",
- "takeable-option",
- "winit",
-]
-
-[[package]]
 name = "gloo-timers"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1111,71 +1067,6 @@ dependencies = [
  "slotmap",
  "wasm-bindgen",
  "web-sys",
-]
-
-[[package]]
-name = "glutin"
-version = "0.31.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18fcd4ae4e86d991ad1300b8f57166e5be0c95ef1f63f3f5b827f8a164548746"
-dependencies = [
- "bitflags 2.6.0",
- "cfg_aliases",
- "cgl",
- "core-foundation",
- "dispatch",
- "glutin_egl_sys",
- "glutin_glx_sys",
- "glutin_wgl_sys 0.5.0",
- "icrate",
- "libloading",
- "objc2",
- "once_cell",
- "raw-window-handle 0.5.2",
- "wayland-sys",
- "windows-sys 0.48.0",
- "x11-dl",
-]
-
-[[package]]
-name = "glutin-winit"
-version = "0.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ebcdfba24f73b8412c5181e56f092b5eff16671c514ce896b258a0a64bd7735"
-dependencies = [
- "cfg_aliases",
- "glutin",
- "raw-window-handle 0.5.2",
- "winit",
-]
-
-[[package]]
-name = "glutin_egl_sys"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77cc5623f5309ef433c3dd4ca1223195347fe62c413da8e2fdd0eb76db2d9bcd"
-dependencies = [
- "gl_generator",
- "windows-sys 0.48.0",
-]
-
-[[package]]
-name = "glutin_glx_sys"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a165fd686c10dcc2d45380b35796e577eacfd43d4660ee741ec8ebe2201b3b4f"
-dependencies = [
- "gl_generator",
- "x11-dl",
-]
-
-[[package]]
-name = "glutin_wgl_sys"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c8098adac955faa2d31079b65dc48841251f69efd3ac25477903fc424362ead"
-dependencies = [
- "gl_generator",
 ]
 
 [[package]]
@@ -1287,13 +1178,8 @@ dependencies = [
  "async-std",
  "bytemuck",
  "env_logger",
- "fontdue",
- "glium",
  "image",
  "log",
- "quote",
- "rand",
- "syn 2.0.72",
  "text-to-png",
  "tokio",
  "wgpu",
@@ -1633,15 +1519,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fe751422e4a8caa417e13c3ea66452215d7d63e19e604f4980461212f3ae1322"
 dependencies = [
  "libc",
-]
-
-[[package]]
-name = "memoffset"
-version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "488016bfae457b036d996092f6cb448677611ce4449e970ceaf42695203f218a"
-dependencies = [
- "autocfg",
 ]
 
 [[package]]
@@ -2598,12 +2475,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "takeable-option"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36ae8932fcfea38b7d3883ae2ab357b0d57a02caaa18ebb4f5ece08beaec4aa0"
-
-[[package]]
 name = "target-lexicon"
 version = "0.12.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2801,12 +2672,6 @@ name = "ttf-parser"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7ae2f58a822f08abdaf668897e96a5656fe72f5a9ce66422423e8849384872e6"
-
-[[package]]
-name = "ttf-parser"
-version = "0.21.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c591d83f69777866b9126b24c6dd9a18351f177e49d625920d19f989fd31cf8"
 
 [[package]]
 name = "ttf-parser"
@@ -3219,7 +3084,7 @@ dependencies = [
  "core-graphics-types",
  "d3d12",
  "glow",
- "glutin_wgl_sys 0.6.0",
+ "glutin_wgl_sys",
  "gpu-alloc",
  "gpu-allocator",
  "gpu-descriptor",

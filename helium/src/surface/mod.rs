@@ -1,10 +1,10 @@
 pub mod rect;
 pub mod text;
-pub mod image;
 use std::fmt::Debug;
 use crate::{app::AppState, utils::{Bounds, Position, Size}};
 
-/// A primitive object that is drawn to the screen
+/// Holds infomation about different types of widgets that can be 
+/// drawn to the screen i.e. Shapes and Text.
 pub trait Surface:Debug {
 	/// Draw the surface onto the screen
 	fn draw(

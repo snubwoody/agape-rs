@@ -34,8 +34,7 @@ impl Layout {
 				self.arrange_block(widgets,*padding,&max_size,&parent_pos),
 		}
 	}
-	// TODO this function also works for the
-	// vertical layout don't know why
+
 	fn arrange_horizontal(
 		&self,
 		widgets:&mut Vec<Box<WidgetBody>>,
@@ -186,7 +185,6 @@ impl Layout {
 				)
 			};
 
-			//dbg!(&size,&widget);
 
 			min_width += size.width;
 			min_height += size.height;
@@ -219,25 +217,13 @@ pub enum WidgetSize{
 }
 
 
+/// This is the size that a [`Widget`] will try to be,  
+/// the actual final size is dependant on the space
+/// available.
 #[derive(Debug,Clone,Copy,Default)]
 pub struct IntrinsicSize {
 	pub width:WidgetSize,
 	pub height:WidgetSize
 }
 
-/// The [`Widget`] constraints that are used when calculating
-/// it's size.
-#[derive(Debug,Clone,Copy,PartialEq, PartialOrd,Default)]
-pub struct Constraint{
-	pub max_width:f32,
-	pub min_width:f32,
-	pub max_height:f32,
-	pub min_height:f32,
-}
-
-impl Constraint {
-	pub fn new(max_width:f32,min_width:f32,max_height:f32,min_height:f32) -> Self{
-		Self { max_width, min_width, max_height, min_height }
-	}
-}
 

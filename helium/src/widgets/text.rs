@@ -1,5 +1,5 @@
 use crate::{
-	layout::{Constraint, IntrinsicSize, Layout, WidgetSize}, 
+	layout::{IntrinsicSize, Layout, WidgetSize}, 
 	surface::{text::TextSurface, Surface}, 
 };
 use super::{Widget, WidgetBody};

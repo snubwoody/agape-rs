@@ -1,14 +1,9 @@
 use std::io::Cursor;
 use image::RgbaImage;
-use text_to_png::{Size as ImageSize, TextRenderer};
-use glium::{
-	glutin::surface::WindowSurface, 
-	Display, 
-	Texture2d, 
-};
-use wgpu::{core::device::queue, util::DeviceExt};
+use text_to_png::TextRenderer;
+use wgpu::util::DeviceExt;
 use crate::{
-	app::AppState, colour::{ Colour, RED}, surface::Surface, utils::{Bounds, Position,Size}, vertex::Vertex
+	app::AppState, colour::Colour, surface::Surface, utils::{Bounds, Position,Size}, vertex::Vertex
 };
 
 // FIXME change the colour to Colour enum

@@ -34,29 +34,4 @@ impl Vertex {
 			uv:texture_coords,
 		}
 	}
-
-	pub fn decription() -> wgpu::VertexBufferLayout<'static> {
-		// TODO move this to the render context
-		wgpu::VertexBufferLayout { 
-			array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress, 
-			step_mode: wgpu::VertexStepMode::Vertex, 
-			attributes: &[
-				wgpu::VertexAttribute{
-					offset: 0,
-					shader_location: 0,
-					format: wgpu::VertexFormat::Float32x2
-				},
-				wgpu::VertexAttribute{
-					offset: size_of::<[f32;2]>() as wgpu::BufferAddress,
-					shader_location: 1,
-					format: wgpu::VertexFormat::Float32x4
-				},
-				wgpu::VertexAttribute{
-					offset: size_of::<[f32;6]>() as wgpu::BufferAddress,
-					shader_location: 2,
-					format: wgpu::VertexFormat::Float32x2 
-				},
-			]
-		}
-	}
 }
