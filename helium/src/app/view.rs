@@ -20,7 +20,7 @@ impl View {
 
 	pub fn handle_events(&mut self,event: winit::event::WindowEvent,window:&Window){
 		self.event_handler.handle_events(&event,&mut self.root_widget);
-		window.request_redraw();
+		window.request_redraw(); // TODO loop is getting clogged somehow
 	}
 	
 	pub fn render(&mut self,state:&AppState) {		

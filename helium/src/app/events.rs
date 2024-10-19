@@ -1,5 +1,5 @@
 use std::fmt::Debug;
-use winit::event::WindowEvent;
+use winit::event::{ElementState, MouseButton, WindowEvent};
 use crate::{utils::Position, widgets::Widget};
 
 pub enum EventFunction<State> {
@@ -54,7 +54,19 @@ impl EventHandler {
 				self.cursor_pos = position.clone().into();
 			},
 			WindowEvent::MouseInput { state, button,.. } => {
-				dbg!(state,button);
+				match state {
+					ElementState::Pressed => self.mouse_button_down = true,
+					ElementState::Released => self.mouse_button_down = false
+				}
+
+				match button {
+					MouseButton::Left => {
+						if self.mouse_button_down{
+							dbg!("Mouse was pressed");
+						}
+					},
+					_ => {}
+				}
 			}
 			_ => {}
 		}

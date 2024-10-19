@@ -38,6 +38,12 @@ impl Rect {
 	fn snapshot(&self) -> Self{
 		Rect::new(self.width, self.height, self.color.clone())
 	}
+
+	fn update(&mut self,state:&Rect){
+		self.color = state.color.clone();
+		self.width = state.width;
+		self.height = state.height;
+	}
 }
 
 impl Widget for Rect {
@@ -76,11 +82,7 @@ impl Widget for Rect {
 			},
 			_ => {}
 		}
-		dbg!(&state);
-		self.color = state.color;
-		self.width = state.width;
-		self.height = state.height;
-		dbg!(&self);
+		self.update(&state);
 	}
 
     fn get_children(self: Box<Self>) -> Vec<Box<dyn Widget>> {
