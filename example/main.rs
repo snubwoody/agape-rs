@@ -1,31 +1,18 @@
-use rustui::{
-    app::{view::View, App}, colour::{BLACK, BLUE, GREEN}, hstack, vstack, widgets::{button::Button, stack::Stack, text::Text}
+use helium::{
+    app::{view::View, App}, 
+ 
+	hstack, 
+	widgets::{Button, Rect, Text}
 };
 
 fn main() {
-    new_app();
+    env_logger::init();
+    new_app()
 }
 
 fn new_app() {
-	let button = 
-		Button::new("Click me")
-		.padding(12)
-		.colour(GREEN);
-
-	let hstack = hstack!{
-		Text::new("Hello"),
-		Text::new("World")
-	};
-
-	let vstack = vstack!{
-		spacing:20,
-		padding:10,
-		Button::new("Click me").colour(GREEN).padding(12),
-		Button::new("Click me").colour(BLUE).padding(52),
-		hstack
-	};
-
-    let page = View::new(vstack);
+	let hstack = hstack![Text::new("Hello world"),Button::new("Hello world")];
+    let page = View::new(hstack);
     let app = App::new().add_view(page);
     app.run();
 }

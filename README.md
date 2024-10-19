@@ -33,6 +33,8 @@ can start planning things and stop wondering about different things randomly.
 
 Make it work, make it fast, make it reliable.
 
+Make an image widget that accepts a url and parses the bytes into an image.
+
 ## Projects
 
 ## Issues
