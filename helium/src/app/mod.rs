@@ -46,13 +46,14 @@ impl App {
         let mut state = task::block_on(AppState::new(&self.window));
 
         self.event_loop
-            .run(move |event, window_target| match event {
+            .run(|event, window_target| match event {
                 winit::event::Event::WindowEvent { event, .. } => match event {
                     WindowEvent::CloseRequested => window_target.exit(),
                     WindowEvent::RedrawRequested => self.views[self.index].render(&state),
                     WindowEvent::Resized(size) => state.resize(size),
                     event => {self.views[self.index].handle_events(event);}
                 },
+				winit::event::Event::AboutToWait => self.window.request_redraw(),
                 _ => {}
             })
             .expect("Event loop error occured");

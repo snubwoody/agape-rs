@@ -1,5 +1,5 @@
 use helium::{
-    app::{view::View, App}, color::TEAL, hstack, vstack, widgets::{Button, Rect, Text, Widget}
+    app::{view::View, App}, color::{BLACK, TEAL}, hstack, vstack, widgets::{Button, Rect, Text, Widget}
 };
 
 fn main() {
@@ -10,7 +10,7 @@ fn main() {
 fn new_app() {
 	let rect = 
 		Rect::new(200.0, 150.0, TEAL)
-		.on_hover(|rect|{});
+		.on_hover(|rect|{rect.width += 20.0;dbg!("hi");});
     
 	let page = View::new(rect);
     let app = App::new().add_view(page);

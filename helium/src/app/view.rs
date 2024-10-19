@@ -17,8 +17,7 @@ impl View {
 	}
 
 	pub fn handle_events(&mut self,event: winit::event::WindowEvent){
-		self.event_handler.handle_events(&event,&self.root_widget);
-		self.root_widget.run_events(event);
+		self.event_handler.handle_events(&event,&mut self.root_widget);
 	}
 	
 	pub fn render(&mut self,state:&AppState) {		

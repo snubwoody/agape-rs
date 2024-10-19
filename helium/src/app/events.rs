@@ -1,15 +1,14 @@
 use std::fmt::Debug;
-use winit::{dpi::PhysicalPosition, event::WindowEvent};
-
+use winit::event::WindowEvent;
 use crate::{utils::Position, widgets::Widget};
 
-pub enum EventFunction<W> {
-	OnClick(Box<dyn Fn(&W)>),
-	OnHover(Box<dyn Fn(&W)>),
+pub enum EventFunction<State> {
+	OnClick(Box<dyn FnMut(&mut State)>),
+	OnHover(Box<dyn FnMut(&mut State)>),
 }
 
-impl<W> EventFunction<W> {
-	pub fn run(&self,widget:&W) {
+impl<State> EventFunction<State> {
+	pub fn run(&mut self,widget:&mut State) {
 		match self{
 			Self::OnClick(func) => func(widget),
 			Self::OnHover(func) => func(widget),
@@ -17,14 +16,14 @@ impl<W> EventFunction<W> {
 	}
 }
 
-impl<W> Debug for EventFunction<W> {
+impl<State> Debug for EventFunction<State> {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		match &self {
 			Self::OnClick(_) => {
-				f.debug_tuple("OnClick").finish()
+				f.debug_tuple("OnClick()").finish()
 			},
 			Self::OnHover(_) => {
-				f.debug_tuple("OnHover").finish()
+				f.debug_tuple("OnHover()").finish()
 			},
 		}
 	}
@@ -48,12 +47,13 @@ impl EventHandler {
 		}
 	}
 
-	pub fn handle_events(&mut self,event:&winit::event::WindowEvent,root_widget:&Box<dyn Widget>){
+	pub fn handle_events(&mut self,event:&winit::event::WindowEvent,root_widget:&mut Box<dyn Widget>){
+		root_widget.run_events(event);
 		match event {
 			WindowEvent::CursorMoved { position,.. } => {
 				self.cursor_pos = position.clone().into();
 			},
-			WindowEvent::MouseInput {  state, button,.. } => {
+			WindowEvent::MouseInput { state, button,.. } => {
 				dbg!(state,button);
 			}
 			_ => {}
