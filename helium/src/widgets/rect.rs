@@ -13,7 +13,7 @@ pub struct Rect<'a> {
     pub width: f32,
     pub height: f32,
     pub color: Color,
-    events: Vec<EventFunction<Self>>,
+    pub on_hover: Option<EventFunction<Self>>,
 }
 
 impl<'a> Rect<'a> {
@@ -22,12 +22,12 @@ impl<'a> Rect<'a> {
             width,
             height,
             color,
-            events: vec![],
+            on_hover:None,
         }
     }
 
-    pub fn on_hover(mut self, event: impl Fn(&mut Rect<'a>) + 'static ) -> Self {
-        self.events.push(EventFunction::OnHover(Box::new(event)));
+    pub fn on_hover(mut self, event: impl Fn(&Rect<'a>) + 'static ) -> Self {
+        self.on_hover = Some(EventFunction::OnHover(Box::new(event)));
         self
     }
 }
@@ -62,7 +62,10 @@ impl<'a> Widget for Rect<'a> {
 			WindowEvent::CursorMoved { position,.. } => {
 				let cursor_pos = Position::from(position);
 				if bounds.within(&cursor_pos){
-					//let k = &mut self.events[0].run(self);
+					match &self.on_hover {
+						Some(EventFunction::OnHover(func)) => {func(self)}
+						_ => {}
+					}
 				}
 			},
 			_ => {}

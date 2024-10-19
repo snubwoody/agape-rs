@@ -8,7 +8,9 @@ fn main() {
 }
 
 fn new_app() {
-	let rect = Rect::new(200.0, 150.0, TEAL).on_hover(|rect|{rect.width = 300.0});
+	let rect = 
+		Rect::new(200.0, 150.0, TEAL)
+		.on_hover(|rect|{});
     
 	let page = View::new(rect);
     let app = App::new().add_view(page);

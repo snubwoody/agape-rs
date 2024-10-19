@@ -1,17 +1,23 @@
 use crate::widgets::Widget;
-use super::AppState;
+use super::{events::EventHandler, AppState};
 
 /// A page
 pub struct View{
-	pub root_widget:Box<dyn Widget>
+	root_widget:Box<dyn Widget>,
+	event_handler:EventHandler
 }
 
 impl View {
 	pub fn new(root_widget:impl Widget + 'static) -> Self {
-		Self { root_widget:Box::new(root_widget) }
+		let event_handler = EventHandler::new();
+		Self { 
+			root_widget:Box::new(root_widget),
+			event_handler
+		}
 	}
 
 	pub fn handle_events(&mut self,event: winit::event::WindowEvent){
+		self.event_handler.handle_events(&event,&self.root_widget);
 		self.root_widget.run_events(event);
 	}
 	
