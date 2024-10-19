@@ -7,6 +7,7 @@ pub use rect::Rect;
 pub use text::Text;
 pub use button::Button;
 pub use stack::Stack;
+use winit::event::WindowEvent;
 
 use std::fmt::Debug;
 use crate::{
@@ -24,11 +25,14 @@ pub trait Widget:Debug{
 	/// rendering.
 	fn build(&self) -> WidgetBody;
 
+	fn run_events(&mut self,event:&WindowEvent){}
+
 	/// Get the children and consume the [`Widget`], 
 	/// since this is the last step before the widget
 	/// is turned to a [`WidgetBody`].  
 	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>>;
 }
+
 
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.

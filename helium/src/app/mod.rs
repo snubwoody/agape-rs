@@ -23,8 +23,8 @@ impl App {
     pub fn new() -> Self {
         let event_loop = EventLoop::new().unwrap();
 
-        // Set the control flow to redraw every frame whether
-        // there are events to process or not
+        // Set the event loop to always start a new 
+		// iteration even if there are no events.
         event_loop.set_control_flow(ControlFlow::Poll);
 
         let window = WindowBuilder::new().build(&event_loop).unwrap();
@@ -46,12 +46,12 @@ impl App {
         let mut state = task::block_on(AppState::new(&self.window));
 
         self.event_loop
-            .run(move |event, window_target| match event {
+            .run(|event, window_target| match event {
                 winit::event::Event::WindowEvent { event, .. } => match event {
                     WindowEvent::CloseRequested => window_target.exit(),
                     WindowEvent::RedrawRequested => self.views[self.index].render(&state),
                     WindowEvent::Resized(size) => state.resize(size),
-                    _ => {}
+                    event => {self.views[self.index].handle_events(event,&self.window);}
                 },
                 _ => {}
             })

@@ -48,7 +48,6 @@ impl Position {
 	}
 }
 
-//TODO change this to a generic
 impl From<PhysicalPosition<f64>> for Position {
 	fn from(position: PhysicalPosition<f64>) -> Self {
 		Self { 

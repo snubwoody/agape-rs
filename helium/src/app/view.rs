@@ -1,14 +1,26 @@
-use crate::widgets::{Widget, WidgetBody};
-use super::AppState;
+use winit::window::Window;
+
+use crate::widgets::Widget;
+use super::{events::EventHandler, AppState};
 
 /// A page
 pub struct View{
-	root_widget:WidgetBody
+	root_widget:Box<dyn Widget>,
+	event_handler:EventHandler
 }
 
 impl View {
 	pub fn new(root_widget:impl Widget + 'static) -> Self {
-		Self { root_widget:root_widget.build() }
+		let event_handler = EventHandler::new();
+		Self { 
+			root_widget:Box::new(root_widget),
+			event_handler
+		}
+	}
+
+	pub fn handle_events(&mut self,event: winit::event::WindowEvent,window:&Window){
+		self.event_handler.handle_events(&event,&mut self.root_widget);
+		window.request_redraw(); // TODO loop is getting clogged somehow
 	}
 	
 	pub fn render(&mut self,state:&AppState) {		
@@ -39,7 +51,7 @@ impl View {
 			timestamp_writes: None,
 		});
 
-		self.root_widget.render(&mut render_pass,&state);
+		self.root_widget.build().render(&mut render_pass,&state);
 
 		// Drop the render pass because it borrows encoder
 		// mutably
