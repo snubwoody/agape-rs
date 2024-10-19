@@ -1,5 +1,5 @@
 use crate::{
-	colour::Colour, 
+	color::Color, 
 	layout::{IntrinsicSize, Layout, WidgetSize}, 
 	surface::{rect::RectSurface, text::TextSurface}, 
 	widgets::WidgetBody
@@ -10,7 +10,7 @@ use super::{text::Text, Widget};
 #[derive(Debug)]
 pub struct Button{
 	pub text:String,
-	pub colour:Colour,
+	pub color:Color,
 	pub padding:u32,
 	pub width: WidgetSize,
 	pub height: WidgetSize
@@ -20,7 +20,7 @@ impl Button {
 	pub fn new(text:&str) -> Self {
 		Self { 
 			text:text.into(), 
-			colour:Colour::Rgb(255, 255, 255),
+			color:Color::Rgb(255, 255, 255),
 			padding:0,
 			width: WidgetSize::Fit,
 			height:WidgetSize::Fit
@@ -28,8 +28,8 @@ impl Button {
 		}
 	}
 
-	pub fn colour(mut self,colour:Colour) -> Self {
-		self.colour = colour;
+	pub fn color(mut self,color:Color) -> Self {
+		self.color = color;
 		self
 	}
 
@@ -67,7 +67,7 @@ impl Button {
 impl Widget for Button {
 	fn build(&self) -> WidgetBody {
 		let surface = Box::new(
-			RectSurface::new(0.0, 0.0, 200.0, 70.0, self.colour.clone())
+			RectSurface::new(0.0, 0.0, 200.0, 70.0, self.color.clone())
 		);
 
 		let layout = Layout::Block{ padding: self.padding };

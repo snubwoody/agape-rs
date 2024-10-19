@@ -1,26 +1,26 @@
 use crate::utils::map;
 
-pub const BLACK:Colour = Colour::Rgb(0, 0, 0);
-pub const WHITE:Colour = Colour::Rgb(255, 255, 255);
-pub const AMBER:Colour = Colour::Rgb(245, 158, 11);
-pub const GREEN:Colour = Colour::Rgb(34, 197, 94);
-pub const BLUE:Colour = Colour::Rgb(0, 0, 254);
-pub const RED:Colour = Colour::Rgb(255, 10, 94);
-pub const TEAL:Colour = Colour::Rgb(20, 184, 166);
-pub const INDIGO:Colour = Colour::Rgb(99, 102, 241);
-pub const PINK:Colour = Colour::Rgb(236, 72, 153);
+pub const BLACK:Color = Color::Rgb(0, 0, 0);
+pub const WHITE:Color = Color::Rgb(255, 255, 255);
+pub const AMBER:Color = Color::Rgb(245, 158, 11);
+pub const GREEN:Color = Color::Rgb(34, 197, 94);
+pub const BLUE:Color = Color::Rgb(0, 0, 254);
+pub const RED:Color = Color::Rgb(255, 10, 94);
+pub const TEAL:Color = Color::Rgb(20, 184, 166);
+pub const INDIGO:Color = Color::Rgb(99, 102, 241);
+pub const PINK:Color = Color::Rgb(236, 72, 153);
 
 // TODO start changing to color instead
 /// Represents a color.
 #[derive(Debug,Clone,PartialEq, Eq, PartialOrd, Ord)]
-pub enum Colour{
+pub enum Color{
 	Rgb(u8,u8,u8),
 	Rgba(u8,u8,u8,u8),
 	Hex(String)
 } 
 
 // TODO impl From
-impl Colour {
+impl Color {
 	/// Parse any type of coulour to rgba values
 	pub fn to_rgba(&self) -> [u8;4] {		
 		match self {
@@ -29,8 +29,8 @@ impl Colour {
 				if a > 100 {a = 100}
 				[*r,*g,*b,a]
 			},
-			Self::Hex(colour) => {
-				self.hex_to_rgba(&colour)
+			Self::Hex(color) => {
+				self.hex_to_rgba(&color)
 			}
 		}
 	}
@@ -51,7 +51,7 @@ impl Colour {
 		[r,g,b,100]
 	}
 
-	/// Normalize the colours to a 0 - 1 scale.
+	/// Normalize the colors to a 0 - 1 scale.
 	pub fn normalize(&self) -> [f32;4] {
 		let rgba = self.to_rgba();
 
@@ -63,7 +63,7 @@ impl Colour {
 	}
 }
 
-impl Default for Colour {
+impl Default for Color {
 	fn default() -> Self {
 		Self::Rgb(255, 255, 255)
 	}

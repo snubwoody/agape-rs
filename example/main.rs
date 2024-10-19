@@ -1,6 +1,5 @@
 use helium::{
-    app::{view::View, App}, 
-	colour::{self}, 
+    app::{view::View, App},  
 	hstack, 
 	widgets::{Button, Rect, Text}
 };

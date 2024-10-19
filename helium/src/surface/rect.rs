@@ -1,7 +1,7 @@
 use wgpu::util::DeviceExt;
 use crate::{
 	app::{AppState, RenderContext}, 
-	colour::Colour, 
+	color::Color, 
 	surface::Surface, 
 	utils::{Bounds, Position, Size}, 
 	vertex::Vertex
@@ -10,37 +10,37 @@ use crate::{
 // TODO change x and y to position
 /// This is a primitive that draws to the screen. This holds
 /// essential information about the [`Widget`], ie.
-/// the colour, coordinates and size.
+/// the color, coordinates and size.
 #[derive(Debug,Clone,PartialEq,Default)]
 pub struct RectSurface{
 	pub position:Position,
 	pub size:Size,
-	pub colour:Colour,
+	pub color:Color,
 }
 
 impl RectSurface {
-	pub fn new(x:f32,y:f32,width:f32,height:f32,colour:Colour) -> Self{
+	pub fn new(x:f32,y:f32,width:f32,height:f32,color:Color) -> Self{
 		let size = Size::new(width, height);
 		let position = Position::new(x, y);
-		Self { position,size,colour }
+		Self { position,size,color }
 	}
 
-	pub fn colour(&mut self,colour:Colour) {
-		self.colour = colour
+	pub fn color(&mut self,color:Color) {
+		self.color = color
 	}
 
 	pub fn to_vertices(&self) -> Vec<Vertex>{
 
-		let colour = self.colour.normalize();
+		let color = self.color.normalize();
 		let x = self.position.x;
 		let y = self.position.y;
 
-		let vertex1 = Vertex::new(x, y,colour); //Top left
-		let vertex2 = Vertex::new(x+self.size.width, y,colour); // Top right
-		let vertex3 = Vertex::new(x, y+self.size.height,colour); //Bottom left
-		let vertex4 = Vertex::new(x+self.size.width, y,colour); //Top right
-		let vertex5 = Vertex::new(x, y+self.size.height,colour); // Bottom left
-		let vertex6 = Vertex::new(x+self.size.width, y+self.size.height,colour); //Bottom right
+		let vertex1 = Vertex::new(x, y,color); //Top left
+		let vertex2 = Vertex::new(x+self.size.width, y,color); // Top right
+		let vertex3 = Vertex::new(x, y+self.size.height,color); //Bottom left
+		let vertex4 = Vertex::new(x+self.size.width, y,color); //Top right
+		let vertex5 = Vertex::new(x, y+self.size.height,color); // Bottom left
+		let vertex6 = Vertex::new(x+self.size.width, y+self.size.height,color); //Bottom right
 
 		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
 	}

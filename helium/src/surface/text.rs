@@ -3,10 +3,10 @@ use image::RgbaImage;
 use text_to_png::TextRenderer;
 use wgpu::util::DeviceExt;
 use crate::{
-	app::AppState, colour::Colour, surface::Surface, utils::{Bounds, Position,Size}, vertex::Vertex
+	app::AppState, color::Color, surface::Surface, utils::{Bounds, Position,Size}, vertex::Vertex
 };
 
-// FIXME change the colour to Colour enum
+// FIXME change the color to Color enum
 /// A rasterized texture of text  
 #[derive(Debug,Clone)]
 pub struct TextSurface{
@@ -14,12 +14,12 @@ pub struct TextSurface{
 	size:Size,
 	text:String,
 	font_size:u8,
-	colour:String,
+	color:String,
 	img: RgbaImage
 }
 
 impl TextSurface {
-	pub fn new(text:&str,colour:&str,font_size:u8) -> Self{
+	pub fn new(text:&str,color:&str,font_size:u8) -> Self{
 		let text_renderer = TextRenderer::default();
 
 		// Render the text as a png
@@ -39,7 +39,7 @@ impl TextSurface {
 			size:Size::new(text_image.size.width as f32, text_image.size.height as f32),
 			text:String::from(text), 
 			font_size, 
-			colour:String::from(colour),
+			color:String::from(color),
 			img
 		}
 	}
@@ -70,16 +70,16 @@ impl TextSurface {
 	}
 
 	fn to_vertices(&self,width:f32,height:f32) -> Vec<Vertex>{
-		let colour = Colour::default().normalize();
+		let color = Color::default().normalize();
 		let x = self.position.x;
 		let y = self.position.y;
 
-		let vertex1 = Vertex::new_with_texture(x,y,colour,[0.0,0.0]); //Top left
-		let vertex2 = Vertex::new_with_texture(x+width,y,colour,[1.0,0.0]); // Top right
-		let vertex3 = Vertex::new_with_texture(x, y+height,colour,[0.0,1.0]); //Bottom left
-		let vertex4 = Vertex::new_with_texture(x+width,y,colour,[1.0,0.0]); //Top right
-		let vertex5 = Vertex::new_with_texture(x, y+height,colour,[0.0,1.0]); // Bottom left
-		let vertex6 = Vertex::new_with_texture(x+width, y+height,colour,[1.0,1.0]); //Bottom right
+		let vertex1 = Vertex::new_with_texture(x,y,color,[0.0,0.0]); //Top left
+		let vertex2 = Vertex::new_with_texture(x+width,y,color,[1.0,0.0]); // Top right
+		let vertex3 = Vertex::new_with_texture(x, y+height,color,[0.0,1.0]); //Bottom left
+		let vertex4 = Vertex::new_with_texture(x+width,y,color,[1.0,0.0]); //Top right
+		let vertex5 = Vertex::new_with_texture(x, y+height,color,[0.0,1.0]); // Bottom left
+		let vertex6 = Vertex::new_with_texture(x+width, y+height,color,[1.0,1.0]); //Bottom right
 	
 		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
 	}

@@ -1,5 +1,5 @@
 use crate::{
-    colour::Colour,
+    color::Color,
     layout::{IntrinsicSize, Layout, WidgetSize},
     surface::rect::RectSurface,
     widgets::{Widget, WidgetBody},
@@ -11,13 +11,13 @@ pub struct Stack {
     pub padding: u32,
     pub children: Vec<Box<dyn Widget>>,
 	pub layout: Layout,
-    pub colour: Colour,
+    pub color: Color,
 }
 
 impl Widget for Stack {
     fn build(&self) -> WidgetBody {
         let mut surface = RectSurface::default();
-        surface.colour(self.colour.clone());
+        surface.color(self.color.clone());
 
         let children = self
             .children
@@ -61,7 +61,7 @@ macro_rules! vstack {
 		rustui::widgets::Stack{
 			spacing:$spacing,
 			padding:$padding,
-			colour:rustui::colour::Colour::Rgb(255,255,255),
+			color:rustui::color::Color::Rgb(255,255,255),
 			layout:rustui::layout::Layout::Vertical {
 				spacing: $spacing,
 				padding: $padding,
@@ -77,7 +77,7 @@ macro_rules! vstack {
 		rustui::widgets::Stack{
 			spacing:0,
 			padding:0,
-			colour:rustui::colour::Colour::Rgb(255,255,255),
+			color:rustui::color::Color::Rgb(255,255,255),
 			layout:rustui::layout::Layout::Vertical {
 				spacing:0,
 				padding:0,
@@ -101,7 +101,7 @@ macro_rules! hstack {
 		helium::widgets::Stack{
 			spacing:$spacing,
 			padding:$padding,
-			colour:helium::colour::Colour::Rgb(255,255,255),
+			color:helium::color::Color::Rgb(255,255,255),
 			layout:helium::layout::Layout::Horizontal {
 				spacing: $spacing,
 				padding: $padding,
@@ -117,7 +117,7 @@ macro_rules! hstack {
 		helium::widgets::Stack{
 			spacing:0,
 			padding:0,
-			colour: helium::colour::Colour::Rgb(255,255,255),
+			color: helium::color::Color::Rgb(255,255,255),
 			layout: helium::layout::Layout::Horizontal {
 				spacing:0,
 				padding:0,

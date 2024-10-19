@@ -1,6 +1,6 @@
 use crate::surface::rect::RectSurface;
 use crate::utils::Size;
-use crate::{colour::Colour};
+use crate::{color::Color};
 use super::{Widget, WidgetBody};
 use crate::layout::{IntrinsicSize, Layout, WidgetSize};
 
@@ -9,12 +9,12 @@ use crate::layout::{IntrinsicSize, Layout, WidgetSize};
 pub struct Rect{
 	pub width:f32,
 	pub height:f32,
-	pub colour:Colour
+	pub color:Color
 }
 
 impl Rect {
-	pub fn new(width:f32,height:f32,colour:Colour) -> Self{
-		Self { width, height, colour }
+	pub fn new(width:f32,height:f32,color:Color) -> Self{
+		Self { width, height, color }
 	}
 }
 
@@ -24,7 +24,7 @@ impl Widget for Rect {
 		let surface = Box::new(
 			RectSurface{ 
 				size:Size::new(self.width as f32, self.height as f32),
-				colour:self.colour.clone(),
+				color:self.color.clone(),
 				..Default::default()
 			}
 		);

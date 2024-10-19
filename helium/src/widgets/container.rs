@@ -1,5 +1,5 @@
 use crate::{
-	colour::Colour, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::Widget
+	color::Color, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::Widget
 };
 use super::WidgetBody;
 
@@ -8,7 +8,7 @@ use super::WidgetBody;
 #[derive(Debug)]
 pub struct Container{
 	pub padding:u32,
-	pub colour:Colour,
+	pub color:Color,
 	pub child:Box<dyn Widget>
 }
 
@@ -16,13 +16,13 @@ impl Container {
 	pub fn new(child:impl Widget + 'static) -> Self{
 		Container { 
 			padding:0, 
-			colour:Colour::Rgb(255, 255, 255), 
+			color:Color::Rgb(255, 255, 255), 
 			child:Box::new(child)
 		}
 	}
 
-	pub fn colour(mut self,colour:Colour) -> Self{
-		self.colour = colour;
+	pub fn color(mut self,color:Color) -> Self{
+		self.color = color;
 		self
 	}
 
@@ -36,7 +36,7 @@ impl Widget for Container {
 	fn build(&self) -> WidgetBody {
 		let surface = Box::new(
 			RectSurface{
-				colour:self.colour.clone(),
+				color:self.color.clone(),
 				..Default::default()
 			}
 		);

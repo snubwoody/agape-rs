@@ -1,5 +1,5 @@
 pub mod widgets;
-pub mod colour;
+pub mod color;
 pub mod app;
 pub mod utils;
 pub mod surface;
