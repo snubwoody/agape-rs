@@ -2,12 +2,19 @@ use std::fmt::Debug;
 use winit::event::{ElementState, MouseButton, WindowEvent};
 use crate::{utils::Position, widgets::Widget};
 
-pub enum EventFunction<State> {
+/// A [`Widget`] that can react to events
+pub trait Interactive{
+	fn handle_hover(&self,cursor_pos:Position){
+
+	}
+}
+
+pub enum Event<State> {
 	OnClick(Box<dyn FnMut(&mut State)>),
 	OnHover(Box<dyn FnMut(&mut State)>),
 }
 
-impl<State> EventFunction<State> {
+impl<State> Event<State> {
 	pub fn run(&mut self,widget:&mut State) {
 		match self{
 			Self::OnClick(func) => func(widget),
@@ -16,7 +23,7 @@ impl<State> EventFunction<State> {
 	}
 }
 
-impl<State> Debug for EventFunction<State> {
+impl<State> Debug for Event<State> {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		match &self {
 			Self::OnClick(_) => {
