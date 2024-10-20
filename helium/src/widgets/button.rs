@@ -1,8 +1,5 @@
 use crate::{
-	color::Color, 
-	layout::{IntrinsicSize, Layout, WidgetSize}, 
-	surface::rect::RectSurface, 
-	widgets::WidgetBody
+	app::events::Interactive, color::Color, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::WidgetBody
 };
 use super::{text::Text, Widget};
 
@@ -54,12 +51,12 @@ impl Button {
 	}
 
 	/* pub fn on_hover(mut self,f:impl Fn() + 'static) -> Self {
-		self.events.push(EventFunction::OnHover(Box::new(f)));
+		self.events.push(Event::OnHover(Box::new(f)));
 		self
 	}
 
 	pub fn on_click(mut self,f:impl Fn() + 'static) -> Self{
-		self.events.push(EventFunction::OnClick(Box::new(f)));
+		self.events.push(Event::OnClick(Box::new(f)));
 		self
 	} */
 }
@@ -94,3 +91,5 @@ impl Widget for Button {
 		vec![]
 	}
 }
+
+impl Interactive for Button {}

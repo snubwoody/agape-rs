@@ -11,7 +11,7 @@ use winit::event::WindowEvent;
 
 use std::fmt::Debug;
 use crate::{
-	app::{AppState, RenderContext}, 
+	app::{events::Interactive, AppState, RenderContext}, 
 	layout::{IntrinsicSize, Layout, WidgetSize}, 
 	surface::{
 		rect::RectSurface, Surface
@@ -20,7 +20,7 @@ use crate::{
 
 
 /// The trait that all widgets must implement.
-pub trait Widget:Debug{
+pub trait Widget:Debug + Interactive{
 	/// Build the [`Widget`] into a primitive [`WidgetBody`] for
 	/// rendering.
 	fn build(&self) -> WidgetBody;
@@ -30,7 +30,9 @@ pub trait Widget:Debug{
 	/// Get the children and consume the [`Widget`], 
 	/// since this is the last step before the widget
 	/// is turned to a [`WidgetBody`].  
-	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>>;
+	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {
+		vec![]
+	}
 }
 
 
@@ -42,7 +44,7 @@ pub struct WidgetBody{
 	pub layout:Layout,
 	pub children:Vec<Box<WidgetBody>>,
 	pub intrinsic_size:IntrinsicSize
-	//pub events:Vec<EventFunction>
+	//pub events:Vec<Event>
 }
 
 impl WidgetBody {

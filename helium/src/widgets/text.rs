@@ -1,6 +1,5 @@
 use crate::{
-	layout::{IntrinsicSize, Layout, WidgetSize}, 
-	surface::{text::TextSurface, Surface}, 
+	app::events::Interactive, layout::{IntrinsicSize, Layout, WidgetSize}, surface::{text::TextSurface, Surface} 
 };
 use super::{Widget, WidgetBody};
 
@@ -55,4 +54,6 @@ impl Widget for Text {
 		vec![]
 	}
 }
+
+impl Interactive for Text {}
 
