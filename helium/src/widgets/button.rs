@@ -1,7 +1,10 @@
 use crate::{
-	 color::Color, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::WidgetBody
+	color::Color, impl_events, impl_interative, 
+	layout::{IntrinsicSize, Layout, WidgetSize}, 
+	surface::rect::RectSurface, widgets::WidgetBody
 };
 use super::{text::Text, Widget};
+use crate::app::events::Event;
 
 /// A simple button.
 #[derive(Debug)]
@@ -10,7 +13,8 @@ pub struct Button{
 	pub color:Color,
 	pub padding:u32,
 	pub width: WidgetSize,
-	pub height: WidgetSize
+	pub height: WidgetSize,
+	pub events: Vec<Event<Self>>
 }
 
 impl Button {
@@ -20,8 +24,8 @@ impl Button {
 			color:Color::Rgb(255, 255, 255),
 			padding:0,
 			width: WidgetSize::Fit,
-			height:WidgetSize::Fit
-			//events:Vec::new()
+			height:WidgetSize::Fit,
+			events:Vec::new()
 		}
 	}
 
@@ -50,15 +54,18 @@ impl Button {
 		self
 	}
 
-	/* pub fn on_hover(mut self,f:impl Fn() + 'static) -> Self {
-		self.events.push(Event::OnHover(Box::new(f)));
+	/// Make a 'copy' of the [`Widget`] to pass as the state.
+	fn snapshot(&self) -> Self{
 		self
 	}
 
-	pub fn on_click(mut self,f:impl Fn() + 'static) -> Self{
-		self.events.push(Event::OnClick(Box::new(f)));
-		self
-	} */
+	fn update(&mut self,state:&Self){
+		self.color = state.color.clone();
+		self.width = state.width;
+		self.height = state.height;
+	}
+
+	impl_events!(Button);
 }
 
 impl Widget for Button {
@@ -90,4 +97,6 @@ impl Widget for Button {
 	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {
 		vec![]
 	}
+
+	impl_interative!();
 }

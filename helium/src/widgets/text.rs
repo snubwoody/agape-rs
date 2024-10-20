@@ -1,19 +1,21 @@
 use crate::{
-	 layout::{IntrinsicSize, Layout, WidgetSize}, surface::{text::TextSurface, Surface} 
+	app::events::Event, impl_interative, layout::{IntrinsicSize, Layout, WidgetSize}, surface::{text::TextSurface, Surface} 
 };
 use super::{Widget, WidgetBody};
 
-#[derive(Debug,Clone,PartialEq,Eq)]
+#[derive(Debug)]
 pub struct Text{
 	pub text:String,
-	pub font_size:u8
+	pub font_size:u8,
+	pub events: Vec<Event<Self>>
 }
 
 impl Text {
 	pub fn new(text:&str) -> Self{
 		Self { 
 			text:text.into(), 
-			font_size:16 
+			font_size:16,
+			events: Vec::new()
 		}	
 	}
 
@@ -49,4 +51,6 @@ impl Widget for Text {
 			..Default::default()
 		}
 	}
+
+	impl_interative!();
 }

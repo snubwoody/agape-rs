@@ -1,5 +1,5 @@
 use crate::{
-	 color::Color, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::Widget
+	 color::Color, impl_interative, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::Widget
 };
 use super::WidgetBody;
 
@@ -55,4 +55,6 @@ impl Widget for Container {
 	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {
 		return vec![self.child];
 	}
+
+	impl_interative!();
 }

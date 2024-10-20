@@ -1,5 +1,5 @@
 use crate::{
-     color::Color, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}
+     app::events::Event, color::Color, impl_events, impl_interative, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}
 };
 
 #[derive(Debug)]
@@ -9,6 +9,21 @@ pub struct Stack {
     pub children: Vec<Box<dyn Widget>>,
 	pub layout: Layout,
     pub color: Color,
+	pub events: Vec<Event<Self>>
+}
+
+impl Stack {
+	// FIXME change this to use the layout of the widget
+	pub fn spacing(mut self,spacing:u32) -> Self{
+		self.spacing = spacing;
+		self.layout = Layout::Horizontal {
+			spacing,
+			padding:self.padding,
+		};
+		self
+	}
+
+	impl_events!(Stack);
 }
 
 impl Widget for Stack {
@@ -34,19 +49,12 @@ impl Widget for Stack {
     fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {
         self.children
     }
+
+	impl_interative!();
 }
 
-impl Stack {
-	// FIXME change this to use the layout of the widget
-	pub fn spacing(mut self,spacing:u32) -> Self{
-		self.spacing = spacing;
-		self.layout = Layout::Horizontal {
-			spacing,
-			padding:self.padding,
-		};
-		self
-	}
-}
+
+
 
 #[macro_export]
 macro_rules! vstack {

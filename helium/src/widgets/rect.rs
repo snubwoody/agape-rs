@@ -2,6 +2,7 @@ use std::fmt::Debug;
 use super::{Widget, WidgetBody};
 use crate::app::events::{Event};
 use crate::color::Color;
+use crate::{impl_events, impl_interative};
 use crate::layout::{IntrinsicSize, Layout, WidgetSize};
 use crate::surface::rect::RectSurface;
 use crate::utils::{Position, Size};
@@ -27,31 +28,7 @@ impl Rect {
         }
     }
 
-    pub fn on_hover(mut self, event: impl FnMut(&mut Rect) + 'static ) -> Self {
-		self.events.push(Event::OnHover(Box::new(event)));
-        self
-    }
-
-    pub fn on_click(mut self, event: impl FnMut(&mut Rect) + 'static ) -> Self {
-		self.events.push(Event::OnClick(Box::new(event)));
-        self
-    }
-
-    pub fn on_press(mut self, event: impl FnMut(&mut Rect) + 'static ) -> Self {
-		self.events.push(Event::OnPress(Box::new(event)));
-        self
-    }
-
-	/// Make a 'copy' of the [`Widget`] to pass as the state.
-	fn snapshot(&self) -> Self{
-		Rect::new(self.width, self.height, self.color.clone())
-	}
-
-	fn update(&mut self,state:&Rect){
-		self.color = state.color.clone();
-		self.width = state.width;
-		self.height = state.height;
-	}
+	impl_events!(Rect);
 }
 
 impl Widget for Rect {
@@ -76,52 +53,6 @@ impl Widget for Rect {
         }
     }
 
-	
-	fn handle_hover(&mut self,cursor_pos:Position) {
-		let body = self.build();
-		let bounds = body.surface.get_bounds();
-		let mut state = self.snapshot();
-
-		if bounds.within(&cursor_pos){
-			for event in self.events.iter_mut(){
-				match event {
-					Event::OnHover(func) => func(&mut state),
-					_ => {}
-				}
-			}
-		}
-		self.update(&state);
-	}
-
-	fn handle_click(&mut self,cursor_pos:Position) {
-		let body = self.build();
-		let bounds = body.surface.get_bounds();
-		let mut state = self.snapshot();
-
-		if bounds.within(&cursor_pos){
-			for event in self.events.iter_mut(){
-				match event {
-					Event::OnClick(func) => func(&mut state),
-					_ => {}
-				}
-			}
-		}
-		self.update(&state);
-	}
-
-	fn handle_press(&mut self,cursor_pos:Position) {
-		let body = self.build();
-		let bounds = body.surface.get_bounds();
-		let mut state = self.snapshot();
-
-		if bounds.within(&cursor_pos){
-			for event in self.events.iter_mut(){
-				match event {
-					Event::OnPress(func) => func(&mut state),
-					_ => {}
-				}
-			}
-		}
-		self.update(&state);
-	}
+	impl_interative!();
 }
+
