@@ -1,5 +1,5 @@
 use crate::{
-    app::events::Interactive, color::Color, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}
+     color::Color, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}
 };
 
 #[derive(Debug)]
@@ -47,8 +47,6 @@ impl Stack {
 		self
 	}
 }
-
-impl Interactive for Stack {}
 
 #[macro_export]
 macro_rules! vstack {

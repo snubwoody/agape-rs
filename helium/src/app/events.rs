@@ -2,21 +2,6 @@ use std::fmt::Debug;
 use winit::event::{ElementState, MouseButton, WindowEvent};
 use crate::{utils::Position, widgets::Widget};
 
-/// A [`Widget`] that can react to events
-pub trait Interactive{
-	fn handle_hover(&mut self,cursor_pos:Position){
-
-	}
-
-	fn handle_click(&mut self,cursor_pos:Position){
-
-	}
-
-	fn handle_press(&mut self,cursor_pos:Position){
-
-	}
-}
-
 pub enum Event<State> {
 	/// Occurs when the mouse button is clicked
 	/// this event only fires when the mouse button 

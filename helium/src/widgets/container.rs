@@ -1,5 +1,5 @@
 use crate::{
-	app::events::Interactive, color::Color, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::Widget
+	 color::Color, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::Widget
 };
 use super::WidgetBody;
 
@@ -56,5 +56,3 @@ impl Widget for Container {
 		return vec![self.child];
 	}
 }
-
-impl Interactive for Container {}

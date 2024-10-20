@@ -1,5 +1,5 @@
 use crate::{
-	app::events::Interactive, layout::{IntrinsicSize, Layout, WidgetSize}, surface::{text::TextSurface, Surface} 
+	 layout::{IntrinsicSize, Layout, WidgetSize}, surface::{text::TextSurface, Surface} 
 };
 use super::{Widget, WidgetBody};
 
@@ -49,11 +49,4 @@ impl Widget for Text {
 			..Default::default()
 		}
 	}
-	
-	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {
-		vec![]
-	}
 }
-
-impl Interactive for Text {}
-

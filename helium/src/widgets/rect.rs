@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 use super::{Widget, WidgetBody};
-use crate::app::events::{Event, Interactive};
+use crate::app::events::{Event};
 use crate::color::Color;
 use crate::layout::{IntrinsicSize, Layout, WidgetSize};
 use crate::surface::rect::RectSurface;
@@ -75,9 +75,8 @@ impl Widget for Rect {
             ..Default::default()
         }
     }
-}
 
-impl Interactive for Rect {
+	
 	fn handle_hover(&mut self,cursor_pos:Position) {
 		let body = self.build();
 		let bounds = body.surface.get_bounds();

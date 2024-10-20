@@ -1,5 +1,5 @@
 use crate::{
-	app::events::Interactive, color::Color, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::WidgetBody
+	 color::Color, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::WidgetBody
 };
 use super::{text::Text, Widget};
 
@@ -91,5 +91,3 @@ impl Widget for Button {
 		vec![]
 	}
 }
-
-impl Interactive for Button {}
