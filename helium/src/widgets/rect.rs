@@ -37,6 +37,11 @@ impl Rect {
         self
     }
 
+    pub fn on_press(mut self, event: impl FnMut(&mut Rect) + 'static ) -> Self {
+		self.events.push(Event::OnPress(Box::new(event)));
+        self
+    }
+
 	/// Make a 'copy' of the [`Widget`] to pass as the state.
 	fn snapshot(&self) -> Self{
 		Rect::new(self.width, self.height, self.color.clone())
@@ -98,6 +103,22 @@ impl Interactive for Rect {
 			for event in self.events.iter_mut(){
 				match event {
 					Event::OnClick(func) => func(&mut state),
+					_ => {}
+				}
+			}
+		}
+		self.update(&state);
+	}
+
+	fn handle_press(&mut self,cursor_pos:Position) {
+		let body = self.build();
+		let bounds = body.surface.get_bounds();
+		let mut state = self.snapshot();
+
+		if bounds.within(&cursor_pos){
+			for event in self.events.iter_mut(){
+				match event {
+					Event::OnPress(func) => func(&mut state),
 					_ => {}
 				}
 			}

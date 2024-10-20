@@ -11,6 +11,10 @@ pub trait Interactive{
 	fn handle_click(&mut self,cursor_pos:Position){
 
 	}
+
+	fn handle_press(&mut self,cursor_pos:Position){
+
+	}
 }
 
 pub enum Event<State> {
@@ -19,7 +23,7 @@ pub enum Event<State> {
 	/// is released.
 	OnClick(Box<dyn FnMut(&mut State)>),
 
-	/// Occurs when the mouse button is pressed down
+	/// Occurs when the mouse button is pressed down.
 	OnPress(Box<dyn FnMut(&mut State)>),
 
 	/// Occurs when the mouse position is 
@@ -27,15 +31,6 @@ pub enum Event<State> {
 	OnHover(Box<dyn FnMut(&mut State)>),
 }
 
-impl<State> Event<State> {
-	pub fn run(&mut self,widget:&mut State) {
-		match self{
-			Self::OnClick(func) => func(widget),
-			Self::OnHover(func) => func(widget), 
-			_ => {}
-		}
-	}
-}
 
 impl<State> Debug for Event<State> {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -86,7 +81,9 @@ impl EventHandler {
 				match button {
 					MouseButton::Left => {
 						match state {
-							ElementState::Pressed => self.mouse_button_down = true,
+							ElementState::Pressed => {
+								root_widget.handle_press(self.cursor_pos);
+							},
 							ElementState::Released => {
 								root_widget.handle_click(self.cursor_pos);
 							}
