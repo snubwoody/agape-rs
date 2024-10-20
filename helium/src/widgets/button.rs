@@ -14,7 +14,7 @@ pub struct Button{
 	pub padding:u32,
 	pub width: WidgetSize,
 	pub height: WidgetSize,
-	pub events: Vec<Event<Self>>
+	events: Vec<Event<Self>>
 }
 
 impl Button {
@@ -54,18 +54,6 @@ impl Button {
 		self
 	}
 
-	/// Make a 'copy' of the [`Widget`] to pass as the state.
-	fn snapshot(&self) -> Self{
-		self
-	}
-
-	fn update(&mut self,state:&Self){
-		self.color = state.color.clone();
-		self.width = state.width;
-		self.height = state.height;
-	}
-
-	impl_events!(Button);
 }
 
 impl Widget for Button {
@@ -98,5 +86,4 @@ impl Widget for Button {
 		vec![]
 	}
 
-	impl_interative!();
 }

@@ -13,7 +13,6 @@ pub struct Rect {
     pub width: f32,
     pub height: f32,
     pub color: Color,
-    pub hover_func: Event<Self>,
 	pub events: Vec<Event<Self>>
 }
 
@@ -23,10 +22,24 @@ impl Rect {
             width,
             height,
             color,
-            hover_func:Event::OnHover(Box::new(|_|{})),
 			events: Vec::new()
         }
     }
+
+	fn snapshot(&self) -> Rect{
+		Self { 
+			width: self.width, 
+			height: self.height, 
+			color: self.color.clone(), 
+			events: vec![] 
+		}
+	}
+
+	fn update(&mut self,state:&Self){
+		self.width = state.width;
+		self.height = state.height;
+		self.color = state.color.clone();
+	}
 
 	impl_events!(Rect);
 }

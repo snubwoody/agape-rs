@@ -11,7 +11,7 @@ pub const INDIGO:Color = Color::Rgb(99, 102, 241);
 pub const PINK:Color = Color::Rgb(236, 72, 153);
 
 /// Represents a color.
-#[derive(Debug,Clone,PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug,Clone,PartialEq, Eq,)]
 pub enum Color{
 	Rgb(u8,u8,u8),
 	Rgba(u8,u8,u8,u8),

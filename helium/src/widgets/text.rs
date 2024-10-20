@@ -51,6 +51,4 @@ impl Widget for Text {
 			..Default::default()
 		}
 	}
-
-	impl_interative!();
 }

@@ -3,7 +3,6 @@ use crate::{
 };
 use super::WidgetBody;
 
-
 /// A container [`Widget`] that wraps its child
 #[derive(Debug)]
 pub struct Container{
@@ -55,6 +54,4 @@ impl Widget for Container {
 	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {
 		return vec![self.child];
 	}
-
-	impl_interative!();
 }

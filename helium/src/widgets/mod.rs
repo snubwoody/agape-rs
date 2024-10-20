@@ -106,9 +106,9 @@ pub trait Widget:Debug{
   
 	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {vec![]}
 	
-	fn handle_hover(&mut self,cursor_pos:Position);
-	fn handle_click(&mut self,cursor_pos:Position);
-	fn handle_press(&mut self,cursor_pos:Position);
+	fn handle_hover(&mut self,cursor_pos:Position){}
+	fn handle_click(&mut self,cursor_pos:Position){}
+	fn handle_press(&mut self,cursor_pos:Position){}
 }
 
 

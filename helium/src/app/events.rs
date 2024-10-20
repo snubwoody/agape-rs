@@ -2,6 +2,7 @@ use std::fmt::Debug;
 use winit::event::{ElementState, MouseButton, WindowEvent};
 use crate::{utils::Position, widgets::Widget};
 
+
 pub enum Event<State> {
 	/// Occurs when the mouse button is clicked
 	/// this event only fires when the mouse button 

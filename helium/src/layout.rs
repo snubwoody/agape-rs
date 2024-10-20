@@ -208,7 +208,7 @@ impl Layout {
 	}
 }
 
-#[derive(Debug,Clone, Copy,Default)]
+#[derive(Debug,Clone, Copy,Default,PartialEq)]
 pub enum WidgetSize{
 	Fixed(f32),
 	Fill,

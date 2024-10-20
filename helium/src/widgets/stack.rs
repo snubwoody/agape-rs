@@ -22,8 +22,6 @@ impl Stack {
 		};
 		self
 	}
-
-	impl_events!(Stack);
 }
 
 impl Widget for Stack {
@@ -49,8 +47,6 @@ impl Widget for Stack {
     fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {
         self.children
     }
-
-	impl_interative!();
 }
 
 
