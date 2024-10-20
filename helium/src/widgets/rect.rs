@@ -1,11 +1,7 @@
 use std::fmt::Debug;
-
-use wgpu::hal::auxil::db;
-use winit::event::WindowEvent;
-
 use super::{Widget, WidgetBody};
 use crate::app::events::{Event, Interactive};
-use crate::color::{Color, TEAL};
+use crate::color::Color;
 use crate::layout::{IntrinsicSize, Layout, WidgetSize};
 use crate::surface::rect::RectSurface;
 use crate::utils::{Position, Size};
@@ -16,7 +12,8 @@ pub struct Rect {
     pub width: f32,
     pub height: f32,
     pub color: Color,
-    pub hover_func: Event<Self>
+    pub hover_func: Event<Self>,
+	pub events: Vec<Event<Self>>
 }
 
 impl Rect {
@@ -25,12 +22,18 @@ impl Rect {
             width,
             height,
             color,
-            hover_func:Event::OnHover(Box::new(|_|{}))
+            hover_func:Event::OnHover(Box::new(|_|{})),
+			events: Vec::new()
         }
     }
 
     pub fn on_hover(mut self, event: impl FnMut(&mut Rect) + 'static ) -> Self {
-        self.hover_func = Event::OnHover(Box::new(event));
+		self.events.push(Event::OnHover(Box::new(event)));
+        self
+    }
+
+    pub fn on_click(mut self, event: impl FnMut(&mut Rect) + 'static ) -> Self {
+		self.events.push(Event::OnClick(Box::new(event)));
         self
     }
 
@@ -67,27 +70,38 @@ impl Widget for Rect {
             ..Default::default()
         }
     }
+}
 
-	fn run_events(&mut self,event:&WindowEvent) {
+impl Interactive for Rect {
+	fn handle_hover(&mut self,cursor_pos:Position) {
 		let body = self.build();
 		let bounds = body.surface.get_bounds();
 		let mut state = self.snapshot();
 
-		match event {
-			WindowEvent::CursorMoved { position,.. } => {
-				let cursor_pos = Position::from(*position);
-				if bounds.within(&cursor_pos){
-					self.hover_func.run(&mut state);
+		if bounds.within(&cursor_pos){
+			for event in self.events.iter_mut(){
+				match event {
+					Event::OnHover(func) => func(&mut state),
+					_ => {}
 				}
-			},
-			_ => {}
+			}
 		}
 		self.update(&state);
 	}
-}
 
-impl Interactive for Rect {
-	fn handle_hover(&self,cursor_pos:Position) {
-		
+	fn handle_click(&mut self,cursor_pos:Position) {
+		let body = self.build();
+		let bounds = body.surface.get_bounds();
+		let mut state = self.snapshot();
+
+		if bounds.within(&cursor_pos){
+			for event in self.events.iter_mut(){
+				match event {
+					Event::OnClick(func) => func(&mut state),
+					_ => {}
+				}
+			}
+		}
+		self.update(&state);
 	}
 }

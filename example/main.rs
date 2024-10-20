@@ -12,7 +12,8 @@ fn main() {
 fn new_app() {
 	let rect = 
 		Rect::new(200.0, 150.0, TEAL)
-		.on_hover(|rect|{rect.width += 2.0;});
+		.on_hover(|rect|{rect.width += 2.0;})
+		.on_click(|_|{dbg!("I was clicked");});
     
 	let page = View::new(rect);
     let app = App::new().add_view(page);

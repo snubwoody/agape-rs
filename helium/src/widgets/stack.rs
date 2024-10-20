@@ -48,11 +48,7 @@ impl Stack {
 	}
 }
 
-impl Interactive for Stack {
-	fn handle_hover(&self,cursor_pos:crate::utils::Position) {
-		
-	}
-}
+impl Interactive for Stack {}
 
 #[macro_export]
 macro_rules! vstack {

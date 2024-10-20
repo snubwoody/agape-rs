@@ -24,15 +24,8 @@ pub trait Widget:Debug + Interactive{
 	/// Build the [`Widget`] into a primitive [`WidgetBody`] for
 	/// rendering.
 	fn build(&self) -> WidgetBody;
-
-	fn run_events(&mut self,event:&WindowEvent){}
-
-	/// Get the children and consume the [`Widget`], 
-	/// since this is the last step before the widget
-	/// is turned to a [`WidgetBody`].  
-	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {
-		vec![]
-	}
+  
+	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {vec![]}
 }
 
 
