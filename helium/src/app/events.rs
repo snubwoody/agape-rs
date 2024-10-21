@@ -1,7 +1,6 @@
 use std::fmt::Debug;
 use winit::event::{ElementState, MouseButton, WindowEvent};
-use crate::{utils::Position, widgets::Widget};
-
+use crate::{utils::Position, widgets::{Widget, WidgetState}};
 
 pub enum Event<State> {
 	/// Occurs when the mouse button is clicked
@@ -56,7 +55,7 @@ impl EventHandler {
 		match event {
 			WindowEvent::CursorMoved { position,.. } => {
 				self.cursor_pos = position.clone().into();
-				root_widget.handle_hover(self.cursor_pos);
+				//root_widget.handle_hover(self.cursor_pos);
 			},
 			WindowEvent::MouseInput { state, button,.. } => {
 				match state {
@@ -68,10 +67,12 @@ impl EventHandler {
 					MouseButton::Left => {
 						match state {
 							ElementState::Pressed => {
-								root_widget.handle_press(self.cursor_pos);
+								//root_widget.handle_press(self.cursor_pos);
+								root_widget.change_state(WidgetState::Pressed);
 							},
 							ElementState::Released => {
-								root_widget.handle_click(self.cursor_pos);
+								//root_widget.handle_click(self.cursor_pos);
+								root_widget.change_state(WidgetState::Default);	
 							}
 						}
 					},

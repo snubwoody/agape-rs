@@ -47,6 +47,10 @@ impl Widget for Stack {
     fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {
         self.children
     }
+
+	fn get_children_ref(&self) -> Vec<&Box<dyn Widget>> {
+		self.children.iter().map(|child|child).collect()
+	}
 }
 
 
@@ -57,7 +61,7 @@ macro_rules! vstack {
 	(
 		spacing:$spacing:expr,
 		padding:$padding:expr,
-		$($child:expr),*
+		$($child:expr),* // TODO remove this, i think it's not neccessary
 	) => {
 		helium::widgets::Stack{
 			spacing:$spacing,

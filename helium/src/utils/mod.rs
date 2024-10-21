@@ -3,8 +3,9 @@ use winit::dpi::{PhysicalPosition, PhysicalSize};
 
 /// The bounds of any object that has a [`Size`] 
 /// and [`Position`].
+#[derive(Debug,Clone,Copy,PartialEq, PartialOrd,Default)]
 pub struct Bounds {
-	pub x:[f32;2],
+	pub x:[f32;2], // TODO change this to start and end position and add a center.
 	pub y:[f32;2],
 }
 

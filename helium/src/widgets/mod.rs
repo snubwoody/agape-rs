@@ -7,8 +7,6 @@ pub use rect::Rect;
 pub use text::Text;
 pub use button::Button;
 pub use stack::Stack;
-use winit::event::WindowEvent;
-
 use std::fmt::Debug;
 use crate::{
 	app::{AppState, RenderContext}, 
@@ -105,12 +103,28 @@ pub trait Widget:Debug{
 	fn build(&self) -> WidgetBody;
   
 	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {vec![]}
+
+	fn get_children_ref(&self) -> Vec<&Box<dyn Widget>> {vec![]}
+
+	fn change_state(&mut self,state:WidgetState){}
 	
 	fn handle_hover(&mut self,cursor_pos:Position){}
 	fn handle_click(&mut self,cursor_pos:Position){}
 	fn handle_press(&mut self,cursor_pos:Position){}
 }
 
+/// The different states that a [`Widget`] can be in.
+#[derive(Debug,Clone, Copy,PartialEq, Eq,Default)]
+pub enum WidgetState{
+	#[default]
+	Default,
+	Hovered,
+	/// The [`Widget`] enters a `pressed` state when
+	/// the mouse button is clicked and exits when 
+	/// the mouse button is released.
+	Pressed,
+	Focused
+}
 
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.

@@ -1,11 +1,10 @@
 use std::fmt::Debug;
-use super::{Widget, WidgetBody};
+use super::{Widget, WidgetBody, WidgetState};
 use crate::app::events::{Event};
-use crate::color::Color;
-use crate::{impl_events, impl_interative};
+use crate::color::{Color, BLACK, RED};
 use crate::layout::{IntrinsicSize, Layout, WidgetSize};
 use crate::surface::rect::RectSurface;
-use crate::utils::{Position, Size};
+use crate::utils::Size;
 
 #[derive(Debug)]
 /// A simple rectangle
@@ -13,7 +12,8 @@ pub struct Rect {
     pub width: f32,
     pub height: f32,
     pub color: Color,
-	pub events: Vec<Event<Self>>
+	pub events: Vec<Event<Self>>,
+	pub state: WidgetState
 }
 
 impl Rect {
@@ -22,7 +22,8 @@ impl Rect {
             width,
             height,
             color,
-			events: Vec::new()
+			events: Vec::new(),
+			state: WidgetState::Default
         }
     }
 
@@ -31,7 +32,17 @@ impl Rect {
 			width: self.width, 
 			height: self.height, 
 			color: self.color.clone(), 
-			events: vec![] 
+			events: vec![],
+			state: WidgetState::Default
+		}
+	}
+
+	/// This function gets called everytime the widgets state is changed.
+	fn handle_state_changes(&self){
+		match self.state {
+			WidgetState::Pressed => {dbg!("I was pressed");},
+			WidgetState::Default=>{},
+			_ => {}
 		}
 	}
 
@@ -41,8 +52,23 @@ impl Rect {
 		self.color = state.color.clone();
 	}
 
-	impl_events!(Rect);
+	pub fn on_hover(mut self, event: impl FnMut(&mut Rect) + 'static ) -> Self {
+		self.events.push(Event::OnHover(Box::new(event)));
+		self
+	}
+
+	pub fn on_click(mut self, event: impl FnMut(&mut Rect) + 'static ) -> Self {
+		self.events.push(Event::OnClick(Box::new(event)));
+		self
+	}
+
+	pub fn on_press(mut self, event: impl FnMut(&mut Rect) + 'static ) -> Self {
+		self.events.push(Event::OnPress(Box::new(event)));
+		self
+	}
 }
+// TODO maybe add a widget state enum to represent the different states
+// Then maybe somehow copy the user code to the function on_hover
 
 impl Widget for Rect {
     fn build(&self) -> WidgetBody {
@@ -66,6 +92,59 @@ impl Widget for Rect {
         }
     }
 
-	impl_interative!();
+	// fn handle_hover(&mut self,cursor_pos:crate::utils::Position) {
+	// 	let body = self.build();
+	// 	let bounds = body.surface.get_bounds();
+	// 	let mut state = self.snapshot();
+
+	// 	if bounds.within(&cursor_pos){
+	// 		for event in self.events.iter_mut(){
+	// 			match event {
+	// 				crate::app::events::Event::OnHover(func) => func(&mut state),
+	// 				_ => {}
+	// 			}
+	// 		}
+	// 	}
+	// 	self.update(&state);
+	// }
+
+	fn change_state(&mut self,state:WidgetState) {
+		self.state = state;
+		self.handle_state_changes();
+		dbg!(&state);
+	}
+
+	// fn handle_click(&mut self,cursor_pos:crate::utils::Position) {
+	// 	let body = self.build();
+	// 	let bounds = body.surface.get_bounds();
+	// 	let mut state = self.snapshot();
+
+	// 	if bounds.within(&cursor_pos){
+	// 		for event in self.events.iter_mut(){
+	// 			match event {
+	// 				crate::app::events::Event::OnClick(func) => func(&mut state),
+	// 				_ => {}
+	// 			}
+	// 		}
+	// 	}
+		
+	// 	self.update(&state);
+	// }
+
+	// fn handle_press(&mut self,cursor_pos:crate::utils::Position) {
+	// 	let body = self.build();
+	// 	let bounds = body.surface.get_bounds();
+	// 	let mut state = self.snapshot();
+
+	// 	if bounds.within(&cursor_pos){
+	// 		for event in self.events.iter_mut(){
+	// 			match event {
+	// 				crate::app::events::Event::OnPress(func) => func(&mut state),
+	// 				_ => {}
+	// 			}
+	// 		}
+	// 	}
+	// 	self.update(&state);
+	// }
 }
 
