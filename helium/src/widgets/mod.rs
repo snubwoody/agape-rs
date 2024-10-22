@@ -9,92 +9,12 @@ pub use button::Button;
 pub use stack::Stack;
 use std::fmt::Debug;
 use crate::{
-	app::{AppState, RenderContext}, 
+	app::{events::Event, AppState, RenderContext}, 
 	layout::{IntrinsicSize, Layout, WidgetSize}, 
 	surface::{
 		rect::RectSurface, Surface
 	}, utils::{Position, Size}, 
 };
-
-
-/// This is (hopefully) a temporary macro, to reduce code
-/// duplication when creating [`Widget`]'s.
-#[macro_export]
-macro_rules! impl_events {
-	($name:ty) => {
-		pub fn on_hover(mut self, event: impl FnMut(&mut $name) + 'static ) -> Self {
-			self.events.push(Event::OnHover(Box::new(event)));
-			self
-		}
-	
-		pub fn on_click(mut self, event: impl FnMut(&mut $name) + 'static ) -> Self {
-			self.events.push(Event::OnClick(Box::new(event)));
-			self
-		}
-	
-		pub fn on_press(mut self, event: impl FnMut(&mut $name) + 'static ) -> Self {
-			self.events.push(Event::OnPress(Box::new(event)));
-			self
-		}
-	};
-}
-
-/// Implement the interactive functions of the [`Widget`] trait,
-/// the code is usually the same, so this is to reduce code duplication
-/// and frustration.
-#[macro_export]
-macro_rules! impl_interative {
-	() => {
-		fn handle_hover(&mut self,cursor_pos:crate::utils::Position) {
-			let body = self.build();
-			let bounds = body.surface.get_bounds();
-			let mut state = self.snapshot();
-	
-			if bounds.within(&cursor_pos){
-				for event in self.events.iter_mut(){
-					match event {
-						crate::app::events::Event::OnHover(func) => func(&mut state),
-						_ => {}
-					}
-				}
-			}
-			self.update(&state);
-		}
-	
-		fn handle_click(&mut self,cursor_pos:crate::utils::Position) {
-			let body = self.build();
-			let bounds = body.surface.get_bounds();
-			let mut state = self.snapshot();
-	
-			if bounds.within(&cursor_pos){
-				for event in self.events.iter_mut(){
-					match event {
-						crate::app::events::Event::OnClick(func) => func(&mut state),
-						_ => {}
-					}
-				}
-			}
-			self.update(&state);
-		}
-
-		fn handle_press(&mut self,cursor_pos:crate::utils::Position) {
-			let body = self.build();
-			let bounds = body.surface.get_bounds();
-			let mut state = self.snapshot();
-	
-			if bounds.within(&cursor_pos){
-				for event in self.events.iter_mut(){
-					match event {
-						crate::app::events::Event::OnPress(func) => func(&mut state),
-						_ => {}
-					}
-				}
-			}
-			self.update(&state);
-		}
-	};
-}
-
 
 /// The trait that all widgets must implement.
 pub trait Widget{
@@ -106,11 +26,7 @@ pub trait Widget{
 
 	fn get_children_ref(&self) -> Vec<&Box<dyn Widget>> {vec![]}
 
-	fn change_state(&mut self,state:WidgetState){}
-	
-	fn handle_hover(&mut self,cursor_pos:Position){}
-	fn handle_click(&mut self,cursor_pos:Position){}
-	fn handle_press(&mut self,cursor_pos:Position){}
+	fn change_state(&mut self,state:WidgetState){}	
 }
 
 /// The different states that a [`Widget`] can be in.
@@ -128,13 +44,11 @@ pub enum WidgetState{
 
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
-#[derive(Debug)]
 pub struct WidgetBody{
 	pub surface:Box<dyn Surface>,
 	pub layout:Layout,
 	pub children:Vec<Box<WidgetBody>>,
-	pub intrinsic_size:IntrinsicSize
-	//pub events:Vec<Event>
+	pub intrinsic_size:IntrinsicSize,
 }
 
 impl WidgetBody {
@@ -199,7 +113,7 @@ impl Default for WidgetBody {
 			surface, 
 			layout, 
 			children:vec![], 
-			intrinsic_size: Default::default()
+			intrinsic_size: Default::default(),
 		}
 	}
 }

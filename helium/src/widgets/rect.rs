@@ -83,7 +83,6 @@ impl Widget for Rect {
             ..Default::default()
         });
 
-
         WidgetBody {
             surface,
             layout,

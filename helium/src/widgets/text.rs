@@ -1,5 +1,5 @@
 use crate::{
-	app::events::Event, impl_interative, layout::{IntrinsicSize, Layout, WidgetSize}, surface::{text::TextSurface, Surface} 
+	app::events::Event,  layout::{IntrinsicSize, Layout, WidgetSize}, surface::{text::TextSurface, Surface} 
 };
 use super::{Widget, WidgetBody};
 

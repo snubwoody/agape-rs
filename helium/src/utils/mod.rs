@@ -58,7 +58,6 @@ impl From<PhysicalPosition<f64>> for Position {
 	}
 }
 
-
 /// Anything with a width and a height
 #[derive(Debug,Clone,Copy,PartialEq,PartialOrd,Default)]
 pub struct Size{
