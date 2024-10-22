@@ -4,7 +4,6 @@ use crate::{
 use super::WidgetBody;
 
 /// A container [`Widget`] that wraps its child
-#[derive(Debug)]
 pub struct Container{
 	pub padding:u32,
 	pub color:Color,
@@ -53,5 +52,9 @@ impl Widget for Container {
 
 	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {
 		return vec![self.child];
+	}
+
+	fn get_children_ref(&self) -> Vec<&Box<dyn Widget>> {
+		vec![&self.child]
 	}
 }

@@ -7,14 +7,13 @@ use super::{text::Text, Widget};
 use crate::app::events::Event;
 
 /// A simple button.
-#[derive(Debug)]
 pub struct Button{
 	pub text:String,
 	pub color:Color,
 	pub padding:u32,
 	pub width: WidgetSize,
 	pub height: WidgetSize,
-	events: Vec<Event<Self>>
+	events: Vec<Event>
 }
 
 impl Button {

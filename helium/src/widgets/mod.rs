@@ -97,7 +97,7 @@ macro_rules! impl_interative {
 
 
 /// The trait that all widgets must implement.
-pub trait Widget:Debug{
+pub trait Widget{
 	/// Build the [`Widget`] into a primitive [`WidgetBody`] for
 	/// rendering.
 	fn build(&self) -> WidgetBody;

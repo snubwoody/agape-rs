@@ -3,11 +3,10 @@ use crate::{
 };
 use super::{Widget, WidgetBody};
 
-#[derive(Debug)]
 pub struct Text{
 	pub text:String,
 	pub font_size:u8,
-	pub events: Vec<Event<Self>>
+	pub events: Vec<Event>
 }
 
 impl Text {

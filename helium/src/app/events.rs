@@ -1,30 +1,20 @@
 use std::fmt::Debug;
+
 use winit::event::{ElementState, MouseButton, WindowEvent};
 use crate::{utils::Position, widgets::{Widget, WidgetState}};
 
-pub enum Event<State> {
-	/// Occurs when the mouse button is clicked
-	/// this event only fires when the mouse button 
-	/// is released.
-	OnClick(Box<dyn FnMut(&mut State)>),
 
-	/// Occurs when the mouse button is pressed down.
-	OnPress(Box<dyn FnMut(&mut State)>),
 
-	/// Occurs when the mouse position is 
-	/// within the [`Bounds`] of the [`Widget`].
-	OnHover(Box<dyn FnMut(&mut State)>),
+pub enum Event {
+	OnClick(Box<dyn FnMut()>),
+	OnHover(Box<dyn FnMut()>),
 }
 
-
-impl<State> Debug for Event<State> {
+impl Debug for Event {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		match &self {
 			Self::OnClick(_) => {
 				f.debug_tuple("OnClick()").finish()
-			},
-			Self::OnPress(_) => {
-				f.debug_tuple("OnPress()").finish()
 			},
 			Self::OnHover(_) => {
 				f.debug_tuple("OnHover()").finish()
@@ -55,7 +45,6 @@ impl EventHandler {
 		match event {
 			WindowEvent::CursorMoved { position,.. } => {
 				self.cursor_pos = position.clone().into();
-				//root_widget.handle_hover(self.cursor_pos);
 			},
 			WindowEvent::MouseInput { state, button,.. } => {
 				match state {
@@ -67,11 +56,9 @@ impl EventHandler {
 					MouseButton::Left => {
 						match state {
 							ElementState::Pressed => {
-								//root_widget.handle_press(self.cursor_pos);
 								root_widget.change_state(WidgetState::Pressed);
 							},
 							ElementState::Released => {
-								//root_widget.handle_click(self.cursor_pos);
 								root_widget.change_state(WidgetState::Default);	
 							}
 						}

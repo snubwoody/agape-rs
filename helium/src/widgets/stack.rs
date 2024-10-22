@@ -2,14 +2,13 @@ use crate::{
      app::events::Event, color::Color, impl_events, impl_interative, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}
 };
 
-#[derive(Debug)]
 pub struct Stack {
     pub spacing: u32,
     pub padding: u32,
     pub children: Vec<Box<dyn Widget>>,
 	pub layout: Layout,
     pub color: Color,
-	pub events: Vec<Event<Self>>
+	pub events: Vec<Event>
 }
 
 impl Stack {
