@@ -3,8 +3,6 @@ use std::fmt::Debug;
 use winit::event::{ElementState, MouseButton, WindowEvent};
 use crate::{utils::Position, widgets::{Widget, WidgetState}};
 
-
-
 pub enum Event {
 	OnClick(Box<dyn FnMut()>),
 	OnHover(Box<dyn FnMut()>),
@@ -23,9 +21,8 @@ impl Debug for Event {
 	}
 }
 
-/// Handles all widget events and stores
-/// useful attributes such as the cursor
-/// position and the delta position.
+/// Handles all widget events and stores useful attributes such 
+/// as the cursor position and the delta position.
 pub struct EventHandler{
 	cursor_pos: Position,
 	delta_pos: Position,

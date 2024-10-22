@@ -1,7 +1,6 @@
-use std::fmt::Debug;
 use super::{Widget, WidgetBody, WidgetState};
 use crate::app::events::Event;
-use crate::color::{Color, BLACK, RED};
+use crate::color::Color;
 use crate::layout::{IntrinsicSize, Layout, WidgetSize};
 use crate::surface::rect::RectSurface;
 use crate::utils::Size;
@@ -42,20 +41,32 @@ impl Rect {
 		let mut state = self.snapshot();
 		match self.state {
 			WidgetState::Pressed => {
-				
+				for event in self.events.iter_mut(){
+					match event {
+						Event::OnClick(func) => func(),
+						_ => {}
+					}
+				}
+			},
+			WidgetState::Hovered => {
+				for event in self.events.iter_mut(){
+					match event {
+						Event::OnClick(func) => func(),
+						_ => {}
+					}
+				}
 			},
 			WidgetState::Default=>{},
 			_ => {}
 		}
 	}
 
-	fn update(&mut self,state:&Self){
-		self.width = state.width;
-		self.height = state.height;
-		self.color = state.color.clone();
+	pub fn on_click(mut self, event: impl FnMut() + 'static ) -> Self {
+		self.events.push(Event::OnClick(Box::new(event)));
+		self
 	}
 
-	pub fn on_click(mut self, event: impl FnMut() + 'static ) -> Self {
+	pub fn on_hover(mut self, event: impl FnMut() + 'static ) -> Self {
 		self.events.push(Event::OnHover(Box::new(event)));
 		self
 	}
@@ -88,7 +99,6 @@ impl Widget for Rect {
 	fn change_state(&mut self,state:WidgetState) {
 		self.state = state;
 		self.handle_state_changes();
-		dbg!(&state);
 	}
 }
 

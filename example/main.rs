@@ -11,7 +11,8 @@ fn main() {
 
 fn new_app() {
 	let rect = 
-		Rect::new(200.0, 150.0, TEAL).on_click(||{dbg!("I was pressed");});
+		Rect::new(200.0, 150.0, TEAL)
+		.on_click(||{dbg!("I was pressed");});
     
 	let page = View::new(rect);
     let app = App::new().add_view(page);
