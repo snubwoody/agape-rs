@@ -20,11 +20,11 @@ impl View {
 	}
 
 	pub fn handle_events(&mut self,event: winit::event::WindowEvent,window:&Window){
-		self.event_handler.handle_events(&event,&mut self.root_widget);
+		self.event_handler.handle_events(&event,&mut self.root_widget,&self.root_body);
 		window.request_redraw();
 	}
 	
-	pub fn render(&mut self,state:&AppState) {		
+	pub fn render(&mut self,state:&AppState) {
 		let output = state.surface.get_current_texture().unwrap();
 		let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
 

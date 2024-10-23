@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
 use winit::event::{ElementState, MouseButton, WindowEvent};
-use crate::{utils::Position, widgets::{Widget, WidgetState}};
+use crate::{utils::Position, widgets::{Widget, WidgetBody}};
 
 pub enum Event {
 	OnClick(Box<dyn FnMut()>),
@@ -21,6 +21,13 @@ impl Debug for Event {
 	}
 }
 
+#[derive(Debug)]
+pub enum Signal{
+	Hover(String),
+	Click(String)
+}
+
+
 /// Handles all widget events and stores useful attributes such 
 /// as the cursor position and the delta position.
 pub struct EventHandler{
@@ -38,12 +45,27 @@ impl EventHandler {
 		}
 	}
 
-	pub fn handle_events(&mut self,event:&winit::event::WindowEvent,root_widget:&mut Box<dyn Widget>){
+	pub fn handle_events(
+		&mut self,
+		event:&winit::event::WindowEvent,
+		root_widget:&mut Box<dyn Widget>,
+		root_body:&WidgetBody
+	) {
+		let mut signals = vec![];
+
 		match event {
 			WindowEvent::CursorMoved { position,.. } => {
 				self.cursor_pos = position.clone().into();
 			},
 			WindowEvent::MouseInput { state, button,.. } => {
+				let bounds = root_body.surface.get_bounds();
+				
+				
+				if bounds.within(&self.cursor_pos){
+					signals.push(Signal::Click(root_body.id.clone()));
+				}
+		
+				
 				match state {
 					ElementState::Pressed => self.mouse_button_down = true,
 					ElementState::Released => self.mouse_button_down = false
@@ -53,10 +75,10 @@ impl EventHandler {
 					MouseButton::Left => {
 						match state {
 							ElementState::Pressed => {
-								root_widget.change_state(WidgetState::Pressed);
+								//root_widget.change_state(WidgetState::Pressed);
 							},
 							ElementState::Released => {
-								root_widget.change_state(WidgetState::Default);	
+								//root_widget.change_state(WidgetState::Default);	
 							}
 						}
 					},
@@ -65,7 +87,10 @@ impl EventHandler {
 			}
 			_ => {}
 		}
+		
+		for signal in signals.iter(){
+			root_widget.parse_signal(signal);
+		}
 	}
-
 }
 

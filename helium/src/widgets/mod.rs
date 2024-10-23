@@ -9,7 +9,7 @@ pub use button::Button;
 pub use stack::Stack;
 use std::fmt::Debug;
 use crate::{
-	app::{events::Event, AppState, RenderContext}, 
+	app::{events::{Event, Signal}, AppState, RenderContext}, 
 	layout::{IntrinsicSize, Layout, WidgetSize}, 
 	surface::{
 		rect::RectSurface, Surface
@@ -26,25 +26,13 @@ pub trait Widget{
 
 	fn get_children_ref(&self) -> Vec<&Box<dyn Widget>> {vec![]}
 
-	fn change_state(&mut self,state:WidgetState){}	
-}
-
-/// The different states that a [`Widget`] can be in.
-#[derive(Debug,Clone, Copy,PartialEq, Eq,Default)]
-pub enum WidgetState{
-	#[default]
-	Default,
-	Hovered,
-	/// The [`Widget`] enters a `pressed` state when
-	/// the mouse button is clicked and exits when 
-	/// the mouse button is released.
-	Pressed,
-	Focused
+	fn parse_signal(&mut self,signal:&Signal){}
 }
 
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
 pub struct WidgetBody{
+	pub id:String,
 	pub surface:Box<dyn Surface>,
 	pub layout:Layout,
 	pub children:Vec<Box<WidgetBody>>,
@@ -110,6 +98,7 @@ impl Default for WidgetBody {
 		let layout = Layout::Block{ padding: 0 };
 
 		Self { 
+			id:String::default(),
 			surface, 
 			layout, 
 			children:vec![], 
