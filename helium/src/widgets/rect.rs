@@ -62,7 +62,7 @@ impl Widget for Rect {
         }
     }
 
-	fn parse_signal(&mut self,signal:&Signal) {
+	fn process_signal(&mut self,signal:&Signal) {
 		match signal {
 			Signal::Click(id) =>{
 				if id == &self.id{

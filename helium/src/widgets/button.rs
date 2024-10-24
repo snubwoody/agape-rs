@@ -1,27 +1,29 @@
+use nanoid::nanoid;
+
 use crate::{
-	color::Color,  
-	layout::{IntrinsicSize, Layout, WidgetSize}, 
-	surface::rect::RectSurface, widgets::WidgetBody
+	app::events::Signal, color::Color, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::WidgetBody
 };
 use super::{text::Text, Widget};
 use crate::app::events::Event;
 
 /// A simple button.
 pub struct Button{
-	pub text:String,
-	pub color:Color,
-	pub padding:u32,
-	pub width: WidgetSize,
-	pub height: WidgetSize,
+	id:String,
+	text:String,
+	color:Color,
+	padding:u32,
+	width: WidgetSize,
+	height: WidgetSize,
 	events: Vec<Event>
 }
 
 impl Button {
 	pub fn new(text:&str) -> Self {
 		Self { 
+			id:nanoid!(),
 			text:text.into(), 
 			color:Color::Rgb(255, 255, 255),
-			padding:0,
+			padding:12,
 			width: WidgetSize::Fit,
 			height:WidgetSize::Fit,
 			events:Vec::new()
@@ -53,6 +55,16 @@ impl Button {
 		self
 	}
 
+	pub fn on_click(mut self, event: impl FnMut() + 'static ) -> Self {
+		self.events.push(Event::OnClick(Box::new(event)));
+		self
+	}
+
+	pub fn on_hover(mut self, event: impl FnMut() + 'static ) -> Self {
+		self.events.push(Event::OnHover(Box::new(event)));
+		self
+	}
+
 }
 
 impl Widget for Button {
@@ -71,6 +83,7 @@ impl Widget for Button {
 		};
 
 		WidgetBody { 
+			id:self.id.clone(),
 			surface,
 			layout,
 			intrinsic_size,
@@ -83,6 +96,31 @@ impl Widget for Button {
 
 	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {
 		vec![]
+	}
+
+	fn process_signal(&mut self,signal:&Signal) {
+		match signal {
+			Signal::Click(id) =>{
+				if id == &self.id{
+					for event in self.events.iter_mut(){
+						match event {
+							Event::OnClick(func) => func(),
+							_ => {}
+						}
+					}
+				}
+			}
+			Signal::Hover(id) => {
+				if id == &self.id{
+					for event in self.events.iter_mut(){
+						match event {
+							Event::OnHover(func)=> func(),
+							_ => {}
+						}
+					}
+				}
+			}
+		}
 	}
 
 }

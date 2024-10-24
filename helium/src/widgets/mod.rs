@@ -25,14 +25,17 @@ pub trait Widget{
 
 	fn get_children_ref(&self) -> Vec<&Box<dyn Widget>> {vec![]}
 
-	fn parse_signal(&mut self,signal:&Signal){}
+	/// Process signals sent from the [`EventHandler`].
+	fn process_signal(&mut self,signal:&Signal);
 }
 
+/// The current state of the widget
 #[derive(Debug,Default,Clone,Copy,PartialEq,Eq)]
 pub enum WidgetState{
 	#[default]
 	Default,
-	Hovered
+	Hovered,
+	Clicked
 }
 
 /// Primitive structure that holds all the information

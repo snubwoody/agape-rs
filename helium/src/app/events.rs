@@ -26,7 +26,6 @@ pub enum Signal{
 	Click(String)
 }
 
-
 /// Handles all widget events and stores useful attributes such 
 /// as the cursor position and the delta position.
 pub struct EventHandler{
@@ -49,7 +48,7 @@ impl EventHandler {
 		let mut signals = vec![];
 		let bounds = root_body.surface.get_bounds();
 		let previous_state = root_body.state;
-		
+
 		match event {
 			WindowEvent::CursorMoved { position,.. } => {
 				self.cursor_pos = position.clone().into(); // Calling clone this much might be expensive
@@ -61,12 +60,10 @@ impl EventHandler {
 						},
 						_ => {}
 					}
-					
 				} 
 				else {
 					root_body.state = WidgetState::Default;
 				}
-				//dbg!(&root_body.state);
 			}, 
 			//TODO add on_click, on_right_click, and on_all_click and pass in the mouse button (re-export types)
 			WindowEvent::MouseInput { state, button,.. } => {				
@@ -74,11 +71,14 @@ impl EventHandler {
 					MouseButton::Left => {
 						match state {
 							ElementState::Pressed => {
+								root_body.state = WidgetState::Clicked;
 								if bounds.within(&self.cursor_pos){
 									signals.push(Signal::Click(root_body.id.clone()));
 								}
 							},
-							ElementState::Released => {}
+							ElementState::Released => {
+								root_body.state = WidgetState::Default
+							}
 						}
 					},
 					_ => {}
@@ -88,7 +88,7 @@ impl EventHandler {
 		}
 
 		for signal in signals.iter(){
-			root_widget.parse_signal(signal);
+			root_widget.process_signal(signal);
 		}
 	}
 }

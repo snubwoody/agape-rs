@@ -1,5 +1,5 @@
 use crate::{
-    app::events::Event,
+    app::events::{Event, Signal},
     color::Color,
     layout::{IntrinsicSize, Layout, WidgetSize},
     surface::rect::RectSurface,
@@ -7,6 +7,7 @@ use crate::{
 };
 
 pub struct Stack {
+	pub id:String,
     pub spacing: u32,
     pub padding: u32,
     pub children: Vec<Box<dyn Widget>>,
@@ -25,6 +26,16 @@ impl Stack {
         };
         self
     }
+
+	pub fn on_click(mut self, event: impl FnMut() + 'static ) -> Self {
+		self.events.push(Event::OnClick(Box::new(event)));
+		self
+	}
+
+	pub fn on_hover(mut self, event: impl FnMut() + 'static ) -> Self {
+		self.events.push(Event::OnHover(Box::new(event)));
+		self
+	}
 }
 
 impl Widget for Stack {
@@ -39,6 +50,7 @@ impl Widget for Stack {
             .collect();
 
         WidgetBody {
+			id:self.id.clone(),
             children,
             layout: self.layout,
             surface: Box::new(surface),
@@ -57,6 +69,31 @@ impl Widget for Stack {
     fn get_children_ref(&self) -> Vec<&Box<dyn Widget>> {
         self.children.iter().map(|child| child).collect()
     }
+
+	fn process_signal(&mut self,signal:&Signal) {
+		match signal {
+			Signal::Click(id) =>{
+				if id == &self.id{
+					for event in self.events.iter_mut(){
+						match event {
+							Event::OnClick(func) => func(),
+							_ => {}
+						}
+					}
+				}
+			}
+			Signal::Hover(id) => {
+				if id == &self.id{
+					for event in self.events.iter_mut(){
+						match event {
+							Event::OnHover(func)=> func(),
+							_ => {}
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 #[macro_export]
@@ -67,6 +104,7 @@ macro_rules! vstack {
 		$($child:expr),* // TODO remove this, i think it's not neccessary
 	) => {
 		helium::widgets::Stack{
+			id:nanoid!(),
 			spacing:$spacing,
 			padding:$padding,
 			color:helium::color::Color::Rgb(255,255,255),
@@ -83,6 +121,7 @@ macro_rules! vstack {
 	};
 	($($child:expr),*) => {
 		helium::widgets::Stack{
+			id:nanoid!(),
 			spacing:0,
 			padding:0,
 			color:helium::color::Color::Rgb(255,255,255),

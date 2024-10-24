@@ -1,17 +1,21 @@
+use nanoid::nanoid;
+
 use crate::{
-	app::events::Event,  layout::{IntrinsicSize, Layout, WidgetSize}, surface::{text::TextSurface, Surface} 
+	app::events::{Event, Signal},  layout::{IntrinsicSize, Layout, WidgetSize}, surface::{text::TextSurface, Surface} 
 };
 use super::{Widget, WidgetBody};
 
 pub struct Text{
-	pub text:String,
-	pub font_size:u8,
-	pub events: Vec<Event>
+	id:String,
+	text:String,
+	font_size:u8,
+	events: Vec<Event>
 }
 
 impl Text {
 	pub fn new(text:&str) -> Self{
 		Self { 
+			id:nanoid!(),
 			text:text.into(), 
 			font_size:16,
 			events: Vec::new()
@@ -21,6 +25,16 @@ impl Text {
 	/// Set the font size
 	pub fn font_size(mut self,size:u8) -> Self{
 		self.font_size = size;
+		self
+	}
+
+	pub fn on_click(mut self, event: impl FnMut() + 'static ) -> Self {
+		self.events.push(Event::OnClick(Box::new(event)));
+		self
+	}
+
+	pub fn on_hover(mut self, event: impl FnMut() + 'static ) -> Self {
+		self.events.push(Event::OnHover(Box::new(event)));
 		self
 	}
 }
@@ -44,10 +58,36 @@ impl Widget for Text {
 		};
 
 		WidgetBody{
+			id:self.id.clone(),
 			surface,
 			layout,
 			intrinsic_size,
 			..Default::default()
+		}
+	}
+
+	fn process_signal(&mut self,signal:&Signal) {
+		match signal {
+			Signal::Click(id) =>{
+				if id == &self.id{
+					for event in self.events.iter_mut(){
+						match event {
+							Event::OnClick(func) => func(),
+							_ => {}
+						}
+					}
+				}
+			}
+			Signal::Hover(id) => {
+				if id == &self.id{
+					for event in self.events.iter_mut(){
+						match event {
+							Event::OnHover(func)=> func(),
+							_ => {}
+						}
+					}
+				}
+			}
 		}
 	}
 }

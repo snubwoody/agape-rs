@@ -1,7 +1,5 @@
 use helium::{
-    app::{view::View, App}, 
-	color::TEAL, 
-	widgets::{Rect}
+    app::{view::View, App}, color::BLUE, widgets::{Button, Rect, Text}
 };
 
 fn main() {
@@ -10,12 +8,9 @@ fn main() {
 }
 
 fn new_app() {
-	let rect = 
-		Rect::new(200.0, 150.0, TEAL)
-		.on_click(||{dbg!("I was pressed");})
-		.on_hover(||{dbg!("I was hovered");});
+	let button = Button::new("Click me").on_click(||{dbg!("I was clicked");}).color(BLUE);
     
-	let page = View::new(rect);
+	let page = View::new(button);
     let app = App::new().add_view(page);
     app.run();
 }

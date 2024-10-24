@@ -1,19 +1,31 @@
+use nanoid::nanoid;
+
 use super::WidgetBody;
-use crate::{color::Color, layout::Layout, surface::rect::RectSurface, widgets::Widget};
+use crate::{
+    app::events::{Event, Signal},
+    color::Color,
+    layout::Layout,
+    surface::rect::RectSurface,
+    widgets::Widget,
+};
 
 /// A container [`Widget`] that wraps its child
 pub struct Container {
-    pub padding: u32,
-    pub color: Color,
-    pub child: Box<dyn Widget>,
+	id:String,
+    padding: u32,
+    color: Color,
+    child: Box<dyn Widget>,
+    events: Vec<Event>,
 }
 
 impl Container {
     pub fn new(child: impl Widget + 'static) -> Self {
         Container {
+			id:nanoid!(),
             padding: 0,
             color: Color::Rgb(255, 255, 255),
             child: Box::new(child),
+			events:vec![]
         }
     }
 
@@ -26,6 +38,16 @@ impl Container {
         self.padding = padding;
         self
     }
+
+	pub fn on_click(mut self, event: impl FnMut() + 'static ) -> Self {
+		self.events.push(Event::OnClick(Box::new(event)));
+		self
+	}
+
+	pub fn on_hover(mut self, event: impl FnMut() + 'static ) -> Self {
+		self.events.push(Event::OnHover(Box::new(event)));
+		self
+	}
 }
 
 impl Widget for Container {
@@ -41,6 +63,7 @@ impl Widget for Container {
         let child = self.child.build();
 
         WidgetBody {
+			id:self.id.clone(),
             surface,
             layout,
             children: vec![Box::new(child)],
@@ -54,5 +77,30 @@ impl Widget for Container {
 
     fn get_children_ref(&self) -> Vec<&Box<dyn Widget>> {
         vec![&self.child]
+    }
+
+    fn process_signal(&mut self, signal: &Signal) {
+        match signal {
+            Signal::Click(id) => {
+                if id == &self.id {
+                    for event in self.events.iter_mut() {
+                        match event {
+                            Event::OnClick(func) => func(),
+                            _ => {}
+                        }
+                    }
+                }
+            }
+            Signal::Hover(id) => {
+                if id == &self.id {
+                    for event in self.events.iter_mut() {
+                        match event {
+                            Event::OnHover(func) => func(),
+                            _ => {}
+                        }
+                    }
+                }
+            }
+        }
     }
 }
