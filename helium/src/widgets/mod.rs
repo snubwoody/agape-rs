@@ -7,9 +7,8 @@ pub use rect::Rect;
 pub use text::Text;
 pub use button::Button;
 pub use stack::Stack;
-use std::fmt::Debug;
 use crate::{
-	app::{events::{Event, Signal}, AppState, RenderContext}, 
+	app::{events::Signal, AppState}, 
 	layout::{IntrinsicSize, Layout, WidgetSize}, 
 	surface::{
 		rect::RectSurface, Surface
@@ -29,6 +28,13 @@ pub trait Widget{
 	fn parse_signal(&mut self,signal:&Signal){}
 }
 
+#[derive(Debug,Default,Clone,Copy,PartialEq,Eq)]
+pub enum WidgetState{
+	#[default]
+	Default,
+	Hovered
+}
+
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
 pub struct WidgetBody{
@@ -37,6 +43,7 @@ pub struct WidgetBody{
 	pub layout:Layout,
 	pub children:Vec<Box<WidgetBody>>,
 	pub intrinsic_size:IntrinsicSize,
+	pub state:WidgetState
 }
 
 impl WidgetBody {
@@ -103,6 +110,7 @@ impl Default for WidgetBody {
 			layout, 
 			children:vec![], 
 			intrinsic_size: Default::default(),
+			state: WidgetState::default()
 		}
 	}
 }
