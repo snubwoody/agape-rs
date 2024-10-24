@@ -1,4 +1,4 @@
-use wgpu::util::DeviceExt;
+use wgpu::{util::DeviceExt, BindGroupDescriptor};
 use crate::{
 	app::{AppState, RenderContext}, 
 	color::Color, 
@@ -60,6 +60,17 @@ impl Surface for RectSurface {
 			contents: bytemuck::cast_slice(&vertices), // TODO maybe remove bytemuck
 			usage: wgpu::BufferUsages::VERTEX,
 		});
+
+
+		/* let bound_bind_group = state.device.create_bind_group(
+			&BindGroupDescriptor{
+				label:Some("Rect bounds bind group"),
+				layout:&context.rect_renderer.bounds_layout,
+				entries:&[wgpu::BindGroupEntry{
+					binding:
+				}]
+			}
+		); */
 
 		// Set the render pipeline and vertex buffer
 		render_pass.set_pipeline(&context.rect_renderer.render_pipeline);

@@ -1,5 +1,7 @@
+use tokio::time::Sleep;
+
 use crate::{
-    app::events::{Event, Signal}, color::Color, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}
+    app::events::{self, Event, Signal}, color::Color, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}
 };
 
 pub struct Stack {
@@ -13,15 +15,49 @@ pub struct Stack {
 }
 
 impl Stack {
-    // FIXME change this to use the layout of the widget
     pub fn spacing(mut self, spacing: u32) -> Self {
         self.spacing = spacing;
-        self.layout = Layout::Horizontal {
-            spacing,
-            padding: self.padding,
-        };
+        
+		match self.layout {
+			Layout::Horizontal { padding,.. } => {
+				self.layout = Layout::Horizontal {
+					spacing:self.spacing,
+					padding,
+				};
+			},
+			Layout::Vertical { padding,.. } => {
+				self.layout = Layout::Vertical {
+					spacing:self.spacing,
+					padding,
+				};
+			}, 
+			_ => {}
+		}
+
         self
     }
+
+	pub fn padding(mut self,padding:u32) -> Self{
+		self.padding = padding;
+        
+		match self.layout {
+			Layout::Horizontal { spacing,.. } => {
+				self.layout = Layout::Horizontal {
+					spacing,
+					padding: self.padding,
+				};
+			},
+			Layout::Vertical { spacing, .. } => {
+				self.layout = Layout::Vertical {
+					spacing,
+					padding: self.padding,
+				};
+			}, 
+			_ => {}
+		}
+
+        self
+	}
 
 	impl_events!();
 }
@@ -59,6 +95,7 @@ impl Widget for Stack {
     }
 
 	fn process_signal(&mut self,signal:&Signal) {
+		
 		match signal {
 			Signal::Click(id) =>{
 				if id == &self.id{
@@ -88,7 +125,7 @@ impl Widget for Stack {
 macro_rules! vstack {
 	($($child:expr),*) => {
 		helium::widgets::Stack{
-			id:nanoid!(),
+			id:helium::nanoid!(),
 			spacing:0,
 			padding:0,
 			color:helium::color::Color::Rgb(255,255,255),
@@ -100,7 +137,8 @@ macro_rules! vstack {
 				$(
 					Box::new($child),
 				)*
-			]
+			],
+			events: Vec::new(),
 		}
 	};
 }
@@ -109,6 +147,7 @@ macro_rules! vstack {
 macro_rules! hstack {
 	($($child:expr),*) => {
 		helium::widgets::Stack{
+			id:helium::nanoid!(),
 			spacing:0,
 			padding:0,
 			color: helium::color::Color::Rgb(255,255,255),
@@ -120,7 +159,8 @@ macro_rules! hstack {
 				$(
 					Box::new($child),
 				)*
-			]
+			],
+			events: Vec::new(),
 		}
 	};
 }

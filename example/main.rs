@@ -1,16 +1,18 @@
 use helium::{
-    app::{view::View, App}, color::BLUE, widgets::{Button, Rect, Text}
+    app::{view::View, App}, color::{BLUE, GREEN, TEAL}, hstack, widgets::Rect
 };
 
 fn main() {
     env_logger::init();
-    new_app()
-}
-
-fn new_app() {
-	let button = Button::new("Click me");
+	
+	let hstack = hstack![
+		Rect::new(200.0, 150.0, GREEN),
+		Rect::new(100.0, 250.0, TEAL),
+		Rect::new(250.0, 250.0, BLUE)
+	].spacing(54).padding(24);
     
-	let page = View::new(button);
+	let page = View::new(hstack);
     let app = App::new().add_view(page);
-    app.run();
+    
+	app.run();
 }

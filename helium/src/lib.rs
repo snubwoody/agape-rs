@@ -6,4 +6,5 @@ pub mod surface;
 pub mod vertex;
 pub mod layout;
 mod renderer;
+pub use nanoid::nanoid;
 

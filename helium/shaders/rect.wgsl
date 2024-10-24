@@ -1,5 +1,4 @@
-@group(0) @binding(0)
-var<uniform> window_size: vec2<f32>;
+@group(0) @binding(0) var<uniform> window_size: vec2<f32>;
 
 struct VertexOutput{
 	@builtin(position) position: vec4<f32>,
@@ -46,5 +45,8 @@ fn vs_main(model:VertexInput) -> VertexOutput {
 
 @fragment
 fn fs_main(in:VertexOutput) -> @location(0) vec4<f32> {
-	return in.color;
+	var x_pos = normalize_value(in.position.x,0.0,window_size.x);
+	var y_pos = normalize_value(in.position.y,0.0,window_size.y);
+	var radius = distance(vec2(x_pos,y_pos),vec2(0.5,0.5));
+	return vec4(radius,radius,1.0,1.0);
 }

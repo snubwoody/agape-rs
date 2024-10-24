@@ -1,16 +1,5 @@
 use wgpu::{
-	util::DeviceExt, 
-	ColorTargetState, 
-	FragmentState, 
-	MultisampleState, 
-	PipelineLayoutDescriptor, 
-	PrimitiveState, 
-	RenderPipelineDescriptor, 
-	ShaderModuleDescriptor, 
-	ShaderSource, 
-	VertexAttribute, 
-	VertexBufferLayout, 
-	VertexState
+	util::DeviceExt, BindGroupLayoutDescriptor, ColorTargetState, FragmentState, MultisampleState, PipelineLayoutDescriptor, PrimitiveState, RenderPipelineDescriptor, ShaderModuleDescriptor, ShaderSource, VertexAttribute, VertexBufferLayout, VertexState
 };
 use crate::{utils::Size, vertex::Vertex};
 
@@ -19,6 +8,7 @@ use crate::{utils::Size, vertex::Vertex};
 pub struct RectRenderer{
 	pub render_pipeline: wgpu::RenderPipeline,
 	pub window_bind_group: wgpu::BindGroup,
+	pub bounds_layout: wgpu::BindGroupLayout,
     pub window_buffer: wgpu::Buffer,
 }
 
@@ -28,21 +18,6 @@ impl RectRenderer {
 		config: &wgpu::SurfaceConfiguration,
 		size:&Size
 	) -> Self {
-		let (render_pipeline,window_buffer,window_bind_group) = 
-			RectRenderer::create_pipeline(device, config, size);
-		
-		Self { 
-			render_pipeline, 
-			window_bind_group, 
-			window_buffer 
-		}
-	}
-
-	fn create_pipeline(
-		device:&wgpu::Device,
-		config:&wgpu::SurfaceConfiguration,
-		size:&Size
-	) -> (wgpu::RenderPipeline,wgpu::Buffer,wgpu::BindGroup) {
 		// Compile the shader
 		let shader = device.create_shader_module(
 			ShaderModuleDescriptor{
@@ -64,7 +39,7 @@ impl RectRenderer {
                 label: Some("Window binding layout"),
                 entries: &[wgpu::BindGroupLayoutEntry {
                     binding: 0,
-                    visibility: wgpu::ShaderStages::VERTEX,
+                    visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
                     ty: wgpu::BindingType::Buffer {
                         ty: wgpu::BufferBindingType::Uniform,
                         has_dynamic_offset: false,
@@ -82,6 +57,22 @@ impl RectRenderer {
                 resource: window_buffer.as_entire_binding(),
             }],
         });
+
+		let bounds_layout = device.create_bind_group_layout(
+			&wgpu::BindGroupLayoutDescriptor{
+				label:Some("Rect bounds layout"),
+				entries:&[wgpu::BindGroupLayoutEntry{
+					binding:0,
+					visibility:wgpu::ShaderStages::FRAGMENT,
+					ty: wgpu::BindingType::Buffer { 
+						ty: wgpu::BufferBindingType::Uniform, 
+						has_dynamic_offset: false, 
+						min_binding_size: None 
+					},
+					count:None
+				}],
+			}
+		);
 
 		let buffer_layout = VertexBufferLayout { 
 			array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress, 
@@ -154,7 +145,13 @@ impl RectRenderer {
 			}
 		);
 
-		(render_pipeline,window_buffer,window_bind_group)
+		
+		Self { 
+			render_pipeline, 
+			window_bind_group, 
+			bounds_layout,
+			window_buffer 
+		}
 	}
 }
 

@@ -6,6 +6,7 @@ use crate::{
 	app::AppState, color::Color, surface::Surface, utils::{Bounds, Position,Size}, vertex::Vertex
 };
 
+// FIXME text getting blurry at large window sizes
 // FIXME change the color to Color enum
 /// A rasterized texture of text  
 #[derive(Debug,Clone)]
@@ -44,7 +45,7 @@ impl TextSurface {
 		}
 	}
 	
-	/// Rasterize the text and store the texture 
+	/// Rasterize the text and return the texture 
 	pub fn build(&self,device: &wgpu::Device) -> (wgpu::Texture,wgpu::Extent3d) {
 		let texture_size = wgpu::Extent3d{
 			width:self.size.width as u32,
