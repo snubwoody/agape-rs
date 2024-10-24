@@ -1,6 +1,7 @@
 use super::{Widget, WidgetBody};
 use crate::app::events::{Event, Signal};
 use crate::color::Color;
+use crate::impl_events;
 use crate::layout::{IntrinsicSize, Layout, WidgetSize};
 use crate::surface::rect::RectSurface;
 use crate::utils::Size;
@@ -27,15 +28,7 @@ impl Rect {
         }
     }
 
-	pub fn on_click(mut self, event: impl FnMut() + 'static ) -> Self {
-		self.events.push(Event::OnClick(Box::new(event)));
-		self
-	}
-
-	pub fn on_hover(mut self, event: impl FnMut() + 'static ) -> Self {
-		self.events.push(Event::OnHover(Box::new(event)));
-		self
-	}
+	impl_events!();
 }
 
 // TODO maybe add a widget state enum to represent the different states

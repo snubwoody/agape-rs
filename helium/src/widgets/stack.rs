@@ -1,9 +1,5 @@
 use crate::{
-    app::events::{Event, Signal},
-    color::Color,
-    layout::{IntrinsicSize, Layout, WidgetSize},
-    surface::rect::RectSurface,
-    widgets::{Widget, WidgetBody},
+    app::events::{Event, Signal}, color::Color, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}
 };
 
 pub struct Stack {
@@ -27,15 +23,7 @@ impl Stack {
         self
     }
 
-	pub fn on_click(mut self, event: impl FnMut() + 'static ) -> Self {
-		self.events.push(Event::OnClick(Box::new(event)));
-		self
-	}
-
-	pub fn on_hover(mut self, event: impl FnMut() + 'static ) -> Self {
-		self.events.push(Event::OnHover(Box::new(event)));
-		self
-	}
+	impl_events!();
 }
 
 impl Widget for Stack {

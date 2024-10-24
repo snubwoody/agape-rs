@@ -2,11 +2,7 @@ use nanoid::nanoid;
 
 use super::WidgetBody;
 use crate::{
-    app::events::{Event, Signal},
-    color::Color,
-    layout::Layout,
-    surface::rect::RectSurface,
-    widgets::Widget,
+    app::events::{Event, Signal}, color::Color, impl_events, layout::Layout, surface::rect::RectSurface, widgets::Widget
 };
 
 /// A container [`Widget`] that wraps its child
@@ -39,15 +35,7 @@ impl Container {
         self
     }
 
-	pub fn on_click(mut self, event: impl FnMut() + 'static ) -> Self {
-		self.events.push(Event::OnClick(Box::new(event)));
-		self
-	}
-
-	pub fn on_hover(mut self, event: impl FnMut() + 'static ) -> Self {
-		self.events.push(Event::OnHover(Box::new(event)));
-		self
-	}
+	impl_events!();
 }
 
 impl Widget for Container {
@@ -72,7 +60,7 @@ impl Widget for Container {
     }
 
     fn get_children(self: Box<Self>) -> Vec<Box<dyn Widget>> {
-        return vec![self.child];
+        vec![self.child]
     }
 
     fn get_children_ref(&self) -> Vec<&Box<dyn Widget>> {

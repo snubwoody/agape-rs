@@ -1,7 +1,7 @@
 use nanoid::nanoid;
 
 use crate::{
-	app::events::Signal, color::Color, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::WidgetBody
+	app::events::Signal, color::Color, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::WidgetBody
 };
 use super::{text::Text, Widget};
 use crate::app::events::Event;
@@ -55,16 +55,7 @@ impl Button {
 		self
 	}
 
-	pub fn on_click(mut self, event: impl FnMut() + 'static ) -> Self {
-		self.events.push(Event::OnClick(Box::new(event)));
-		self
-	}
-
-	pub fn on_hover(mut self, event: impl FnMut() + 'static ) -> Self {
-		self.events.push(Event::OnHover(Box::new(event)));
-		self
-	}
-
+	impl_events!();
 }
 
 impl Widget for Button {
