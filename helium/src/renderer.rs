@@ -254,7 +254,6 @@ impl TextRenderer {
 			}
 		);
 
-		// TODO rename this to vertex_buffer_layout
 		let vertex_buffer_layout = VertexBufferLayout { 
 			array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress, 
 			step_mode: wgpu::VertexStepMode::Vertex, 

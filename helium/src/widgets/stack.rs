@@ -86,27 +86,6 @@ impl Widget for Stack {
 
 #[macro_export]
 macro_rules! vstack {
-	(
-		spacing:$spacing:expr,
-		padding:$padding:expr,
-		$($child:expr),* // TODO remove this, i think it's not neccessary
-	) => {
-		helium::widgets::Stack{
-			id:nanoid!(),
-			spacing:$spacing,
-			padding:$padding,
-			color:helium::color::Color::Rgb(255,255,255),
-			layout:helium::layout::Layout::Vertical {
-				spacing: $spacing,
-				padding: $padding,
-			},
-			children:vec![
-				$(
-					Box::new($child),
-				)*
-			]
-		}
-	};
 	($($child:expr),*) => {
 		helium::widgets::Stack{
 			id:nanoid!(),
@@ -128,26 +107,6 @@ macro_rules! vstack {
 
 #[macro_export]
 macro_rules! hstack {
-	(
-		spacing:$spacing:expr,
-		padding:$padding:expr,
-		$($child:expr),*
-	) => {
-		helium::widgets::Stack{
-			spacing:$spacing,
-			padding:$padding,
-			color:helium::color::Color::Rgb(255,255,255),
-			layout:helium::layout::Layout::Horizontal {
-				spacing: $spacing,
-				padding: $padding,
-			},
-			children:vec![
-				$(
-					Box::new($child),
-				)*
-			]
-		}
-	};
 	($($child:expr),*) => {
 		helium::widgets::Stack{
 			spacing:0,

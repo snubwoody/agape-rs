@@ -31,8 +31,6 @@ impl Rect {
 	impl_events!();
 }
 
-// TODO maybe add a widget state enum to represent the different states
-// Then maybe somehow copy the user code to the function on_hover
 impl Widget for Rect {
     fn build(&self) -> WidgetBody {
         let layout = Layout::Block { padding: 0 };

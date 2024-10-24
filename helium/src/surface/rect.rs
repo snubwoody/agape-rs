@@ -7,7 +7,6 @@ use crate::{
 	vertex::Vertex
 };
 
-// TODO change x and y to position
 /// This is a primitive that draws to the screen. This holds
 /// essential information about the [`Widget`], ie.
 /// the color, coordinates and size.
