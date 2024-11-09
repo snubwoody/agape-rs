@@ -58,19 +58,33 @@ impl RectRenderer {
             }],
         });
 
+		// TODO PLEASE create uniform struct
+
 		let bounds_layout = device.create_bind_group_layout(
 			&wgpu::BindGroupLayoutDescriptor{
 				label:Some("Rect bounds layout"),
-				entries:&[wgpu::BindGroupLayoutEntry{
-					binding:0,
-					visibility:wgpu::ShaderStages::FRAGMENT,
-					ty: wgpu::BindingType::Buffer { 
-						ty: wgpu::BufferBindingType::Uniform, 
-						has_dynamic_offset: false, 
-						min_binding_size: None 
+				entries:&[
+					wgpu::BindGroupLayoutEntry{
+						binding:0,
+						visibility:wgpu::ShaderStages::FRAGMENT,
+						ty: wgpu::BindingType::Buffer { 
+							ty: wgpu::BufferBindingType::Uniform, 
+							has_dynamic_offset: false, 
+							min_binding_size: None 
+						},
+						count:None
 					},
-					count:None
-				}],
+					wgpu::BindGroupLayoutEntry{
+						binding:1,
+						visibility:wgpu::ShaderStages::FRAGMENT,
+						ty: wgpu::BindingType::Buffer { 
+							ty: wgpu::BufferBindingType::Uniform, 
+							has_dynamic_offset: false, 
+							min_binding_size: None 
+						},
+						count:None
+					}
+				],
 			}
 		);
 
@@ -100,7 +114,7 @@ impl RectRenderer {
 			device.create_pipeline_layout(
 				&PipelineLayoutDescriptor{
 					label: Some("Rect Pipeline Layout"),
-					bind_group_layouts: &[&window_bind_group_layout],
+					bind_group_layouts: &[&window_bind_group_layout,&bounds_layout],
 					push_constant_ranges: &[]
 				}
 			);

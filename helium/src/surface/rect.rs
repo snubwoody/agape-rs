@@ -1,4 +1,4 @@
-use wgpu::{util::DeviceExt, BindGroupDescriptor};
+use wgpu::{util::{BufferInitDescriptor, DeviceExt}, BindGroupDescriptor};
 use crate::{
 	app::{AppState, RenderContext}, 
 	color::Color, 
@@ -61,20 +61,48 @@ impl Surface for RectSurface {
 			usage: wgpu::BufferUsages::VERTEX,
 		});
 
+		let center_pos = Position::new(
+			self.position.x + self.size.width/2.0, 
+			self.position.y + self.size.height/2.0
+		);
 
-		/* let bound_bind_group = state.device.create_bind_group(
+		let bounds_buffer = state.device.create_buffer_init(
+			&BufferInitDescriptor{
+				label:Some("Bounds buffer"),
+				contents: bytemuck::cast_slice(&[center_pos.x,center_pos.y]),
+				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
+			}
+		);
+
+		let size_buffer = state.device.create_buffer_init(
+			&BufferInitDescriptor{
+				label:Some("Bounds buffer"),
+				contents: bytemuck::cast_slice(&[self.size.width,self.size.height]),
+				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
+			}
+		);
+
+		let bound_bind_group = state.device.create_bind_group(
 			&BindGroupDescriptor{
 				label:Some("Rect bounds bind group"),
 				layout:&context.rect_renderer.bounds_layout,
-				entries:&[wgpu::BindGroupEntry{
-					binding:
-				}]
+				entries:&[
+					wgpu::BindGroupEntry{
+						binding:0,
+						resource:bounds_buffer.as_entire_binding()
+					},
+					wgpu::BindGroupEntry{
+						binding:1,
+						resource:size_buffer.as_entire_binding()
+					}
+				]
 			}
-		); */
+		);
 
 		// Set the render pipeline and vertex buffer
 		render_pass.set_pipeline(&context.rect_renderer.render_pipeline);
 		render_pass.set_bind_group(0, &context.rect_renderer.window_bind_group, &[]);
+		render_pass.set_bind_group(1, &bound_bind_group, &[]);
 		render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 
 		render_pass.draw(0..vertices.len() as u32, 0..1);

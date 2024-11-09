@@ -50,7 +50,7 @@ impl App {
                 winit::event::Event::WindowEvent { event, .. } => match event {
                     WindowEvent::CloseRequested => window_target.exit(),
                     WindowEvent::RedrawRequested => self.views[self.index].render(&state),
-                    WindowEvent::Resized(size) => state.resize(size),
+                    WindowEvent::Resized(size) => {state.resize(size);self.window.request_redraw();},
                     event => {self.views[self.index].handle_events(event,&self.window);}
                 },
                 _ => {}
