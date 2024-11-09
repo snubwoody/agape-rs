@@ -7,6 +7,15 @@ use crate::{
 	vertex::Vertex
 };
 
+// TODO Uniform prototype
+// // Example values
+// let uniforms = Uniforms {
+//     window_size: [800.0, 600.0],  // Your window size
+//     center_pos: [400.0, 300.0],   // Center of your box
+//     size: [200.0, 100.0],         // Width and height of your box
+//     position: [400.0, 300.0],     // Position of your box
+// };
+
 /// This is a primitive that draws to the screen. This holds
 /// essential information about the [`Widget`], ie.
 /// the color, coordinates and size.
@@ -76,8 +85,16 @@ impl Surface for RectSurface {
 
 		let size_buffer = state.device.create_buffer_init(
 			&BufferInitDescriptor{
-				label:Some("Bounds buffer"),
+				label:Some("Size buffer"),
 				contents: bytemuck::cast_slice(&[self.size.width,self.size.height]),
+				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
+			}
+		);
+
+		let position_buffer = state.device.create_buffer_init(
+			&BufferInitDescriptor{
+				label:Some("Position buffer"),
+				contents: bytemuck::cast_slice(&[self.position.x,self.position.y]),
 				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
 			}
 		);
@@ -94,6 +111,10 @@ impl Surface for RectSurface {
 					wgpu::BindGroupEntry{
 						binding:1,
 						resource:size_buffer.as_entire_binding()
+					},
+					wgpu::BindGroupEntry{
+						binding:2,
+						resource:position_buffer.as_entire_binding()
 					}
 				]
 			}

@@ -11,7 +11,7 @@ use winit::{
 };
 
 /// This is a singular isolated program. Most projects
-/// will only contain one app
+/// will only contain one app.
 pub struct App {
     event_loop: EventLoop<()>,
     window: Window,
