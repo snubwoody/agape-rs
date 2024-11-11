@@ -1,12 +1,17 @@
 use helium::{
-    app::{view::View, App}, {BLUE, GREEN, TEAL}, hstack, widgets::Rect
+    app::{view::View, App}, hstack, widgets::Rect, Color, BLUE, GREEN, TEAL
 };
 
 fn main() {
     env_logger::init();
-	
+	app();
+}
+
+fn app(){
+	let color = Color::Hex("#f152aa".into());
+
 	let hstack = hstack![
-		Rect::new(200.0, 150.0, GREEN),
+		Rect::new(200.0, 150.0, color),
 		Rect::new(100.0, 250.0, TEAL),
 		Rect::new(250.0, 250.0, BLUE)
 	].spacing(54).padding(24);
