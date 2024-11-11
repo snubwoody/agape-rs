@@ -1178,12 +1178,20 @@ dependencies = [
  "async-std",
  "bytemuck",
  "env_logger",
+ "helium_core",
  "image",
  "log",
  "nanoid",
  "text-to-png",
  "tokio",
  "wgpu",
+ "winit",
+]
+
+[[package]]
+name = "helium_core"
+version = "0.1.0"
+dependencies = [
  "winit",
 ]
 

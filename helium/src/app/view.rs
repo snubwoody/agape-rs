@@ -31,7 +31,7 @@ impl View {
 		let mut encoder = state.device.create_command_encoder(&wgpu::CommandEncoderDescriptor{
 			label:Some("Render encoder")
 		});
-
+		
 		// TODO maybe creating the render pass every frame is unnecessary
 		let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
 			label: Some("Render Pass"),
