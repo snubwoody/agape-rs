@@ -1,4 +1,4 @@
-use crate::utils::map;
+use crate::map;
 
 pub const BLACK:Color = Color::Rgb(0, 0, 0);
 pub const WHITE:Color = Color::Rgb(255, 255, 255);
@@ -67,5 +67,3 @@ impl Default for Color {
 		Self::Rgb(255, 255, 255)
 	}
 }
-
-

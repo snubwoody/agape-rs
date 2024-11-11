@@ -2,8 +2,9 @@ use nanoid::nanoid;
 
 use super::WidgetBody;
 use crate::{
-    app::events::{Event, Signal}, color::Color, impl_events, layout::Layout, surface::rect::RectSurface, widgets::Widget
+    app::events::{Event, Signal}, impl_events, layout::Layout, surface::rect::RectSurface, widgets::Widget
 };
+use helium_core::color::Color;
 
 /// A container [`Widget`] that wraps its child
 pub struct Container {

@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 use winit::event::{ElementState, MouseButton, WindowEvent};
-use crate::{utils::Position, widgets::{Widget, WidgetBody, WidgetState}};
+use crate::{Position, widgets::{Widget, WidgetBody, WidgetState}};
 
 pub enum Event {
 	OnClick(Box<dyn FnMut()>),

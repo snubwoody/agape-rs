@@ -1,8 +1,9 @@
 use nanoid::nanoid;
 
 use crate::{
-	app::events::Signal, color::Color, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::WidgetBody
+	app::events::Signal, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::WidgetBody
 };
+use helium_core::color::Color;
 use super::{text::Text, Widget};
 use crate::app::events::Event;
 

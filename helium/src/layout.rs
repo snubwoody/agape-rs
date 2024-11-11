@@ -1,4 +1,4 @@
-use crate::utils::{Position, Size};
+use helium_core::{position::Position, size::Size};
 use crate::widgets::WidgetBody;
 
 /// The types of layout a [`Widget`] can have.

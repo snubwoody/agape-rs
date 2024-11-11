@@ -12,8 +12,10 @@ use crate::{
 	layout::{IntrinsicSize, Layout, WidgetSize}, 
 	surface::{
 		rect::RectSurface, Surface
-	}, utils::{Position, Size}, 
+	}, 
 };
+use helium_core::position::Position;
+use helium_core::size::Size;
 
 #[macro_export]
 /// Implement the events for the widgets.

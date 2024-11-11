@@ -1,7 +1,7 @@
 use tokio::time::Sleep;
 
 use crate::{
-    app::events::{self, Event, Signal}, color::Color, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}
+    app::events::{self, Event, Signal}, Color, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}
 };
 
 pub struct Stack {
@@ -128,7 +128,7 @@ macro_rules! vstack {
 			id:helium::nanoid!(),
 			spacing:0,
 			padding:0,
-			color:helium::color::Color::Rgb(255,255,255),
+			color:helium::Color::Rgb(255,255,255),
 			layout:helium::layout::Layout::Vertical {
 				spacing:0,
 				padding:0,
@@ -150,7 +150,7 @@ macro_rules! hstack {
 			id:helium::nanoid!(),
 			spacing:0,
 			padding:0,
-			color: helium::color::Color::Rgb(255,255,255),
+			color: helium::Color::Rgb(255,255,255),
 			layout: helium::layout::Layout::Horizontal {
 				spacing:0,
 				padding:0,

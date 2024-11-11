@@ -1,10 +1,10 @@
 use super::{Widget, WidgetBody};
 use crate::app::events::{Event, Signal};
-use crate::color::Color;
+use crate::Color;
 use crate::impl_events;
 use crate::layout::{IntrinsicSize, Layout, WidgetSize};
 use crate::surface::rect::RectSurface;
-use crate::utils::Size;
+use crate::Size;
 use nanoid::nanoid;
 
 // TODO change size to u32

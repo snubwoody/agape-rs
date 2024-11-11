@@ -1,6 +1,6 @@
 pub mod events;
 pub mod view;
-use crate::{renderer::{RectRenderer, TextRenderer}, utils::Size};
+use crate::{renderer::{RectRenderer, TextRenderer}, Size};
 use async_std::task;
 use view::View;
 use winit::{

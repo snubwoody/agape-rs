@@ -1,9 +1,9 @@
 use wgpu::{util::{BufferInitDescriptor, DeviceExt}, BindGroupDescriptor};
 use crate::{
 	app::{AppState, RenderContext}, 
-	color::Color, 
+	Color, 
 	surface::Surface, 
-	utils::{Bounds, Position, Size}, 
+	{Bounds, Position, Size}, 
 	vertex::Vertex
 };
 

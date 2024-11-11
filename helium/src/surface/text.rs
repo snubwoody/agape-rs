@@ -3,7 +3,7 @@ use image::RgbaImage;
 use text_to_png::TextRenderer;
 use wgpu::util::DeviceExt;
 use crate::{
-	app::AppState, color::Color, surface::Surface, utils::{Bounds, Position,Size}, vertex::Vertex
+	app::AppState, Color, surface::Surface, Bounds, Position,Size, vertex::Vertex
 };
 
 // FIXME text getting blurry at large window sizes

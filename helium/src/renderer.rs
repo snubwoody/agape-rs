@@ -1,7 +1,8 @@
 use wgpu::{
 	util::DeviceExt, BindGroupLayoutDescriptor, ColorTargetState, FragmentState, MultisampleState, PipelineLayoutDescriptor, PrimitiveState, RenderPipelineDescriptor, ShaderModuleDescriptor, ShaderSource, VertexAttribute, VertexBufferLayout, VertexState
 };
-use crate::{utils::Size, vertex::Vertex};
+use crate::{vertex::Vertex};
+use helium_core::size::Size;
 
 /// Holds the render pipeline
 #[derive(Debug)]

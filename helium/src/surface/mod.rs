@@ -1,7 +1,7 @@
 pub mod rect;
 pub mod text;
 use std::fmt::Debug;
-use crate::{app::AppState, utils::{Bounds, Position, Size}};
+use crate::{app::AppState, Bounds, Position, Size};
 
 /// Holds infomation about different types of widgets that can be 
 /// drawn to the screen i.e. Shapes and Text.
