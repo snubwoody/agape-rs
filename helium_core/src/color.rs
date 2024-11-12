@@ -1,7 +1,4 @@
-use std::{fmt::format, num::ParseIntError};
-
 use crate::map;
-
 pub const BLACK:Color = Color::Rgb(0, 0, 0);
 pub const WHITE:Color = Color::Rgb(255, 255, 255);
 pub const AMBER:Color = Color::Rgb(245, 158, 11);
@@ -11,6 +8,7 @@ pub const RED:Color = Color::Rgb(255, 10, 94);
 pub const TEAL:Color = Color::Rgb(20, 184, 166);
 pub const INDIGO:Color = Color::Rgb(99, 102, 241);
 pub const PINK:Color = Color::Rgb(236, 72, 153);
+
 
 /// Represents a color.
 #[derive(Debug,Clone,PartialEq, Eq)]
@@ -71,6 +69,7 @@ impl Color {
 		let g = map(rgba[1] as f32, [0.0,255.0], [0.0,1.0]);
 		let b = map(rgba[2] as f32, [0.0,255.0], [0.0,1.0]);
 		let a = map(rgba[3] as f32, [0.0,100.0], [0.0,1.0]);
+		
 		[r,g,b,a]
 	}
 }
@@ -80,6 +79,7 @@ impl Default for Color {
 		Self::Rgb(255, 255, 255)
 	}
 }
+
 
 
 #[cfg(test)]

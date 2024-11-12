@@ -1,5 +1,5 @@
 use helium::{
-    app::{view::View, App}, hstack, widgets::Rect, Color, BLUE, GREEN, TEAL
+    app::{view::View, App}, hex, hstack, widgets::Rect, Color, BLUE, GREEN, TEAL
 };
 
 fn main() {
@@ -8,8 +8,9 @@ fn main() {
 }
 
 fn app(){
-	let color = Color::Hex("#f152aa".into());
-
+	let color = Color::Hex("#ffffff".into());
+	let color2 = hex!("#affff");
+	
 	let hstack = hstack![
 		Rect::new(200.0, 150.0, color),
 		Rect::new(100.0, 250.0, TEAL),
