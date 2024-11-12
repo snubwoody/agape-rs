@@ -82,6 +82,14 @@ impl Default for Color {
 	}
 }
 
+impl TryFrom<String> for Color {
+	type Error = String;
+	fn try_from(value: String) -> Result<Self, Self::Error> {
+		let color = Color::hex_to_rgba(&value)?;
+		Ok(Color::Hex(value))
+	}
+}
+
 
 
 #[cfg(test)]
@@ -90,7 +98,6 @@ mod test{
 
 	#[test]
 	fn test_valid_hex_colors(){
-
 		let color = Color::Hex("#".into());
 		assert_eq!(color.to_rgba(),[255,255,255,100]);
 		
@@ -105,9 +112,8 @@ mod test{
 		assert_eq!(color.to_rgba(),[52,90,240,100]);
 	}
 
-	/// Check if colors colors are clamped from 0 - 255 
 	#[test]
-	fn test_hex_conversion(){
+	fn test_hex_conversion_errors(){
 		assert_eq!(Color::hex_to_rgba(""),Err("Invalid hex code: missing # at start of hex".into()));
 		assert_eq!(Color::hex_to_rgba("#"),Err("Invalid hex code: Hex colors should be 6 characters in length".into()));
 		assert_eq!(Color::hex_to_rgba("ffffff"),Err("Invalid hex code: missing # at start of hex".into()));
