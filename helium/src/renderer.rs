@@ -27,37 +27,11 @@ impl RectRenderer {
 			}
 		);
 
-		let window_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Window buffer"),
-            // Pass the window size as a uniform
-            contents: bytemuck::cast_slice(&[size.width, size.height]),
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-        });
-
-        // The layout for the window uniform
-        let window_bind_group_layout =
-            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-                label: Some("Window binding layout"),
-                entries: &[wgpu::BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
-                    ty: wgpu::BindingType::Buffer {
-                        ty: wgpu::BufferBindingType::Uniform,
-                        has_dynamic_offset: false,
-                        min_binding_size: None,
-                    },
-                    count: None,
-                }],
-            });
-
-        let window_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("Window Bind Group"),
-            layout: &window_bind_group_layout,
-            entries: &[wgpu::BindGroupEntry {
-                binding: 0,
-                resource: window_buffer.as_entire_binding(),
-            }],
-        });
+		let window_uniform = 
+			UniformBuilder::new()
+			.label("Window")
+			.contents(vec![size.width,size.height])
+			.build(device);
 
 		// TODO PLEASE create uniform struct
 
@@ -125,7 +99,7 @@ impl RectRenderer {
 			device.create_pipeline_layout(
 				&PipelineLayoutDescriptor{
 					label: Some("Rect Pipeline Layout"),
-					bind_group_layouts: &[&window_bind_group_layout,&bounds_layout],
+					bind_group_layouts: &[window_uniform.layout(),&bounds_layout],
 					push_constant_ranges: &[]
 				}
 			);
@@ -173,13 +147,14 @@ impl RectRenderer {
 		
 		Self { 
 			render_pipeline, 
-			window_bind_group, 
+			window_bind_group:window_uniform.bind_group, 
 			bounds_layout,
-			window_buffer 
+			window_buffer:window_uniform.buffer
 		}
 	}
 }
 
+// TODO test this
 /// Controls the rendering of text to the screen
 #[derive(Debug)]
 pub struct TextRenderer{
@@ -219,7 +194,11 @@ impl TextRenderer {
 			}
 		);
 
-		let window_uniform = UniformBuilder::new().contents(vec![size.width,size.height]).build(device);
+		let window_uniform = 
+			UniformBuilder::new()
+			.label("Window")
+			.contents(vec![size.width,size.height])
+			.build(device);
 
 		let texture_bind_group_layout = device.create_bind_group_layout(
 			&wgpu::BindGroupLayoutDescriptor { 
