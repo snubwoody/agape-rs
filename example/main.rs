@@ -8,8 +8,7 @@ fn main() {
 }
 
 fn app(){
-	let color = Color::Hex("#ffffff".into());
-	let color2 = hex!("#affff");
+	let color = hex!("#afffff");
 	
 	let hstack = hstack![
 		Rect::new(200.0, 150.0, color),

@@ -10,7 +10,8 @@ pub const INDIGO:Color = Color::Rgb(99, 102, 241);
 pub const PINK:Color = Color::Rgb(236, 72, 153);
 
 
-/// Represents a color.
+/// Represents a color. If an invalid hex code is used, it will default back to 
+/// white. Use the `hex!` macro to validate hex codes at compile time.
 #[derive(Debug,Clone,PartialEq, Eq)]
 pub enum Color{
 	Rgb(u8,u8,u8),
@@ -20,7 +21,7 @@ pub enum Color{
 
 // TODO impl From
 impl Color {
-	/// Parse any type of coulour to rgba values
+	/// Parse any type of color to rgba values
 	pub fn to_rgba(&self) -> [u8;4] {		
 		match self {
 			Self::Rgb(r,g,b) => [*r,*g,*b,100],
@@ -36,7 +37,8 @@ impl Color {
 		}
 	}
 
-	/// Convert a hex color to an rgba color.
+	/// Convert a hex color to an rgba color. Returns an error if an invalid hex code
+	/// is provided
 	pub fn hex_to_rgba(hex:&str) -> Result<[u8;4],String>{
 		if hex.chars().nth(0) != Some('#'){
 			return Err("Invalid hex code: missing # at start of hex".into())
@@ -84,12 +86,30 @@ impl Default for Color {
 
 #[cfg(test)]
 mod test{
+    use super::*;
+
+	#[test]
 	fn test_valid_hex_colors(){
 
+		let color = Color::Hex("#".into());
+		assert_eq!(color.to_rgba(),[255,255,255,100]);
+		
+		// Valid hex codes
+		let color = Color::Hex("#ffffff".into());
+		assert_eq!(color.to_rgba(),[255,255,255,100]);
+		
+		let color = Color::Hex("#faba32".into());
+		assert_eq!(color.to_rgba(),[250,186,50,100]);
+		
+		let color = Color::Hex("#345af0".into());
+		assert_eq!(color.to_rgba(),[52,90,240,100]);
 	}
 
 	/// Check if colors colors are clamped from 0 - 255 
-	fn test_color_overflow(){
-
+	#[test]
+	fn test_hex_conversion(){
+		assert_eq!(Color::hex_to_rgba(""),Err("Invalid hex code: missing # at start of hex".into()));
+		assert_eq!(Color::hex_to_rgba("#"),Err("Invalid hex code: Hex colors should be 6 characters in length".into()));
+		assert_eq!(Color::hex_to_rgba("ffffff"),Err("Invalid hex code: missing # at start of hex".into()));
 	}
 }

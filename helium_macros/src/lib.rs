@@ -4,7 +4,6 @@ use quote::quote;
 #[proc_macro]
 pub fn hex(item:TokenStream) -> TokenStream{
 	let s = item.to_string().replace("\"","");
-	println!("{}",&s);
 
 	match helium_core::color::Color::hex_to_rgba(&s) {
 		Ok(_) => {
