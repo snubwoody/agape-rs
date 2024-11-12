@@ -1,5 +1,5 @@
 use helium::{
-    app::{view::View, App}, hex, hstack, widgets::Rect, Color, BLUE, GREEN, TEAL
+    app::{view::View, App}, hex, hstack, widgets::{Button, Text}
 };
 
 fn main() {
@@ -11,9 +11,8 @@ fn app(){
 	let color = hex!("#afffff");
 	
 	let hstack = hstack![
-		Rect::new(200.0, 150.0, color),
-		Rect::new(100.0, 250.0, TEAL),
-		Rect::new(250.0, 250.0, BLUE)
+		Text::new("Hello world"),
+		Text::new("1")
 	].spacing(54).padding(24);
     
 	let page = View::new(hstack);

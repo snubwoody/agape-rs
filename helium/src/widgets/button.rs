@@ -59,6 +59,7 @@ impl Button {
 	impl_events!();
 }
 
+// FIXME button text not working
 impl Widget for Button {
 	fn build(&self) -> WidgetBody {
 		let surface = Box::new(

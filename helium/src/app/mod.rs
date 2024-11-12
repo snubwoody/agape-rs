@@ -144,6 +144,7 @@ impl<'a> AppState<'a> {
 
     pub fn resize(&mut self, size: PhysicalSize<u32>) {
         self.size = size.into();
+		//TODO maybe add a global uniform instead
         self.queue.write_buffer(
             &self.context.rect_renderer.window_buffer,
             0,

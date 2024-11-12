@@ -86,6 +86,7 @@ impl TextSurface {
 	}
 }
 
+// TODO text is stretching
 impl Surface for TextSurface {
 	fn draw(
 		&self,
@@ -153,7 +154,7 @@ impl Surface for TextSurface {
 
 		// Set the render pipeline and vertex buffer
 		render_pass.set_pipeline(&context.text_renderer.render_pipeline);
-		render_pass.set_bind_group(0, &context.rect_renderer.window_bind_group, &[]);
+		render_pass.set_bind_group(0, &context.text_renderer.window_bind_group, &[]);
 		render_pass.set_bind_group(1, &texture_bind_group, &[]);
 		render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 

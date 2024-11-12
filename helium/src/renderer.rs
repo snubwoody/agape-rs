@@ -1,7 +1,7 @@
 use wgpu::{
-	util::DeviceExt, BindGroupLayoutDescriptor, ColorTargetState, FragmentState, MultisampleState, PipelineLayoutDescriptor, PrimitiveState, RenderPipelineDescriptor, ShaderModuleDescriptor, ShaderSource, VertexAttribute, VertexBufferLayout, VertexState
+	util::DeviceExt, ColorTargetState, Device, FragmentState, MultisampleState, PipelineLayoutDescriptor, PrimitiveState, RenderPipelineDescriptor, ShaderModuleDescriptor, ShaderSource, ShaderStages, VertexAttribute, VertexBufferLayout, VertexState
 };
-use crate::{vertex::Vertex};
+use crate::vertex::Vertex;
 use helium_core::size::Size;
 
 /// Holds the render pipeline
@@ -219,37 +219,7 @@ impl TextRenderer {
 			}
 		);
 
-		let window_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Window buffer"),
-            // Pass the window size as a uniform
-            contents: bytemuck::cast_slice(&[size.width, size.height]),
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-        });
-
-        // The layout for the window uniform
-        let window_bind_group_layout =
-            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-                label: Some("Window binding layout"),
-                entries: &[wgpu::BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: wgpu::ShaderStages::VERTEX,
-                    ty: wgpu::BindingType::Buffer {
-                        ty: wgpu::BufferBindingType::Uniform,
-                        has_dynamic_offset: false,
-                        min_binding_size: None,
-                    },
-                    count: None,
-                }],
-            });
-
-        let window_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("Window Bind Group"),
-            layout: &window_bind_group_layout,
-            entries: &[wgpu::BindGroupEntry {
-                binding: 0,
-                resource: window_buffer.as_entire_binding(),
-            }],
-        });
+		let window_uniform = UniformBuilder::new().contents(vec![size.width,size.height]).build(device);
 
 		let texture_bind_group_layout = device.create_bind_group_layout(
 			&wgpu::BindGroupLayoutDescriptor { 
@@ -302,7 +272,7 @@ impl TextRenderer {
 			device.create_pipeline_layout(
 				&PipelineLayoutDescriptor{
 					label: Some("Text Pipeline Layout"),
-					bind_group_layouts: &[&window_bind_group_layout,&texture_bind_group_layout],
+					bind_group_layouts: &[&window_uniform.layout,&texture_bind_group_layout],
 					push_constant_ranges: &[]
 				}
 			);
@@ -347,7 +317,7 @@ impl TextRenderer {
 			}
 		);
 
-		(render_pipeline,window_buffer,window_bind_group,texture_bind_group_layout)
+		(render_pipeline,window_uniform.buffer,window_uniform.bind_group,texture_bind_group_layout)
 	}
 }
 
@@ -363,6 +333,92 @@ impl ImageRenderer {
 	}
 
 	pub fn create_pipeline(){
+	}
+}
+
+
+pub struct UniformBuilder<T>{
+	label:Option<String>,
+	visibility:wgpu::ShaderStages,
+	contents:Vec<T>
+}
+
+impl<T:bytemuck::Pod> UniformBuilder<T> {
+	pub fn new() -> Self {
+		Self { 
+			label: None, 
+			visibility: wgpu::ShaderStages::VERTEX_FRAGMENT, 
+			contents: vec![] 
+		}
+	}
+
+	pub fn label(mut self,label:&str) -> Self{
+		self.label = Some(label.into());
+		self
+	}
+
+	pub fn visibility(mut self,visibility:wgpu::ShaderStages) -> Self{
+		self.visibility = visibility;
+		self
+	}
+
+	pub fn contents(mut self,contents:Vec<T>) -> Self{
+		self.contents = contents;
+		self
+	}
+
+	/// Build a uniform buffer
+	pub fn build(self,device:&wgpu::Device) -> Uniform{
+		let buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+			label: self.label.clone().map(|label|format!("{} buffer",label)).as_deref(),
+			contents: bytemuck::cast_slice(&self.contents),
+			usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+		});
 		
+		let layout =
+			device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+				label: self.label.clone().map(|label|format!("{} bind group layout",label)).as_deref(),
+				entries: &[wgpu::BindGroupLayoutEntry {
+					binding: 0,
+					visibility: self.visibility,
+					ty: wgpu::BindingType::Buffer {
+						ty: wgpu::BufferBindingType::Uniform,
+						has_dynamic_offset: false,
+						min_binding_size: None,
+					},
+					count: None,
+				}],
+			});
+		
+		let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+			label: self.label.map(|label|format!("{} bind group",label)).as_deref(),
+			layout: &layout,
+			entries: &[wgpu::BindGroupEntry {
+				binding: 0,
+				resource: buffer.as_entire_binding(),
+			}],
+		});
+
+		Uniform { buffer,layout,bind_group }
+	}
+}
+
+/// A uniform buffer
+pub struct Uniform{
+	buffer:wgpu::Buffer,
+	layout:wgpu::BindGroupLayout,
+	bind_group:wgpu::BindGroup
+}
+
+impl Uniform {
+	pub fn buffer(&self) -> &wgpu::Buffer{
+		&self.buffer
+	}
+
+	pub fn layout(&self) -> &wgpu::BindGroupLayout{
+		&self.layout
+	}
+	pub fn bind_group(&self) -> &wgpu::BindGroup{
+		&self.bind_group
 	}
 }
