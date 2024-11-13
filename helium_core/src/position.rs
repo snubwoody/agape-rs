@@ -39,7 +39,7 @@ impl From<PhysicalPosition<f64>> for Position {
 /// and [`Position`].
 #[derive(Debug,Clone,Copy,PartialEq, PartialOrd,Default)]
 pub struct Bounds {
-	pub x:[f32;2], // TODO change this to start and end position and add a center.
+	pub x:[f32;2], // TODO change this to start and end position and add a center, and make private
 	pub y:[f32;2],
 }
 

@@ -7,15 +7,6 @@ use crate::{
 	vertex::Vertex
 };
 
-// TODO Uniform prototype
-// // Example values
-// let uniforms = Uniforms {
-//     window_size: [800.0, 600.0],  // Your window size
-//     center_pos: [400.0, 300.0],   // Center of your box
-//     size: [200.0, 100.0],         // Width and height of your box
-//     position: [400.0, 300.0],     // Position of your box
-// };
-
 /// This is a primitive that draws to the screen. This holds
 /// essential information about the [`Widget`], ie.
 /// the color, coordinates and size.
@@ -66,7 +57,7 @@ impl Surface for RectSurface {
 		
 		let vertex_buffer = state.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
 			label: Some("Vertex buffer"),
-			contents: bytemuck::cast_slice(&vertices), // TODO maybe remove bytemuck
+			contents: bytemuck::cast_slice(&vertices),
 			usage: wgpu::BufferUsages::VERTEX,
 		});
 

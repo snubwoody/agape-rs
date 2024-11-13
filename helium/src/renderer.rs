@@ -33,8 +33,6 @@ impl RectRenderer {
 			.contents(vec![size.width,size.height])
 			.build(device);
 
-		// TODO PLEASE create uniform struct
-
 		let bounds_layout = device.create_bind_group_layout(
 			&wgpu::BindGroupLayoutDescriptor{
 				label:Some("Rect bounds layout"),
@@ -120,7 +118,7 @@ impl RectRenderer {
 					compilation_options: Default::default(),
 					targets: &[Some(ColorTargetState {
 						format: config.format,
-						blend: Some(wgpu::BlendState::ALPHA_BLENDING), // TODO check pre-multiplied alpha blending
+						blend: Some(wgpu::BlendState::ALPHA_BLENDING),
 						write_mask: wgpu::ColorWrites::ALL,
 					})]
 				}), 
