@@ -11,7 +11,7 @@ fn app(){
 	let color = hex!("#afffff");
 	
 	let hstack = hstack![
-		Text::new("Hello world"),
+		Text::new("Hello"),
 		Text::new("1"),
 		Rect::new(200.0,200.0,color)
 	].spacing(54).padding(24);
