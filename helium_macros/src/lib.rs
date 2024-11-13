@@ -1,6 +1,7 @@
 use proc_macro::TokenStream;
 use quote::quote;
 
+/// A hex color
 #[proc_macro]
 pub fn hex(item:TokenStream) -> TokenStream{
 	let s = item.to_string().replace("\"","");
