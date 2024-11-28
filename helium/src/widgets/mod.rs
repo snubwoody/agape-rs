@@ -17,8 +17,8 @@ use crate::{
 use helium_core::position::Position;
 use helium_core::size::Size;
 
-#[macro_export]
 /// Implement the events for the widgets.
+#[macro_export]
 macro_rules! impl_events {
 	() => {
 		pub fn on_click(mut self, event: impl FnMut() + 'static ) -> Self {
@@ -30,6 +30,19 @@ macro_rules! impl_events {
 			self.events.push(Event::OnHover(Box::new(event)));
 			self
 		}
+	};
+}
+
+
+/// Implement common styling attributes
+#[macro_export]
+macro_rules! impl_style {
+	() => {
+		/// Change the [`Color`] of a [`Widget`].
+		pub fn color(mut self,color:crate::Color) -> Self{
+			self.color = color;
+			self
+		} 
 	};
 }
 

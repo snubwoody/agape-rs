@@ -1,7 +1,7 @@
 use tokio::time::Sleep;
 
 use crate::{
-    app::events::{self, Event, Signal}, Color, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}
+    app::events::{self, Event, Signal}, impl_events, impl_style, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}, Color
 };
 
 pub struct Stack {
@@ -58,6 +58,8 @@ impl Stack {
 
         self
 	}
+
+	impl_style!();
 
 	impl_events!();
 }
