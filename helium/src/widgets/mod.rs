@@ -81,6 +81,7 @@ pub enum WidgetState{
 
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
+#[derive(Debug)]
 pub struct WidgetBody{
 	pub id:String,
 	pub surface:Box<dyn Surface>,

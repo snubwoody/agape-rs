@@ -41,6 +41,27 @@ impl Layout{
 		Self::default()
 	}
 
+	pub fn horizontal() -> Self{
+		Self{
+			layout:LayoutType::Horizontal,
+			..Default::default()
+		}
+	}
+
+	pub fn block() -> Self{
+		Self{
+			layout:LayoutType::Block,
+			..Default::default()
+		}
+	}
+
+	pub fn vertical() -> Self{
+		Self{
+			layout:LayoutType::Vertical,
+			..Default::default()
+		}
+	}
+
 	pub fn spacing(&mut self,spacing:u32){
 		self.spacing = spacing;
 	}
@@ -263,6 +284,27 @@ pub enum WidgetSize{
 pub struct IntrinsicSize {
 	pub width:WidgetSize,
 	pub height:WidgetSize
+}
+
+impl IntrinsicSize {
+	pub fn fixed(width:u32,height:u32) -> Self{
+		Self { 
+			width: WidgetSize::Fixed(width as f32), 
+			height: WidgetSize::Fixed(height as f32) 
+		}
+	}
+	pub fn fill(&mut self){
+		self.width = WidgetSize::Fill;
+		self.height = WidgetSize::Fill;
+	}
+
+	pub fn fill_width(&mut self){
+		self.width = WidgetSize::Fill;
+	}
+
+	pub fn fill_height(&mut self){
+		self.height = WidgetSize::Fill;
+	}
 }
 
 
