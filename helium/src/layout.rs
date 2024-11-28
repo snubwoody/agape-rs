@@ -128,7 +128,7 @@ impl Layout{
 
 			// Set the widget's size
 			match widget.intrinsic_size.width {
-				WidgetSize::Fill => widget.surface.width(max_size.width),
+				WidgetSize::Fill => widget.surface.width(max_size.width - (self.padding * 2) as f32),
 				WidgetSize::Fit => widget.surface.width(size.width),
 				WidgetSize::Fixed(size) => widget.surface.width(size),
 			}
@@ -250,7 +250,7 @@ impl Layout{
 			
 			// Set the widget's size
 			match widget.intrinsic_size.width {
-				WidgetSize::Fill => widget.surface.width(max_size.width),
+				WidgetSize::Fill => widget.surface.width(max_size.width - self.padding as f32),
 				WidgetSize::Fit => widget.surface.width(size.width),
 				WidgetSize::Fixed(size) => widget.surface.width(size),
 			}

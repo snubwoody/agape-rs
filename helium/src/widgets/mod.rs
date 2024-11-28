@@ -141,6 +141,8 @@ impl WidgetBody {
 		self.children.iter_mut().for_each(|child|{
 			child.surface.draw(render_pass, context,state);
 		});
+
+		dbg!(&self);
 	}
 }
 
