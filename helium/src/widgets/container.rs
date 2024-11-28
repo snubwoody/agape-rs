@@ -2,39 +2,31 @@ use nanoid::nanoid;
 
 use super::WidgetBody;
 use crate::{
-    app::events::{Event, Signal}, impl_events, layout::Layout, surface::rect::RectSurface, widgets::Widget
+    app::events::{Event, Signal}, impl_events, impl_style, layout::Layout, surface::rect::RectSurface, widgets::Widget
 };
 use helium_core::color::Color;
 
 /// A container [`Widget`] that wraps its child
 pub struct Container {
 	id:String,
-    padding: u32,
     color: Color,
     child: Box<dyn Widget>,
     events: Vec<Event>,
+	layout:Layout
 }
 
 impl Container {
     pub fn new(child: impl Widget + 'static) -> Self {
         Container {
 			id:nanoid!(),
-            padding: 0,
+			layout:Layout::new(),
             color: Color::Rgb(255, 255, 255),
             child: Box::new(child),
 			events:vec![]
         }
     }
 
-    pub fn color(mut self, color: Color) -> Self {
-        self.color = color;
-        self
-    }
-
-    pub fn padding(mut self, padding: u32) -> Self {
-        self.padding = padding;
-        self
-    }
+	impl_style!();
 
 	impl_events!();
 }
@@ -46,15 +38,12 @@ impl Widget for Container {
             ..Default::default()
         });
 
-        let layout = Layout::Block {
-            padding: self.padding,
-        };
         let child = self.child.build();
 
         WidgetBody {
 			id:self.id.clone(),
             surface,
-            layout,
+            layout:self.layout,
             children: vec![Box::new(child)],
             ..Default::default()
         }

@@ -43,6 +43,16 @@ macro_rules! impl_style {
 			self.color = color;
 			self
 		} 
+
+		pub fn spacing(mut self, spacing: u32) -> Self {
+			self.layout.spacing(spacing);
+			self
+		}
+	
+		pub fn padding(mut self,padding:u32) -> Self{
+			self.layout.padding(padding);
+			self
+		}
 	};
 }
 
@@ -136,7 +146,7 @@ impl WidgetBody {
 impl Default for WidgetBody {
 	fn default() -> Self {
 		let surface = Box::new(RectSurface::default());
-		let layout = Layout::Block{ padding: 0 };
+		let layout = Layout::default();
 
 		Self { 
 			id:String::default(),

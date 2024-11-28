@@ -43,7 +43,6 @@ impl Widget for Text {
 		let size = textsurface.get_size();
 		let surface = Box::new(textsurface);
 
-		let layout = Layout::Block { padding: 0};
 		let intrinsic_size = IntrinsicSize{
 			width:WidgetSize::Fixed(size.width),
 			height:WidgetSize::Fixed(size.height)
@@ -52,7 +51,6 @@ impl Widget for Text {
 		WidgetBody{
 			id:self.id.clone(),
 			surface,
-			layout,
 			intrinsic_size,
 			..Default::default()
 		}

@@ -1,5 +1,5 @@
 use helium::{
-    app::{view::View, App}, hex, hstack, widgets::{Button, Rect, Text}
+    app::{view::View, App}, hex, hstack, vstack, widgets::{Button, Rect, Text}
 };
 
 fn main() {
