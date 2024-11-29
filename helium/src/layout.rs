@@ -102,6 +102,21 @@ impl Layout{
 		size
 	}
 
+	/// Position the `Widgets` according to the [`AxisAlignment`]
+	fn align(&self,widgets:&mut Vec<Box<WidgetBody>>,parent_pos:&Position){
+		// Set the initial position to the padding plus 
+		// the parent position
+		let mut current_pos = self.padding as f32 + parent_pos.x;
+		for widget in widgets{
+			// Set the current widget position
+			widget.surface.position(current_pos as f32, parent_pos.y + self.padding as f32);
+			// Add the spacing and the widget's width to the current
+			// position and the min width
+			current_pos += self.spacing as f32;
+			current_pos += widget.surface.get_size().width;
+		}
+	}
+
 	/// Arrange and size the widgets.
 	pub fn arrange_widgets(
 		&self,
@@ -125,9 +140,7 @@ impl Layout{
 		max_size:Size,
 		parent_pos:&Position
 	) -> Size {
-		// Set the initial position to the padding plus 
-		// the parent position
-		let mut current_pos = self.padding as f32 + parent_pos.x;
+		
 		
 		let mut min_width:f32 = (self.padding * 2) as f32;
 		let mut min_height:f32 = 0.0;
@@ -137,9 +150,6 @@ impl Layout{
 		let child_size = self.max_size(widgets, max_size);
 
 		widgets.iter_mut().for_each(|widget|{
-			// Set the current widget position
-			widget.surface.position(current_pos as f32, parent_pos.y + self.padding as f32);
-
 			// Arrange the widget's children recursively and return the min size
 			let size = widget.layout.arrange_widgets(
 				&mut widget.children,
@@ -163,10 +173,7 @@ impl Layout{
 				WidgetSize::Fixed(size) => widget.surface.height(size),
 			}
 
-			// Add the spacing and the widget's width to the current
-			// position and the min width
-			current_pos += self.spacing as f32;
-			current_pos += widget.surface.get_size().width;
+			
 
 			min_width += self.spacing as f32;
 			min_width += widget.surface.get_size().width;
@@ -174,6 +181,8 @@ impl Layout{
 			// Set the minimum height to the height of the largest widget
 			min_height = min_height.max(widget.surface.get_size().height);
 		});
+
+		self.align(widgets, &parent_pos);
 
 		Size::new(min_width, min_height + (self.padding * 2) as f32)
 	}
@@ -337,7 +346,27 @@ mod test{
 
 	#[test]
 	fn test_horizontal_layout(){
+		
+	}
 
+	#[test]
+	fn test_vertical_layout(){
+		
+	}
+
+	#[test]
+	fn test_block_layout(){
+		
+	}
+
+	#[test]
+	fn test_alignment(){
+		
+	}
+
+	#[test]
+	fn test_sizing(){
+		
 	}
 }
 

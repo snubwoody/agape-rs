@@ -4,6 +4,7 @@ use crate::{
     app::events::{self, Event, Signal}, impl_events, impl_style, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}, Color
 };
 
+// TODO make fields private
 pub struct Stack {
 	pub id:String,
     pub children: Vec<Box<dyn Widget>>,
