@@ -82,6 +82,26 @@ impl Layout{
 		self.cross_axis_alignment = cross_axis_alignment;
 	}
 
+	/// Calculate the max width of a widget
+	fn max_size(&self,widgets:&Vec<Box<WidgetBody>>,max_size:Size) -> Size {
+		let mut size = max_size;
+		size.width -= (self.padding * 2) as f32;
+		size.width -= self.spacing as f32; // TEMP
+		size.height -= self.spacing as f32; // TEMP
+
+		for widget in widgets{
+			match widget.intrinsic_size.width {
+				WidgetSize::Fixed(width) => {
+					size.width -= width
+				}
+				WidgetSize::Fit => {},
+				WidgetSize::Fill => {}
+			}
+		};
+
+		size
+	}
+
 	/// Arrange and size the widgets.
 	pub fn arrange_widgets(
 		&self,
@@ -91,7 +111,7 @@ impl Layout{
 	) -> Size{
 		match self.layout {
 			LayoutType::Horizontal => 
-				self.arrange_horizontal(widgets,&max_size,&parent_pos),
+				self.arrange_horizontal(widgets,max_size,&parent_pos),
 			LayoutType::Vertical => 
 				self.arrange_vertical(widgets,&max_size,&parent_pos),
 			LayoutType::Block => 
@@ -102,15 +122,19 @@ impl Layout{
 	fn arrange_horizontal(
 		&self,
 		widgets:&mut Vec<Box<WidgetBody>>,
-		max_size:&Size,
+		max_size:Size,
 		parent_pos:&Position
-	) -> Size{
+	) -> Size {
 		// Set the initial position to the padding plus 
 		// the parent position
 		let mut current_pos = self.padding as f32 + parent_pos.x;
 		
 		let mut min_width:f32 = (self.padding * 2) as f32;
 		let mut min_height:f32 = 0.0;
+
+		// Currently max size only affects widgets will fill sizing
+		// widgets with fit use min width and fixed ignores everything
+		let child_size = self.max_size(widgets, max_size);
 
 		widgets.iter_mut().for_each(|widget|{
 			// Set the current widget position
@@ -119,7 +143,7 @@ impl Layout{
 			// Arrange the widget's children recursively and return the min size
 			let size = widget.layout.arrange_widgets(
 				&mut widget.children,
-				*max_size,
+				max_size,
 				Position::new(
 					widget.surface.get_position().x,
 					widget.surface.get_position().y
@@ -128,7 +152,7 @@ impl Layout{
 
 			// Set the widget's size
 			match widget.intrinsic_size.width {
-				WidgetSize::Fill => widget.surface.width(max_size.width - (self.padding * 2) as f32),
+				WidgetSize::Fill => widget.surface.width(child_size.width),
 				WidgetSize::Fit => widget.surface.width(size.width),
 				WidgetSize::Fixed(size) => widget.surface.width(size),
 			}
@@ -304,6 +328,16 @@ impl IntrinsicSize {
 
 	pub fn fill_height(&mut self){
 		self.height = WidgetSize::Fill;
+	}
+}
+
+#[cfg(test)]
+mod test{
+	use super::*;
+
+	#[test]
+	fn test_horizontal_layout(){
+
 	}
 }
 
