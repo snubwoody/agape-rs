@@ -82,7 +82,7 @@ pub enum WidgetState{
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
 #[derive(Debug)]
-pub struct WidgetBody{
+pub struct WidgetBody{ // TODO this changes a lot so make these fields private
 	pub id:String,
 	pub surface:Box<dyn Surface>,
 	pub layout:Layout,
@@ -100,7 +100,19 @@ impl WidgetBody {
 	) {
 		let window_size = &state.size;
 		let context = &state.context;
+
+		// TODO I think I should change this so that ALL
+		// of the layout is handled by the Layout struct
+		self.arrange(window_size);
 		
+		// Draw the parent then the children to the screen
+		self.surface.draw(render_pass, context,state);
+		self.children.iter_mut().for_each(|child|{
+			child.surface.draw(render_pass, context,state);
+		});
+	}
+
+	pub(crate) fn arrange(&mut self,window_size:&Size){
 		// Arrange the children
 		let size = self.layout.arrange_widgets(
 			&mut self.children,
@@ -135,14 +147,6 @@ impl WidgetBody {
 				self.surface.height(size);
 			}
 		}
-		
-		// Draw the parent then the children to the screen
-		self.surface.draw(render_pass, context,state);
-		self.children.iter_mut().for_each(|child|{
-			child.surface.draw(render_pass, context,state);
-		});
-
-		dbg!(&self);
 	}
 }
 

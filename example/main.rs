@@ -11,7 +11,8 @@ fn app(){
 	let color = hex!("#afffff");
 	let hstack = hstack![
 		Rect::new(200, 200, color.clone()).fill_width(),
-		Rect::new(200,200,color)
+		Rect::new(200, 200, color.clone()).fill_width(),
+		Rect::new(20,200,color)
 	].spacing(54).padding(24).color(hex!("#000000"));
     
 	let page = View::new(hstack);

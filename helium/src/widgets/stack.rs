@@ -106,11 +106,11 @@ macro_rules! vstack {
 macro_rules! hstack {
 	($($child:expr),*) => {
 		{
-			let mut layout = helium::layout::Layout::new();
-			layout.layout(helium::layout::LayoutType::Horizontal);
-			helium::widgets::Stack{
-				id:helium::nanoid!(),
-				color: helium::Color::Rgb(255,255,255),
+			let mut layout = $crate::layout::Layout::new();
+			layout.layout($crate::layout::LayoutType::Horizontal);
+			$crate::widgets::Stack{
+				id:$crate::nanoid!(),
+				color: $crate::Color::Rgb(255,255,255),
 				layout,
 				children:vec![
 					$(

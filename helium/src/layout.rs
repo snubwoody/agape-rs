@@ -85,19 +85,45 @@ impl Layout{
 	/// Calculate the max width of a widget
 	fn max_size(&self,widgets:&Vec<Box<WidgetBody>>,max_size:Size) -> Size {
 		let mut size = max_size;
+		let mut width_fill_count = 0;
+		let mut height_fill_count = 0;
 		size.width -= (self.padding * 2) as f32;
-		size.width -= self.spacing as f32; // TEMP
-		size.height -= self.spacing as f32; // TEMP
+		
+		for (i,widget) in widgets.iter().enumerate(){
+			// Subtract the spacing for every element except the last
+			if i != widgets.len() - 1{
+				size.width -= self.spacing as f32; // TEMP
+				size.height -= self.spacing as f32; // TEMP
+			}
 
-		for widget in widgets{
 			match widget.intrinsic_size.width {
 				WidgetSize::Fixed(width) => {
 					size.width -= width
 				}
-				WidgetSize::Fit => {},
-				WidgetSize::Fill => {}
+				WidgetSize::Fit => {
+					size.width += widget.surface.get_size().width;
+				},
+				WidgetSize::Fill => {
+					width_fill_count += 1;
+				}
+			}
+
+			match widget.intrinsic_size.height {
+				WidgetSize::Fixed(height) => {
+					size.height -= height
+				}
+				WidgetSize::Fit => {
+					size.height += widget.surface.get_size().height;
+				},
+				WidgetSize::Fill => {
+					height_fill_count += 1;
+				}
 			}
 		};
+
+		// Distribute the size evenly among the children 
+		size.width /= width_fill_count as f32;
+		size.height /= height_fill_count as f32;
 
 		size
 	}
@@ -114,6 +140,43 @@ impl Layout{
 			// position and the min width
 			current_pos += self.spacing as f32;
 			current_pos += widget.surface.get_size().width;
+		}
+	}
+
+	pub fn arrange(&self,root:&mut WidgetBody,window_size:&Size){
+		// Arrange the children
+		let size = root.layout.arrange_widgets(
+			&mut root.children,
+			Size::new(window_size.width, window_size.height),
+			Position::new(
+				root.surface.get_position().x, 
+				root.surface.get_position().y
+			)
+		);
+
+		// Set the size of the root widget
+		match root.intrinsic_size.width {
+			WidgetSize::Fill => {
+				root.surface.width(window_size.width as f32);
+			},
+			WidgetSize::Fit => {
+				root.surface.width(size.width);
+			},
+			WidgetSize::Fixed(size) => {
+				root.surface.width(size);
+			}
+		}
+
+		match root.intrinsic_size.height {
+			WidgetSize::Fill => {
+				root.surface.height(window_size.height as f32);
+			},
+			WidgetSize::Fit => {
+				root.surface.height(size.height);
+			},
+			WidgetSize::Fixed(size) => {
+				root.surface.height(size);
+			}
 		}
 	}
 
@@ -140,8 +203,6 @@ impl Layout{
 		max_size:Size,
 		parent_pos:&Position
 	) -> Size {
-		
-		
 		let mut min_width:f32 = (self.padding * 2) as f32;
 		let mut min_height:f32 = 0.0;
 
@@ -172,8 +233,6 @@ impl Layout{
 				WidgetSize::Fit => widget.surface.height(size.height),
 				WidgetSize::Fixed(size) => widget.surface.height(size),
 			}
-
-			
 
 			min_width += self.spacing as f32;
 			min_width += widget.surface.get_size().width;
@@ -342,11 +401,20 @@ impl IntrinsicSize {
 
 #[cfg(test)]
 mod test{
+	use helium_core::color::BLACK;
+	use crate::{hstack, widgets::{Rect, Widget}};
 	use super::*;
 
 	#[test]
 	fn test_horizontal_layout(){
-		
+		let spacing = 12;
+		let padding = 12;
+		let rect1 = Rect::new(200, 200, BLACK);
+		let rect2 = Rect::new(200, 200, BLACK);
+		let mut hstack = hstack![rect1,rect2]
+			.spacing(spacing).padding(padding).build();
+		hstack.arrange(&Size::new(500.0, 500.0));
+		dbg!(hstack);
 	}
 
 	#[test]
