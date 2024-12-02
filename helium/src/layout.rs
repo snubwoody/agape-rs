@@ -333,7 +333,6 @@ impl Layout{
 				)
 			};
 
-
 			min_width += size.width;
 			min_height += size.height;
 			
@@ -467,6 +466,111 @@ mod test{
 		expected_size.height += (spacing * 2) as f32;
 		expected_size.width += (padding * 2) as f32;
 		assert_eq!(vertical_box.surface.get_size(),expected_size);
+	}
+
+	#[test]
+	fn test_block_fit_size(){
+		// TODO
+	}
+
+	#[test]
+	fn test_vertical_positioning(){
+		let spacing = 24;
+		let padding = 56;
+
+		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		let box3 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		let box4 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+
+		let mut vertical_box = WidgetBody::new() // TODO add padding
+			.layout(Layout::vertical().spacing(spacing).padding(padding))
+			.add_children(vec![box1,box2,box3,box4]);
+
+		vertical_box.arrange(Size::new(800.0, 800.0));
+
+		let mut prev_pos = Position::new(padding as f32, padding as f32);
+
+		// The children should be previous [height + spacing] distance
+		// away from each other vertically and have the same x position
+		for (i,child) in vertical_box.children.iter().enumerate(){
+			let pos = child.surface.get_position();
+			let size = child.surface.get_size();
+
+			assert_eq!(prev_pos,pos,"Test failed on iteration: {}",i);
+
+			prev_pos.translate(0.0, size.height);
+			prev_pos.translate(0.0, spacing as f32);
+		}
+	}
+	
+	#[test]
+	fn test_horizontal_positioning(){
+		let spacing = 24;
+		let padding = 56;
+
+		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		let box3 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		let box4 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+
+		let mut horizontal_box = WidgetBody::new() // TODO add padding
+			.layout(Layout::horizontal().spacing(spacing).padding(padding))
+			.add_children(vec![box1,box2,box3,box4]);
+
+		horizontal_box.arrange(Size::new(800.0, 800.0));
+
+		let mut prev_pos = Position::new(padding as f32, padding as f32);
+
+		// The children should be previous [height + spacing] distance
+		// away from each other vertically and have the same x position
+		for (i,child) in horizontal_box.children.iter().enumerate(){
+			let pos = child.surface.get_position();
+			let size = child.surface.get_size();
+
+			assert_eq!(prev_pos,pos,"Test failed on iteration: {}",i);
+
+			prev_pos.translate(size.width, 0.0);
+			prev_pos.translate(spacing as f32,0.0);
+		}
+	}
+
+	#[test]
+	fn test_block_positioning(){
+		let spacing = 24;
+		let padding = 56;
+
+		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		let box3 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		let box4 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+
+		let mut horizontal_box = WidgetBody::new() // TODO add padding
+			.layout(Layout::block().spacing(spacing).padding(padding))
+			.add_children(vec![box1,box2,box3,box4]);
+
+		horizontal_box.arrange(Size::new(800.0, 800.0));
+
+		let mut prev_pos = Position::new(padding as f32, padding as f32);
+
+		// The children should be previous [height + spacing] distance
+		// away from each other vertically and have the same x position
+		for (i,child) in horizontal_box.children.iter().enumerate(){
+			let pos = child.surface.get_position();
+			let mut parent_pos = horizontal_box.surface.get_position();
+			let size = child.surface.get_size();
+			parent_pos.translate(padding as f32, padding as f32);
+			
+			assert_eq!(parent_pos,pos,"Test failed on iteration: {}",i);
+
+			// Make sure the children don't have any spacing, skip the first 
+			// iteration because no spacing is applied
+			if i != 0{
+				assert_ne!(prev_pos,pos,"Test failed on iteration: {}",i);
+			}
+			prev_pos.translate(size.width, 0.0);
+			prev_pos.translate(spacing as f32,0.0);
+		}
 	}
 
 	#[test]

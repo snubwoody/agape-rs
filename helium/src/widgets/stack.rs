@@ -106,8 +106,7 @@ macro_rules! vstack {
 macro_rules! hstack {
 	($($child:expr),*) => {
 		{
-			let mut layout = $crate::layout::Layout::new();
-			layout.layout($crate::layout::LayoutType::Horizontal);
+			let mut layout = $crate::layout::Layout::vertical();
 			$crate::widgets::Stack{
 				id:$crate::nanoid!(),
 				color: $crate::Color::Rgb(255,255,255),

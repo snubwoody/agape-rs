@@ -1,5 +1,6 @@
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 
+// TODO should probably test these since they are the backbone of everything
 /// Represents the position of any structure
 #[derive(Debug,Clone,Copy,PartialEq,PartialOrd,Default)]
 pub struct Position{
@@ -12,7 +13,16 @@ impl Position {
 		Self{x,y}
 	}
 
-	/// Translate the position
+	/// Translate the position by `x` and `y` amount.
+	/// # Example
+	/// ```
+	/// use helium_core::position::Position;
+	/// 
+	/// let mut position = Position::new(0.0,0.0);
+	/// position.translate(40.0,100.0);
+	/// 
+	/// assert_eq!(Position::new(40.0,100.0),position);
+	/// ```
 	pub fn translate(&mut self,x:f32,y:f32) {
 		self.x += x;
 		self.y += y;
