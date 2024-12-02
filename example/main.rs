@@ -9,9 +9,9 @@ fn main() {
 
 fn app(){
 	let color = hex!("#afffff");
-	let hstack = hstack![
+	let hstack = vstack![
 		Rect::new(200, 200, color.clone()).fill_width(),
-		Rect::new(200, 200, color.clone()).fill_width(),
+		Rect::new(200, 200, color.clone()),
 		Rect::new(20,200,color)
 	].spacing(54).padding(24).color(hex!("#000000"));
     

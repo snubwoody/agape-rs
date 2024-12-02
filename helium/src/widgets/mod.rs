@@ -3,6 +3,7 @@ mod stack;
 mod container;
 mod text;
 mod button;
+use nanoid::nanoid;
 pub use rect::Rect;
 pub use text::Text;
 pub use button::Button;
@@ -87,13 +88,44 @@ pub struct WidgetBody{ // TODO this changes a lot so make these fields private
 	pub surface:Box<dyn Surface>,
 	pub layout:Layout,
 	pub children:Vec<Box<WidgetBody>>,
-	pub intrinsic_size:IntrinsicSize,
+	pub intrinsic_size:IntrinsicSize, // TODO move this to the layout
 	pub state:WidgetState
 }
 
 impl WidgetBody {
+	pub fn new() -> Self{
+		Self::default()	
+	}
+
+	pub fn surface(mut self,surface:Box<dyn Surface>) -> Self{
+		self.surface = surface;
+		self
+	}
+
+	pub fn layout(mut self,layout:Layout) -> Self{
+		self.layout = layout;
+		self
+	}
+
+	pub fn add_child(mut self,child:WidgetBody) -> Self{
+		self.children.push(Box::new(child));
+		self
+	}
+
+	pub fn add_children(mut self,children:Vec<WidgetBody>) -> Self{
+		for child in children{
+			self.children.push(Box::new(child));
+		};
+		self
+	}
+
+	pub fn intrinsic_size(mut self,intrinsic_size:IntrinsicSize) -> Self{
+		self.intrinsic_size = intrinsic_size;
+		self
+	}
+
 	/// Draw the [`WidgetBody`] to the screen.
-	pub fn render(
+	pub(crate) fn render(
 		&mut self,
 		render_pass:&mut wgpu::RenderPass,
 		state: &AppState
@@ -103,7 +135,7 @@ impl WidgetBody {
 
 		// TODO I think I should change this so that ALL
 		// of the layout is handled by the Layout struct
-		self.arrange(window_size);
+		self.arrange(*window_size);
 		
 		// Draw the parent then the children to the screen
 		self.surface.draw(render_pass, context,state);
@@ -112,16 +144,14 @@ impl WidgetBody {
 		});
 	}
 
-	pub(crate) fn arrange(&mut self,window_size:&Size){
-		// Arrange the children
-		let size = self.layout.arrange_widgets(
-			&mut self.children,
-			Size::new(window_size.width, window_size.height),
-			Position::new(
-				self.surface.get_position().x, 
-				self.surface.get_position().y
-			)
+	pub(crate) fn arrange(&mut self,window_size:Size){
+		let position = Position::new(
+			self.surface.get_position().x, 
+			self.surface.get_position().y
 		);
+
+		// Arrange the children
+		let size = self.layout.arrange_widgets(&mut self.children,window_size,position);
 
 		// Set the size of the root widget
 		match self.intrinsic_size.width {
@@ -156,7 +186,7 @@ impl Default for WidgetBody {
 		let layout = Layout::default();
 
 		Self { 
-			id:String::default(),
+			id:nanoid!(),
 			surface, 
 			layout, 
 			children:vec![], 
