@@ -15,7 +15,7 @@ fn app(){
 	).padding(44).color(BLACK);
 
 	let page = View::new(container);
-    let app = App::new().add_view(page);
+  let app = App::new().add_view(page);
     
 	app.run();
 }
