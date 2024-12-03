@@ -46,12 +46,12 @@ macro_rules! impl_style {
 		} 
 
 		pub fn spacing(mut self, spacing: u32) -> Self {
-			self.layout.spacing(spacing);
+			self.layout = self.layout.spacing(spacing);
 			self
 		}
 	
 		pub fn padding(mut self,padding:u32) -> Self{
-			self.layout.padding(padding);
+			self.layout = self.layout.padding(padding);
 			self
 		}
 	};

@@ -83,9 +83,7 @@ impl Widget for Stack {
 macro_rules! vstack {
 	($($child:expr),*) => {
 		{
-			let mut layout =helium::layout::Layout::new();
-			layout.layout(helium::layout::LayoutType::Vertical);
-
+			let mut layout =helium::layout::Layout::vertical();
 			helium::widgets::Stack{
 				id:helium::nanoid!(),
 				color:helium::Color::Rgb(255,255,255),
@@ -106,7 +104,7 @@ macro_rules! vstack {
 macro_rules! hstack {
 	($($child:expr),*) => {
 		{
-			let mut layout = $crate::layout::Layout::vertical();
+			let mut layout = $crate::layout::Layout::horizontal();
 			$crate::widgets::Stack{
 				id:$crate::nanoid!(),
 				color: $crate::Color::Rgb(255,255,255),
