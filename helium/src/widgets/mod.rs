@@ -152,7 +152,7 @@ impl WidgetBody {
 		);
 
 		// Arrange the children
-		let size = self.layout.arrange_widgets(&mut self.children,window_size,position);
+		let size = self.layout.compute_layout(&mut self.children,window_size,position);
 
 		// Set the size of the root widget
 		match self.intrinsic_size.width {

@@ -91,8 +91,9 @@ impl Layout{
 	}
 
 	
-	/// Arrange and size the widgets.
-	pub fn arrange_widgets(
+	/// Computes the layout of the [`Widget`]'s i.e. the size
+	/// and positioning.
+	pub fn compute_layout(
 		&self,
 		widgets:&mut Vec<Box<WidgetBody>>,
 		max_size:Size,
@@ -100,11 +101,11 @@ impl Layout{
 	) -> Size{
 		match self.layout {
 			LayoutType::Horizontal => 
-				self.arrange_horizontal(widgets,max_size,parent_pos),
+				self.compute_horizontal(widgets,max_size,parent_pos),
 			LayoutType::Vertical => 
-				self.arrange_vertical(widgets,max_size,parent_pos),
+				self.compute_vertical(widgets,max_size,parent_pos),
 			LayoutType::Block => 
-				self.arrange_block(widgets,max_size,parent_pos),
+				self.compute_block(widgets,max_size,parent_pos),
 		}
 	}
 
@@ -193,7 +194,7 @@ impl Layout{
 
 	}
 
-	fn arrange_horizontal(
+	fn compute_horizontal(
 		&self,
 		widgets:&mut Vec<Box<WidgetBody>>,
 		max_size:Size,
@@ -214,7 +215,7 @@ impl Layout{
 		for (i,widget) in widgets.iter_mut().enumerate(){
 			// Arrange the widget's children recursively and return the minimum 
 			// size required occupy all the children.
-			let size = widget.layout.arrange_widgets(
+			let size = widget.layout.compute_layout(
 				&mut widget.children,
 				max_size,
 				widget.surface.get_position()
@@ -249,7 +250,7 @@ impl Layout{
 		Size::new(min_width, min_height)
 	}
 
-	fn arrange_vertical(
+	fn compute_vertical(
 		&self,
 		widgets:&mut Vec<Box<WidgetBody>>,
 		max_size:Size,
@@ -269,7 +270,7 @@ impl Layout{
 
 		for (i,widget) in widgets.iter_mut().enumerate(){
 			// Arrange the widget's children recursively and return the min size
-			let size = widget.layout.arrange_widgets(
+			let size = widget.layout.compute_layout(
 				&mut widget.children,
 				max_size,
 				widget.surface.get_position()
@@ -291,20 +292,22 @@ impl Layout{
 			if i != length - 1{
 				min_height += self.spacing as f32;
 			}
-			min_height += widget.surface.get_size().height;
 
+			min_height += widget.surface.get_size().height;
 			// Set the minimum width to the width of the largest widget
 			min_width = min_width.max(widget.surface.get_size().width);
 		};
 
 		self.align(widgets, &parent_pos);
+
 		min_width += (self.padding * 2) as f32;
 		min_height += (self.padding * 2) as f32;
 		
 		Size::new(min_width,min_height)
 	}
 
-	fn arrange_block(
+	/// Computes the layout of `Block` level widgets.
+	fn compute_block(
 		&self,
 		widgets:&mut Vec<Box<WidgetBody>>,
 		max_size:Size,
@@ -324,8 +327,7 @@ impl Layout{
 				parent_pos.y + self.padding as f32
 			);
 
-			 
-			let size = widget.layout.arrange_widgets(
+			let size = widget.layout.compute_layout(
 				&mut widget.children, 
 				max_size,
 				widget.surface.get_position()
@@ -408,7 +410,6 @@ impl From<Size> for IntrinsicSize {
 
 #[cfg(test)]
 mod test{
-	use crate::widgets::{Rect, Widget};
 	use super::*;
 
 	#[test]
@@ -635,6 +636,11 @@ mod test{
 			prev_pos.translate(size.width, 0.0);
 			prev_pos.translate(spacing as f32,0.0);
 		}
+	}
+
+	#[test]
+	fn test_nested_layouts(){
+
 	}
 
 	#[test]
