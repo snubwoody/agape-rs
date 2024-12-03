@@ -1,6 +1,6 @@
 use std::fmt::Debug;
-use winit::event::{ElementState, MouseButton, WindowEvent};
-use crate::{Position, widgets::{Widget, WidgetBody, WidgetState}};
+use winit::{event::{ElementState, MouseButton, WindowEvent}, event_loop::EventLoopProxy};
+use crate::{widgets::{Widget, WidgetBody, WidgetId, WidgetState}, Position};
 
 pub enum Event {
 	OnClick(Box<dyn FnMut()>),
@@ -22,8 +22,28 @@ impl Debug for Event {
 
 #[derive(Debug)]
 pub enum Signal{
-	Hover(String),
-	Click(String)
+	Hover(WidgetId),
+	Click(WidgetId)
+}
+
+pub(crate) struct EventQueue{
+	queue:Vec<String>
+}
+
+impl EventQueue {
+	pub fn new() -> Self{
+		Self { queue: vec![] }
+	}
+
+	/// Push an Event to the queue.
+	pub fn push(&mut self){
+
+	}
+
+	pub fn handle_events(&mut self,event:&winit::event::WindowEvent){
+		dbg!(event);
+		self.push();
+	}
 }
 
 /// Handles all widget events and stores useful attributes such 

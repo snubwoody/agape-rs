@@ -19,44 +19,7 @@ use crate::{
 use helium_core::position::Position;
 use helium_core::size::Size;
 
-/// Implement the events for the widgets.
-#[macro_export]
-macro_rules! impl_events {
-	() => {
-		pub fn on_click(mut self, event: impl FnMut() + 'static ) -> Self {
-			self.events.push(Event::OnClick(Box::new(event)));
-			self
-		}
-	
-		pub fn on_hover(mut self, event: impl FnMut() + 'static ) -> Self {
-			self.events.push(Event::OnHover(Box::new(event)));
-			self
-		}
-	};
-}
-
-
-/// Implement common styling attributes
-#[macro_export]
-macro_rules! impl_style {
-	() => {
-		/// Change the [`Color`] of a [`Widget`].
-		pub fn color(mut self,color:crate::Color) -> Self{
-			self.color = color;
-			self
-		} 
-
-		pub fn spacing(mut self, spacing: u32) -> Self {
-			self.layout = self.layout.spacing(spacing);
-			self
-		}
-	
-		pub fn padding(mut self,padding:u32) -> Self{
-			self.layout = self.layout.padding(padding);
-			self
-		}
-	};
-}
+pub type WidgetId = String;
 
 /// The trait that all widgets must implement.
 pub trait Widget{
@@ -85,7 +48,7 @@ pub enum WidgetState{
 /// about a [`Widget`] required for rendering.
 #[derive(Debug)]
 pub struct WidgetBody{ // TODO this changes a lot so make these fields private
-	pub id:String,
+	pub id:WidgetId,
 	pub surface:Box<dyn Surface>,
 	pub layout:Layout,
 	pub children:Vec<Box<WidgetBody>>,
@@ -195,4 +158,44 @@ impl Default for WidgetBody {
 			state: WidgetState::default()
 		}
 	}
+}
+
+
+/// Implement the events for the widgets.
+#[macro_export]
+macro_rules! impl_events {
+	() => {
+		pub fn on_click(mut self, event: impl FnMut() + 'static ) -> Self {
+			self.events.push(Event::OnClick(Box::new(event)));
+			self
+		}
+	
+		pub fn on_hover(mut self, event: impl FnMut() + 'static ) -> Self {
+			self.events.push(Event::OnHover(Box::new(event)));
+			self
+		}
+	};
+}
+
+
+/// Implement common styling attributes
+#[macro_export]
+macro_rules! impl_style {
+	() => {
+		/// Change the [`Color`] of a [`Widget`].
+		pub fn color(mut self,color:crate::Color) -> Self{
+			self.color = color;
+			self
+		} 
+
+		pub fn spacing(mut self, spacing: u32) -> Self {
+			self.layout = self.layout.spacing(spacing);
+			self
+		}
+	
+		pub fn padding(mut self,padding:u32) -> Self{
+			self.layout = self.layout.padding(padding);
+			self
+		}
+	};
 }

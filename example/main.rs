@@ -10,12 +10,10 @@ fn main() {
 fn app(){
 	// FIXME somehow has a block layout
 	let color = hex!("#afffff");
-	let container = Container::new(
-		Rect::new(200, 200, color.clone())
-	).padding(44).color(BLACK);
+	let button = Button::new("Hello world").on_click(||println!("Hello world"));
 
-	let page = View::new(container);
-  let app = App::new().add_view(page);
+	let page = View::new(button);
+  	let app = App::new().add_view(page);
     
 	app.run();
 }

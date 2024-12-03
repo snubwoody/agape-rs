@@ -1,12 +1,13 @@
 use winit::window::Window;
 
 use crate::widgets::{Widget, WidgetBody};
-use super::{events::EventHandler, AppState};
+use super::{events::{EventHandler, EventQueue}, AppState};
 
 /// A page
 pub struct View{
 	root_widget:Box<dyn Widget>,
 	root_body:WidgetBody,
+	event_queue:EventQueue,
 	event_handler:EventHandler
 }
 
@@ -15,12 +16,14 @@ impl View {
 		Self { 
 			root_body:root_widget.build(),
 			root_widget:Box::new(root_widget),
+			event_queue:EventQueue::new(),
 			event_handler: EventHandler::new()
 		}
 	}
 
 	pub fn handle_events(&mut self,event: winit::event::WindowEvent,window:&Window){
 		self.event_handler.handle_events(&event,&mut self.root_widget,&mut self.root_body);
+		self.event_queue.handle_events(&event);
 		window.request_redraw();
 	}
 	
