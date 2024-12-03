@@ -201,6 +201,7 @@ impl Layout{
 	) -> Size {
 		let mut min_width:f32 = 0.0;
 		let mut min_height:f32 = 0.0;
+		let length = widgets.len();
 
 		if widgets.is_empty(){
 			return Size::default()
@@ -210,7 +211,7 @@ impl Layout{
 		// widgets with fit use min width and fixed ignores everything
 		let child_max_size = self.max_size(widgets, max_size);
 
-		for widget in widgets.iter_mut(){
+		for (i,widget) in widgets.iter_mut().enumerate(){
 			// Arrange the widget's children recursively and return the minimum 
 			// size required occupy all the children.
 			let size = widget.layout.arrange_widgets(
@@ -232,7 +233,10 @@ impl Layout{
 				WidgetSize::Fixed(size) => widget.surface.height(size),
 			}
 
-			min_width += self.spacing as f32;
+			if i != length - 1{
+				min_width += self.spacing as f32;
+			}
+
 			min_width += widget.surface.get_size().width;
 
 			// Set the minimum height to the height of the largest widget
@@ -255,15 +259,15 @@ impl Layout{
 		// the parent position
 		let mut min_width:f32 = 0.0;
 		let mut min_height:f32 = 0.0;
+		let length = widgets.len();
 
 		if widgets.is_empty(){
 			return Size::default()
 		}
 
-
 		let child_max_size = self.max_size(widgets, max_size);
 
-		widgets.iter_mut().for_each(|widget|{
+		for (i,widget) in widgets.iter_mut().enumerate(){
 			// Arrange the widget's children recursively and return the min size
 			let size = widget.layout.arrange_widgets(
 				&mut widget.children,
@@ -284,12 +288,14 @@ impl Layout{
 				WidgetSize::Fixed(size) => widget.surface.height(size),
 			}
 
-			min_height += self.spacing as f32;
+			if i != length - 1{
+				min_height += self.spacing as f32;
+			}
 			min_height += widget.surface.get_size().height;
 
 			// Set the minimum width to the width of the largest widget
 			min_width = min_width.max(widget.surface.get_size().width);
-		});
+		};
 
 		self.align(widgets, &parent_pos);
 		min_width += (self.padding * 2) as f32;
@@ -403,41 +409,60 @@ impl IntrinsicSize {
 	}
 }
 
+impl From<Size> for IntrinsicSize {
+	fn from(value: Size) -> Self {
+		IntrinsicSize::fixed(value.width as u32, value.height as u32)
+	}
+}
+
 #[cfg(test)]
 mod test{
 	use crate::{hstack, widgets::{Rect, Widget}};
 	use super::*;
 
 	#[test]
-	fn test_horizontal_fit_size(){
+	fn test_empty_widgets(){
 		let spacing = 12;
 		let padding = 12;
 		let window = Size::new(800.0, 800.0);
-		let mut empty_box = WidgetBody::new(); // TODO test the other layouts
+		let mut empty_box = WidgetBody::new(); 
+		// Make sure spacing and padding don't take effect if widget is empty
 		empty_box.layout.spacing(spacing);
 		empty_box.layout.padding(padding);
 		empty_box.arrange(window);
 
-		assert_eq!(empty_box.surface.get_size(),Size::new(0.0,0.0));
+		assert_eq!(empty_box.surface.get_size(),Size::new(0.0,0.0),"Empty box does not have zero size");
+	}
 
-		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
-		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+	#[test]
+	fn test_horizontal_fit_size(){
+		let spacing = 12;
+		let padding = 12;
+		let window = Size::new(800.0, 800.0);
+
+		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 150));
+		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(100, 500));
+		let box3 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(500, 25));
+		let box4 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(300, 20));
 		
 		let mut horizontal_box = WidgetBody::new()
 			.layout(
 				Layout::horizontal().spacing(spacing).padding(padding)
 			)
-			.add_children(vec![box1,box2])
+			.add_children(vec![box1,box2,box3,box4])
 			.intrinsic_size(IntrinsicSize::fit());
 		
-		
 		horizontal_box.arrange(window);
-		let mut expected_size = Size::new(400.0, 200.0);
+
+		// The padding should always be added twice for each side, the spacing
+		// should be added n-1 times, with n being the number of widgets
+		let mut expected_size = Size::new(1100.0, 500.0);
 		expected_size.width += (padding * 2) as f32;
-		expected_size.width += (spacing * 2) as f32;
+		expected_size.width += (spacing * 3) as f32;
 		expected_size.height += (padding * 2) as f32;
 
-		
+		assert_eq!(horizontal_box.surface.get_size(),expected_size,"Horizontal fit
+		 layout has incorrect size");
 	}
 
 	#[test]
@@ -445,26 +470,28 @@ mod test{
 		let spacing = 12;
 		let padding = 12;
 		let window = Size::new(800.0, 800.0);
-		// The width should be equal to the sum of the width of both widgets plus 
-		// the padding plus the spacing in between widgets 
-		
 		
 		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
-		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(50, 100));
+		let box3 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(75, 300));
+		let box4 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(10, 400));
 		
 		let mut vertical_box = WidgetBody::new()
 			.layout(
 				Layout::vertical().spacing(spacing).padding(padding)
 			)
-			.add_children(vec![box1,box2])
+			.add_children(vec![box1,box2,box3,box4])
 			.intrinsic_size(IntrinsicSize::fit());
 
 		vertical_box.arrange(window);
 		
-		let mut expected_size = Size::new(200.0, 400.0);
+		// The padding should always be added twice for each side, the spacing
+		// should be added n-1 times, with n being the number of widgets
+		let mut expected_size = Size::new(200.0, 1000.0);
 		expected_size.height += (padding * 2) as f32;
-		expected_size.height += (spacing * 2) as f32;
+		expected_size.height += (spacing * 3) as f32;
 		expected_size.width += (padding * 2) as f32;
+
 		assert_eq!(vertical_box.surface.get_size(),expected_size);
 	}
 

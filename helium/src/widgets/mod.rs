@@ -8,6 +8,7 @@ pub use rect::Rect;
 pub use text::Text;
 pub use button::Button;
 pub use stack::Stack;
+pub use container::Container;
 use crate::{
 	app::{events::Signal, AppState}, 
 	layout::{IntrinsicSize, Layout, WidgetSize}, 
