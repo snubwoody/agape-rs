@@ -66,7 +66,9 @@ impl Widget for Button {
 			RectSurface::new(0.0, 0.0, 200.0, 70.0, self.color.clone())
 		);
 
-		let layout = Layout::Block{ padding: self.padding };
+		// FIXME redundant put this in the struct
+		let mut layout = Layout::new();
+		layout.padding(self.padding);
 
 		let text_body = Text::new(&self.text).build();
 

@@ -11,29 +11,45 @@ use nanoid::nanoid;
 /// A simple rectangle
 pub struct Rect{
 	id:String,
-    pub width: f32,
-    pub height: f32,
-    pub color: Color,
-	pub events: Vec<Event>,
+    width: u32,
+    height: u32,
+    color: Color,
+	events: Vec<Event>,
+	intrinsic_size:IntrinsicSize
 }
 
 impl Rect {
-    pub fn new(width: f32, height: f32, color: Color) -> Self {
+    pub fn new(width: u32, height: u32, color: Color) -> Self {
         Self {
 			id:nanoid!(),
             width,
             height,
             color,
 			events: Vec::new(),
+			intrinsic_size:IntrinsicSize::fixed(width, height)
         }
     }
+
+	pub fn fill(mut self) -> Self{
+		self.intrinsic_size.fill();
+		self
+	}
+
+	pub fn fill_width(mut self) -> Self{
+		self.intrinsic_size.fill_width();
+		self
+	}
+
+	pub fn fill_height(mut self) -> Self{
+		self.intrinsic_size.fill_height();
+		self
+	}
 
 	impl_events!();
 }
 
 impl Widget for Rect {
     fn build(&self) -> WidgetBody {
-        let layout = Layout::Block { padding: 0 };
         let surface = Box::new(RectSurface {
             size: Size::new(self.width as f32, self.height as f32),
             color: self.color.clone(),
@@ -43,12 +59,8 @@ impl Widget for Rect {
         WidgetBody {
 			id:self.id.clone(),
             surface,
-            layout,
             children: vec![],
-            intrinsic_size: IntrinsicSize {
-                width: WidgetSize::Fixed(self.width),
-                height: WidgetSize::Fixed(self.height),
-            },
+            intrinsic_size:self.intrinsic_size,
             ..Default::default()
         }
     }
