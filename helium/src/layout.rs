@@ -645,27 +645,7 @@ mod test{
 
 	#[test]
 	fn test_fill_size(){
-
-	}
-
-	#[test]
-	fn test_vertical_layout(){
-		
-	}
-
-	#[test]
-	fn test_block_layout(){
-		
-	}
-
-	#[test]
-	fn test_alignment(){
-		
-	}
-
-	#[test]
-	fn test_sizing(){
-		
+		// Add sub-widgets to test nested layouts 
 	}
 }
 
