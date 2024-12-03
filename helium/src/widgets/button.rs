@@ -1,7 +1,7 @@
 use nanoid::nanoid;
 
 use crate::{
-	app::events::Signal, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::WidgetBody
+	app::events::{Signal, UserEvent}, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::WidgetBody
 };
 use helium_core::color::Color;
 use super::{text::Text, Widget};
@@ -13,9 +13,10 @@ pub struct Button{
 	text:String,
 	color:Color,
 	padding:u32,
-	width: WidgetSize,
-	height: WidgetSize,
-	events: Vec<Event>
+	width:WidgetSize,
+	height:WidgetSize,
+	events:Vec<Event>,
+	user_events:Vec<UserEvent>
 }
 
 impl Button {
@@ -27,7 +28,8 @@ impl Button {
 			padding:12,
 			width: WidgetSize::Fit,
 			height:WidgetSize::Fit,
-			events:Vec::new()
+			events:Vec::new(),
+			user_events:vec![]
 		}
 	}
 
@@ -56,6 +58,13 @@ impl Button {
 		self
 	}
 
+	pub fn tap(mut self,event: impl FnMut() + 'static) -> Self{
+		self.events.push(
+			Event::OnClick(Box::new(event))
+		);
+		self
+	}
+
 	impl_events!();
 }
 
@@ -66,9 +75,7 @@ impl Widget for Button {
 			RectSurface::new(0.0, 0.0, 200.0, 70.0, self.color.clone())
 		);
 
-		// FIXME redundant put this in the struct
-		let mut layout = Layout::new();
-		layout.padding(self.padding);
+		let layout = Layout::new().padding(self.padding);
 
 		let text_body = Text::new(&self.text).build();
 
@@ -117,5 +124,4 @@ impl Widget for Button {
 			}
 		}
 	}
-
 }

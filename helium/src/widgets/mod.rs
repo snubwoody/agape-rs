@@ -10,7 +10,7 @@ pub use button::Button;
 pub use stack::Stack;
 pub use container::Container;
 use crate::{
-	app::{events::Signal, AppState}, 
+	app::{events::{Event, EventType, Signal}, AppState}, 
 	layout::{IntrinsicSize, Layout, WidgetSize}, 
 	surface::{
 		rect::RectSurface, Surface
@@ -33,6 +33,11 @@ pub trait Widget{
 
 	/// Process signals sent from the [`EventHandler`].
 	fn process_signal(&mut self,signal:&Signal);
+
+	fn run_events(&mut self){}
+	fn get_events(&mut self,_type:EventType) -> Vec<&Event>{
+		vec![]
+	}
 }
 
 /// The current state of the widget
@@ -53,7 +58,8 @@ pub struct WidgetBody{ // TODO this changes a lot so make these fields private
 	pub layout:Layout,
 	pub children:Vec<Box<WidgetBody>>,
 	pub intrinsic_size:IntrinsicSize, // TODO move this to the layout
-	pub state:WidgetState
+	pub state:WidgetState,
+	events:Vec<Event>
 }
 
 impl WidgetBody {
@@ -155,7 +161,8 @@ impl Default for WidgetBody {
 			layout, 
 			children:vec![], 
 			intrinsic_size: Default::default(),
-			state: WidgetState::default()
+			state: WidgetState::default(),
+			events:vec![]
 		}
 	}
 }

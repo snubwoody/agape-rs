@@ -1,10 +1,15 @@
-use std::fmt::Debug;
+use std::{collections::VecDeque, fmt::Debug};
 use winit::{event::{ElementState, MouseButton, WindowEvent}, event_loop::EventLoopProxy};
 use crate::{widgets::{Widget, WidgetBody, WidgetId, WidgetState}, Position};
 
 pub enum Event {
 	OnClick(Box<dyn FnMut()>),
 	OnHover(Box<dyn FnMut()>),
+}
+
+#[derive(Clone)]
+pub enum UserEvent {
+	OnClick(Box<dyn FnMut()>)
 }
 
 impl Debug for Event {
@@ -20,6 +25,27 @@ impl Debug for Event {
 	}
 }
 
+#[derive(Debug,Clone, Copy,PartialEq)]
+pub enum EventType {
+	Click,
+	Hover
+}
+
+#[derive(Debug)]
+pub struct EventSignal{
+	widget_id:WidgetId,
+	_type:EventType
+}
+
+impl EventSignal {
+	pub fn click(id:WidgetId) -> Self{
+		Self { 
+			widget_id: id, 
+			_type: EventType::Click 
+		}
+	}
+}
+
 #[derive(Debug)]
 pub enum Signal{
 	Hover(WidgetId),
@@ -27,22 +53,57 @@ pub enum Signal{
 }
 
 pub(crate) struct EventQueue{
-	queue:Vec<String>
+	queue:VecDeque<EventSignal>,
+	cursor_pos:Position,
 }
 
 impl EventQueue {
 	pub fn new() -> Self{
-		Self { queue: vec![] }
+		Self { 
+			queue: VecDeque::new(),
+			cursor_pos:Position::default() 
+		}
 	}
 
-	/// Push an Event to the queue.
-	pub fn push(&mut self){
-
+	pub fn run_events(
+		&self,
+		root_widget:&mut Box<dyn Widget>,
+		root_body:&WidgetBody
+	) {
+		for event in self.queue.iter(){
+			root_widget.run_events();
+		}
 	}
 
-	pub fn handle_events(&mut self,event:&winit::event::WindowEvent){
-		dbg!(event);
-		self.push();
+	/// Check if the cursor is over the [`Widget`]
+	pub fn check_click(&mut self,root_body:&WidgetBody){
+		// FIXME it's triggering slightly outside
+		let bounds = root_body.surface.get_bounds();
+		if bounds.within(&self.cursor_pos){
+			self.queue.push_back(EventSignal::click(root_body.id.clone()));
+		}
+	}
+
+	pub fn handle_events(
+		&mut self,
+		event:&winit::event::WindowEvent,
+		root_body:&WidgetBody
+	) {
+		match event {
+			WindowEvent::MouseInput { state, button,.. } => {
+				match button {
+					winit::event::MouseButton::Left => {
+						self.check_click(root_body);
+					},
+					_ => {}
+				}
+			},
+			WindowEvent::CursorMoved { position,.. } => {
+				// Update the cursor position every time it moves
+				self.cursor_pos = Position::from(*position);
+			}
+			_ => {}
+		}
 	}
 }
 
