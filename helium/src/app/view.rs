@@ -24,7 +24,7 @@ impl View {
 	pub fn handle_events(&mut self,event: winit::event::WindowEvent,window:&Window){
 		self.event_handler.handle_events(&event,&mut self.root_widget,&mut self.root_body);
 		self.event_queue.handle_events(&event,&self.root_body);
-		self.event_queue.run_events(&mut self.root_widget, &self.root_body);
+		self.event_queue.run_events(&mut self.root_widget, &mut self.root_body);
 		window.request_redraw();
 	}
 	

@@ -7,7 +7,6 @@ pub enum Event {
 	OnHover(Box<dyn FnMut()>),
 }
 
-#[derive(Clone)]
 pub enum UserEvent {
 	OnClick(Box<dyn FnMut()>)
 }
@@ -65,14 +64,20 @@ impl EventQueue {
 		}
 	}
 
+	pub fn dispatch(&self,widget_body:&mut WidgetBody){
+		for event in self.queue.iter(){
+			if event.widget_id == widget_body.id{
+				widget_body.run_events(event._type);
+			}
+		}
+	}
+
 	pub fn run_events(
 		&self,
 		root_widget:&mut Box<dyn Widget>,
-		root_body:&WidgetBody
+		root_body:&mut WidgetBody
 	) {
-		for event in self.queue.iter(){
-			root_widget.run_events();
-		}
+		self.dispatch(root_body);
 	}
 
 	/// Check if the cursor is over the [`Widget`]

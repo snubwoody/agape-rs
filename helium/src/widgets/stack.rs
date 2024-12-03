@@ -14,9 +14,7 @@ pub struct Stack {
 }
 
 impl Stack {
-
 	impl_style!();
-
 	impl_events!();
 }
 

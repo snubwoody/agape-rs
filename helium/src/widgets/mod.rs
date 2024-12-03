@@ -59,7 +59,7 @@ pub struct WidgetBody{ // TODO this changes a lot so make these fields private
 	pub children:Vec<Box<WidgetBody>>,
 	pub intrinsic_size:IntrinsicSize, // TODO move this to the layout
 	pub state:WidgetState,
-	events:Vec<Event>
+	pub events:Vec<Event>
 }
 
 impl WidgetBody {
@@ -92,6 +92,20 @@ impl WidgetBody {
 	pub fn intrinsic_size(mut self,intrinsic_size:IntrinsicSize) -> Self{
 		self.intrinsic_size = intrinsic_size;
 		self
+	}
+
+	pub fn run_events(&mut self,_type:EventType) {
+		match _type {
+			EventType::Click => {
+				for event in self.events.iter_mut(){
+					match event {
+						Event::OnClick(func) => func(),
+						_ => {}
+					}
+				}
+			},
+			EventType::Hover => {}
+		}
 	}
 
 	/// Draw the [`WidgetBody`] to the screen.
@@ -162,7 +176,7 @@ impl Default for WidgetBody {
 			children:vec![], 
 			intrinsic_size: Default::default(),
 			state: WidgetState::default(),
-			events:vec![]
+			events:vec![Event::OnClick(Box::new(||{println!("Hello world")}))]
 		}
 	}
 }
