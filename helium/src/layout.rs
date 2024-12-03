@@ -104,7 +104,7 @@ impl Layout{
 			LayoutType::Vertical => 
 				self.arrange_vertical(widgets,max_size,parent_pos),
 			LayoutType::Block => 
-				self.arrange_block(widgets,&max_size,&parent_pos),
+				self.arrange_block(widgets,max_size,parent_pos),
 		}
 	}
 
@@ -279,13 +279,13 @@ impl Layout{
 			match widget.intrinsic_size.width {
 				WidgetSize::Fill => widget.surface.width(child_max_size.width),
 				WidgetSize::Fit => widget.surface.width(size.width),
-				WidgetSize::Fixed(size) => widget.surface.width(size),
+				WidgetSize::Fixed(width) => widget.surface.width(width),
 			}
 
 			match widget.intrinsic_size.height {
 				WidgetSize::Fill => widget.surface.height(child_max_size.height),
 				WidgetSize::Fit => widget.surface.height(size.height),
-				WidgetSize::Fixed(size) => widget.surface.height(size),
+				WidgetSize::Fixed(height) => widget.surface.height(height),
 			}
 
 			if i != length - 1{
@@ -307,55 +307,46 @@ impl Layout{
 	fn arrange_block(
 		&self,
 		widgets:&mut Vec<Box<WidgetBody>>,
-		max_size:&Size,
-		parent_pos:&Position
-	) -> Size{
-		// Return if element has no children
-		if widgets.is_empty() {
-			return  Size::default()
-		}
-
+		max_size:Size,
+		parent_pos:Position
+	) -> Size {
 		let mut min_width = self.padding as f32 * 2.0;
 		let mut min_height = self.padding as f32 * 2.0;
+		let child_max_size = self.max_size(widgets, max_size);
 
-		widgets.iter_mut().for_each(|widget|{
+		if widgets.is_empty(){
+			return Size::default()
+		}
+
+		for (i,widget) in widgets.iter_mut().enumerate(){
 			widget.surface.position(
 				parent_pos.x + self.padding as f32, 
 				parent_pos.y + self.padding as f32
 			);
 
-			// If the widget has no children return
-			// it's size 
-			let size = if widget.children.is_empty() {
-				widget.surface.get_size()
-			} else{
-				widget.layout.arrange_widgets(
-					&mut widget.children, 
-					*max_size,
-					Position::new(
-						widget.surface.get_position().x,
-						widget.surface.get_position().y
-					)
-				)
-			};
-
-			min_width += size.width;
-			min_height += size.height;
+			 
+			let size = widget.layout.arrange_widgets(
+				&mut widget.children, 
+				max_size,
+				widget.surface.get_position()
+			);
 			
 			// Set the widget's size
 			match widget.intrinsic_size.width {
-				WidgetSize::Fill => widget.surface.width(max_size.width - self.padding as f32),
+				WidgetSize::Fill => widget.surface.width(child_max_size.width),
 				WidgetSize::Fit => widget.surface.width(size.width),
 				WidgetSize::Fixed(size) => widget.surface.width(size),
 			}
-
+			
 			match widget.intrinsic_size.height {
-				WidgetSize::Fill => widget.surface.height(max_size.height),
+				WidgetSize::Fill => widget.surface.height(child_max_size.height),
 				WidgetSize::Fit => widget.surface.height(size.height),
 				WidgetSize::Fixed(size) => widget.surface.height(size),
 			}
-		});
-
+			
+			min_width += widget.surface.get_size().width;
+			min_height += widget.surface.get_size().height;
+		};
 		
 		Size::new(min_width, min_height)
 	}
@@ -417,7 +408,7 @@ impl From<Size> for IntrinsicSize {
 
 #[cfg(test)]
 mod test{
-	use crate::{hstack, widgets::{Rect, Widget}};
+	use crate::widgets::{Rect, Widget};
 	use super::*;
 
 	#[test]
@@ -425,13 +416,39 @@ mod test{
 		let spacing = 12;
 		let padding = 12;
 		let window = Size::new(800.0, 800.0);
-		let mut empty_box = WidgetBody::new(); 
-		// Make sure spacing and padding don't take effect if widget is empty
-		empty_box.layout.spacing(spacing);
-		empty_box.layout.padding(padding);
-		empty_box.arrange(window);
+		let mut horizontal_empty_box = WidgetBody::new().layout(
+				Layout::horizontal().spacing(spacing).padding(padding)
+			); 
 
-		assert_eq!(empty_box.surface.get_size(),Size::new(0.0,0.0),"Empty box does not have zero size");
+		// Make sure spacing and padding don't take effect if widget is empty
+		horizontal_empty_box.arrange(window);
+		assert_eq!(
+			horizontal_empty_box.surface.get_size(),
+			Size::new(0.0,0.0),
+			"Horizontal empty box does not have zero size"
+		);
+
+		let mut vertical_empty_box = WidgetBody::new().layout(
+			Layout::vertical().spacing(spacing).padding(padding)
+		);
+
+		vertical_empty_box.arrange(window);
+		assert_eq!(
+			vertical_empty_box.surface.get_size(),
+			Size::new(0.0,0.0),
+			"Vertical empty box does not have zero size"
+		);
+
+		let mut block_empty_box = WidgetBody::new().layout(
+			Layout::block().spacing(spacing).padding(padding)
+		);
+		block_empty_box.arrange(window);
+
+		assert_eq!(
+			block_empty_box.surface.get_size(),
+			Size::new(0.0,0.0),
+			"Block empty box does not have zero size"
+		);
 	}
 
 	#[test]
@@ -461,8 +478,11 @@ mod test{
 		expected_size.width += (spacing * 3) as f32;
 		expected_size.height += (padding * 2) as f32;
 
-		assert_eq!(horizontal_box.surface.get_size(),expected_size,"Horizontal fit
-		 layout has incorrect size");
+		assert_eq!(
+			horizontal_box.surface.get_size(),
+			expected_size,
+			"Horizontal fit layout has incorrect size"
+		);
 	}
 
 	#[test]
@@ -497,7 +517,24 @@ mod test{
 
 	#[test]
 	fn test_block_fit_size(){
-		// TODO
+		let spacing = 24;
+		let padding = 24;
+		let window = Size::new(2000.0, 2000.0);
+		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		
+		let mut block_box = WidgetBody::new()
+			.layout(Layout::block().spacing(spacing).padding(padding))
+			.add_child(box1)
+			.intrinsic_size(IntrinsicSize::fit());
+
+		block_box.arrange(window);
+
+		let mut expected_size = Size::new(200.0, 200.0);
+		expected_size.width += (padding * 2) as f32;
+		expected_size.height += (padding * 2) as f32;
+		dbg!(&block_box);
+		
+		assert_eq!(block_box.surface.get_size(),expected_size);
 	}
 
 	#[test]
