@@ -1,7 +1,7 @@
 use nanoid::nanoid;
 
 use crate::{
-	app::events::{Event, Signal}, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::{text::TextSurface, Surface} 
+	app::events::{Event, }, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::{text::TextSurface, Surface} 
 };
 use super::{Widget, WidgetBody};
 
@@ -53,31 +53,6 @@ impl Widget for Text {
 			surface,
 			intrinsic_size,
 			..Default::default()
-		}
-	}
-
-	fn process_signal(&mut self,signal:&Signal) {
-		match signal {
-			Signal::Click(id) =>{
-				if id == &self.id{
-					for event in self.events.iter_mut(){
-						match event {
-							Event::OnClick(func) => func(),
-							_ => {}
-						}
-					}
-				}
-			}
-			Signal::Hover(id) => {
-				if id == &self.id{
-					for event in self.events.iter_mut(){
-						match event {
-							Event::OnHover(func)=> func(),
-							_ => {}
-						}
-					}
-				}
-			}
 		}
 	}
 }

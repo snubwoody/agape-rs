@@ -1,7 +1,11 @@
 use nanoid::nanoid;
 
 use crate::{
-	app::events::{Signal, UserEvent}, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::WidgetBody
+	app::events::EventSignal, 
+	impl_events, 
+	layout::{IntrinsicSize, Layout, WidgetSize}, 
+	surface::rect::RectSurface, 
+	widgets::WidgetBody
 };
 use helium_core::color::Color;
 use super::{text::Text, Widget};
@@ -16,7 +20,6 @@ pub struct Button{
 	width:WidgetSize,
 	height:WidgetSize,
 	events:Vec<Event>,
-	user_events:Vec<UserEvent>
 }
 
 impl Button {
@@ -29,7 +32,6 @@ impl Button {
 			width: WidgetSize::Fit,
 			height:WidgetSize::Fit,
 			events:Vec::new(),
-			user_events:vec![]
 		}
 	}
 
@@ -96,32 +98,15 @@ impl Widget for Button {
 		}
 	}
 
-	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {
-		vec![]
-	}
-
-	fn process_signal(&mut self,signal:&Signal) {
-		match signal {
-			Signal::Click(id) =>{
-				if id == &self.id{
-					for event in self.events.iter_mut(){
-						match event {
-							Event::OnClick(func) => func(),
-							_ => {}
-						}
-					}
-				}
-			}
-			Signal::Hover(id) => {
-				if id == &self.id{
-					for event in self.events.iter_mut(){
-						match event {
-							Event::OnHover(func)=> func(),
-							_ => {}
-						}
-					}
+	fn run_events(&mut self,event:&EventSignal) {
+		if event.id() == &self.id{
+			for e in &mut self.events{
+				match e {
+					Event::OnClick(func) => func(),
+					_ => {}
 				}
 			}
 		}
 	}
+
 }

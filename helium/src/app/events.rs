@@ -1,5 +1,5 @@
 use std::{collections::VecDeque, fmt::Debug};
-use winit::{event::{ElementState, MouseButton, WindowEvent}, event_loop::EventLoopProxy};
+use winit::event::{ElementState, MouseButton, WindowEvent};
 use crate::{widgets::{Widget, WidgetBody, WidgetId, WidgetState}, Position};
 
 pub enum Event {
@@ -7,8 +7,26 @@ pub enum Event {
 	OnHover(Box<dyn FnMut()>),
 }
 
-pub enum UserEvent {
-	OnClick(Box<dyn FnMut()>)
+type EventFunction = Box<dyn FnMut()>; 
+pub struct UserEvent {
+	function:EventFunction,
+	trigger:EventType
+}
+
+impl UserEvent {
+	pub fn new(f:impl FnMut() + 'static,trigger:EventType) -> Self{
+		Self { 
+			function:Box::new(f),
+			trigger 
+		}
+	}
+
+	pub fn click(f:impl FnMut() + 'static) -> Self{
+		Self { 
+			function:Box::new(f),
+			trigger:EventType::Click 
+		}
+	}
 }
 
 impl Debug for Event {
@@ -37,18 +55,15 @@ pub struct EventSignal{
 }
 
 impl EventSignal {
+	pub fn id(&self) -> &WidgetId{
+		&self.widget_id
+	}
 	pub fn click(id:WidgetId) -> Self{
 		Self { 
 			widget_id: id, 
 			_type: EventType::Click 
 		}
 	}
-}
-
-#[derive(Debug)]
-pub enum Signal{
-	Hover(WidgetId),
-	Click(WidgetId)
 }
 
 pub(crate) struct EventQueue{
@@ -64,11 +79,9 @@ impl EventQueue {
 		}
 	}
 
-	pub fn dispatch(&self,widget_body:&mut WidgetBody){
+	pub fn dispatch(&self,widget:&mut Box<dyn Widget>){
 		for event in self.queue.iter(){
-			if event.widget_id == widget_body.id{
-				widget_body.run_events(event._type);
-			}
+			widget.run_events(event);
 		}
 	}
 
@@ -77,7 +90,7 @@ impl EventQueue {
 		root_widget:&mut Box<dyn Widget>,
 		root_body:&mut WidgetBody
 	) {
-		self.dispatch(root_body);
+		self.dispatch(root_widget);
 	}
 
 	/// Check if the cursor is over the [`Widget`]
@@ -111,71 +124,3 @@ impl EventQueue {
 		}
 	}
 }
-
-/// Handles all widget events and stores useful attributes such 
-/// as the cursor position and the delta position.
-pub struct EventHandler{
-	cursor_pos: Position,
-}
-
-impl EventHandler {
-	pub fn new() -> Self{
-		Self { 
-			cursor_pos: Position::default(),
-		}
-	}
-
-	pub fn handle_events(
-		&mut self,
-		event:&winit::event::WindowEvent,
-		root_widget:&mut Box<dyn Widget>,
-		root_body:&mut WidgetBody
-	) {
-		let mut signals = vec![];
-		let bounds = root_body.surface.get_bounds();
-		let previous_state = root_body.state;
-
-		match event {
-			WindowEvent::CursorMoved { position,.. } => {
-				self.cursor_pos = position.clone().into(); // Calling clone this much might be expensive
-				if bounds.within(&self.cursor_pos){
-					root_body.state = WidgetState::Hovered;
-					match &previous_state { // Only run the on_hover once
-						&WidgetState::Default => {
-							signals.push(Signal::Hover(root_body.id.clone()));
-						},
-						_ => {}
-					}
-				} 
-				else {
-					root_body.state = WidgetState::Default;
-				}
-			}, 
-			//TODO add on_click, on_right_click, and on_all_click and pass in the mouse button (re-export types)
-			WindowEvent::MouseInput { state, button,.. } => {				
-				match button {
-					MouseButton::Left => {
-						match state {
-							ElementState::Pressed => {
-								root_body.state = WidgetState::Clicked;
-								if bounds.within(&self.cursor_pos){
-									signals.push(Signal::Click(root_body.id.clone()));
-								}
-							},
-							ElementState::Released => {
-								root_body.state = WidgetState::Default
-							}
-						}
-					},
-					_ => {}
-				}
-			}
-			_ => {}
-		}
-
-		for signal in signals.iter(){
-			root_widget.process_signal(signal);
-		}
-	}
-}
-

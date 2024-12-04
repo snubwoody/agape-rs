@@ -1,7 +1,7 @@
 use tokio::time::Sleep;
 
 use crate::{
-    app::events::{self, Event, Signal}, impl_events, impl_style, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}, Color
+    app::events::{self, Event, }, impl_events, impl_style, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}, Color
 };
 
 // TODO make fields private
@@ -15,6 +15,7 @@ pub struct Stack {
 
 impl Stack {
 	impl_style!();
+
 	impl_events!();
 }
 
@@ -41,40 +42,6 @@ impl Widget for Stack {
             ..Default::default()
         }
     }
-
-    fn get_children(self: Box<Self>) -> Vec<Box<dyn Widget>> {
-        self.children
-    }
-
-    fn get_children_ref(&self) -> Vec<&Box<dyn Widget>> {
-        self.children.iter().map(|child| child).collect()
-    }
-
-	fn process_signal(&mut self,signal:&Signal) {
-		
-		match signal {
-			Signal::Click(id) =>{
-				if id == &self.id{
-					for event in self.events.iter_mut(){
-						match event {
-							Event::OnClick(func) => func(),
-							_ => {}
-						}
-					}
-				}
-			}
-			Signal::Hover(id) => {
-				if id == &self.id{
-					for event in self.events.iter_mut(){
-						match event {
-							Event::OnHover(func)=> func(),
-							_ => {}
-						}
-					}
-				}
-			}
-		}
-	}
 }
 
 #[macro_export]

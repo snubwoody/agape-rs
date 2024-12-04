@@ -1,5 +1,5 @@
 use super::{Widget, WidgetBody};
-use crate::app::events::{Event, Signal};
+use crate::app::events::{Event, };
 use crate::Color;
 use crate::impl_events;
 use crate::layout::{IntrinsicSize, Layout, WidgetSize};
@@ -65,29 +65,5 @@ impl Widget for Rect {
         }
     }
 
-	fn process_signal(&mut self,signal:&Signal) {
-		match signal {
-			Signal::Click(id) =>{
-				if id == &self.id{
-					for event in self.events.iter_mut(){
-						match event {
-							Event::OnClick(func) => func(),
-							_ => {}
-						}
-					}
-				}
-			}
-			Signal::Hover(id) => {
-				if id == &self.id{
-					for event in self.events.iter_mut(){
-						match event {
-							Event::OnHover(func)=> func(),
-							_ => {}
-						}
-					}
-				}
-			}
-		}
-	}
 }
 

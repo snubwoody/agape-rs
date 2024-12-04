@@ -10,7 +10,7 @@ pub use button::Button;
 pub use stack::Stack;
 pub use container::Container;
 use crate::{
-	app::{events::{Event, EventType, Signal}, AppState}, 
+	app::{events::{Event, EventSignal, EventType, }, AppState}, 
 	layout::{IntrinsicSize, Layout, WidgetSize}, 
 	surface::{
 		rect::RectSurface, Surface
@@ -23,21 +23,14 @@ pub type WidgetId = String;
 
 /// The trait that all widgets must implement.
 pub trait Widget{
+	// I've changed this between &self and self, a couple times and my conclusion is 
+	// just keep it as &self forever, it makes it way easier to compose multiple sub-widgets.
+
 	/// Build the [`Widget`] into a primitive [`WidgetBody`] for
 	/// rendering.
 	fn build(&self) -> WidgetBody;
   
-	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {vec![]}
-
-	fn get_children_ref(&self) -> Vec<&Box<dyn Widget>> {vec![]}
-
-	/// Process signals sent from the [`EventHandler`].
-	fn process_signal(&mut self,signal:&Signal);
-
-	fn run_events(&mut self){}
-	fn get_events(&mut self,_type:EventType) -> Vec<&Event>{
-		vec![]
-	}
+	fn run_events(&mut self,event:&EventSignal){}
 }
 
 /// The current state of the widget
@@ -49,6 +42,7 @@ pub enum WidgetState{
 	Clicked
 }
 
+// TODO maybe implement iter
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
 #[derive(Debug)]
