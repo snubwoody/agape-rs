@@ -1,9 +1,6 @@
 use nanoid::nanoid;
 use crate::{
-	app::events::{EventSignal, EventType}, 
-	layout::{IntrinsicSize, Layout, WidgetSize}, 
-	surface::rect::RectSurface, 
-	widgets::WidgetBody
+	app::events::{EventQueue,UserEvent}, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::WidgetBody
 };
 use helium_core::color::Color;
 use super::{text::Text, Widget, WidgetId};
@@ -54,11 +51,13 @@ impl Button {
 		self.height = WidgetSize::Fixed(height);
 		self
 	}
-
+	
 	pub fn fill(mut self) -> Self{
 		self.width = WidgetSize::Fill;
 		self
 	}
+	
+	impl_events!();
 }
 
 // FIXME button text not working
@@ -70,7 +69,7 @@ impl Widget for Button {
 
 		let layout = Layout::new().padding(self.padding);
 
-		let text_body = Box::new(Text::new(&self.text)).build();
+		let text_body = Text::new(&self.text).build();
 
 		let intrinsic_size = IntrinsicSize{
 			width:self.width,

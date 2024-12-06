@@ -21,13 +21,6 @@ impl UserEvent {
 			id,
 		}
 	}
-
-	pub fn click(id:WidgetId,f:Event) -> Self{
-		Self { 
-			function:f,
-			id
-		}
-	}
 }
 
 impl Debug for Event {
@@ -43,52 +36,9 @@ impl Debug for Event {
 	}
 }
 
-pub struct EventLoop{
-	queue:Vec<UserEvent>
-}
-
-impl EventLoop {
-	pub fn new() -> Self{
-		Self { queue: vec![] }
-	}
-
-	pub fn push(&mut self, event:UserEvent){
-		self.queue.push(event);
-	}
-}
-
-#[derive(Debug,Clone, Copy,PartialEq)]
-pub enum EventType {
-	Click,
-	Hover
-}
-
-#[derive(Debug)]
-pub struct EventSignal{
-	widget_id:WidgetId,
-	_type:EventType
-}
-
-impl EventSignal {
-	pub fn id(&self) -> &WidgetId{
-		&self.widget_id
-	}
-
-	pub fn get_type(&self) -> EventType{
-		self._type
-	}
-
-	pub fn click(id:WidgetId) -> Self{
-		Self { 
-			widget_id: id, 
-			_type: EventType::Click 
-		}
-	}
-}
-
+// TODO test this
 #[derive(Debug)]
 pub struct EventQueue{
-	queue:Vec<EventSignal>,
 	cursor_pos:Position,
 	_loop:Vec<UserEvent>
 }
@@ -96,7 +46,6 @@ pub struct EventQueue{
 impl EventQueue {
 	pub fn new() -> Self{
 		Self { 
-			queue: Vec::new(),
 			cursor_pos:Position::default(),
 			_loop:vec![]
 		}
@@ -106,23 +55,10 @@ impl EventQueue {
 		self._loop.push(event);
 	}
 
-	pub fn queue(&self) -> &[EventSignal]{
-		&self.queue
-	}
-
-	/// Get all the events relevant to the current widget by id
-	pub fn get_events(&mut self,id:&str) -> Vec<&EventSignal> {
-		let events = self.queue.iter().filter(|event|event.id() == &id).collect::<Vec<&EventSignal>>();
-		events
-	}
-
 	/// Check if the cursor is over the [`Widget`]
 	pub fn check_click(&mut self,root_body:&WidgetBody){
 		// FIXME it's triggering slightly outside
 		let bounds = root_body.surface.get_bounds();
-		if bounds.within(&self.cursor_pos){
-			self.queue.push(EventSignal::click(root_body.id.clone()));
-		}
 
 		if !bounds.within(&self.cursor_pos){
 			return;
@@ -164,5 +100,26 @@ impl EventQueue {
 			}
 			_ => {}
 		}
+
+		root_body.children.iter().for_each(|child|self.handle_events(event, &child));
+	}
+}
+
+#[macro_export]
+macro_rules! impl_events {
+	() => {
+		pub fn on_click(self,event_loop:&mut EventQueue,f:impl FnMut() + 'static) -> Self{
+			event_loop.push(UserEvent::new(self.id.clone(), Event::OnClick(Box::new(f))));
+			self
+		}
+	};
+}
+
+
+#[cfg(test)]
+mod test{
+	#[test]
+	fn test_nested_events(){
+
 	}
 }
