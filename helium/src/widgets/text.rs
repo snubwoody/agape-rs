@@ -1,7 +1,7 @@
 use nanoid::nanoid;
 
 use crate::{
-	app::events::{Event, }, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::{text::TextSurface, Surface} 
+	app::events::{Event, }, layout::{IntrinsicSize, Layout, WidgetSize}, surface::{text::TextSurface, Surface} 
 };
 use super::{Widget, WidgetBody};
 
@@ -9,7 +9,6 @@ pub struct Text{
 	id:String,
 	text:String,
 	font_size:u8,
-	events: Vec<Event>
 }
 
 impl Text {
@@ -18,7 +17,6 @@ impl Text {
 			id:nanoid!(),
 			text:text.into(), 
 			font_size:16,
-			events: Vec::new()
 		}	
 	}
 
@@ -27,8 +25,6 @@ impl Text {
 		self.font_size = size;
 		self
 	}
-
-	impl_events!();
 }
 
 impl Widget for Text {

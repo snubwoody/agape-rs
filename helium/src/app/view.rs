@@ -23,8 +23,6 @@ impl View {
 		// Pass the events to the event manager to determine which events have fired
 		// for which widgets.
 		self.event_queue.handle_events(&event,&self.root_body); // TODO should return vec instead
-		// Pass the event queue down the widget tree, middleware style
-		self.root_widget.handle_events(&mut self.event_queue);
 		window.request_redraw();
 	}
 	

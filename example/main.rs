@@ -1,5 +1,5 @@
 use helium::{
-    app::{events::{Event, EventLoop, EventQueue, UserEvent}, view::View, App}, hex, 
+    app::{events::{Event,EventQueue, UserEvent}, view::View, App}, hex, 
 	widgets::Button,
 };
 

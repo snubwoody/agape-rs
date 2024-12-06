@@ -29,9 +29,6 @@ pub trait Widget{
 	/// Build the [`Widget`] into a primitive [`WidgetBody`] for
 	/// rendering.
 	fn build(&self) -> WidgetBody;
-  
-	fn run_events(&mut self,event:&EventSignal){}
-	fn handle_events(&mut self,queue:&mut EventQueue){}
 }
 
 /// The current state of the widget
@@ -158,23 +155,6 @@ impl Default for WidgetBody {
 			state: WidgetState::default(),
 		}
 	}
-}
-
-
-/// Implement the events for the widgets.
-#[macro_export]
-macro_rules! impl_events {
-	() => {
-		pub fn on_click(mut self, event: impl FnMut() + 'static ) -> Self {
-			self.events.push(Event::OnClick(Box::new(event)));
-			self
-		}
-	
-		pub fn on_hover(mut self, event: impl FnMut() + 'static ) -> Self {
-			self.events.push(Event::OnHover(Box::new(event)));
-			self
-		}
-	};
 }
 
 

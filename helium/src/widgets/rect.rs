@@ -1,7 +1,6 @@
 use super::{Widget, WidgetBody};
 use crate::app::events::{Event, };
 use crate::Color;
-use crate::impl_events;
 use crate::layout::{IntrinsicSize, Layout, WidgetSize};
 use crate::surface::rect::RectSurface;
 use crate::Size;
@@ -44,8 +43,6 @@ impl Rect {
 		self.intrinsic_size.fill_height();
 		self
 	}
-
-	impl_events!();
 }
 
 impl Widget for Rect {

@@ -1,7 +1,7 @@
 use tokio::time::Sleep;
 
 use crate::{
-    app::events::{self, Event, }, impl_events, impl_style, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}, Color
+    app::events::{self, Event, }, impl_style, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}, Color
 };
 
 // TODO make fields private
@@ -10,13 +10,10 @@ pub struct Stack {
     pub children: Vec<Box<dyn Widget>>,
     pub layout: Layout,
     pub color: Color,
-    pub events: Vec<Event>,
 }
 
 impl Stack {
 	impl_style!();
-
-	impl_events!();
 }
 
 impl Widget for Stack {
@@ -44,6 +41,7 @@ impl Widget for Stack {
     }
 }
 
+// TODO test these macros pls
 #[macro_export]
 macro_rules! vstack {
 	($($child:expr),*) => {
@@ -58,7 +56,6 @@ macro_rules! vstack {
 						Box::new($child),
 					)*
 				],
-				events: Vec::new(),
 			}
 		}
 		
@@ -79,7 +76,6 @@ macro_rules! hstack {
 						Box::new($child),
 					)*
 				],
-				events: Vec::new(),
 			}
 		}
 		

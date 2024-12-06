@@ -1,7 +1,6 @@
 use nanoid::nanoid;
 use crate::{
 	app::events::{EventSignal, EventType}, 
-	impl_events, 
 	layout::{IntrinsicSize, Layout, WidgetSize}, 
 	surface::rect::RectSurface, 
 	widgets::WidgetBody
@@ -18,7 +17,6 @@ pub struct Button{
 	padding:u32,
 	width:WidgetSize,
 	height:WidgetSize,
-	events:Vec<Event>,
 }
 
 impl Button {
@@ -30,7 +28,6 @@ impl Button {
 			padding:12,
 			width: WidgetSize::Fit,
 			height:WidgetSize::Fit,
-			events:Vec::new(),
 		}
 	}
 
@@ -62,15 +59,6 @@ impl Button {
 		self.width = WidgetSize::Fill;
 		self
 	}
-
-	pub fn tap(mut self,event: impl FnMut() + 'static) -> Self{
-		self.events.push(
-			Event::OnClick(Box::new(event))
-		);
-		self
-	}
-
-	impl_events!();
 }
 
 // FIXME button text not working
@@ -100,25 +88,4 @@ impl Widget for Button {
 			..Default::default()
 		}
 	}
-
-	fn run_events(&mut self,event:&EventSignal) {
-		
-	}
-
-	fn handle_events(&mut self,queue:&mut crate::app::events::EventQueue) {
-		for event in queue.get_events(&self.id){
-			match event.get_type() {
-				EventType::Click => {
-					for e in &mut self.events{
-						match e {
-							Event::OnClick(func) => func(),
-							_ => {}
-						}
-					}
-				},
-				_ => {}
-			}
-		}
-	}
-
 }
