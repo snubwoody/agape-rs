@@ -1,10 +1,9 @@
 use nanoid::nanoid;
-
 use crate::{
-	app::events::Signal, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::WidgetBody
+	app::events::{EventQueue,UserEvent}, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::WidgetBody
 };
 use helium_core::color::Color;
-use super::{text::Text, Widget};
+use super::{text::Text, Widget, WidgetId};
 use crate::app::events::Event;
 
 /// A simple button.
@@ -13,9 +12,8 @@ pub struct Button{
 	text:String,
 	color:Color,
 	padding:u32,
-	width: WidgetSize,
-	height: WidgetSize,
-	events: Vec<Event>
+	width:WidgetSize,
+	height:WidgetSize,
 }
 
 impl Button {
@@ -27,8 +25,11 @@ impl Button {
 			padding:12,
 			width: WidgetSize::Fit,
 			height:WidgetSize::Fit,
-			events:Vec::new()
 		}
+	}
+
+	pub fn get_id(&self) -> WidgetId{
+		self.id.clone()
 	}
 
 	pub fn color(mut self,color:Color) -> Self {
@@ -50,12 +51,12 @@ impl Button {
 		self.height = WidgetSize::Fixed(height);
 		self
 	}
-
+	
 	pub fn fill(mut self) -> Self{
 		self.width = WidgetSize::Fill;
 		self
 	}
-
+	
 	impl_events!();
 }
 
@@ -66,9 +67,7 @@ impl Widget for Button {
 			RectSurface::new(0.0, 0.0, 200.0, 70.0, self.color.clone())
 		);
 
-		// FIXME redundant put this in the struct
-		let mut layout = Layout::new();
-		layout.padding(self.padding);
+		let layout = Layout::new().padding(self.padding);
 
 		let text_body = Text::new(&self.text).build();
 
@@ -88,34 +87,4 @@ impl Widget for Button {
 			..Default::default()
 		}
 	}
-
-	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {
-		vec![]
-	}
-
-	fn process_signal(&mut self,signal:&Signal) {
-		match signal {
-			Signal::Click(id) =>{
-				if id == &self.id{
-					for event in self.events.iter_mut(){
-						match event {
-							Event::OnClick(func) => func(),
-							_ => {}
-						}
-					}
-				}
-			}
-			Signal::Hover(id) => {
-				if id == &self.id{
-					for event in self.events.iter_mut(){
-						match event {
-							Event::OnHover(func)=> func(),
-							_ => {}
-						}
-					}
-				}
-			}
-		}
-	}
-
 }

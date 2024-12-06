@@ -10,7 +10,7 @@ pub use button::Button;
 pub use stack::Stack;
 pub use container::Container;
 use crate::{
-	app::{events::Signal, AppState}, 
+	app::AppState, 
 	layout::{IntrinsicSize, Layout, WidgetSize}, 
 	surface::{
 		rect::RectSurface, Surface
@@ -19,57 +19,16 @@ use crate::{
 use helium_core::position::Position;
 use helium_core::size::Size;
 
-/// Implement the events for the widgets.
-#[macro_export]
-macro_rules! impl_events {
-	() => {
-		pub fn on_click(mut self, event: impl FnMut() + 'static ) -> Self {
-			self.events.push(Event::OnClick(Box::new(event)));
-			self
-		}
-	
-		pub fn on_hover(mut self, event: impl FnMut() + 'static ) -> Self {
-			self.events.push(Event::OnHover(Box::new(event)));
-			self
-		}
-	};
-}
-
-
-/// Implement common styling attributes
-#[macro_export]
-macro_rules! impl_style {
-	() => {
-		/// Change the [`Color`] of a [`Widget`].
-		pub fn color(mut self,color:crate::Color) -> Self{
-			self.color = color;
-			self
-		} 
-
-		pub fn spacing(mut self, spacing: u32) -> Self {
-			self.layout = self.layout.spacing(spacing);
-			self
-		}
-	
-		pub fn padding(mut self,padding:u32) -> Self{
-			self.layout = self.layout.padding(padding);
-			self
-		}
-	};
-}
+pub type WidgetId = String;
 
 /// The trait that all widgets must implement.
 pub trait Widget{
+	// I've changed this between &self and self, a couple times and my conclusion is 
+	// just keep it as &self forever, it makes it way easier to compose multiple sub-widgets.
+
 	/// Build the [`Widget`] into a primitive [`WidgetBody`] for
 	/// rendering.
 	fn build(&self) -> WidgetBody;
-  
-	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {vec![]}
-
-	fn get_children_ref(&self) -> Vec<&Box<dyn Widget>> {vec![]}
-
-	/// Process signals sent from the [`EventHandler`].
-	fn process_signal(&mut self,signal:&Signal);
 }
 
 /// The current state of the widget
@@ -81,16 +40,17 @@ pub enum WidgetState{
 	Clicked
 }
 
+// TODO maybe implement iter
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
 #[derive(Debug)]
 pub struct WidgetBody{ // TODO this changes a lot so make these fields private
-	pub id:String,
+	pub id:WidgetId,
 	pub surface:Box<dyn Surface>,
 	pub layout:Layout,
 	pub children:Vec<Box<WidgetBody>>,
 	pub intrinsic_size:IntrinsicSize, // TODO move this to the layout
-	pub state:WidgetState
+	pub state:WidgetState,
 }
 
 impl WidgetBody {
@@ -192,7 +152,30 @@ impl Default for WidgetBody {
 			layout, 
 			children:vec![], 
 			intrinsic_size: Default::default(),
-			state: WidgetState::default()
+			state: WidgetState::default(),
 		}
 	}
+}
+
+
+/// Implement common styling attributes
+#[macro_export]
+macro_rules! impl_style {
+	() => {
+		/// Change the [`Color`] of a [`Widget`].
+		pub fn color(mut self,color:crate::Color) -> Self{
+			self.color = color;
+			self
+		} 
+
+		pub fn spacing(mut self, spacing: u32) -> Self {
+			self.layout = self.layout.spacing(spacing);
+			self
+		}
+	
+		pub fn padding(mut self,padding:u32) -> Self{
+			self.layout = self.layout.padding(padding);
+			self
+		}
+	};
 }

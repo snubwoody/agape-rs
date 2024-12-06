@@ -1,26 +1,28 @@
 use winit::window::Window;
 
 use crate::widgets::{Widget, WidgetBody};
-use super::{events::EventHandler, AppState};
+use super::{events::{ EventQueue}, AppState};
 
 /// A page
 pub struct View{
 	root_widget:Box<dyn Widget>,
 	root_body:WidgetBody,
-	event_handler:EventHandler
+	event_queue:EventQueue,
 }
 
 impl View {
-	pub fn new(root_widget:impl Widget + 'static) -> Self {
+	pub fn new(root_widget:impl Widget + 'static,event_queue:EventQueue) -> Self {
 		Self { 
 			root_body:root_widget.build(),
 			root_widget:Box::new(root_widget),
-			event_handler: EventHandler::new()
+			event_queue
 		}
 	}
 
 	pub fn handle_events(&mut self,event: winit::event::WindowEvent,window:&Window){
-		self.event_handler.handle_events(&event,&mut self.root_widget,&mut self.root_body);
+		// Pass the events to the event manager to determine which events have fired
+		// for which widgets.
+		self.event_queue.handle_events(&event,&self.root_body); // TODO should return vec instead
 		window.request_redraw();
 	}
 	
