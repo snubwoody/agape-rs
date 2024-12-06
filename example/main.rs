@@ -1,5 +1,6 @@
 use helium::{
-    app::{view::View, App}, hex, hstack, vstack, widgets::{Button, Container, Rect, Text, Widget}, BLACK
+    app::{events::{Event, EventLoop, EventQueue, UserEvent}, view::View, App}, hex, 
+	widgets::Button,
 };
 
 fn main() {
@@ -8,14 +9,20 @@ fn main() {
 }
 
 fn app(){
+	let mut event_loop = EventQueue::new();
 	// FIXME somehow has a block layout
 	let button = Button::new("Hello world")
-		.tap(||{println!("I was tapped")})
 		.padding(12)
 		.color(hex!("#aaabbb"));
 
-	let page = View::new(button);
-  	let app = App::new().add_view(page);
-    
-	app.run();
+	event_loop.push(UserEvent::new(
+		button.get_id(), 
+		Event::OnClick(Box::new(||{println!("Heyy!!")}))
+	));
+	
+	let page = View::new(button,event_loop);
+  	
+	App::new()
+	.add_view(page)
+	.run();
 }

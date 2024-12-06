@@ -1,14 +1,13 @@
 use nanoid::nanoid;
-
 use crate::{
-	app::events::EventSignal, 
+	app::events::{EventSignal, EventType}, 
 	impl_events, 
 	layout::{IntrinsicSize, Layout, WidgetSize}, 
 	surface::rect::RectSurface, 
 	widgets::WidgetBody
 };
 use helium_core::color::Color;
-use super::{text::Text, Widget};
+use super::{text::Text, Widget, WidgetId};
 use crate::app::events::Event;
 
 /// A simple button.
@@ -33,6 +32,10 @@ impl Button {
 			height:WidgetSize::Fit,
 			events:Vec::new(),
 		}
+	}
+
+	pub fn get_id(&self) -> WidgetId{
+		self.id.clone()
 	}
 
 	pub fn color(mut self,color:Color) -> Self {
@@ -79,7 +82,7 @@ impl Widget for Button {
 
 		let layout = Layout::new().padding(self.padding);
 
-		let text_body = Text::new(&self.text).build();
+		let text_body = Box::new(Text::new(&self.text)).build();
 
 		let intrinsic_size = IntrinsicSize{
 			width:self.width,
@@ -99,12 +102,21 @@ impl Widget for Button {
 	}
 
 	fn run_events(&mut self,event:&EventSignal) {
-		if event.id() == &self.id{
-			for e in &mut self.events{
-				match e {
-					Event::OnClick(func) => func(),
-					_ => {}
-				}
+		
+	}
+
+	fn handle_events(&mut self,queue:&mut crate::app::events::EventQueue) {
+		for event in queue.get_events(&self.id){
+			match event.get_type() {
+				EventType::Click => {
+					for e in &mut self.events{
+						match e {
+							Event::OnClick(func) => func(),
+							_ => {}
+						}
+					}
+				},
+				_ => {}
 			}
 		}
 	}

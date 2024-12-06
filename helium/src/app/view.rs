@@ -1,7 +1,7 @@
 use winit::window::Window;
 
 use crate::widgets::{Widget, WidgetBody};
-use super::{events::{EventQueue}, AppState};
+use super::{events::{ EventQueue}, AppState};
 
 /// A page
 pub struct View{
@@ -11,17 +11,20 @@ pub struct View{
 }
 
 impl View {
-	pub fn new(root_widget:impl Widget + 'static) -> Self {
+	pub fn new(root_widget:impl Widget + 'static,event_queue:EventQueue) -> Self {
 		Self { 
 			root_body:root_widget.build(),
 			root_widget:Box::new(root_widget),
-			event_queue:EventQueue::new(),
+			event_queue
 		}
 	}
 
 	pub fn handle_events(&mut self,event: winit::event::WindowEvent,window:&Window){
-		self.event_queue.handle_events(&event,&self.root_body);
-		self.event_queue.run_events(&mut self.root_widget, &mut self.root_body);
+		// Pass the events to the event manager to determine which events have fired
+		// for which widgets.
+		self.event_queue.handle_events(&event,&self.root_body); // TODO should return vec instead
+		// Pass the event queue down the widget tree, middleware style
+		self.root_widget.handle_events(&mut self.event_queue);
 		window.request_redraw();
 	}
 	

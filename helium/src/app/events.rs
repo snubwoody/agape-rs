@@ -2,29 +2,30 @@ use std::{collections::VecDeque, fmt::Debug};
 use winit::event::{ElementState, MouseButton, WindowEvent};
 use crate::{widgets::{Widget, WidgetBody, WidgetId, WidgetState}, Position};
 
+type EventFunction = Box<dyn FnMut()>; 
 pub enum Event {
-	OnClick(Box<dyn FnMut()>),
-	OnHover(Box<dyn FnMut()>),
+	OnClick(EventFunction),
+	OnHover(EventFunction),
 }
 
-type EventFunction = Box<dyn FnMut()>; 
+#[derive(Debug)]
 pub struct UserEvent {
-	function:EventFunction,
-	trigger:EventType
+	function:Event,
+	id:WidgetId
 }
 
 impl UserEvent {
-	pub fn new(f:impl FnMut() + 'static,trigger:EventType) -> Self{
+	pub fn new(id:WidgetId,f:Event) -> Self{
 		Self { 
-			function:Box::new(f),
-			trigger 
+			function:f,
+			id,
 		}
 	}
 
-	pub fn click(f:impl FnMut() + 'static) -> Self{
+	pub fn click(id:WidgetId,f:Event) -> Self{
 		Self { 
-			function:Box::new(f),
-			trigger:EventType::Click 
+			function:f,
+			id
 		}
 	}
 }
@@ -39,6 +40,20 @@ impl Debug for Event {
 				f.debug_tuple("OnHover()").finish()
 			},
 		}
+	}
+}
+
+pub struct EventLoop{
+	queue:Vec<UserEvent>
+}
+
+impl EventLoop {
+	pub fn new() -> Self{
+		Self { queue: vec![] }
+	}
+
+	pub fn push(&mut self, event:UserEvent){
+		self.queue.push(event);
 	}
 }
 
@@ -58,6 +73,11 @@ impl EventSignal {
 	pub fn id(&self) -> &WidgetId{
 		&self.widget_id
 	}
+
+	pub fn get_type(&self) -> EventType{
+		self._type
+	}
+
 	pub fn click(id:WidgetId) -> Self{
 		Self { 
 			widget_id: id, 
@@ -66,31 +86,34 @@ impl EventSignal {
 	}
 }
 
-pub(crate) struct EventQueue{
-	queue:VecDeque<EventSignal>,
+#[derive(Debug)]
+pub struct EventQueue{
+	queue:Vec<EventSignal>,
 	cursor_pos:Position,
+	_loop:Vec<UserEvent>
 }
 
 impl EventQueue {
 	pub fn new() -> Self{
 		Self { 
-			queue: VecDeque::new(),
-			cursor_pos:Position::default() 
+			queue: Vec::new(),
+			cursor_pos:Position::default(),
+			_loop:vec![]
 		}
 	}
 
-	pub fn dispatch(&self,widget:&mut Box<dyn Widget>){
-		for event in self.queue.iter(){
-			widget.run_events(event);
-		}
+	pub fn push(&mut self,event:UserEvent){
+		self._loop.push(event);
 	}
 
-	pub fn run_events(
-		&self,
-		root_widget:&mut Box<dyn Widget>,
-		root_body:&mut WidgetBody
-	) {
-		self.dispatch(root_widget);
+	pub fn queue(&self) -> &[EventSignal]{
+		&self.queue
+	}
+
+	/// Get all the events relevant to the current widget by id
+	pub fn get_events(&mut self,id:&str) -> Vec<&EventSignal> {
+		let events = self.queue.iter().filter(|event|event.id() == &id).collect::<Vec<&EventSignal>>();
+		events
 	}
 
 	/// Check if the cursor is over the [`Widget`]
@@ -98,7 +121,19 @@ impl EventQueue {
 		// FIXME it's triggering slightly outside
 		let bounds = root_body.surface.get_bounds();
 		if bounds.within(&self.cursor_pos){
-			self.queue.push_back(EventSignal::click(root_body.id.clone()));
+			self.queue.push(EventSignal::click(root_body.id.clone()));
+		}
+
+		if !bounds.within(&self.cursor_pos){
+			return;
+		}
+
+		for e in &mut self._loop{
+			if e.id != root_body.id{continue}
+			match &mut e.function {
+				Event::OnClick(func) => func(),
+				_ => {}
+			}
 		}
 	}
 
@@ -111,7 +146,14 @@ impl EventQueue {
 			WindowEvent::MouseInput { state, button,.. } => {
 				match button {
 					winit::event::MouseButton::Left => {
-						self.check_click(root_body);
+						match state {
+							winit::event::ElementState::Pressed => {
+								self.check_click(root_body);
+							},
+							winit::event::ElementState::Released => {
+
+							}
+						}
 					},
 					_ => {}
 				}

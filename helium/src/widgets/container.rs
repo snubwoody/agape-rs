@@ -38,13 +38,13 @@ impl Widget for Container {
             ..Default::default()
         });
 
-        let child = self.child.build();
+
 
         WidgetBody {
 			id:self.id.clone(),
             surface,
             layout:self.layout,
-            children: vec![Box::new(child)],
+            children: vec![Box::new(self.child.build())],
             ..Default::default()
         }
     }
