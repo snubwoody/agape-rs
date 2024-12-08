@@ -35,9 +35,7 @@ impl Widget for Container {
             ..Default::default()
         });
 
-
-
-        WidgetBody {
+		WidgetBody {
 			id:self.id.clone(),
             surface,
             layout:self.layout,

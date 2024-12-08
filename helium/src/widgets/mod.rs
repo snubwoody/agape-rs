@@ -3,12 +3,14 @@ mod stack;
 mod container;
 mod text;
 mod button;
+mod circle;
 use nanoid::nanoid;
 pub use rect::Rect;
 pub use text::Text;
 pub use button::Button;
 pub use stack::Stack;
 pub use container::Container;
+pub use circle::Circle;
 use crate::{
 	app::AppState, 
 	layout::{IntrinsicSize, Layout, WidgetSize}, 

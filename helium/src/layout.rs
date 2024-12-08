@@ -419,7 +419,7 @@ mod test{
 		let window = Size::new(800.0, 800.0);
 		let mut horizontal_empty_box = WidgetBody::new().layout(
 				Layout::horizontal().spacing(spacing).padding(padding)
-			); 
+		); 
 
 		// Make sure spacing and padding don't take effect if widget is empty
 		horizontal_empty_box.arrange(window);

@@ -4,6 +4,7 @@ use wgpu::{
 use crate::vertex::Vertex;
 use helium_core::size::Size;
 
+// TODO pls refactor this long and ugly code, there's a lot of reused code;
 /// Holds the render pipeline
 #[derive(Debug)]
 pub struct RectRenderer{
@@ -105,6 +106,143 @@ impl RectRenderer {
 		let render_pipeline = device.create_render_pipeline(
 			&RenderPipelineDescriptor { 
 				label: Some("Rect Render Pipeline"), 
+				layout: Some(&render_pipeline_layout), 
+				vertex: VertexState{
+					module: &shader,
+					entry_point: "vs_main",
+					compilation_options: Default::default(),
+					buffers: &[buffer_layout]
+				}, 
+				fragment: Some(FragmentState{
+					module: &shader,
+					entry_point: "fs_main",
+					compilation_options: Default::default(),
+					targets: &[Some(ColorTargetState {
+						format: config.format,
+						blend: Some(wgpu::BlendState::ALPHA_BLENDING),
+						write_mask: wgpu::ColorWrites::ALL,
+					})]
+				}), 
+				primitive: PrimitiveState{
+					topology: wgpu::PrimitiveTopology::TriangleList,
+                	strip_index_format: None,
+                	front_face: wgpu::FrontFace::Ccw,
+                	cull_mode: None,
+                	unclipped_depth: false,
+                	polygon_mode: wgpu::PolygonMode::Fill,
+                	conservative: false,
+				}, 
+				multisample: MultisampleState {
+					count: 1,
+					mask: !0,
+					alpha_to_coverage_enabled: false,
+				}, 
+				depth_stencil: None, 
+				multiview: None, 
+				cache: None 
+			}
+		);
+
+		
+		Self { 
+			render_pipeline, 
+			window_bind_group:window_uniform.bind_group, 
+			bounds_layout,
+			window_buffer:window_uniform.buffer
+		}
+	}
+}
+/// Holds the render pipeline
+#[derive(Debug)]
+pub struct CicleRenderer{
+	pub render_pipeline: wgpu::RenderPipeline,
+	pub window_bind_group: wgpu::BindGroup,
+	pub bounds_layout: wgpu::BindGroupLayout,
+    pub window_buffer: wgpu::Buffer,
+}
+
+impl CicleRenderer {
+	pub fn new(
+		device: &wgpu::Device,
+		config: &wgpu::SurfaceConfiguration,
+		size:&Size
+	) -> Self {
+		// Compile the shader
+		let shader = device.create_shader_module(
+			ShaderModuleDescriptor{
+				label: Some("Circle Shader Module"),
+				source: ShaderSource::Wgsl(include_str!("../shaders/rect.wgsl").into())
+			}
+		);
+
+		let window_uniform = 
+			UniformBuilder::new()
+			.label("Window")
+			.contents(vec![size.width,size.height])
+			.build(device);
+
+		let bounds_layout = device.create_bind_group_layout(
+			&wgpu::BindGroupLayoutDescriptor{
+				label:Some("Circle bounds layout"),
+				entries:&[
+					wgpu::BindGroupLayoutEntry{
+						binding:0,
+						visibility:wgpu::ShaderStages::FRAGMENT,
+						ty: wgpu::BindingType::Buffer { 
+							ty: wgpu::BufferBindingType::Uniform, 
+							has_dynamic_offset: false, 
+							min_binding_size: None 
+						},
+						count:None
+					},
+					wgpu::BindGroupLayoutEntry{
+						binding:1,
+						visibility:wgpu::ShaderStages::FRAGMENT,
+						ty: wgpu::BindingType::Buffer { 
+							ty: wgpu::BufferBindingType::Uniform, 
+							has_dynamic_offset: false, 
+							min_binding_size: None 
+						},
+						count:None
+					},
+				],
+			}
+		);
+
+		let buffer_layout = VertexBufferLayout { 
+			array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress, 
+			step_mode: wgpu::VertexStepMode::Vertex, 
+			attributes: &[
+				VertexAttribute{
+					offset: 0,
+					shader_location: 0,
+					format: wgpu::VertexFormat::Float32x2
+				},
+				VertexAttribute{
+					offset: size_of::<[f32;2]>() as wgpu::BufferAddress,
+					shader_location: 1,
+					format: wgpu::VertexFormat::Float32x4
+				},
+				VertexAttribute{
+					offset: size_of::<[f32;6]>() as wgpu::BufferAddress,
+					shader_location: 2,
+					format: wgpu::VertexFormat::Float32x2 
+				},
+			]
+		};
+
+		let render_pipeline_layout = 
+			device.create_pipeline_layout(
+				&PipelineLayoutDescriptor{
+					label: Some("Circle Pipeline Layout"),
+					bind_group_layouts: &[window_uniform.layout(),&bounds_layout],
+					push_constant_ranges: &[]
+				}
+			);
+
+		let render_pipeline = device.create_render_pipeline(
+			&RenderPipelineDescriptor { 
+				label: Some("Circle Render Pipeline"), 
 				layout: Some(&render_pipeline_layout), 
 				vertex: VertexState{
 					module: &shader,

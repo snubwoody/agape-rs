@@ -1,6 +1,6 @@
 pub mod events;
 pub mod view;
-use crate::{renderer::{RectRenderer, TextRenderer}, Size};
+use crate::{renderer::{CicleRenderer, RectRenderer, TextRenderer}, Size};
 use async_std::task;
 use view::View;
 use winit::{
@@ -155,6 +155,11 @@ impl<'a> AppState<'a> {
             0,
             bytemuck::cast_slice(&[self.size.width, self.size.height]),
         );
+        self.queue.write_buffer(
+            &self.context.circle_renderer.window_buffer,
+            0,
+            bytemuck::cast_slice(&[self.size.width, self.size.height]),
+        );
     }
 }
 
@@ -163,16 +168,18 @@ impl<'a> AppState<'a> {
 pub struct RenderContext {
 	pub rect_renderer: RectRenderer,
 	pub text_renderer: TextRenderer,
+	pub circle_renderer: CicleRenderer
 }
 
 impl RenderContext {
     pub fn new(device: &wgpu::Device, config: &wgpu::SurfaceConfiguration, size: &Size) -> Self {
 		let rect_renderer = RectRenderer::new(device, config, size);
 		let text_renderer = TextRenderer::new(device, config, size);
-
+		let circle_renderer = CicleRenderer::new(device, config, size);
         Self {
 			rect_renderer,
-			text_renderer
+			text_renderer,
+			circle_renderer
         }
     }
 }

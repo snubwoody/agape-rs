@@ -3,7 +3,7 @@ use image::RgbaImage;
 use text_to_png::TextRenderer;
 use wgpu::util::DeviceExt;
 use crate::{
-	app::AppState, Color, surface::Surface, Bounds, Position,Size, vertex::Vertex
+	app::AppState, impl_surface, surface::Surface, vertex::Vertex, Bounds, Color, Position, Size
 };
 
 // FIXME text getting blurry at large window sizes
@@ -161,36 +161,5 @@ impl Surface for TextSurface {
 		render_pass.draw(0..vertices.len() as u32, 0..1);
 	}
 
-	fn size(&mut self,width:f32,height:f32) {
-		self.size.width = width;
-		self.size.height = height;
-	}
-	
-	fn get_size(&self) -> Size {
-		self.size
-	}
-
-	fn get_bounds(&self) -> Bounds {
-		Bounds{
-			x:[self.position.x,self.position.x + self.size.width],
-			y:[self.position.y,self.position.y + self.size.height]
-		}
-	}
-
-	fn width(&mut self, width:f32) {
-		self.size.width = width
-	}
-
-	fn height(&mut self, height:f32) {
-		self.size.height = height
-	}
-
-	fn position(&mut self, x:f32,y:f32) {
-		self.position.x = x;
-		self.position.y = y;
-	}
-
-	fn get_position(&self) -> Position {
-		self.position
-	}
+	impl_surface!();
 }
