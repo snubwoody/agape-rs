@@ -148,6 +148,11 @@ impl<'a> AppState<'a> {
 
     pub fn resize(&mut self, size: PhysicalSize<u32>) {
         self.size = size.into();
+		self.config.width = size.width as u32;
+		self.config.height = size.height as u32;
+		// Resize the surface with the window to keep the right scale
+		self.surface.configure(&self.device, &self.config);
+		
 		//TODO maybe add a global uniform instead
         self.queue.write_buffer(
             &self.context.rect_renderer.window_buffer,
@@ -164,8 +169,6 @@ impl<'a> AppState<'a> {
             0,
             bytemuck::cast_slice(&[self.size.width, self.size.height]),
         );
-		// TODO temp
-		self.queue.submit([]);
     }
 }
 

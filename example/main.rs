@@ -10,7 +10,7 @@ fn main() {
 fn app(){
 	let event_loop = EventQueue::new();
 
-	let circle = Circle::new(50, RED);
+	let circle = Circle::new(150, RED);
 	let rect = Rect::new(200, 200, BLUE);
 
 	let page = View::new(circle,event_loop);
