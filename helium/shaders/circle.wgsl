@@ -2,7 +2,7 @@
 @group(0) @binding(0) var<uniform> window_size: vec2<f32>;
 
 // Widget attributes
-@group(1) @binding(0) var<uniform> size: vec2<f32>;
+@group(1) @binding(0) var<uniform> diameter:f32;
 @group(1) @binding(1) var<uniform> position: vec2<f32>;
 
 struct VertexOutput{
@@ -44,10 +44,10 @@ fn vs_main(in:VertexInput) -> VertexOutput {
 @fragment
 fn fs_main(in:VertexOutput) -> @location(0) vec4<f32> {
 	var aspect_ratio = window_size.x/window_size.y;
-	var center = (position + size/2);
-	var p = (in.position.xy - center)/size;
+	var center = (position + diameter/2);
+	var p = (in.position.xy - center);
 	// Widget coordinates start at the top left, so center them
-	var d = sd_circle(p,0.5);
+	var d = sd_circle(p,diameter/2);
     return vec4(d,d,d,1.0);
     //return in.color;
 }

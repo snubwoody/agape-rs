@@ -57,10 +57,10 @@ impl Surface for CircleSurface {
 			usage: wgpu::BufferUsages::VERTEX,
 		});
 
-		let size_buffer = state.device.create_buffer_init(
+		let diameter_buffer = state.device.create_buffer_init(
 			&BufferInitDescriptor{
 				label:Some("Size buffer"),
-				contents: bytemuck::cast_slice(&[self.size.width,self.size.height]),
+				contents: bytemuck::cast_slice(&[self.size.width]),
 				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
 			}
 		); // TODO change this to radius
@@ -80,7 +80,7 @@ impl Surface for CircleSurface {
 				entries:&[
 					wgpu::BindGroupEntry{
 						binding:0,
-						resource:size_buffer.as_entire_binding()
+						resource:diameter_buffer.as_entire_binding()
 					},
 					wgpu::BindGroupEntry{
 						binding:1,
