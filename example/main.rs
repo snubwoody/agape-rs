@@ -1,5 +1,5 @@
 use helium::{
-    app::{events::{Event,EventQueue, UserEvent}, view::View, App}, hex, hstack, widgets::{Button, Circle, Rect}, BLUE
+    app::{events::EventQueue, view::View, App}, widgets::{Circle, Rect}, BLUE, RED
 };
 
 fn main() {
@@ -10,7 +10,7 @@ fn main() {
 fn app(){
 	let event_loop = EventQueue::new();
 
-	let circle = Circle::new(200, hex!("#000000"));
+	let circle = Circle::new(50, RED);
 	let rect = Rect::new(200, 200, BLUE);
 
 	let page = View::new(circle,event_loop);

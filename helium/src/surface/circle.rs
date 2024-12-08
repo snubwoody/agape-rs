@@ -15,10 +15,8 @@ pub struct CircleSurface{
 
 impl CircleSurface {
 	pub fn new(radius:u32,color:Color) -> Self{
-		dbg!(radius);
-		let size = Size::new(200.0, 200.0);
+		let size = Size::new(radius as f32, radius as f32);
 		let position = Position::default();
-		dbg!(&size);
 		Self { position,size,color }
 	}
 
@@ -29,7 +27,6 @@ impl CircleSurface {
 	pub fn to_vertices(&self) -> Vec<Vertex>{
 
 		let color = self.color.normalize();
-		dbg!(&self);
 		let x = self.position.x;
 		let y = self.position.y;
 
@@ -53,7 +50,6 @@ impl Surface for CircleSurface {
 		state: &AppState
 	) {
 		let vertices = self.to_vertices();
-		dbg!(&vertices);
 		
 		let vertex_buffer = state.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
 			label: Some("Vertex buffer"),
@@ -67,7 +63,7 @@ impl Surface for CircleSurface {
 				contents: bytemuck::cast_slice(&[self.size.width,self.size.height]),
 				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
 			}
-		);
+		); // TODO change this to radius
 
 		let position_buffer = state.device.create_buffer_init(
 			&BufferInitDescriptor{
@@ -94,12 +90,12 @@ impl Surface for CircleSurface {
 			}
 		);
 
+		
 		// Set the render pipeline and vertex buffer
 		render_pass.set_pipeline(&context.circle_renderer.render_pipeline);
 		render_pass.set_bind_group(0, &context.circle_renderer.window_bind_group, &[]);
 		render_pass.set_bind_group(1, &bound_bind_group, &[]);
 		render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
-
 		render_pass.draw(0..vertices.len() as u32, 0..1);
 	}
 

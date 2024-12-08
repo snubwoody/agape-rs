@@ -171,7 +171,7 @@ impl CicleRenderer {
 		let shader = device.create_shader_module(
 			ShaderModuleDescriptor{
 				label: Some("Circle Shader Module"),
-				source: ShaderSource::Wgsl(include_str!("../shaders/rect.wgsl").into())
+				source: ShaderSource::Wgsl(include_str!("../shaders/circle.wgsl").into())
 			}
 		);
 

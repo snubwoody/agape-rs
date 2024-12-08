@@ -46,16 +46,19 @@ impl App {
         let mut state = task::block_on(AppState::new(&self.window));
 
         self.event_loop
-            .run(|event, window_target| match event {
-                winit::event::Event::WindowEvent { event, .. } => match event {
-                    WindowEvent::CloseRequested => window_target.exit(),
-                    WindowEvent::RedrawRequested => self.views[self.index].render(&state),
-                    WindowEvent::Resized(size) => {state.resize(size);self.window.request_redraw();},
-                    event => {self.views[self.index].handle_events(event,&self.window);}
-                },
-                _ => {}
-            })
-            .expect("Event loop error occured");
+        .run(|event, window_target| match event {
+            winit::event::Event::WindowEvent { event, .. } => match event {
+                WindowEvent::CloseRequested => window_target.exit(),
+                WindowEvent::RedrawRequested => self.views[self.index].render(&state),
+                WindowEvent::Resized(size) => {
+					state.resize(size);
+					self.window.request_redraw();
+				},
+                event => {self.views[self.index].handle_events(event,&self.window);}
+            },
+            _ => {}
+        })
+        .expect("Event loop error occured");
     }
 }
 
@@ -71,6 +74,7 @@ pub struct AppState<'a> {
 impl<'a> AppState<'a> {
     pub async fn new(window: &'a Window) -> Self {
         let size = window.inner_size().into();
+		
 
         // Handle to wpgu for creating a surface and an adapter
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
@@ -131,7 +135,7 @@ impl<'a> AppState<'a> {
         surface.configure(&device, &config);
 
         let context = RenderContext::new(&device, &config, &size);
-
+		
         Self {
             surface,
             device,
@@ -160,6 +164,8 @@ impl<'a> AppState<'a> {
             0,
             bytemuck::cast_slice(&[self.size.width, self.size.height]),
         );
+		// TODO temp
+		self.queue.submit([]);
     }
 }
 

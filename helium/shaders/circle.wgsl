@@ -17,27 +17,27 @@ struct VertexInput{
 }
 
 
-// Convert screen space coordinates to normalised device coordinates
-fn screen_to_ndc(in:vec2<f32>) -> vec2<f32>{
-	return vec2<f32>(
-		(in.x / window_size.x) * 2.0 - 1.0, // Scale by 2 and translate by -1
-		-((in.y / window_size.y) * 2.0 - 1.0),
-	);
+fn sd_circle(p:vec2<f32>,r:f32 ) -> f32 {
+    return length(p)-r;
 }
+
 
 @vertex
 fn vs_main(in:VertexInput) -> VertexOutput {
 	var out: VertexOutput;
 	
-	// Normalize the coordinates
-	var coords =  screen_to_ndc(in.position);
-	
-	out.position = vec4<f32>(coords,1.0,1.0);
+	// Normalize the coordinates, translate by 1 to the left and scale by 2 to cover the whole screen
+	var position = in.position * 2 - 1;
+	out.position = vec4<f32>(position,1.0,1.0);
 	out.color = in.color;
 	return out;
 }
 
 @fragment
 fn fs_main(in:VertexOutput) -> @location(0) vec4<f32> {
-    return in.color;
+	var aspect_ratio = window_size.x/window_size.y;
+	var center = (position + size/2);
+	// Widget coordinates start at the top left, so center them
+	var d = sd_circle(in.position.xy - center,size.x);
+    return vec4(d,d,d,1.0);
 }
