@@ -62,7 +62,7 @@ impl Surface for RectSurface {
 			contents: bytemuck::cast_slice(&vertices),
 			usage: wgpu::BufferUsages::VERTEX,
 		});
-		dbg!(&self);
+
 		let corner_radius = state.device.create_buffer_init(
 			&BufferInitDescriptor{
 				label:Some("Corner radius buffer"),

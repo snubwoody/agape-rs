@@ -3,5 +3,7 @@ resolver = "2"
 
 members = [
 	"helium", 
-	"example", "helium_macros", "helium_core",
+	"examples", 
+	"helium_macros", 
+	"helium_core",
 ]

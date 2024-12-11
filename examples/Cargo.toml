@@ -1,0 +1,12 @@
+[package]
+name = "example"
+version = "0.1.0"
+edition = "2021"
+
+[dev-dependencies]
+helium = { path = "../helium" }
+env_logger = "0.11.5"
+
+[[example]]
+name = "counter"
+path = "counter.rs"
