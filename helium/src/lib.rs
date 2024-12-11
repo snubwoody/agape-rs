@@ -3,6 +3,7 @@ pub mod app;
 pub mod surface;
 pub mod vertex;
 pub mod layout;
+pub mod signal;
 mod renderer;
 
 pub use nanoid::nanoid;

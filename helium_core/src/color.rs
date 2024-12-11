@@ -40,7 +40,7 @@ impl Color {
 	/// Convert a hex color to an rgba color. Returns an error if an invalid hex code
 	/// is provided
 	pub fn hex_to_rgba(hex:&str) -> Result<[u8;4],String>{
-		if hex.chars().nth(0) != Some('#'){
+		if hex.chars().nth(0) != Some('#'){// TODO implement a custom error
 			return Err("Invalid hex code: missing # at start of hex".into())
 		}
 		

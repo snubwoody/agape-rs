@@ -35,7 +35,6 @@ fn vs_main(in:VertexInput) -> VertexOutput {
 	var out: VertexOutput;
 	
 	// Normalize the coordinates, translate by 1 to the left and scale by 2 to cover the whole screen
-	var position = (in.position/window_size) * 0.5 + 1;
 	out.position = vec4<f32>(screen_to_ndc(in.position),1.0,1.0);
 	out.color = in.color;
 	return out;

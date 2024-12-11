@@ -1,7 +1,6 @@
 use super::{Widget, WidgetBody};
-use crate::app::events::{Event, };
 use crate::Color;
-use crate::layout::{IntrinsicSize, Layout, WidgetSize};
+use crate::layout::IntrinsicSize;
 use crate::surface::rect::RectSurface;
 use crate::Size;
 use nanoid::nanoid;
@@ -13,8 +12,8 @@ pub struct Rect{
     width: u32,
     height: u32,
     color: Color,
-	events: Vec<Event>,
-	intrinsic_size:IntrinsicSize
+	intrinsic_size:IntrinsicSize,
+	radius:u32
 }
 
 impl Rect {
@@ -24,8 +23,8 @@ impl Rect {
             width,
             height,
             color,
-			events: Vec::new(),
-			intrinsic_size:IntrinsicSize::fixed(width, height)
+			intrinsic_size:IntrinsicSize::fixed(width, height),
+			radius:0
         }
     }
 
@@ -43,6 +42,17 @@ impl Rect {
 		self.intrinsic_size.fill_height();
 		self
 	}
+
+	/// Set th border radius
+	pub fn radius(mut self,radius:u32) -> Self{
+		self.radius = radius;
+		self
+	}
+
+	/// A shorthand for border radius
+	pub fn rounded(){
+
+	}
 }
 
 impl Widget for Rect {
@@ -50,6 +60,7 @@ impl Widget for Rect {
         let surface = Box::new(RectSurface {
             size: Size::new(self.width as f32, self.height as f32),
             color: self.color.clone(),
+			corner_radius:self.radius,
             ..Default::default()
         });
 

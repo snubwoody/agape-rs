@@ -11,17 +11,23 @@ pub struct RectSurface{
 	pub position:Position,
 	pub size:Size,
 	pub color:Color,
+	pub corner_radius:u32
 }
 
 impl RectSurface {
 	pub fn new(x:f32,y:f32,width:f32,height:f32,color:Color) -> Self{
 		let size = Size::new(width, height);
 		let position = Position::new(x, y);
-		Self { position,size,color }
+		Self { position,size,color,..Default::default() }
 	}
 
 	pub fn color(&mut self,color:Color) {
 		self.color = color
+	}
+
+	/// Set the `corner radius` of the surface.
+	pub fn corner_radius(&mut self,radius:u32){
+		self.corner_radius = radius
 	}
 
 	pub fn to_vertices(&self) -> Vec<Vertex>{
@@ -56,16 +62,11 @@ impl Surface for RectSurface {
 			contents: bytemuck::cast_slice(&vertices),
 			usage: wgpu::BufferUsages::VERTEX,
 		});
-
-		let center_pos = Position::new(
-			self.position.x + self.size.width/2.0, 
-			self.position.y + self.size.height/2.0
-		);
-
-		let bounds_buffer = state.device.create_buffer_init(
+		dbg!(&self);
+		let corner_radius = state.device.create_buffer_init(
 			&BufferInitDescriptor{
-				label:Some("Bounds buffer"),
-				contents: bytemuck::cast_slice(&[center_pos.x,center_pos.y]),
+				label:Some("Corner radius buffer"),
+				contents: bytemuck::cast_slice(&[self.corner_radius as f32]), // Type casting is important maybe save field as f32
 				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
 			}
 		);
@@ -93,7 +94,7 @@ impl Surface for RectSurface {
 				entries:&[
 					wgpu::BindGroupEntry{
 						binding:0,
-						resource:bounds_buffer.as_entire_binding()
+						resource:corner_radius.as_entire_binding()
 					},
 					wgpu::BindGroupEntry{
 						binding:1,
