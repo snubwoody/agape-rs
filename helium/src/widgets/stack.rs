@@ -1,7 +1,7 @@
 use tokio::time::Sleep;
 
 use crate::{
-    app::events::{self, Event, }, impl_style, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}, Color
+    app::events::{self, Event, }, impl_events, impl_style, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::{Widget, WidgetBody}, Color
 };
 
 // TODO make fields private
@@ -14,6 +14,7 @@ pub struct Stack {
 
 impl Stack {
 	impl_style!();
+	impl_events!();
 }
 
 impl Widget for Stack {

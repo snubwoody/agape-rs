@@ -108,8 +108,8 @@ impl EventQueue {
 #[macro_export]
 macro_rules! impl_events {
 	() => {
-		pub fn on_click(self,event_loop:&mut EventQueue,f:impl FnMut() + 'static) -> Self{
-			event_loop.push(UserEvent::new(self.id.clone(), Event::OnClick(Box::new(f))));
+		pub fn on_click(self,event_loop:&mut $crate::app::events::EventQueue,f:impl FnMut() + 'static) -> Self{
+			event_loop.push($crate::app::events::UserEvent::new(self.id.clone(), Event::OnClick(Box::new(f))));
 			self
 		}
 	};

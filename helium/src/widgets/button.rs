@@ -56,7 +56,7 @@ impl Button {
 		self.width = WidgetSize::Fill;
 		self
 	}
-	
+
 	impl_events!();
 }
 
