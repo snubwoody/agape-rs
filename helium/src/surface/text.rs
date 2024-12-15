@@ -1,4 +1,5 @@
 use std::{fmt::Debug, io::Cursor};
+use helium_core::color::BLACK;
 use image::RgbaImage;
 use text_to_png::TextRenderer;
 use wgpu::util::DeviceExt;
@@ -15,7 +16,7 @@ pub struct TextSurface{
 	size:Size,
 	text:String,
 	font_size:u8,
-	color:String,
+	color:Color,
 	img: RgbaImage // impl Debug manually and hide this field
 }
 
@@ -27,8 +28,8 @@ impl TextSurface {
 		let text_image = text_renderer.render_text_to_png_data(
 			text, 
 			font_size, 
-			"#000"
-		).unwrap();
+			"#000000"
+		).unwrap(); // TODO Hangle the errors pls
 
 		let img = image::load(
 			Cursor::new(text_image.data), 
@@ -40,11 +41,11 @@ impl TextSurface {
 			size:Size::new(text_image.size.width as f32, text_image.size.height as f32),
 			text:String::from(text), 
 			font_size, 
-			color:String::from(color),
+			color:BLACK,
 			img
 		}
 	}
-	
+
 	/// Rasterize the text and return the texture 
 	pub fn build(&self,device: &wgpu::Device) -> (wgpu::Texture,wgpu::Extent3d) {
 		let texture_size = wgpu::Extent3d{
@@ -98,6 +99,7 @@ impl Surface for TextSurface {
 		let (texture,texture_size) = self.build(&state.device);
 
 		let vertices = self.to_vertices(texture_size.width as f32,texture_size.height as f32);
+		dbg!(&vertices);
 
 		let vertex_buffer = state.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
 			label: Some("Vertex buffer"),

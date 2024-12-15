@@ -1,4 +1,5 @@
 use crate::map;
+
 pub const BLACK:Color = Color::Rgb(0, 0, 0);
 pub const WHITE:Color = Color::Rgb(255, 255, 255);
 pub const AMBER:Color = Color::Rgb(245, 158, 11);
@@ -85,7 +86,7 @@ impl Default for Color {
 impl TryFrom<String> for Color {
 	type Error = String;
 	fn try_from(value: String) -> Result<Self, Self::Error> {
-		let color = Color::hex_to_rgba(&value)?;
+		let _ = Color::hex_to_rgba(&value)?;
 		Ok(Color::Hex(value))
 	}
 }

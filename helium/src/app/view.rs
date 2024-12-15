@@ -58,7 +58,6 @@ impl View {
 	
 		state.queue.submit(std::iter::once(encoder.finish()));
 		output.present();
-		log::trace!("{:#?}",{self.root_widget.build()});
 	}
 }
 

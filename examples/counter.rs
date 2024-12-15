@@ -13,14 +13,8 @@ fn app(){
 	let event_loop = EventQueue::new();
 
 	let hstack = hstack![
-		Text::new("Hello world"),
-		Rect::new(200, 200, BLACK),
-		Container::new(Text::new("Hello")),
-		Container::new(Rect::new(200, 200, BLACK)),
-		hstack![
-			Text::new("Hello world"),
-			Rect::new(200, 200, BLACK)
-		]
+		Container::new(Text::new("Hello world")),
+		Text::new("Hello world")
 	].padding(24).spacing(56).color(RED);
 	
 	let page = View::new(hstack,event_loop);
