@@ -1,6 +1,6 @@
-use std::{collections::VecDeque, fmt::Debug};
-use winit::event::{ElementState, MouseButton, WindowEvent};
-use crate::{widgets::{Widget, WidgetBody, WidgetId, WidgetState}, Position};
+use std::fmt::Debug;
+use winit::event::WindowEvent;
+use crate::{widgets::{ WidgetBody, WidgetId}, Position};
 
 type EventFunction = Box<dyn FnMut()>; 
 pub enum Event {

@@ -186,14 +186,10 @@ impl Layout{
 				}
 				LayoutType::Block => {}
 			}
-			
+			self.align(&mut widget.children, &widget.surface.get_position());
 		}
 	}
-
-	fn align_vertical(&self){
-
-	}
-
+	
 	fn compute_horizontal(
 		&self,
 		widgets:&mut Vec<Box<WidgetBody>>,
@@ -363,7 +359,6 @@ pub enum WidgetSize{
 	Fit,
 }
 
-
 /// This is the size that a [`Widget`] will try to be,  
 /// the actual final size is dependant on the space
 /// available.
@@ -418,7 +413,7 @@ mod test{
 		let padding = 12;
 		let window = Size::new(800.0, 800.0);
 		let mut horizontal_empty_box = WidgetBody::new().layout(
-				Layout::horizontal().spacing(spacing).padding(padding)
+			Layout::horizontal().spacing(spacing).padding(padding)
 		); 
 
 		// Make sure spacing and padding don't take effect if widget is empty
@@ -579,7 +574,7 @@ mod test{
 		let box3 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
 		let box4 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
 
-		let mut horizontal_box = WidgetBody::new() // TODO add padding
+		let mut horizontal_box = WidgetBody::new()
 			.layout(Layout::horizontal().spacing(spacing).padding(padding))
 			.add_children(vec![box1,box2,box3,box4]);
 
@@ -606,41 +601,62 @@ mod test{
 		let padding = 56;
 
 		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
-		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
-		let box3 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
-		let box4 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
 
-		let mut horizontal_box = WidgetBody::new() // TODO add padding
+		let mut block_box = WidgetBody::new()
 			.layout(Layout::block().spacing(spacing).padding(padding))
-			.add_children(vec![box1,box2,box3,box4]);
+			.add_children(vec![box1]);
 
-		horizontal_box.arrange(Size::new(800.0, 800.0));
+		block_box.arrange(Size::new(800.0, 800.0));
 
-		let mut prev_pos = Position::new(padding as f32, padding as f32);
+		let parent_pos = block_box.surface.get_position();
 
-		// The children should be previous [height + spacing] distance
-		// away from each other vertically and have the same x position
-		for (i,child) in horizontal_box.children.iter().enumerate(){
+		for child in block_box.children.iter(){
 			let pos = child.surface.get_position();
-			let mut parent_pos = horizontal_box.surface.get_position();
-			let size = child.surface.get_size();
-			parent_pos.translate(padding as f32, padding as f32);
-			
-			assert_eq!(parent_pos,pos,"Test failed on iteration: {}",i);
-
-			// Make sure the children don't have any spacing, skip the first 
-			// iteration because no spacing is applied
-			if i != 0{
-				assert_ne!(prev_pos,pos,"Test failed on iteration: {}",i);
-			}
-			prev_pos.translate(size.width, 0.0);
-			prev_pos.translate(spacing as f32,0.0);
+			assert_eq!(pos.x,parent_pos.x + padding as f32);
 		}
 	}
 
+	/// Test the nested horizontal positioning a couple layers deep
 	#[test]
-	fn test_nested_layouts(){
+	fn test_nested_horizontal_positioning(){
+		let window_size = Size::new(800.0, 800.0);
+		let spacing = 24;
+		let padding = 56;
 
+		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		let box3 = 
+			WidgetBody::new()
+			.intrinsic_size(IntrinsicSize::fixed(200, 200))
+			.add_child(box2);
+
+		let mut horizontal_box = 
+			WidgetBody::new()
+			.layout(Layout::horizontal().spacing(spacing).padding(padding))
+			.add_children(vec![box1,box3]);
+
+		horizontal_box.arrange(window_size);
+
+		let nested_test = |parent:&WidgetBody|{
+			let mut prev_pos = parent.surface.get_position();
+			prev_pos.translate(padding as f32, padding as f32);
+			// The children should be previous [height + spacing] distance
+			// away from each other vertically and have the same x position
+			for (i,child) in parent.children.iter().enumerate(){
+				let pos = child.surface.get_position();
+				let size = child.surface.get_size();
+
+				assert_eq!(prev_pos,pos,"Test failed on iteration: {}",i);
+
+				prev_pos.translate(size.width, 0.0);
+				prev_pos.translate(spacing as f32,0.0);
+				
+			}
+			
+		};
+
+		nested_test(&horizontal_box);
+		nested_test(&horizontal_box.children[1]);
 	}
 
 	#[test]

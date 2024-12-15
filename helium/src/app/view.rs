@@ -29,7 +29,7 @@ impl View {
 	pub fn render(&mut self,state:&AppState) {
 		let output = state.surface.get_current_texture().unwrap(); // TODO maybe handle this error
 		let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
-
+		
 		let mut encoder = state.device.create_command_encoder(&wgpu::CommandEncoderDescriptor{
 			label:Some("Render encoder")
 		});
@@ -48,16 +48,17 @@ impl View {
 			occlusion_query_set: None,
 			timestamp_writes: None,
 		});
-		//render_pass.set_viewport(0.0, 0.0, state.size.width, state.size.height, 0.0, 1.0);
 
+		// Rebuild the widgets every frame
 		self.root_widget.build().render(&mut render_pass,&state);
-
+		
 		// Drop the render pass because it borrows encoder
 		// mutably
 		std::mem::drop(render_pass);
 	
 		state.queue.submit(std::iter::once(encoder.finish()));
 		output.present();
+		log::trace!("{:#?}",{self.root_widget.build()});
 	}
 }
 

@@ -7,20 +7,21 @@ use crate::{
 use helium_core::color::Color;
 
 /// A container [`Widget`] that wraps its child
-pub struct Container {
+pub struct Container<W> {
 	id:String,
     color: Color,
-    child: Box<dyn Widget>,
+    child: W, // TODO make this a generic
 	layout:Layout
 }
 
-impl Container {
-    pub fn new(child: impl Widget + 'static) -> Self {
+impl<W> Container<W> 
+where W:Widget {
+    pub fn new(child:W) -> Self {
         Container {
 			id:nanoid!(),
 			layout:Layout::new(),
             color: Color::Rgb(255, 255, 255),
-            child: Box::new(child),
+            child
         }
     }
 
@@ -28,7 +29,8 @@ impl Container {
 
 }
 
-impl Widget for Container {
+impl<W> Widget for Container<W>
+where W:Widget {
     fn build(&self) -> WidgetBody {
         let surface = Box::new(RectSurface {
             color: self.color.clone(),

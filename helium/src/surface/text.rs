@@ -1,4 +1,4 @@
-use std::io::Cursor;
+use std::{fmt::Debug, io::Cursor};
 use image::RgbaImage;
 use text_to_png::TextRenderer;
 use wgpu::util::DeviceExt;
@@ -9,14 +9,14 @@ use crate::{
 // FIXME text getting blurry at large window sizes
 // FIXME change the color to Color enum
 /// A rasterized texture of text  
-#[derive(Debug,Clone)]
+#[derive(Clone)]
 pub struct TextSurface{
 	position:Position,
 	size:Size,
 	text:String,
 	font_size:u8,
 	color:String,
-	img: RgbaImage
+	img: RgbaImage // impl Debug manually and hide this field
 }
 
 impl TextSurface {
@@ -162,4 +162,17 @@ impl Surface for TextSurface {
 	}
 
 	impl_surface!();
+}
+
+
+impl Debug for TextSurface {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		f.debug_struct("TextSurface")
+		.field("size", &self.size)
+		.field("position", &self.position)
+		.field("text", &self.text)
+		.field("font_size", &self.font_size)
+		.field("color", &self.color)
+		.finish()
+	}
 }

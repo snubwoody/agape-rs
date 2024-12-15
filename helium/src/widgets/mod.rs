@@ -33,15 +33,6 @@ pub trait Widget{
 	fn build(&self) -> WidgetBody;
 }
 
-/// The current state of the widget
-#[derive(Debug,Default,Clone,Copy,PartialEq,Eq)]
-pub enum WidgetState{
-	#[default]
-	Default,
-	Hovered,
-	Clicked
-}
-
 // TODO maybe implement iter
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
@@ -52,7 +43,6 @@ pub struct WidgetBody{ // TODO this changes a lot so make these fields private
 	pub layout:Layout,
 	pub children:Vec<Box<WidgetBody>>,
 	pub intrinsic_size:IntrinsicSize, // TODO move this to the layout
-	pub state:WidgetState,
 }
 
 impl WidgetBody {
@@ -95,7 +85,7 @@ impl WidgetBody {
 	) {
 		let window_size = &state.size;
 		let context = &state.context;
-
+		
 		// TODO I think I should change this so that ALL
 		// of the layout is handled by the Layout struct
 		self.arrange(*window_size);
@@ -154,7 +144,6 @@ impl Default for WidgetBody {
 			layout, 
 			children:vec![], 
 			intrinsic_size: Default::default(),
-			state: WidgetState::default(),
 		}
 	}
 }

@@ -7,7 +7,7 @@ use super::{Widget, WidgetBody};
 
 
 #[derive(Debug,Clone)]
-pub struct Circle{
+pub struct Circle{ // TODO add a child maybe
 	diameter:u32,
 	color:Color
 }
@@ -24,7 +24,6 @@ impl Widget for Circle {
 		let intrinsic_size = IntrinsicSize::fixed(self.diameter, self.diameter);
 
 		WidgetBody { 
-			id: nanoid!(), 
 			surface:Box::new(surface),
 			intrinsic_size,
 			..Default::default()
