@@ -1,4 +1,4 @@
-use helium::{app::{events::EventQueue, view::View, App}, hex, hstack, vstack, widgets::{Button, Container, Rect, Text}, Color, TRANSPARENT};
+use helium::{app::{events::EventQueue, view::View, App}, hex, hstack, vstack, widgets::{Button, Container, Rect, Text, Widget}, Color, TRANSPARENT};
 
 const BACKGROUND:Color = Color::Hex("#121212");
 const GREY:Color = Color::Hex("#414141");

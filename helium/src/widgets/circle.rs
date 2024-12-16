@@ -21,7 +21,7 @@ impl Circle {
 impl Widget for Circle {
 	fn build(&self) -> WidgetBody {
 		let surface = CircleSurface::new(self.diameter,self.color.clone());
-		let intrinsic_size = IntrinsicSize::fixed(self.diameter, self.diameter);
+		let intrinsic_size = IntrinsicSize::new().fixed(self.diameter, self.diameter);
 
 		WidgetBody { 
 			surface:Box::new(surface),

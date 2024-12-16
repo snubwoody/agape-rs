@@ -1,5 +1,4 @@
 mod rect;
-mod stack;
 mod container;
 mod text;
 mod button;
@@ -10,7 +9,6 @@ use nanoid::nanoid;
 pub use rect::Rect;
 pub use text::Text;
 pub use button::Button;
-pub use stack::Stack;
 pub use hstack::HStack;
 pub use vstack::VStack;
 pub use container::Container;

@@ -154,3 +154,46 @@ impl Layout for HorizontalLayout {
 		}
 	}
 }		
+
+#[cfg(test)]
+mod test{
+	use crate::layout::IntrinsicSize;
+	use super::*;
+	
+	#[test]
+	fn test_nested_horizontal_layout(){
+		let spacing = 24;
+		let padding = 24;
+		let window = Size::new(500.0, 500.0);
+
+		let inner_box1 = WidgetBody::new();
+		let inner_box2 = WidgetBody::new();
+		let inner_box = WidgetBody::new();
+		let inner_hbox = WidgetBody::new()
+			.add_children(vec![inner_box1,inner_box2]);
+
+		let mut hbox = WidgetBody::new()
+			.layout(HorizontalLayout::new(spacing, padding))
+			.add_children(vec![inner_box,inner_hbox]);
+		hbox.arrange(window);
+	}
+
+	#[test]
+	fn test_fill_sizing(){
+		let spacing = 24;
+		let padding = 56;
+		let window = Size::new(500.0, 500.0);
+
+		let intrinsic_size = IntrinsicSize{
+			width:WidgetSize::Fill,
+			height:WidgetSize::Fill
+		};
+
+		let mut hbox = WidgetBody::new()
+			.layout(HorizontalLayout::new(spacing, padding))
+			.intrinsic_size(intrinsic_size);
+		hbox.arrange(window);
+
+		assert_eq!(hbox.surface.get_size(),window)
+	}
+}

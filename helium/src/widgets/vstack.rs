@@ -50,10 +50,7 @@ impl Widget for VStack {
             children,
             layout: Box::new(self.layout),
             surface: Box::new(surface),
-            intrinsic_size: IntrinsicSize {
-                width: WidgetSize::Fill,
-                height: WidgetSize::Fit,
-            },
+            intrinsic_size:self.intrinsic_size,
             ..Default::default()
         }
     }

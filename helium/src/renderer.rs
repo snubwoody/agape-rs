@@ -436,22 +436,6 @@ impl TextRenderer {
 	}
 }
 
-/// Controls the rendering of images to the screen
-#[derive(Debug)]
-pub struct ImageRenderer{
-	pub render_pipeline: wgpu::RenderPipeline
-}
-
-impl ImageRenderer {
-	pub fn new(){
-
-	}
-
-	pub fn create_pipeline(){
-	}
-}
-
-
 pub struct UniformBuilder<T>{
 	label:Option<String>,
 	visibility:wgpu::ShaderStages,

@@ -23,7 +23,7 @@ impl Rect {
             width,
             height,
             color,
-			intrinsic_size:IntrinsicSize::fixed(width, height),
+			intrinsic_size:IntrinsicSize::new().fixed(width, height),
 			radius:0
         }
     }

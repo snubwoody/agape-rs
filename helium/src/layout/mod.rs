@@ -403,37 +403,62 @@ pub struct IntrinsicSize {
 }
 
 impl IntrinsicSize {
-	pub fn fixed(width:u32,height:u32) -> Self{
-		Self { 
-			width: WidgetSize::Fixed(width as f32), 
-			height: WidgetSize::Fixed(height as f32) 
-		}
+	pub fn new() -> Self{
+		Self { width: WidgetSize::Fit, height: WidgetSize::Fit }
+	}
+
+	pub fn fixed(mut self,width:u32,height:u32) -> Self{
+		self.width = WidgetSize::Fixed(width as f32);
+		self.height = WidgetSize::Fixed(height as f32);
+		self
+	}
+
+	pub fn fixed_width(mut self,width:u32) -> Self{
+		self.width = WidgetSize::Fixed(width as f32);
+		self
+	}
+
+	pub fn fixed_height(mut self,height:u32) -> Self{
+		self.height = WidgetSize::Fixed(height as f32);
+		self
 	}
 	
-	pub fn fit() -> Self {
-		IntrinsicSize{
-			width:WidgetSize::Fit,
-			height:WidgetSize::Fit,
-		}
+	pub fn fit(mut self) -> Self {
+		self.width = WidgetSize::Fit;
+		self.height = WidgetSize::Fit;
+		self
 	}
 
-	pub fn fill(&mut self){
+	pub fn fit_width(mut self) -> Self {
+		self.width = WidgetSize::Fit;
+		self
+	}
+
+	pub fn fit_height(mut self) -> Self {
+		self.height = WidgetSize::Fit;
+		self
+	}
+
+	pub fn fill(mut self) -> Self{
 		self.width = WidgetSize::Fill;
 		self.height = WidgetSize::Fill;
+		self
 	}
 
-	pub fn fill_width(&mut self){
-		self.width = WidgetSize::Fill;
-	}
-
-	pub fn fill_height(&mut self){
+	pub fn fill_height(mut self) -> Self{
 		self.height = WidgetSize::Fill;
+		self
+	}
+	
+	pub fn fill_width(mut self) -> Self{
+		self.height = WidgetSize::Fill;
+		self
 	}
 }
 
 impl From<Size> for IntrinsicSize {
 	fn from(value: Size) -> Self {
-		IntrinsicSize::fixed(value.width as u32, value.height as u32)
+		IntrinsicSize::new().fixed(value.width as u32, value.height as u32)
 	}
 }
 
@@ -489,17 +514,17 @@ mod test{
 		let padding = 12;
 		let window = Size::new(800.0, 800.0);
 
-		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 150));
-		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(100, 500));
-		let box3 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(500, 25));
-		let box4 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(300, 20));
+		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(200, 150));
+		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(100, 500));
+		let box3 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(500, 25));
+		let box4 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(300, 20));
 		
 		let mut horizontal_box = WidgetBody::new()
 			.layout(
 				HorizontalLayout::new(spacing, padding)
 			)
 			.add_children(vec![box1,box2,box3,box4])
-			.intrinsic_size(IntrinsicSize::fit());
+			.intrinsic_size(IntrinsicSize::new().fit());
 		//Layout::horizontal().spacing(spacing).padding(padding)
 		
 		horizontal_box.arrange(window);
@@ -524,17 +549,17 @@ mod test{
 		let padding = 12;
 		let window = Size::new(800.0, 800.0);
 		
-		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
-		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(50, 100));
-		let box3 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(75, 300));
-		let box4 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(10, 400));
+		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(200, 200));
+		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(50, 100));
+		let box3 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(75, 300));
+		let box4 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(10, 400));
 		
 		let mut vertical_box = WidgetBody::new()
 			.layout(
 				VerticalLayout::new(spacing, padding)
 			)
 			.add_children(vec![box1,box2,box3,box4])
-			.intrinsic_size(IntrinsicSize::fit());
+			.intrinsic_size(IntrinsicSize::new().fit());
 		
 		//Layout::vertical().spacing(spacing).padding(padding)
 
@@ -555,12 +580,12 @@ mod test{
 		let spacing = 24;
 		let padding = 24;
 		let window = Size::new(2000.0, 2000.0);
-		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(200, 200));
 		
 		let mut block_box = WidgetBody::new()
 			.layout(BlockLayout::new(padding))
 			.add_child(box1)
-			.intrinsic_size(IntrinsicSize::fit());
+			.intrinsic_size(IntrinsicSize::new().fit());
 
 		block_box.arrange(window);
 
@@ -577,10 +602,10 @@ mod test{
 		let spacing = 24;
 		let padding = 56;
 
-		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
-		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
-		let box3 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
-		let box4 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(200, 200));
+		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(200, 200));
+		let box3 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(200, 200));
+		let box4 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(200, 200));
 
 		let mut vertical_box = WidgetBody::new() 
 			.layout(VerticalLayout::new(spacing, padding))
@@ -608,10 +633,10 @@ mod test{
 		let spacing = 24;
 		let padding = 56;
 
-		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
-		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
-		let box3 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
-		let box4 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(200, 200));
+		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(200, 200));
+		let box3 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(200, 200));
+		let box4 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(200, 200));
 
 		let mut horizontal_box = WidgetBody::new()
 			.layout(HorizontalLayout::new(spacing, padding))
@@ -639,7 +664,7 @@ mod test{
 		let spacing = 24;
 		let padding = 56;
 
-		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(200, 200));
 
 		let mut block_box = WidgetBody::new()
 			.layout(BlockLayout::new(padding))
@@ -662,11 +687,11 @@ mod test{
 		let spacing = 24;
 		let padding = 56;
 
-		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
-		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
+		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(200, 200));
+		let box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(200, 200));
 		let box3 = 
 			WidgetBody::new()
-			.intrinsic_size(IntrinsicSize::fixed(200, 200))
+			.intrinsic_size(IntrinsicSize::new().fixed(200, 200))
 			.add_child(box2);
 
 		let mut horizontal_box = 
