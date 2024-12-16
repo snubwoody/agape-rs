@@ -44,7 +44,7 @@ impl Rect {
 	}
 
 	/// Set th border radius
-	pub fn radius(mut self,radius:u32) -> Self{
+	pub fn corner_radius(mut self,radius:u32) -> Self{
 		self.radius = radius;
 		self
 	}

@@ -8,9 +8,15 @@ pub struct Stack {
     pub children: Vec<Box<dyn Widget>>,
     pub layout: Layout,
     pub color: Color,
+	pub intrinsic_size:IntrinsicSize
 }
 
 impl Stack {
+	pub fn fill_height(mut self) -> Self{
+		self.intrinsic_size.fill_height();
+		self
+	}
+
 	impl_style!();
 	impl_events!();
 }
@@ -41,20 +47,25 @@ impl Widget for Stack {
 }
 
 // TODO test these macros pls
+// TODO change the color path because it might conflict with local colors
 #[macro_export]
 macro_rules! vstack {
 	($($child:expr),*) => {
 		{
-			let mut layout = helium::layout::Layout::vertical();
-			helium::widgets::Stack{
+			let mut layout = $crate::layout::Layout::vertical();
+			$crate::widgets::Stack{
 				id:helium::nanoid!(),
-				color:helium::Color::Rgb(255,255,255),
+				color:$crate::TRANSPARENT,
 				layout,
 				children:vec![
 					$(
 						Box::new($child),
 					)*
 				],
+				intrinsic_size:$crate::layout::IntrinsicSize {
+					width: $crate::layout::WidgetSize::Fit,
+					height: $crate::layout::WidgetSize::Fill,
+				}
 			}
 		}
 		
@@ -68,13 +79,17 @@ macro_rules! hstack {
 			let mut layout = $crate::layout::Layout::horizontal();
 			$crate::widgets::Stack{
 				id:$crate::nanoid!(),
-				color: $crate::Color::Rgb(255,255,255),
+				color: $crate::TRANSPARENT,
 				layout,
 				children:vec![
 					$(
 						Box::new($child),
 					)*
 				],
+				intrinsic_size:$crate::layout::IntrinsicSize {
+					width: $crate::layout::WidgetSize::Fill,
+					height: $crate::layout::WidgetSize::Fit,
+				}
 			}
 		}
 		
