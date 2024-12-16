@@ -10,7 +10,7 @@ fn main() {
 
 /// Broken
 fn app(){
-	let event_loop = EventQueue::new();
+	let mut event_loop = EventQueue::new();
 
 	let button = Button::new("Hello world");
 	

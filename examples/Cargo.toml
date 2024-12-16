@@ -11,3 +11,7 @@ log = "0.4.22"
 [[example]]
 name = "counter"
 path = "counter.rs"
+
+[[example]]
+name = "spotify"
+path = "spotify.rs"

@@ -25,7 +25,7 @@ impl Button {
         Self {
             id: nanoid!(),
             text: text.into(),
-            color: Color::Hex(String::from("#615fff")),
+            color: Color::Hex("#615fff"),
             padding: 12,
             width: WidgetSize::Fit,
             height: WidgetSize::Fit,

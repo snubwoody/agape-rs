@@ -17,7 +17,7 @@ pub const PINK:Color = Color::Rgb(236, 72, 153);
 pub enum Color{
 	Rgb(u8,u8,u8),
 	Rgba(u8,u8,u8,u8),
-	Hex(String)
+	Hex(&'static str)
 } 
 
 // TODO impl From
@@ -83,13 +83,13 @@ impl Default for Color {
 	}
 }
 
-impl TryFrom<String> for Color {
-	type Error = String;
-	fn try_from(value: String) -> Result<Self, Self::Error> {
-		let _ = Color::hex_to_rgba(&value)?;
-		Ok(Color::Hex(value))
-	}
-}
+// impl TryFrom<String> for Color {
+// 	type Error = String;
+// 	fn try_from(value: String) -> Result<Self, Self::Error> {
+// 		let _ = Color::hex_to_rgba(&value)?;
+// 		Ok(Color::Hex(&value))
+// 	}
+// }
 
 
 
