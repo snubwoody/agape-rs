@@ -92,6 +92,8 @@ impl WidgetBody {
 		// of the layout is handled by the Layout struct
 		self.arrange(*window_size);
 		
+		dbg!(&self.surface);
+
 		// Draw the parent then the children to the screen
 		self.surface.draw(render_pass, context,state);
 		self.children.iter_mut().for_each(|child|{

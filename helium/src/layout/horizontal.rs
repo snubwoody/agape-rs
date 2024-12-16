@@ -161,21 +161,38 @@ mod test{
 	use super::*;
 	
 	#[test]
-	fn test_nested_horizontal_layout(){
+	fn test_nested_positioning(){
 		let spacing = 24;
 		let padding = 24;
 		let window = Size::new(500.0, 500.0);
 
-		let inner_box1 = WidgetBody::new();
-		let inner_box2 = WidgetBody::new();
-		let inner_box = WidgetBody::new();
+		let inner_box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(150, 150));
+		let inner_box2 = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(150, 150));
+		
 		let inner_hbox = WidgetBody::new()
-			.add_children(vec![inner_box1,inner_box2]);
-
+		.layout(HorizontalLayout::new(spacing, padding))
+		.add_children(vec![inner_box1,inner_box2]);
+	
+		let inner_box = WidgetBody::new().intrinsic_size(IntrinsicSize::new().fixed(20, 50));
 		let mut hbox = WidgetBody::new()
 			.layout(HorizontalLayout::new(spacing, padding))
 			.add_children(vec![inner_box,inner_hbox]);
+
 		hbox.arrange(window);
+
+		let child = &hbox.children[1].children[1];
+
+		let mut pos = hbox.surface.get_position();
+		// Add the inner_box width
+		pos.x += 20.0;
+		// Add the spacing and the padding
+		pos.x += (spacing * 2 + padding * 2) as f32;
+		// Add only the passing to y
+		pos.y += (padding * 2) as f32;
+		// Add the width of the inner_box1
+		pos.x += 150.0;
+		
+		assert_eq!(child.surface.get_position(),pos)
 	}
 
 	#[test]

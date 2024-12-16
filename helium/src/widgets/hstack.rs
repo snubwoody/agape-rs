@@ -16,7 +16,7 @@ pub struct HStack {
 
 impl HStack {
 	pub fn fill_height(mut self) -> Self{
-		self.intrinsic_size.fill_height();
+		self.intrinsic_size = self.intrinsic_size.fill_height();
 		self
 	}
 
@@ -74,8 +74,8 @@ macro_rules! hstack {
 					)*
 				],
 				intrinsic_size:$crate::layout::IntrinsicSize {
-					width: $crate::layout::WidgetSize::Fit,
-					height: $crate::layout::WidgetSize::Fill,
+					width: $crate::layout::WidgetSize::Fill,
+					height: $crate::layout::WidgetSize::Fit,
 				}
 			}
 		}

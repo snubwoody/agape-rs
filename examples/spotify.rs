@@ -7,12 +7,12 @@ const SPOTIFY_GREEN:Color = Color::Hex("#3be477");
 fn main(){
 	let event_queue = EventQueue::new();
 
-	let playlist_chip = Container::new(Text::new("Playlist")).color(GREY).padding(12);
-	let album_chip = Container::new(Text::new("Album")).color(GREY).padding(12);
-	let artist_chip = Container::new(Text::new("Artist")).color(GREY).padding(12);
-	let downloaded_chip = Container::new(Text::new("Downloaded")).color(GREY).padding(12);
+	let playlist_chip = Container::new(Text::new("Playlist")).color(GREY).padding(12).corner_radius(4);
+	let album_chip = Container::new(Text::new("Album")).color(GREY).padding(12).corner_radius(4);
+	let artist_chip = Container::new(Text::new("Artist")).color(GREY).padding(12).corner_radius(4);
+	let downloaded_chip = Container::new(Text::new("Downloaded")).color(GREY).padding(12).corner_radius(4);
 
-	let chips = hstack!{playlist_chip,album_chip,artist_chip,downloaded_chip};
+	let chips = hstack!{playlist_chip,album_chip,artist_chip,downloaded_chip}.spacing(12);
 	let sidebar_item = hstack!{
 		Rect::new(50, 50, GREY).corner_radius(12),
 		vstack!{
@@ -27,7 +27,7 @@ fn main(){
 	let sidepanel = vstack!{
 		chips,
 		sidebar_item
-	}.color(BACKGROUND).fill_height();
+	}.color(BACKGROUND);
 
 	let home_page = View::new(sidepanel, event_queue);
 	

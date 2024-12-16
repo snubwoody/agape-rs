@@ -11,7 +11,8 @@ pub struct Container<W> {
 	id:String,
     color: Color,
     child: W, // TODO make this a generic
-	layout:BlockLayout
+	layout:BlockLayout,
+	corner_radius:u32
 }
 
 impl<W> Container<W> 
@@ -21,12 +22,18 @@ where W:Widget {
 			id:nanoid!(),
 			layout:BlockLayout::new(0),
             color: Color::Rgb(255, 255, 255),
-            child
+            child,
+			corner_radius:0
         }
     }
 
 	pub fn padding(mut self,padding:u32) -> Self{
 		self.layout.padding(padding);
+		self
+	}
+
+	pub fn corner_radius(mut self,corner_radius:u32) -> Self{
+		self.corner_radius = corner_radius;
 		self
 	}
 
@@ -39,6 +46,7 @@ where W:Widget {
     fn build(&self) -> WidgetBody {
         let surface = Box::new(RectSurface {
             color: self.color.clone(),
+			corner_radius:self.corner_radius,
             ..Default::default()
         });
 
