@@ -29,8 +29,6 @@ fn main(){
 		sidebar_item
 	}.color(BACKGROUND).fill_height();
 
-
-
 	let home_page = View::new(sidepanel, event_queue);
 	
 	App::new().add_view(home_page).run();

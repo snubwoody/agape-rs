@@ -1,9 +1,13 @@
 mod horizontal;
 mod vertical;
 mod block;
+use std::fmt::Debug;
+
 use helium_core::{position::Position, size::Size};
 use crate::widgets::WidgetBody;
 pub use horizontal::HorizontalLayout;
+pub use vertical::VerticalLayout;
+pub use block::BlockLayout;
 
 /// How a [`Widget`] should align it's children
 #[derive(Debug,Clone, Copy,PartialEq,Eq,Default)]
@@ -29,7 +33,14 @@ pub enum LayoutType {
 }
 
 
-pub trait LayoutHandler {
+// TODO maybe pass return the size instead of the mut widgets
+
+/// Handles the layout of `widgets`. It works by calculating the max size
+/// which is the maximum size that widget's are allowed to be and the min size
+/// which is the mininum space required to fit a widgets children. If a widget
+/// is set to `fill` it will use the max size and if it is set to `fit` then it will
+/// use the min size.
+pub trait Layout:Debug {
 	/// Computes the layout of the [`Widget`]'s i.e. the size
 	/// and positioning.
 	fn compute_layout(
@@ -48,330 +59,330 @@ pub trait LayoutHandler {
 }
 
 
-/// Handles the layout of `widgets`. It works by calculating the max size
-/// which is the maximum size that widget's are allowed to be and the min size
-/// which is the mininum space required to fit a widgets children. The if a widget
-/// is set to `fill` it will use the max size and if it is set to `fit` then it will
-/// use the min size.
-#[derive(Debug,Clone, Copy,Default)]
-pub struct Layout{
-	spacing:u32,
-	padding:u32,
-	layout:LayoutType,
-	main_axis_alignment:AxisAlignment,
-	cross_axis_alignment:AxisAlignment
-}
+// /// Handles the layout of `widgets`. It works by calculating the max size
+// /// which is the maximum size that widget's are allowed to be and the min size
+// /// which is the mininum space required to fit a widgets children. The if a widget
+// /// is set to `fill` it will use the max size and if it is set to `fit` then it will
+// /// use the min size.
+// #[derive(Debug,Clone, Copy,Default)]
+// pub struct Layout{
+// 	spacing:u32,
+// 	padding:u32,
+// 	layout:LayoutType,
+// 	main_axis_alignment:AxisAlignment,
+// 	cross_axis_alignment:AxisAlignment
+// }
 
-impl Layout{
-	pub fn new() -> Self{
-		Self::default()
-	}
+// impl Layout{
+// 	pub fn new() -> Self{
+// 		Self::default()
+// 	}
 
-	pub fn horizontal() -> Self{
-		Self{
-			layout:LayoutType::Horizontal,
-			..Default::default()
-		}
-	}
+// 	pub fn horizontal() -> Self{
+// 		Self{
+// 			layout:LayoutType::Horizontal,
+// 			..Default::default()
+// 		}
+// 	}
 
-	pub fn block() -> Self{
-		Self{
-			layout:LayoutType::Block,
-			..Default::default()
-		}
-	}
+// 	pub fn block() -> Self{
+// 		Self{
+// 			layout:LayoutType::Block,
+// 			..Default::default()
+// 		}
+// 	}
 
-	pub fn vertical() -> Self{
-		Self{
-			layout:LayoutType::Vertical,
-			..Default::default()
-		}
-	}
+// 	pub fn vertical() -> Self{
+// 		Self{
+// 			layout:LayoutType::Vertical,
+// 			..Default::default()
+// 		}
+// 	}
 
-	pub fn spacing(mut self,spacing:u32) -> Self{
-		self.spacing = spacing;
-		self
-	}
+// 	pub fn spacing(mut self,spacing:u32) -> Self{
+// 		self.spacing = spacing;
+// 		self
+// 	}
 
-	pub fn padding(mut self,padding:u32) -> Self{
-		self.padding = padding;
-		self
-	}
+// 	pub fn padding(mut self,padding:u32) -> Self{
+// 		self.padding = padding;
+// 		self
+// 	}
 
-	pub fn layout(mut self,layout:LayoutType) -> Self{
-		self.layout = layout;
-		self
-	}
+// 	pub fn layout(mut self,layout:LayoutType) -> Self{
+// 		self.layout = layout;
+// 		self
+// 	}
 
-	pub fn main_axis_alignment(mut self,main_axis_alignment:AxisAlignment) -> Self{
-		self.main_axis_alignment = main_axis_alignment;
-		self
-	}
+// 	pub fn main_axis_alignment(mut self,main_axis_alignment:AxisAlignment) -> Self{
+// 		self.main_axis_alignment = main_axis_alignment;
+// 		self
+// 	}
 
-	pub fn cross_axis_alignment(mut self,cross_axis_alignment:AxisAlignment) -> Self{
-		self.cross_axis_alignment = cross_axis_alignment;
-		self
-	}
+// 	pub fn cross_axis_alignment(mut self,cross_axis_alignment:AxisAlignment) -> Self{
+// 		self.cross_axis_alignment = cross_axis_alignment;
+// 		self
+// 	}
 
 	
-	/// Computes the layout of the [`Widget`]'s i.e. the size
-	/// and positioning.
-	pub fn compute_layout(
-		&self,
-		widgets:&mut Vec<Box<WidgetBody>>,
-		max_size:Size,
-		parent_pos:Position
-	) -> Size{
-		match self.layout {
-			LayoutType::Horizontal => 
-				self.compute_horizontal(widgets,max_size,parent_pos),
-			LayoutType::Vertical => 
-				self.compute_vertical(widgets,max_size,parent_pos),
-			LayoutType::Block => 
-				self.compute_block(widgets,max_size,parent_pos),
-		}
-	}
+// 	/// Computes the layout of the [`Widget`]'s i.e. the size
+// 	/// and positioning.
+// 	pub fn compute_layout(
+// 		&self,
+// 		widgets:&mut Vec<Box<WidgetBody>>,
+// 		max_size:Size,
+// 		parent_pos:Position
+// 	) -> Size{
+// 		match self.layout {
+// 			LayoutType::Horizontal => 
+// 				self.compute_horizontal(widgets,max_size,parent_pos),
+// 			LayoutType::Vertical => 
+// 				self.compute_vertical(widgets,max_size,parent_pos),
+// 			LayoutType::Block => 
+// 				self.compute_block(widgets,max_size,parent_pos),
+// 		}
+// 	}
 
-	/// Calculate the maximum [`Size`] that the [`Widget`]'s children are allowed to
-	/// be. If multiple `widgets` are set to `fill` then the size will be 
-	/// distributed among them. 
-	fn max_size(&self,widgets:&[Box<WidgetBody>],max_size:Size) -> Size {
-		// The maximum size for the widget children to be
-		let mut size = max_size;
+// 	/// Calculate the maximum [`Size`] that the [`Widget`]'s children are allowed to
+// 	/// be. If multiple `widgets` are set to `fill` then the size will be 
+// 	/// distributed among them. 
+// 	fn max_size(&self,widgets:&[Box<WidgetBody>],max_size:Size) -> Size {
+// 		// The maximum size for the widget children to be
+// 		let mut size = max_size;
 
-		// The number of widgets that have that their size set to fill
-		let mut width_fill_count = 0;
-		let mut height_fill_count = 0;
+// 		// The number of widgets that have that their size set to fill
+// 		let mut width_fill_count = 0;
+// 		let mut height_fill_count = 0;
 
-		size.width -= (self.padding * 2) as f32;
-		size.height -= (self.padding * 2) as f32;
+// 		size.width -= (self.padding * 2) as f32;
+// 		size.height -= (self.padding * 2) as f32;
 		
-		for (i,widget) in widgets.iter().enumerate(){
-			// Subtract the spacing for every element except the last
-			if i != widgets.len() - 1{
-				size.width -= self.spacing as f32; // TEMP
-				size.height -= self.spacing as f32; // TEMP
-			}
+// 		for (i,widget) in widgets.iter().enumerate(){
+// 			// Subtract the spacing for every element except the last
+// 			if i != widgets.len() - 1{
+// 				size.width -= self.spacing as f32; // TEMP
+// 				size.height -= self.spacing as f32; // TEMP
+// 			}
 
-			// TODO maybe move this to the enum?
-			match widget.intrinsic_size.width {
-				WidgetSize::Fixed(width) => {
-					size.width -= width
-				}
-				WidgetSize::Fit => {
-					size.width += widget.surface.get_size().width;
-				},
-				WidgetSize::Fill => {
-					width_fill_count += 1;
-				}
-			}
+// 			// TODO maybe move this to the enum?
+// 			match widget.intrinsic_size.width {
+// 				WidgetSize::Fixed(width) => {
+// 					size.width -= width
+// 				}
+// 				WidgetSize::Fit => {
+// 					size.width += widget.surface.get_size().width;
+// 				},
+// 				WidgetSize::Fill => {
+// 					width_fill_count += 1;
+// 				}
+// 			}
 
-			match widget.intrinsic_size.height {
-				WidgetSize::Fixed(height) => {
-					size.height -= height
-				}
-				WidgetSize::Fit => {
-					size.height += widget.surface.get_size().height;
-				},
-				WidgetSize::Fill => {
-					height_fill_count += 1;
-				}
-			}
-		};
+// 			match widget.intrinsic_size.height {
+// 				WidgetSize::Fixed(height) => {
+// 					size.height -= height
+// 				}
+// 				WidgetSize::Fit => {
+// 					size.height += widget.surface.get_size().height;
+// 				},
+// 				WidgetSize::Fill => {
+// 					height_fill_count += 1;
+// 				}
+// 			}
+// 		};
 
-		// Distribute the size evenly among the children 
-		size.width /= width_fill_count as f32;
-		size.height /= height_fill_count as f32;
+// 		// Distribute the size evenly among the children 
+// 		size.width /= width_fill_count as f32;
+// 		size.height /= height_fill_count as f32;
 
-		size
-	}
+// 		size
+// 	}
 
-	/// Position the `Widgets` according to the [`AxisAlignment`]
-	fn align(&self,widgets:&mut Vec<Box<WidgetBody>>,parent_pos:&Position){
-		let mut current_pos = self.padding as f32 + parent_pos.x;
+// 	/// Position the `Widgets` according to the [`AxisAlignment`]
+// 	fn align(&self,widgets:&mut Vec<Box<WidgetBody>>,parent_pos:&Position){
+// 		let mut current_pos = self.padding as f32 + parent_pos.x;
 
-		for widget in widgets{
-			// Set the current widget position
-			match self.layout {
-				LayoutType::Vertical => {
-					widget.surface.position(parent_pos.y + self.padding as f32,current_pos);
-					// Add the spacing and the widget's width to the current
-					// position and the min width
-					current_pos += self.spacing as f32;
-					current_pos += widget.surface.get_size().height;
-				},
-				LayoutType::Horizontal => {
-					widget.surface.position(current_pos as f32, parent_pos.y + self.padding as f32);
-					// Add the spacing and the widget's width to the current
-					// position and the min width
-					current_pos += self.spacing as f32;
-					current_pos += widget.surface.get_size().width;
-				}
-				LayoutType::Block => {}
-			}
-			self.align(&mut widget.children, &widget.surface.get_position());
-		}
-	}
+// 		for widget in widgets{
+// 			// Set the current widget position
+// 			match self.layout {
+// 				LayoutType::Vertical => {
+// 					widget.surface.position(parent_pos.y + self.padding as f32,current_pos);
+// 					// Add the spacing and the widget's width to the current
+// 					// position and the min width
+// 					current_pos += self.spacing as f32;
+// 					current_pos += widget.surface.get_size().height;
+// 				},
+// 				LayoutType::Horizontal => {
+// 					widget.surface.position(current_pos as f32, parent_pos.y + self.padding as f32);
+// 					// Add the spacing and the widget's width to the current
+// 					// position and the min width
+// 					current_pos += self.spacing as f32;
+// 					current_pos += widget.surface.get_size().width;
+// 				}
+// 				LayoutType::Block => {}
+// 			}
+// 			self.align(&mut widget.children, &widget.surface.get_position());
+// 		}
+// 	}
 	
-	fn compute_horizontal(
-		&self,
-		widgets:&mut Vec<Box<WidgetBody>>,
-		max_size:Size,
-		parent_pos:Position
-	) -> Size {
-		let mut min_width:f32 = 0.0;
-		let mut min_height:f32 = 0.0;
-		let length = widgets.len();
+// 	fn compute_horizontal(
+// 		&self,
+// 		widgets:&mut Vec<Box<WidgetBody>>,
+// 		max_size:Size,
+// 		parent_pos:Position
+// 	) -> Size {
+// 		let mut min_width:f32 = 0.0;
+// 		let mut min_height:f32 = 0.0;
+// 		let length = widgets.len();
 
-		if widgets.is_empty(){
-			return Size::default()
-		}
+// 		if widgets.is_empty(){
+// 			return Size::default()
+// 		}
 
-		// Currently max size only affects widgets will fill sizing
-		// widgets with fit use min width and fixed ignores everything
-		let child_max_size = self.max_size(widgets, max_size);
+// 		// Currently max size only affects widgets will fill sizing
+// 		// widgets with fit use min width and fixed ignores everything
+// 		let child_max_size = self.max_size(widgets, max_size);
 
-		for (i,widget) in widgets.iter_mut().enumerate(){
-			// Arrange the widget's children recursively and return the minimum 
-			// size required occupy all the children.
-			let size = widget.layout.compute_layout(
-				&mut widget.children,
-				max_size,
-				widget.surface.get_position()
-			);
+// 		for (i,widget) in widgets.iter_mut().enumerate(){
+// 			// Arrange the widget's children recursively and return the minimum 
+// 			// size required occupy all the children.
+// 			let size = widget.layout.compute_layout(
+// 				&mut widget.children,
+// 				max_size,
+// 				widget.surface.get_position()
+// 			);
 
-			// Set the widget's size
-			match widget.intrinsic_size.width {
-				WidgetSize::Fill => widget.surface.width(child_max_size.width),
-				WidgetSize::Fit => widget.surface.width(size.width),
-				WidgetSize::Fixed(size) => widget.surface.width(size),
-			}
+// 			// Set the widget's size
+// 			match widget.intrinsic_size.width {
+// 				WidgetSize::Fill => widget.surface.width(child_max_size.width),
+// 				WidgetSize::Fit => widget.surface.width(size.width),
+// 				WidgetSize::Fixed(size) => widget.surface.width(size),
+// 			}
 
-			match widget.intrinsic_size.height {
-				WidgetSize::Fill => widget.surface.height(max_size.height),
-				WidgetSize::Fit => widget.surface.height(size.height),
-				WidgetSize::Fixed(size) => widget.surface.height(size),
-			}
+// 			match widget.intrinsic_size.height {
+// 				WidgetSize::Fill => widget.surface.height(max_size.height),
+// 				WidgetSize::Fit => widget.surface.height(size.height),
+// 				WidgetSize::Fixed(size) => widget.surface.height(size),
+// 			}
 
-			if i != length - 1{
-				min_width += self.spacing as f32;
-			}
+// 			if i != length - 1{
+// 				min_width += self.spacing as f32;
+// 			}
 
-			min_width += widget.surface.get_size().width;
+// 			min_width += widget.surface.get_size().width;
 
-			// Set the minimum height to the height of the largest widget
-			min_height = min_height.max(widget.surface.get_size().height);
-		};
+// 			// Set the minimum height to the height of the largest widget
+// 			min_height = min_height.max(widget.surface.get_size().height);
+// 		};
 
-		self.align(widgets, &parent_pos);
-		min_width += (self.padding * 2) as f32;
-		min_height += (self.padding * 2) as f32;
-		Size::new(min_width, min_height)
-	}
+// 		self.align(widgets, &parent_pos);
+// 		min_width += (self.padding * 2) as f32;
+// 		min_height += (self.padding * 2) as f32;
+// 		Size::new(min_width, min_height)
+// 	}
 
-	fn compute_vertical(
-		&self,
-		widgets:&mut Vec<Box<WidgetBody>>,
-		max_size:Size,
-		parent_pos:Position
-	) -> Size{
-		// Set the initial position to the padding plus 
-		// the parent position
-		let mut min_width:f32 = 0.0;
-		let mut min_height:f32 = 0.0;
-		let length = widgets.len();
+// 	fn compute_vertical(
+// 		&self,
+// 		widgets:&mut Vec<Box<WidgetBody>>,
+// 		max_size:Size,
+// 		parent_pos:Position
+// 	) -> Size{
+// 		// Set the initial position to the padding plus 
+// 		// the parent position
+// 		let mut min_width:f32 = 0.0;
+// 		let mut min_height:f32 = 0.0;
+// 		let length = widgets.len();
 
-		if widgets.is_empty(){
-			return Size::default()
-		}
+// 		if widgets.is_empty(){
+// 			return Size::default()
+// 		}
 
-		let child_max_size = self.max_size(widgets, max_size);
+// 		let child_max_size = self.max_size(widgets, max_size);
 
-		for (i,widget) in widgets.iter_mut().enumerate(){
-			// Arrange the widget's children recursively and return the min size
-			let size = widget.layout.compute_layout(
-				&mut widget.children,
-				max_size,
-				widget.surface.get_position()
-			);
+// 		for (i,widget) in widgets.iter_mut().enumerate(){
+// 			// Arrange the widget's children recursively and return the min size
+// 			let size = widget.layout.compute_layout(
+// 				&mut widget.children,
+// 				max_size,
+// 				widget.surface.get_position()
+// 			);
 
-			// Set the widget's size
-			match widget.intrinsic_size.width {
-				WidgetSize::Fill => widget.surface.width(child_max_size.width),
-				WidgetSize::Fit => widget.surface.width(size.width),
-				WidgetSize::Fixed(width) => widget.surface.width(width),
-			}
+// 			// Set the widget's size
+// 			match widget.intrinsic_size.width {
+// 				WidgetSize::Fill => widget.surface.width(child_max_size.width),
+// 				WidgetSize::Fit => widget.surface.width(size.width),
+// 				WidgetSize::Fixed(width) => widget.surface.width(width),
+// 			}
 
-			match widget.intrinsic_size.height {
-				WidgetSize::Fill => widget.surface.height(child_max_size.height),
-				WidgetSize::Fit => widget.surface.height(size.height),
-				WidgetSize::Fixed(height) => widget.surface.height(height),
-			}
+// 			match widget.intrinsic_size.height {
+// 				WidgetSize::Fill => widget.surface.height(child_max_size.height),
+// 				WidgetSize::Fit => widget.surface.height(size.height),
+// 				WidgetSize::Fixed(height) => widget.surface.height(height),
+// 			}
 
-			if i != length - 1{
-				min_height += self.spacing as f32;
-			}
+// 			if i != length - 1{
+// 				min_height += self.spacing as f32;
+// 			}
 
-			min_height += widget.surface.get_size().height;
-			// Set the minimum width to the width of the largest widget
-			min_width = min_width.max(widget.surface.get_size().width);
-		};
+// 			min_height += widget.surface.get_size().height;
+// 			// Set the minimum width to the width of the largest widget
+// 			min_width = min_width.max(widget.surface.get_size().width);
+// 		};
 
-		self.align(widgets, &parent_pos);
+// 		self.align(widgets, &parent_pos);
 
-		min_width += (self.padding * 2) as f32;
-		min_height += (self.padding * 2) as f32;
+// 		min_width += (self.padding * 2) as f32;
+// 		min_height += (self.padding * 2) as f32;
 		
-		Size::new(min_width,min_height)
-	}
+// 		Size::new(min_width,min_height)
+// 	}
 
-	/// Computes the layout of `Block` level widgets.
-	fn compute_block(
-		&self,
-		widgets:&mut Vec<Box<WidgetBody>>,
-		max_size:Size,
-		parent_pos:Position
-	) -> Size {
-		let mut min_width = self.padding as f32 * 2.0;
-		let mut min_height = self.padding as f32 * 2.0;
-		let child_max_size = self.max_size(widgets, max_size);
+// 	/// Computes the layout of `Block` level widgets.
+// 	fn compute_block(
+// 		&self,
+// 		widgets:&mut Vec<Box<WidgetBody>>,
+// 		max_size:Size,
+// 		parent_pos:Position
+// 	) -> Size {
+// 		let mut min_width = self.padding as f32 * 2.0;
+// 		let mut min_height = self.padding as f32 * 2.0;
+// 		let child_max_size = self.max_size(widgets, max_size);
 
-		if widgets.is_empty(){
-			return Size::default()
-		}
+// 		if widgets.is_empty(){
+// 			return Size::default()
+// 		}
 
-		for (i,widget) in widgets.iter_mut().enumerate(){
-			widget.surface.position(
-				parent_pos.x + self.padding as f32, 
-				parent_pos.y + self.padding as f32
-			);
+// 		for (i,widget) in widgets.iter_mut().enumerate(){
+// 			widget.surface.position(
+// 				parent_pos.x + self.padding as f32, 
+// 				parent_pos.y + self.padding as f32
+// 			);
 
-			let size = widget.layout.compute_layout(
-				&mut widget.children, 
-				max_size,
-				widget.surface.get_position()
-			);
+// 			let size = widget.layout.compute_layout(
+// 				&mut widget.children, 
+// 				max_size,
+// 				widget.surface.get_position()
+// 			);
 			
-			// Set the widget's size
-			match widget.intrinsic_size.width {
-				WidgetSize::Fill => widget.surface.width(child_max_size.width),
-				WidgetSize::Fit => widget.surface.width(size.width),
-				WidgetSize::Fixed(size) => widget.surface.width(size),
-			}
+// 			// Set the widget's size
+// 			match widget.intrinsic_size.width {
+// 				WidgetSize::Fill => widget.surface.width(child_max_size.width),
+// 				WidgetSize::Fit => widget.surface.width(size.width),
+// 				WidgetSize::Fixed(size) => widget.surface.width(size),
+// 			}
 			
-			match widget.intrinsic_size.height {
-				WidgetSize::Fill => widget.surface.height(child_max_size.height),
-				WidgetSize::Fit => widget.surface.height(size.height),
-				WidgetSize::Fixed(size) => widget.surface.height(size),
-			}
+// 			match widget.intrinsic_size.height {
+// 				WidgetSize::Fill => widget.surface.height(child_max_size.height),
+// 				WidgetSize::Fit => widget.surface.height(size.height),
+// 				WidgetSize::Fixed(size) => widget.surface.height(size),
+// 			}
 			
-			min_width += widget.surface.get_size().width;
-			min_height += widget.surface.get_size().height;
-		};
+// 			min_width += widget.surface.get_size().width;
+// 			min_height += widget.surface.get_size().height;
+// 		};
 		
-		Size::new(min_width, min_height)
-	}
-}
+// 		Size::new(min_width, min_height)
+// 	}
+// }
 
 
 #[derive(Debug,Clone, Copy,Default,PartialEq)]
@@ -436,8 +447,9 @@ mod test{
 		let padding = 12;
 		let window = Size::new(800.0, 800.0);
 		let mut horizontal_empty_box = WidgetBody::new().layout(
-			Layout::horizontal().spacing(spacing).padding(padding)
+			HorizontalLayout::new(spacing, padding)
 		); 
+		//Layout::horizontal().spacing(spacing).padding(padding)
 
 		// Make sure spacing and padding don't take effect if widget is empty
 		horizontal_empty_box.arrange(window);
@@ -448,8 +460,9 @@ mod test{
 		);
 
 		let mut vertical_empty_box = WidgetBody::new().layout(
-			Layout::vertical().spacing(spacing).padding(padding)
+			VerticalLayout::new(spacing, padding)
 		);
+		//Layout::vertical().spacing(spacing).padding(padding)
 
 		vertical_empty_box.arrange(window);
 		assert_eq!(
@@ -459,7 +472,7 @@ mod test{
 		);
 
 		let mut block_empty_box = WidgetBody::new().layout(
-			Layout::block().spacing(spacing).padding(padding)
+			BlockLayout::new(spacing)
 		);
 		block_empty_box.arrange(window);
 
@@ -483,10 +496,11 @@ mod test{
 		
 		let mut horizontal_box = WidgetBody::new()
 			.layout(
-				Layout::horizontal().spacing(spacing).padding(padding)
+				HorizontalLayout::new(spacing, padding)
 			)
 			.add_children(vec![box1,box2,box3,box4])
 			.intrinsic_size(IntrinsicSize::fit());
+		//Layout::horizontal().spacing(spacing).padding(padding)
 		
 		horizontal_box.arrange(window);
 
@@ -517,10 +531,12 @@ mod test{
 		
 		let mut vertical_box = WidgetBody::new()
 			.layout(
-				Layout::vertical().spacing(spacing).padding(padding)
+				VerticalLayout::new(spacing, padding)
 			)
 			.add_children(vec![box1,box2,box3,box4])
 			.intrinsic_size(IntrinsicSize::fit());
+		
+		//Layout::vertical().spacing(spacing).padding(padding)
 
 		vertical_box.arrange(window);
 		
@@ -542,7 +558,7 @@ mod test{
 		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
 		
 		let mut block_box = WidgetBody::new()
-			.layout(Layout::block().spacing(spacing).padding(padding))
+			.layout(BlockLayout::new(padding))
 			.add_child(box1)
 			.intrinsic_size(IntrinsicSize::fit());
 
@@ -566,8 +582,8 @@ mod test{
 		let box3 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
 		let box4 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
 
-		let mut vertical_box = WidgetBody::new() // TODO add padding
-			.layout(Layout::vertical().spacing(spacing).padding(padding))
+		let mut vertical_box = WidgetBody::new() 
+			.layout(VerticalLayout::new(spacing, padding))
 			.add_children(vec![box1,box2,box3,box4]);
 
 		vertical_box.arrange(Size::new(800.0, 800.0));
@@ -598,7 +614,7 @@ mod test{
 		let box4 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
 
 		let mut horizontal_box = WidgetBody::new()
-			.layout(Layout::horizontal().spacing(spacing).padding(padding))
+			.layout(HorizontalLayout::new(spacing, padding))
 			.add_children(vec![box1,box2,box3,box4]);
 
 		horizontal_box.arrange(Size::new(800.0, 800.0));
@@ -626,7 +642,7 @@ mod test{
 		let box1 = WidgetBody::new().intrinsic_size(IntrinsicSize::fixed(200, 200));
 
 		let mut block_box = WidgetBody::new()
-			.layout(Layout::block().spacing(spacing).padding(padding))
+			.layout(BlockLayout::new(padding))
 			.add_children(vec![box1]);
 
 		block_box.arrange(Size::new(800.0, 800.0));
@@ -655,7 +671,7 @@ mod test{
 
 		let mut horizontal_box = 
 			WidgetBody::new()
-			.layout(Layout::horizontal().spacing(spacing).padding(padding))
+			.layout(HorizontalLayout::new(spacing, padding))
 			.add_children(vec![box1,box3]);
 
 		horizontal_box.arrange(window_size);

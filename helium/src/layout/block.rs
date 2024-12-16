@@ -1,16 +1,29 @@
 use helium_core::{position::Position, size::Size};
 use crate::widgets::WidgetBody;
-use super::{LayoutType,AxisAlignment,LayoutHandler,WidgetSize};
+use super::{AxisAlignment,Layout,WidgetSize};
 
+#[derive(Debug,Clone,Copy)]
 pub struct BlockLayout{
-	spacing:u32, // TODO remove this
 	padding:u32,
-	layout:LayoutType,
 	main_axis_alignment:AxisAlignment,
 	cross_axis_alignment:AxisAlignment
 }
 
-impl LayoutHandler for BlockLayout {
+impl BlockLayout {
+	pub fn new(padding:u32) -> Self{
+		Self { 
+			padding, 
+			main_axis_alignment: AxisAlignment::Start, 
+			cross_axis_alignment: AxisAlignment::Start 
+		}
+	}
+
+	pub fn padding(&mut self,padding:u32){
+		self.padding = padding;
+	}
+}
+
+impl Layout for BlockLayout {
 	fn compute_layout(
 		&self,
 		widgets:&mut Vec<Box<WidgetBody>>,
@@ -69,12 +82,6 @@ impl LayoutHandler for BlockLayout {
 		size.height -= (self.padding * 2) as f32;
 		
 		for (i,widget) in widgets.iter().enumerate(){
-			// Subtract the spacing for every element except the last
-			if i != widgets.len() - 1{
-				size.width -= self.spacing as f32; // TEMP
-				size.height -= self.spacing as f32; // TEMP
-			}
-
 			// TODO maybe move this to the enum?
 			match widget.intrinsic_size.width {
 				WidgetSize::Fixed(width) => {
@@ -111,27 +118,5 @@ impl LayoutHandler for BlockLayout {
 	/// Position the `Widgets` according to the [`AxisAlignment`]
 	fn align(&self,widgets:&mut Vec<Box<WidgetBody>>,parent_pos:&Position){
 		let mut current_pos = self.padding as f32 + parent_pos.x;
-
-		for widget in widgets{
-			// Set the current widget position
-			match self.layout {
-				LayoutType::Vertical => {
-					widget.surface.position(parent_pos.y + self.padding as f32,current_pos);
-					// Add the spacing and the widget's width to the current
-					// position and the min width
-					current_pos += self.spacing as f32;
-					current_pos += widget.surface.get_size().height;
-				},
-				LayoutType::Horizontal => {
-					widget.surface.position(current_pos as f32, parent_pos.y + self.padding as f32);
-					// Add the spacing and the widget's width to the current
-					// position and the min width
-					current_pos += self.spacing as f32;
-					current_pos += widget.surface.get_size().width;
-				}
-				LayoutType::Block => {}
-			}
-			self.align(&mut widget.children, &widget.surface.get_position());
-		}
 	}
 }		

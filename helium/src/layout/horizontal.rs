@@ -1,16 +1,37 @@
 use helium_core::{position::Position, size::Size};
 use crate::widgets::WidgetBody;
-use super::{LayoutType,AxisAlignment,LayoutHandler,WidgetSize};
+use super::{LayoutType,AxisAlignment,Layout,WidgetSize};
 
+#[derive(Debug,Clone,Copy)]
 pub struct HorizontalLayout{
 	spacing:u32,
 	padding:u32,
-	layout:LayoutType,
 	main_axis_alignment:AxisAlignment,
 	cross_axis_alignment:AxisAlignment
 }
 
-impl LayoutHandler for HorizontalLayout {
+
+impl HorizontalLayout {
+	pub fn new(spacing:u32,padding:u32) -> Self{
+		Self { 
+			spacing,
+			padding, 
+			main_axis_alignment: AxisAlignment::Start, 
+			cross_axis_alignment: AxisAlignment::Start 
+		}
+	}
+
+	pub fn spacing(&mut self,spacing:u32){
+		self.spacing = spacing;
+	}
+
+	pub fn padding(&mut self,padding:u32){
+		self.padding = padding;
+	}
+}
+
+
+impl Layout for HorizontalLayout {
 	fn compute_layout(
 		&self,
 		widgets:&mut Vec<Box<WidgetBody>>,
@@ -124,23 +145,11 @@ impl LayoutHandler for HorizontalLayout {
 
 		for widget in widgets{
 			// Set the current widget position
-			match self.layout {
-				LayoutType::Vertical => {
-					widget.surface.position(parent_pos.y + self.padding as f32,current_pos);
-					// Add the spacing and the widget's width to the current
-					// position and the min width
-					current_pos += self.spacing as f32;
-					current_pos += widget.surface.get_size().height;
-				},
-				LayoutType::Horizontal => {
-					widget.surface.position(current_pos as f32, parent_pos.y + self.padding as f32);
-					// Add the spacing and the widget's width to the current
-					// position and the min width
-					current_pos += self.spacing as f32;
-					current_pos += widget.surface.get_size().width;
-				}
-				LayoutType::Block => {}
-			}
+			widget.surface.position(current_pos as f32, parent_pos.y + self.padding as f32);
+			// Add the spacing and the widget's width to the current
+			// position and the min width
+			current_pos += self.spacing as f32;
+			current_pos += widget.surface.get_size().width;
 			self.align(&mut widget.children, &widget.surface.get_position());
 		}
 	}

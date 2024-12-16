@@ -4,16 +4,20 @@ mod container;
 mod text;
 mod button;
 mod circle;
+mod vstack;
+mod hstack;
 use nanoid::nanoid;
 pub use rect::Rect;
 pub use text::Text;
 pub use button::Button;
 pub use stack::Stack;
+pub use hstack::HStack;
+pub use vstack::VStack;
 pub use container::Container;
 pub use circle::Circle;
 use crate::{
 	app::AppState, 
-	layout::{IntrinsicSize, Layout, WidgetSize}, 
+	layout::{BlockLayout, IntrinsicSize, Layout, WidgetSize}, 
 	surface::{
 		rect::RectSurface, Surface
 	}, 
@@ -40,7 +44,7 @@ pub trait Widget{
 pub struct WidgetBody{ // TODO this changes a lot so make these fields private
 	pub id:WidgetId,
 	pub surface:Box<dyn Surface>,
-	pub layout:Layout,
+	pub layout:Box<dyn Layout>,
 	pub children:Vec<Box<WidgetBody>>,
 	pub intrinsic_size:IntrinsicSize, // TODO move this to the layout
 }
@@ -55,8 +59,8 @@ impl WidgetBody {
 		self
 	}
 
-	pub fn layout(mut self,layout:Layout) -> Self{
-		self.layout = layout;
+	pub fn layout(mut self,layout:impl Layout + 'static) -> Self{
+		self.layout = Box::new(layout);
 		self
 	}
 
@@ -136,12 +140,11 @@ impl WidgetBody {
 impl Default for WidgetBody {
 	fn default() -> Self {
 		let surface = Box::new(RectSurface::default());
-		let layout = Layout::default();
 
 		Self { 
 			id:nanoid!(),
 			surface, 
-			layout, 
+			layout:Box::new(BlockLayout::new(0)), 
 			children:vec![], 
 			intrinsic_size: Default::default(),
 		}
@@ -159,14 +162,6 @@ macro_rules! impl_style {
 			self
 		} 
 
-		pub fn spacing(mut self, spacing: u32) -> Self {
-			self.layout = self.layout.spacing(spacing);
-			self
-		}
-	
-		pub fn padding(mut self,padding:u32) -> Self{
-			self.layout = self.layout.padding(padding);
-			self
-		}
+		
 	};
 }

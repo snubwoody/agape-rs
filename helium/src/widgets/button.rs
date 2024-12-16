@@ -1,5 +1,6 @@
 use super::{text::Text, Widget, WidgetId};
 use crate::app::events::Event;
+use crate::layout::BlockLayout;
 use crate::{
     impl_events,
     layout::{IntrinsicSize, Layout, WidgetSize},
@@ -76,7 +77,7 @@ impl Widget for Button {
         let mut surface = RectSurface::new(0.0, 0.0, 200.0, 70.0, self.color.clone());
         surface.corner_radius(self.corner_radius);
 
-        let layout = Layout::new().padding(self.padding);
+        let layout = Box::new(BlockLayout::new(self.padding));
 
         let text_body = Text::new(&self.text).build();
 
