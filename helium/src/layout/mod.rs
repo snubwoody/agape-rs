@@ -1,6 +1,9 @@
+mod horizontal;
+mod vertical;
+mod block;
 use helium_core::{position::Position, size::Size};
-use wgpu::rwh;
 use crate::widgets::WidgetBody;
+pub use horizontal::HorizontalLayout;
 
 /// How a [`Widget`] should align it's children
 #[derive(Debug,Clone, Copy,PartialEq,Eq,Default)]
@@ -24,6 +27,26 @@ pub enum LayoutType {
 	Horizontal,
 	Vertical,
 }
+
+
+pub trait LayoutHandler {
+	/// Computes the layout of the [`Widget`]'s i.e. the size
+	/// and positioning.
+	fn compute_layout(
+		&self,
+		widgets:&mut Vec<Box<WidgetBody>>,
+		max_size:Size,
+		parent_pos:Position
+	) -> Size;
+
+	/// Calculate the maximum [`Size`] that the [`Widget`]'s children are allowed to
+	/// be. If multiple `widgets` are set to `fill` then the size will be 
+	/// distributed among them. 
+	fn max_size(&self,widgets:&[Box<WidgetBody>],max_size:Size) -> Size;
+
+	fn align(&self,widgets:&mut Vec<Box<WidgetBody>>,parent_pos:&Position);
+}
+
 
 /// Handles the layout of `widgets`. It works by calculating the max size
 /// which is the maximum size that widget's are allowed to be and the min size
