@@ -99,7 +99,6 @@ impl Surface for TextSurface {
 		let (texture,texture_size) = self.build(&state.device);
 
 		let vertices = self.to_vertices(texture_size.width as f32,texture_size.height as f32);
-		dbg!(&vertices);
 
 		let vertex_buffer = state.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
 			label: Some("Vertex buffer"),

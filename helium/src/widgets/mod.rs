@@ -93,7 +93,7 @@ impl WidgetBody {
 		// Draw the parent then the children to the screen
 		self.surface.draw(render_pass, context,state);
 		self.children.iter_mut().for_each(|child|{
-			child.surface.draw(render_pass, context,state);
+			child.render(render_pass, state);
 		});
 	}
 

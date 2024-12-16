@@ -12,12 +12,9 @@ fn main() {
 fn app(){
 	let event_loop = EventQueue::new();
 
-	let hstack = hstack![
-		Container::new(Text::new("Hello world")),
-		Text::new("Hello world")
-	].padding(24).spacing(56).color(RED);
+	let button = Button::new("Hello world");
 	
-	let page = View::new(hstack,event_loop);
+	let page = View::new(button,event_loop);
   	
 	App::new()
 	.add_view(page)
