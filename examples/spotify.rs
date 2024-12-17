@@ -27,7 +27,7 @@ fn main(){
 	let sidepanel = vstack!{
 		chips,
 		sidebar_item
-	}.color(BACKGROUND);
+	}.color(BACKGROUND).spacing(24);
 
 	let home_page = View::new(sidepanel, event_queue);
 	

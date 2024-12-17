@@ -151,11 +151,14 @@ impl Layout for VerticalLayout {
 
 		for widget in widgets{
 			// Set the current widget position
-			widget.surface.position(parent_pos.x + self.padding as f32,current_pos);
+			//widget.surface.position(parent_pos.x + self.padding as f32,pos.y);
+			widget.surface.position(pos.x,pos.y);
 			// Add the spacing and the widget's width to the current
 			// position and the min width
 			current_pos += self.spacing as f32;
 			current_pos += widget.surface.get_size().height;
+			pos.y += self.spacing as f32;
+			pos.y += widget.surface.get_size().height;
 			self.align(&mut widget.children, &widget.surface.get_position());
 		}
 	}
