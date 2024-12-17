@@ -21,7 +21,7 @@ pub struct TextSurface{
 }
 
 impl TextSurface {
-	pub fn new(text:&str,color:&str,font_size:u8) -> Self{
+	pub fn new(text:&str,font_size:u8) -> Self{
 		let text_renderer = TextRenderer::default();
 
 		// Render the text as a png

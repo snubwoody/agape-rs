@@ -32,7 +32,6 @@ impl Widget for Text {
 		// Create the text surface to be rendered
 		let textsurface = TextSurface::new(
 			self.text.as_str(),
-			"#000000" , 
 			self.font_size
 		);
 

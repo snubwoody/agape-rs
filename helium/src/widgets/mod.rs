@@ -25,7 +25,10 @@ use helium_core::size::Size;
 
 pub type WidgetId = String;
 
-/// The trait that all widgets must implement.
+/// The trait that all widgets must implement. Each `widget` must implement build function
+/// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about 
+/// the widget.
+/// ```
 pub trait Widget{
 	// I've changed this between &self and self, a couple times and my conclusion is 
 	// just keep it as &self forever, it makes it way easier to compose multiple sub-widgets.
@@ -91,10 +94,7 @@ impl WidgetBody {
 		// TODO I think I should change this so that ALL
 		// of the layout is handled by the Layout struct
 		// Maybe return the sizes so instead of passing mutable state
-		
-		// self.children.iter_mut().for_each(|child|{
-		// 	child.arrange(*window_size);
-		// });
+	
 		self.arrange(*window_size);
 		
 		//dbg!(&self);
