@@ -111,27 +111,22 @@ impl Layout for VerticalLayout {
 
 			// TODO maybe move this to the enum?
 			match widget.intrinsic_size.width {
-				WidgetSize::Fixed(width) => {
-					size.width -= width
-				}
-				WidgetSize::Fit => {
-					size.width += widget.surface.get_size().width;
-				},
 				WidgetSize::Fill => {
 					width_fill_count -= 1;
+				},
+				_ => {
+					size.width += widget.surface.get_size().width;
 				}
 			}
 
 			match widget.intrinsic_size.height {
-				WidgetSize::Fixed(height) => {
-					size.height -= height
-				}
-				WidgetSize::Fit => {
-					size.height -= widget.surface.get_size().height;
-				},
 				WidgetSize::Fill => {
 					height_fill_count += 1;
-				}
+				},
+				_=> {
+					size.height -= widget.surface.get_size().height;
+				},
+				
 			}
 		};
 

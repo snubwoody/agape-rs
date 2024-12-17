@@ -30,7 +30,7 @@ fn main(){
 			Chip("All"),
 			Chip("Music"),
 			Chip("Podcasts")
-		}
+		}.spacing(12)
 	};
 
 	let home_page = hstack!{sidepanel,mainpanel};
