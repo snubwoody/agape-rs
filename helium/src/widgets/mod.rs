@@ -107,7 +107,7 @@ impl WidgetBody {
 		});
 	}
 
-	pub(crate) fn arrange(&mut self,window_size:Size){
+	pub fn arrange(&mut self,window_size:Size){
 		let position = Position::new(
 			self.surface.get_position().x, 
 			self.surface.get_position().y

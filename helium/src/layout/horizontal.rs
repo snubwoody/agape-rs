@@ -102,8 +102,8 @@ impl Layout for HorizontalLayout {
 		for (i,widget) in widgets.iter().enumerate(){
 			// Subtract the spacing for every element except the last
 			if i != widgets.len() - 1{
-				size.width -= self.spacing as f32; // TEMP
-				size.height -= self.spacing as f32; // TEMP
+				size.width -= self.spacing as f32;
+				size.height -= self.spacing as f32;
 			}
 
 			// TODO maybe move this to the enum?
@@ -112,7 +112,7 @@ impl Layout for HorizontalLayout {
 					size.width -= width
 				}
 				WidgetSize::Fit => {
-					size.width += widget.surface.get_size().width;
+					size.width -= widget.surface.get_size().width;
 				},
 				WidgetSize::Fill => {
 					width_fill_count += 1;
@@ -124,7 +124,7 @@ impl Layout for HorizontalLayout {
 					size.height -= height
 				}
 				WidgetSize::Fit => {
-					size.height += widget.surface.get_size().height;
+					size.height -= widget.surface.get_size().height;
 				},
 				WidgetSize::Fill => {
 					height_fill_count += 1;
@@ -141,15 +141,19 @@ impl Layout for HorizontalLayout {
 
 	/// Position the `Widgets` according to the [`AxisAlignment`]
 	fn align(&self,widgets:&mut Vec<Box<WidgetBody>>,parent_pos:&Position){
-		let mut current_pos = self.padding as f32 + parent_pos.x;
+		// TODO i might be able to make this a provided method if i pass the spacing?
+		let mut pos = parent_pos.clone();
+		// Add the padding
+		pos += self.padding as f32;
 
 		for widget in widgets{
 			// Set the current widget position
-			widget.surface.position(current_pos as f32, parent_pos.y + self.padding as f32);
+			widget.surface.position(pos.x,pos.y);
+
 			// Add the spacing and the widget's width to the current
 			// position and the min width
-			current_pos += self.spacing as f32;
-			current_pos += widget.surface.get_size().width;
+			pos.x += self.spacing as f32;
+			pos.x += widget.surface.get_size().width;
 			self.align(&mut widget.children, &widget.surface.get_position());
 		}
 	}

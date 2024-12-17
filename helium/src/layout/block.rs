@@ -88,10 +88,10 @@ impl Layout for BlockLayout {
 					size.width -= width
 				}
 				WidgetSize::Fit => {
-					size.width += widget.surface.get_size().width;
+					size.width -= widget.surface.get_size().width;
 				},
 				WidgetSize::Fill => {
-					width_fill_count += 1;
+					width_fill_count -= 1;
 				}
 			}
 
@@ -100,7 +100,7 @@ impl Layout for BlockLayout {
 					size.height -= height
 				}
 				WidgetSize::Fit => {
-					size.height += widget.surface.get_size().height;
+					size.height -= widget.surface.get_size().height;
 				},
 				WidgetSize::Fill => {
 					height_fill_count += 1;
