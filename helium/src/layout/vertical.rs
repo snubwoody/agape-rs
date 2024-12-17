@@ -30,10 +30,13 @@ impl VerticalLayout {
 }
 
 impl Layout for VerticalLayout {
+	/// Computes the layout based on the `widget`'s layout attributes
+	/// and returns the minimum size required to fit the widget's children.
+	/// This function runs recursively for each `widget`.
 	fn compute_layout(
 		&self,
 		widgets:&mut Vec<Box<WidgetBody>>,
-		max_size:Size,
+		available_space:Size,
 		parent_pos:Position
 	) -> Size{
 		// Set the initial position to the padding plus 
@@ -46,16 +49,18 @@ impl Layout for VerticalLayout {
 			return Size::default()
 		}
 
-		let child_max_size = self.max_size(widgets, max_size);
+		let child_max_size = self.available_space(widgets, available_space);
 
+		// TODO the same max size gets passes everytime that can't be right.
 		for (i,widget) in widgets.iter_mut().enumerate(){
 			// Arrange the widget's children recursively and return the min size
 			let size = widget.layout.compute_layout(
 				&mut widget.children,
-				max_size,
+				available_space,
 				widget.surface.get_position()
 			);
 
+			// TODO maybe create a set_size fn in the trait
 			// Set the widget's size
 			match widget.intrinsic_size.width {
 				WidgetSize::Fill => widget.surface.width(child_max_size.width),
@@ -86,9 +91,9 @@ impl Layout for VerticalLayout {
 		Size::new(min_width,min_height)
 	}
 
-	fn max_size(&self,widgets:&[Box<WidgetBody>],max_size:Size) -> Size {
+	fn available_space(&self,widgets:&[Box<WidgetBody>],available_space:Size) -> Size {
 		// The maximum size for the widget children to be
-		let mut size = max_size;
+		let mut size = available_space;
 
 		// The number of widgets that have that their size set to fill
 		let mut width_fill_count = 0;
@@ -139,11 +144,14 @@ impl Layout for VerticalLayout {
 
 	/// Position the `Widgets` according to the [`AxisAlignment`]
 	fn align(&self,widgets:&mut Vec<Box<WidgetBody>>,parent_pos:&Position){
-		let mut current_pos = self.padding as f32 + parent_pos.x;
+		let mut pos = parent_pos.clone();
+		// Add the padding
+		pos += self.padding as f32;
+		let mut current_pos = self.padding as f32 + parent_pos.y;
 
 		for widget in widgets{
 			// Set the current widget position
-			widget.surface.position(parent_pos.y + self.padding as f32,current_pos);
+			widget.surface.position(parent_pos.x + self.padding as f32,current_pos);
 			// Add the spacing and the widget's width to the current
 			// position and the min width
 			current_pos += self.spacing as f32;

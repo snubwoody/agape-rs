@@ -44,6 +44,16 @@ impl AddAssign<Position> for Position {
 	}
 }
 
+impl<I> AddAssign<I> for Position
+where 
+	f32:AddAssign<I>, 
+	I:Copy {
+	fn add_assign(&mut self, rhs: I) {
+		self.x += rhs;
+		self.y += rhs;
+	}
+}
+
 impl From<PhysicalPosition<f64>> for Position {
 	fn from(position: PhysicalPosition<f64>) -> Self {
 		Self { 

@@ -27,12 +27,12 @@ impl Layout for BlockLayout {
 	fn compute_layout(
 		&self,
 		widgets:&mut Vec<Box<WidgetBody>>,
-		max_size:Size,
+		available_space:Size,
 		parent_pos:Position
 	) -> Size {
 		let mut min_width = self.padding as f32 * 2.0;
 		let mut min_height = self.padding as f32 * 2.0;
-		let child_max_size = self.max_size(widgets, max_size);
+		let child_max_size = self.available_space(widgets, available_space);
 
 		if widgets.is_empty(){
 			return Size::default()
@@ -46,7 +46,7 @@ impl Layout for BlockLayout {
 
 			let size = widget.layout.compute_layout(
 				&mut widget.children, 
-				max_size,
+				available_space,
 				widget.surface.get_position()
 			);
 			
@@ -70,9 +70,9 @@ impl Layout for BlockLayout {
 		Size::new(min_width, min_height)
 	}
 
-	fn max_size(&self,widgets:&[Box<WidgetBody>],max_size:Size) -> Size {
+	fn available_space(&self,widgets:&[Box<WidgetBody>],available_space:Size) -> Size {
 		// The maximum size for the widget children to be
-		let mut size = max_size;
+		let mut size = available_space;
 
 		// The number of widgets that have that their size set to fill
 		let mut width_fill_count = 0;

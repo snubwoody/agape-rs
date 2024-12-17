@@ -35,7 +35,7 @@ impl Layout for HorizontalLayout {
 	fn compute_layout(
 		&self,
 		widgets:&mut Vec<Box<WidgetBody>>,
-		max_size:Size,
+		available_space:Size,
 		parent_pos:Position
 	) -> Size {
 		let mut min_width:f32 = 0.0;
@@ -48,14 +48,14 @@ impl Layout for HorizontalLayout {
 
 		// Currently max size only affects widgets will fill sizing
 		// widgets with fit use min width and fixed ignores everything
-		let child_max_size = self.max_size(widgets, max_size);
+		let child_max_size = self.available_space(widgets, available_space);
 
 		for (i,widget) in widgets.iter_mut().enumerate(){
 			// Arrange the widget's children recursively and return the minimum 
 			// size required occupy all the children.
 			let size = widget.layout.compute_layout(
 				&mut widget.children,
-				max_size,
+				available_space,
 				widget.surface.get_position()
 			);
 
@@ -67,7 +67,7 @@ impl Layout for HorizontalLayout {
 			}
 
 			match widget.intrinsic_size.height {
-				WidgetSize::Fill => widget.surface.height(max_size.height),
+				WidgetSize::Fill => widget.surface.height(available_space.height),
 				WidgetSize::Fit => widget.surface.height(size.height),
 				WidgetSize::Fixed(size) => widget.surface.height(size),
 			}
@@ -88,9 +88,9 @@ impl Layout for HorizontalLayout {
 		Size::new(min_width, min_height)
 	}
 
-	fn max_size(&self,widgets:&[Box<WidgetBody>],max_size:Size) -> Size {
+	fn available_space(&self,widgets:&[Box<WidgetBody>],available_space:Size) -> Size {
 		// The maximum size for the widget children to be
-		let mut size = max_size;
+		let mut size = available_space;
 
 		// The number of widgets that have that their size set to fill
 		let mut width_fill_count = 0;

@@ -90,9 +90,15 @@ impl WidgetBody {
 		
 		// TODO I think I should change this so that ALL
 		// of the layout is handled by the Layout struct
+		// Maybe return the sizes so instead of passing mutable state
+		
+		// self.children.iter_mut().for_each(|child|{
+		// 	child.arrange(*window_size);
+		// });
 		self.arrange(*window_size);
 		
-		dbg!(&self.surface);
+		//dbg!(&self);
+		// TODO when something is fill and the parent is fit make the child fit itself
 
 		// Draw the parent then the children to the screen
 		self.surface.draw(render_pass, context,state);

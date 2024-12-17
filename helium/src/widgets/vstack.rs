@@ -15,7 +15,7 @@ pub struct VStack {
 
 impl VStack {
 	pub fn fill_height(mut self) -> Self{
-		self.intrinsic_size.fill_height();
+		self.intrinsic_size = self.intrinsic_size.fill_height();
 		self
 	}
 
