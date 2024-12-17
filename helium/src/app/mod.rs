@@ -44,7 +44,8 @@ impl App {
 
     pub fn run(mut self) {
         let mut state = task::block_on(AppState::new(&self.window));
-
+		// TODO when the window is minimized the size of the widgets are changing to zero which
+		// causing wgpu to panic.
         self.event_loop
         .run(|event, window_target| match event {
             winit::event::Event::WindowEvent { event, .. } => match event {
