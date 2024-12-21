@@ -21,16 +21,11 @@ pub trait Layout:Debug {
 	/// Computes the layout of the [`Widget`]'s i.e. the size
 	/// and positioning.
 	fn compute_layout(
-		&self,
+		&mut self,
 		widgets:&mut Vec<Box<WidgetBody>>,
 		available_space:Size,
 		parent_pos:Position
 	) -> Size;
-
-	/// Calculates the available space that isn't occupied by any widget currently, the available
-	/// space is affected by `spacing`, `padding` and the `Fixed` and `Fit` layout's. The available 
-	/// space will be distributed evenly among the widget's with a `Fill` layout.
-	fn available_space(&self,widgets:&[Box<WidgetBody>],available_space:Size) -> Size;
 
 	fn align(&self,widgets:&mut Vec<Box<WidgetBody>>,parent_pos:&Position);
 }
@@ -62,8 +57,10 @@ pub enum LayoutType {
 #[derive(Debug,Clone, Copy,Default,PartialEq)]
 pub enum WidgetSize{
 	Fixed(f32),
+	/// Tries to be as big as possible
 	Fill,
 	#[default]
+	/// Tries to be as small as possible
 	Fit, // TODO maybe change these to grow and shrink
 }
 
@@ -149,6 +146,7 @@ impl From<Size> for IntrinsicSize {
 		IntrinsicSize::new().fixed(value.width as u32, value.height as u32)
 	}
 }
+
 
 #[cfg(test)]
 mod test{

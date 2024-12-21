@@ -1,6 +1,6 @@
 use super::{Widget, WidgetBody};
 use crate::Color;
-use crate::layout::IntrinsicSize;
+use crate::layout::{BlockLayout, IntrinsicSize};
 use crate::surface::rect::RectSurface;
 use crate::Size;
 use nanoid::nanoid;
@@ -29,17 +29,17 @@ impl Rect {
     }
 
 	pub fn fill(mut self) -> Self{
-		self.intrinsic_size.fill();
+		self.intrinsic_size = self.intrinsic_size.fill();
 		self
 	}
 
 	pub fn fill_width(mut self) -> Self{
-		self.intrinsic_size.fill_width();
+		self.intrinsic_size = self.intrinsic_size.fill_width();
 		self
 	}
 
 	pub fn fill_height(mut self) -> Self{
-		self.intrinsic_size.fill_height();
+		self.intrinsic_size = self.intrinsic_size.fill_height();
 		self
 	}
 
@@ -47,11 +47,6 @@ impl Rect {
 	pub fn corner_radius(mut self,radius:u32) -> Self{
 		self.radius = radius;
 		self
-	}
-
-	/// A shorthand for border radius
-	pub fn rounded(){
-
 	}
 }
 
@@ -64,11 +59,13 @@ impl Widget for Rect {
             ..Default::default()
         });
 
+		let mut layout = BlockLayout::new(0);
+		layout.intrinsic_size(self.intrinsic_size);
+
         WidgetBody {
 			id:self.id.clone(),
             surface,
             children: vec![],
-            intrinsic_size:self.intrinsic_size,
             ..Default::default()
         }
     }

@@ -48,8 +48,7 @@ pub struct WidgetBody{ // TODO this changes a lot so make these fields private
 	pub surface:Box<dyn Surface>,
 	pub layout:Box<dyn Layout>,
 	pub children:Vec<Box<WidgetBody>>,
-	pub constraints:BoxContraints,
-	pub intrinsic_size:IntrinsicSize, // TODO move this to the layout
+	 // TODO move this to the layout
 }
 
 impl WidgetBody {
@@ -84,11 +83,6 @@ impl WidgetBody {
 		self
 	}
 
-	pub fn intrinsic_size(mut self,intrinsic_size:IntrinsicSize) -> Self{
-		self.intrinsic_size = intrinsic_size;
-		self
-	}
-
 	/// Draw the [`WidgetBody`] to the screen.
 	pub(crate) fn render(
 		&mut self,
@@ -112,10 +106,6 @@ impl WidgetBody {
 	}
 
 	pub fn arrange(&mut self,window_size:Size){
-		// Set the max constraints to the window size
-		self.constraints.max_width = window_size.width;
-		self.constraints.max_height = window_size.height;
-		
 		let position = Position::new(
 			self.surface.get_position().x, 
 			self.surface.get_position().y
@@ -123,33 +113,6 @@ impl WidgetBody {
 
 		// Arrange the children and return min size
 		let size = self.layout.compute_layout(&mut self.children,window_size,position);
-
-		// Set the size of the root widget
-		match self.intrinsic_size.width {
-			WidgetSize::Fill => {
-				//self.surface.width(window_size.width as f32);
-				self.surface.width(self.constraints.max_width);
-			},
-			WidgetSize::Fit => {
-				self.surface.width(size.width);
-			},
-			WidgetSize::Fixed(size) => {
-				self.surface.width(size);
-			}
-		}
-
-		match self.intrinsic_size.height {
-			WidgetSize::Fill => {
-				//self.surface.height(window_size.height as f32);
-				self.surface.height(self.constraints.max_height);
-			},
-			WidgetSize::Fit => {
-				self.surface.height(size.height);
-			},
-			WidgetSize::Fixed(size) => {
-				self.surface.height(size);
-			}
-		}
 	}
 }
 
@@ -162,9 +125,7 @@ impl Default for WidgetBody {
 			surface, 
 			label:None,
 			layout:Box::new(BlockLayout::new(0)), 
-			constraints:BoxContraints::default(),
 			children:vec![], 
-			intrinsic_size: Default::default(),
 		}
 	}
 }

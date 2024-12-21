@@ -38,6 +38,8 @@ impl Widget for VStack {
         let mut surface = RectSurface::default();
         surface.color(self.color.clone());
 
+		let layout = self.layout;
+
         let children = self
             .children
             .iter()
@@ -48,9 +50,8 @@ impl Widget for VStack {
         WidgetBody {
 			id:self.id.clone(),
             children,
-            layout: Box::new(self.layout),
+            layout: Box::new(layout),
             surface: Box::new(surface),
-            intrinsic_size:self.intrinsic_size,
             ..Default::default()
         }
     }
@@ -71,11 +72,7 @@ macro_rules! vstack {
 					$(
 						Box::new($child),
 					)*
-				],
-				intrinsic_size:$crate::layout::IntrinsicSize {
-					width: $crate::layout::WidgetSize::Fit,
-					height: $crate::layout::WidgetSize::Fill,
-				}
+				]
 			}
 		}
 		

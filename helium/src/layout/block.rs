@@ -1,12 +1,16 @@
 use helium_core::{position::Position, size::Size};
 use crate::widgets::WidgetBody;
-use super::{AxisAlignment,Layout,WidgetSize};
+use super::{AxisAlignment, BoxContraints, IntrinsicSize, Layout, WidgetSize};
 
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug,Clone,Copy,Default)]
 pub struct BlockLayout{
 	padding:u32,
+	postision:Position,
+	size:Size,
 	main_axis_alignment:AxisAlignment,
-	cross_axis_alignment:AxisAlignment
+	cross_axis_alignment:AxisAlignment,
+	constraints:BoxContraints,
+	intrinsic_size:IntrinsicSize,
 }
 
 impl BlockLayout {
@@ -14,12 +18,17 @@ impl BlockLayout {
 		Self { 
 			padding, 
 			main_axis_alignment: AxisAlignment::Start, 
-			cross_axis_alignment: AxisAlignment::Start 
+			cross_axis_alignment: AxisAlignment::Start,
+			..Default::default() 
 		}
 	}
 
 	pub fn padding(&mut self,padding:u32){
 		self.padding = padding;
+	}
+
+	pub fn intrinsic_size(&mut self,intrinsic_size:IntrinsicSize){
+		self.intrinsic_size = intrinsic_size;
 	}
 }
 

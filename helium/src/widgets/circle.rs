@@ -1,7 +1,7 @@
 use helium_core::color::Color;
 use nanoid::nanoid;
 
-use crate::{layout::IntrinsicSize, surface::circle::CircleSurface};
+use crate::{layout::{BlockLayout, IntrinsicSize}, surface::circle::CircleSurface};
 
 use super::{Widget, WidgetBody};
 
@@ -21,11 +21,14 @@ impl Circle {
 impl Widget for Circle {
 	fn build(&self) -> WidgetBody {
 		let surface = CircleSurface::new(self.diameter,self.color.clone());
-		let intrinsic_size = IntrinsicSize::new().fixed(self.diameter, self.diameter);
+		let mut layout = BlockLayout::new(0);
+		layout.intrinsic_size(
+			IntrinsicSize::new().fixed(self.diameter, self.diameter)
+		);
 
 		WidgetBody { 
 			surface:Box::new(surface),
-			intrinsic_size,
+			layout:Box::new(layout),
 			..Default::default()
 		}
 	}

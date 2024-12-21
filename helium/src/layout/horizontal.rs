@@ -1,13 +1,17 @@
 use helium_core::{position::Position, size::Size};
 use crate::widgets::WidgetBody;
-use super::{AxisAlignment,Layout,WidgetSize};
+use super::{AxisAlignment, BoxContraints, IntrinsicSize, Layout, WidgetSize};
 
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug,Clone,Copy,Default)]
 pub struct HorizontalLayout{
 	spacing:u32,
 	padding:u32,
+	postision:Position,
+	size:Size,
 	main_axis_alignment:AxisAlignment,
-	cross_axis_alignment:AxisAlignment
+	cross_axis_alignment:AxisAlignment,
+	constraints:BoxContraints,
+	intrinsic_size:IntrinsicSize,
 }
 
 
@@ -16,8 +20,7 @@ impl HorizontalLayout {
 		Self { 
 			spacing,
 			padding, 
-			main_axis_alignment: AxisAlignment::Start, 
-			cross_axis_alignment: AxisAlignment::Start 
+			..Default::default()
 		}
 	}
 
@@ -27,6 +30,10 @@ impl HorizontalLayout {
 
 	pub fn padding(&mut self,padding:u32){
 		self.padding = padding;
+	}
+
+	pub fn intrinsic_size(&mut self,intrinsize_size:IntrinsicSize){
+		self.intrinsic_size = intrinsize_size;
 	}
 
 	/// Calculates the maximum size of all the `fixed` widgets.
@@ -107,62 +114,6 @@ impl Layout for HorizontalLayout {
 		min_height += (self.padding * 2) as f32;
 
 		Size::new(min_width, min_height)
-	}
-
-	fn available_space(&self,widgets:&[Box<WidgetBody>],available_space:Size) -> Size {
-		// The maximum size for the widget children to be
-		let mut size = available_space;
-
-		// The number of widgets that have that their size set to fill
-		let mut width_fill_count = 0;
-		let mut height_fill_count = 0;
-
-		size.width -= (self.padding * 2) as f32;
-		size.height -= (self.padding * 2) as f32;
-
-		// Subtract the total fixed size from the available space
-		size = size - self.fixed_size_sum(widgets);
-		
-		for (i,widget) in widgets.iter().enumerate(){
-			// Subtract the spacing for every element except the last
-			if i != widgets.len() - 1{
-				size.width -= self.spacing as f32;
-				size.height -= self.spacing as f32;
-			}
-
-			// TODO maybe move this to the enum?
-			match widget.intrinsic_size.width {
-				WidgetSize::Fill => {
-					width_fill_count += 1;
-				},
-				WidgetSize::Fit => {
-					size.width -= widget.surface.get_size().width;
-				}, 
-				_ => {}				
-			}
-
-			match widget.intrinsic_size.height {
-				WidgetSize::Fill => {
-					height_fill_count += 1;
-				},
-				WidgetSize::Fit => {
-					size.height -= widget.surface.get_size().height;
-				},
-				_ => {}
-			}
-		};
-
-		// TODO could probably just multiply by a fraction instead
-		// Distribute the size evenly among the children 
-		if width_fill_count > 0 {
-			size.width /= width_fill_count as f32;
-		}
-		if height_fill_count > 0{
-
-			size.height /= height_fill_count as f32;
-		}
-
-		size
 	}
 
 	/// Position the `Widgets` according to the [`AxisAlignment`]

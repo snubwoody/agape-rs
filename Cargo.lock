@@ -1203,6 +1203,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "helium_layout"
+version = "0.1.0"
+dependencies = [
+ "helium_core",
+]
+
+[[package]]
 name = "helium_macros"
 version = "0.1.0"
 dependencies = [

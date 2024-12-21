@@ -39,6 +39,14 @@ impl Widget for HStack {
         let mut surface = RectSurface::default();
         surface.color(self.color.clone());
 
+		let intrinsic_size = IntrinsicSize {
+			width: WidgetSize::Fill,
+			height: WidgetSize::Fit,
+		};
+
+		let mut layout = self.layout;
+		layout.intrinsic_size(intrinsic_size);
+
         let children = self
             .children
             .iter()
@@ -49,9 +57,8 @@ impl Widget for HStack {
         WidgetBody {
 			id:self.id.clone(),
             children,
-            layout: Box::new(self.layout),
+            layout: Box::new(layout),
             surface: Box::new(surface),
-            intrinsic_size:self.intrinsic_size,
             ..Default::default()
         }
     }
@@ -72,11 +79,7 @@ macro_rules! hstack {
 					$(
 						Box::new($child),
 					)*
-				],
-				intrinsic_size:$crate::layout::IntrinsicSize {
-					width: $crate::layout::WidgetSize::Fill,
-					height: $crate::layout::WidgetSize::Fit,
-				}
+				]
 			}
 		}
 		

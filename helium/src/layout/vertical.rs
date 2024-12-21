@@ -2,14 +2,18 @@ use std::f32::INFINITY;
 
 use helium_core::{position::Position, size::Size};
 use crate::widgets::WidgetBody;
-use super::{LayoutType,AxisAlignment,Layout,WidgetSize};
+use super::{AxisAlignment, BoxContraints, IntrinsicSize, Layout, LayoutType, WidgetSize};
 
-#[derive(Debug,Clone, Copy)]
+#[derive(Debug,Clone, Copy,Default)]
 pub struct VerticalLayout{
 	spacing:u32,
 	padding:u32,
+	postision:Position,
+	size:Size,
 	main_axis_alignment:AxisAlignment,
-	cross_axis_alignment:AxisAlignment
+	cross_axis_alignment:AxisAlignment,
+	constraints:BoxContraints,
+	intrinsic_size:IntrinsicSize,
 }
 
 impl VerticalLayout {
@@ -17,8 +21,7 @@ impl VerticalLayout {
 		Self { 
 			spacing,
 			padding, 
-			main_axis_alignment: AxisAlignment::Start, 
-			cross_axis_alignment: AxisAlignment::Start 
+			..Default::default()
 		}
 	}
 
@@ -30,23 +33,12 @@ impl VerticalLayout {
 		self.padding = padding;
 	}
 
-	/// Calculates the maximum size of all the `fixed` widgets.
-	fn fixed_size_sum(&self,widgets:&[Box<WidgetBody>]) -> Size {
-		let mut sum = Size::default();
+	pub fn intrinsic_size(&mut self,intrinsize_size:IntrinsicSize){
+		self.intrinsic_size = intrinsize_size;
+	}
 
-		for widget in widgets{
-			match widget.intrinsic_size.width {
-				WidgetSize::Fixed(width) => sum.width += width,
-				_ => {}
-			}
-
-			match widget.intrinsic_size.height {
-				WidgetSize::Fixed(height) => sum.height += height,
-				_ => {}
-			}
-		}
-
-		sum
+	fn calculate_min_constraints(&mut self){
+		
 	}
 }
 
@@ -55,119 +47,43 @@ impl Layout for VerticalLayout {
 	/// and returns the minimum size required to fit the widget's children.
 	/// This function runs recursively for each `widget`.
 	fn compute_layout(
-		&self,
+		&mut self,
 		widgets:&mut Vec<Box<WidgetBody>>,
 		available_space:Size,
 		parent_pos:Position
 	) -> Size{
-		// Set the initial position to the padding plus 
-		// the parent position
-		let mut min_width:f32 = 0.0;
-		let mut min_height:f32 = 0.0;
-		let length = widgets.len();
+		self.calculate_min_constraints();
 
-		if widgets.is_empty(){
-			return Size::default()
+		match self.intrinsic_size.width {
+			WidgetSize::Fill => {
+				self.size.width = self.constraints.max_width
+			},
+			WidgetSize::Fit => {
+				self.size.width = self.constraints.min_width
+			},
+			WidgetSize::Fixed(_) => {
+				// TODO check this
+				self.size.width = self.constraints.min_width
+			}
 		}
-
-		// The available space to distribute among the children
-		let child_max_size = self.available_space(widgets, available_space);
-
-		// TODO the same max size gets passes everytime that can't be right.
-		for (i,widget) in widgets.iter_mut().enumerate(){
-			// Arrange the widget's children recursively and return the min size
-			let size = widget.layout.compute_layout(
-				&mut widget.children,
-				child_max_size,
-				widget.surface.get_position()
-			);
-
-			// TODO maybe create a set_size fn in the trait
-			// Set the widget's size
-			match widget.intrinsic_size.width {
-				WidgetSize::Fill => widget.surface.width(child_max_size.width),
-				WidgetSize::Fit => widget.surface.width(size.width),
-				WidgetSize::Fixed(width) => widget.surface.width(width),
+		
+		match self.intrinsic_size.height {
+			WidgetSize::Fill => {
+				self.size.height = self.constraints.max_height
+			},
+			WidgetSize::Fit => {
+				self.size.height = self.constraints.min_height
+			},
+			WidgetSize::Fixed(_) => {
+				// TODO check this
+				self.size.height = self.constraints.min_height
 			}
-
-			match widget.intrinsic_size.height {
-				WidgetSize::Fill => widget.surface.height(child_max_size.height),
-				WidgetSize::Fit => widget.surface.height(size.height),
-				WidgetSize::Fixed(height) => widget.surface.height(height),
-			}
-
-			// Add the spacing in betweent the widgets
-			if i != length - 1{
-				min_height += self.spacing as f32;
-			}
-
-			min_height += widget.surface.get_size().height;
-			// Set the minimum width to the width of the largest widget
-			min_width = min_width.max(widget.surface.get_size().width);
-		};
-
+		}	
+		
 		self.align(widgets, &parent_pos);
 
-		min_width += (self.padding * 2) as f32;
-		min_height += (self.padding * 2) as f32;
-		
-		Size::new(min_width,min_height)
-	}
-
-	fn available_space(&self,widgets:&[Box<WidgetBody>],available_space:Size) -> Size {
-		// The maximum size for the widget children to be
-		let mut size = available_space;
-
-		// The number of widgets that have that their size set to fill
-		let mut width_fill_count = 0;
-		let mut height_fill_count = 0;
-
-		size.width -= (self.padding * 2) as f32;
-		size.height -= (self.padding * 2) as f32;
-
-		// Subtract the total fixed size from the available space
-		size = size - self.fixed_size_sum(widgets);
-		
-		for (i,widget) in widgets.iter().enumerate(){
-			// Subtract the spacing for every element except the last
-			if i != widgets.len() - 1{
-				size.width -= self.spacing as f32; // TEMP
-				size.height -= self.spacing as f32; // TEMP
-			}
-
-			// TODO maybe move this to the enum?
-			match widget.intrinsic_size.width {
-				WidgetSize::Fill => {
-					width_fill_count += 1;
-				},
-				WidgetSize::Fit => {
-					size.width += widget.surface.get_size().width;
-				},
-				_ => {}
-			}
-
-			match widget.intrinsic_size.height {
-				WidgetSize::Fill => {
-					height_fill_count += 1;
-				},
-				WidgetSize::Fit=> {
-					size.height -= widget.surface.get_size().height;
-				},
-				_ => {}
-				
-			}
-		};
-
-		// Distribute the size evenly among the children 
-		if width_fill_count > 0{
-			size.width /= width_fill_count as f32;
-
-		}
-		if height_fill_count > 0{
-			size.height /= height_fill_count as f32;
-		}
-
-		size
+		// FIXME
+		Size::default()
 	}
 
 	/// Position the `Widgets` according to the [`AxisAlignment`]

@@ -77,20 +77,20 @@ impl Widget for Button {
         let mut surface = RectSurface::new(0.0, 0.0, 200.0, 70.0, self.color.clone());
         surface.corner_radius(self.corner_radius);
 
-        let layout = Box::new(BlockLayout::new(self.padding));
-
+		
         let text_body = Text::new(&self.text).build();
-
+		
         let intrinsic_size = IntrinsicSize {
-            width: self.width,
+			width: self.width,
             height: self.height,
         };
+		let mut layout = Box::new(BlockLayout::new(self.padding));
+		layout.intrinsic_size(intrinsic_size);
 
-        WidgetBody {
+		WidgetBody {
             id: self.id.clone(),
             surface: Box::new(surface),
             layout,
-            intrinsic_size,
             children: vec![Box::new(text_body)],
             ..Default::default()
         }

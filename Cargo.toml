@@ -5,5 +5,5 @@ members = [
 	"helium", 
 	"examples", 
 	"helium_macros", 
-	"helium_core",
+	"helium_core", "helium_layout",
 ]

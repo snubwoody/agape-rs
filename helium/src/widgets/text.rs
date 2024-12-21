@@ -1,7 +1,7 @@
 use nanoid::nanoid;
 
 use crate::{
-	app::events::{Event, }, layout::{IntrinsicSize, Layout, WidgetSize}, surface::{text::TextSurface, Surface} 
+	app::events::Event, layout::{self, BlockLayout, IntrinsicSize, Layout, WidgetSize}, surface::{text::TextSurface, Surface} 
 };
 use super::{Widget, WidgetBody};
 
@@ -43,10 +43,13 @@ impl Widget for Text {
 			height:WidgetSize::Fixed(size.height)
 		};
 
+		let mut layout = BlockLayout::new(0);
+		layout.intrinsic_size(intrinsic_size);
+
 		WidgetBody{
 			id:self.id.clone(),
 			surface,
-			intrinsic_size,
+			layout:Box::new(layout),
 			..Default::default()
 		}
 	}
