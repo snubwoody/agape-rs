@@ -15,7 +15,7 @@ pub use container::Container;
 pub use circle::Circle;
 use crate::{
 	app::AppState, 
-	layout::{BlockLayout, IntrinsicSize, Layout, WidgetSize}, 
+	layout::{BlockLayout, BoxContraints, IntrinsicSize, Layout, WidgetSize}, 
 	surface::{
 		rect::RectSurface, Surface
 	}, 
@@ -23,12 +23,11 @@ use crate::{
 use helium_core::position::Position;
 use helium_core::size::Size;
 
-pub type WidgetId = String;
+pub type WidgetId = String; // FIXME Redundant type
 
 /// The trait that all widgets must implement. Each `widget` must implement build function
 /// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about 
 /// the widget.
-/// ```
 pub trait Widget{
 	// I've changed this between &self and self, a couple times and my conclusion is 
 	// just keep it as &self forever, it makes it way easier to compose multiple sub-widgets.
@@ -49,6 +48,7 @@ pub struct WidgetBody{ // TODO this changes a lot so make these fields private
 	pub surface:Box<dyn Surface>,
 	pub layout:Box<dyn Layout>,
 	pub children:Vec<Box<WidgetBody>>,
+	pub constraints:BoxContraints,
 	pub intrinsic_size:IntrinsicSize, // TODO move this to the layout
 }
 
@@ -159,6 +159,7 @@ impl Default for WidgetBody {
 			surface, 
 			label:None,
 			layout:Box::new(BlockLayout::new(0)), 
+			constraints:BoxContraints::default(),
 			children:vec![], 
 			intrinsic_size: Default::default(),
 		}

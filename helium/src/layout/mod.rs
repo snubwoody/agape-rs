@@ -67,7 +67,7 @@ pub enum WidgetSize{
 	Fit, // TODO maybe change these to grow and shrink
 }
 
-
+#[derive(Debug,Clone, Copy,Default)]
 pub struct BoxContraints{
 	max_width:f32,
 	max_height:f32,

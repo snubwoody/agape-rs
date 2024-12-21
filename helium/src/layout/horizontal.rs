@@ -28,6 +28,25 @@ impl HorizontalLayout {
 	pub fn padding(&mut self,padding:u32){
 		self.padding = padding;
 	}
+
+	/// Calculates the maximum size of all the `fixed` widgets.
+	fn fixed_size_sum(&self,widgets:&[Box<WidgetBody>]) -> Size {
+		let mut sum = Size::default();
+
+		for widget in widgets{
+			match widget.intrinsic_size.width {
+				WidgetSize::Fixed(width) => sum.width += width,
+				_ => {}
+			}
+
+			match widget.intrinsic_size.height {
+				WidgetSize::Fixed(height) => sum.height += height,
+				_ => {}
+			}
+		}
+
+		sum
+	}
 }
 
 
@@ -52,7 +71,7 @@ impl Layout for HorizontalLayout {
 
 		for (i,widget) in widgets.iter_mut().enumerate(){
 			// Arrange the widget's children recursively and return the minimum 
-			// size required occupy all the children.
+			// size required to occupy all the children.
 			let size = widget.layout.compute_layout(
 				&mut widget.children,
 				child_max_size,
@@ -100,6 +119,9 @@ impl Layout for HorizontalLayout {
 
 		size.width -= (self.padding * 2) as f32;
 		size.height -= (self.padding * 2) as f32;
+
+		// Subtract the total fixed size from the available space
+		size = size - self.fixed_size_sum(widgets);
 		
 		for (i,widget) in widgets.iter().enumerate(){
 			// Subtract the spacing for every element except the last
@@ -113,18 +135,20 @@ impl Layout for HorizontalLayout {
 				WidgetSize::Fill => {
 					width_fill_count += 1;
 				},
-				_ => {
+				WidgetSize::Fit => {
 					size.width -= widget.surface.get_size().width;
-				}				
+				}, 
+				_ => {}				
 			}
 
 			match widget.intrinsic_size.height {
 				WidgetSize::Fill => {
 					height_fill_count += 1;
 				},
-				_ => {
+				WidgetSize::Fit => {
 					size.height -= widget.surface.get_size().height;
 				},
+				_ => {}
 			}
 		};
 

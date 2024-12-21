@@ -38,7 +38,7 @@ impl Layout for BlockLayout {
 			return Size::default()
 		}
 
-		for (i,widget) in widgets.iter_mut().enumerate(){
+		for widget in widgets.iter_mut(){
 			widget.surface.position(
 				parent_pos.x + self.padding as f32, 
 				parent_pos.y + self.padding as f32
@@ -91,7 +91,7 @@ impl Layout for BlockLayout {
 					size.width -= widget.surface.get_size().width;
 				},
 				WidgetSize::Fill => {
-					width_fill_count -= 1;
+					width_fill_count += 1;
 				}
 			}
 
