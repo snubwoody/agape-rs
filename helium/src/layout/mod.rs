@@ -69,10 +69,16 @@ pub enum WidgetSize{
 
 #[derive(Debug,Clone, Copy,Default)]
 pub struct BoxContraints{
-	max_width:f32,
-	max_height:f32,
-	min_height:f32,
-	min_width:f32
+	pub max_width:f32,
+	pub max_height:f32,
+	pub min_height:f32,
+	pub min_width:f32
+}
+
+impl BoxContraints {
+	pub fn new() -> Self{
+		Self::default()
+	}
 }
 
 /// This is the size that a [`Widget`] will try to be,  

@@ -104,9 +104,6 @@ impl WidgetBody {
 		// FIXME this is running for every widget with the window size
 		self.arrange(*window_size);
 		
-		//dbg!(&self);
-		// TODO when something is fill and the parent is fit make the child fit itself
-
 		// Draw the parent then the children to the screen
 		self.surface.draw(render_pass, context,state);
 		self.children.iter_mut().for_each(|child|{
@@ -115,18 +112,23 @@ impl WidgetBody {
 	}
 
 	pub fn arrange(&mut self,window_size:Size){
+		// Set the max constraints to the window size
+		self.constraints.max_width = window_size.width;
+		self.constraints.max_height = window_size.height;
+		
 		let position = Position::new(
 			self.surface.get_position().x, 
 			self.surface.get_position().y
 		);
 
-		// Arrange the children
+		// Arrange the children and return min size
 		let size = self.layout.compute_layout(&mut self.children,window_size,position);
 
 		// Set the size of the root widget
 		match self.intrinsic_size.width {
 			WidgetSize::Fill => {
-				self.surface.width(window_size.width as f32);
+				//self.surface.width(window_size.width as f32);
+				self.surface.width(self.constraints.max_width);
 			},
 			WidgetSize::Fit => {
 				self.surface.width(size.width);
@@ -138,7 +140,8 @@ impl WidgetBody {
 
 		match self.intrinsic_size.height {
 			WidgetSize::Fill => {
-				self.surface.height(window_size.height as f32);
+				//self.surface.height(window_size.height as f32);
+				self.surface.height(self.constraints.max_height);
 			},
 			WidgetSize::Fit => {
 				self.surface.height(size.height);

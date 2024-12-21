@@ -51,8 +51,6 @@ impl View {
 
 		self.root_body.arrange(state.size);
 		self.root_body.render(&mut render_pass,state);
-		// Rebuild the widgets every frame
-		//self.root_widget.build().render(&mut render_pass,&state);
 		
 		// Drop the render pass because it borrows encoder
 		// mutably
