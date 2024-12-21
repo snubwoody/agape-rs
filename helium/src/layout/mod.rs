@@ -9,29 +9,6 @@ pub use horizontal::HorizontalLayout;
 pub use vertical::VerticalLayout;
 pub use block::BlockLayout;
 
-/// How a [`Widget`] should align it's children
-#[derive(Debug,Clone, Copy,PartialEq,Eq,Default)]
-pub enum AxisAlignment{
-	#[default]
-	Start,
-	Center,
-	End,
-	/// The parent [`Widget`] will attempt to have as much spacing 
-	/// between the widgets as possible.
-	SpaceBetween,
-	/// The parent [`Widget`] will attempt to have equal spacing 
-	/// both around and between the widgets.
-	SpaceEvenly
-}
-
-#[derive(Debug,Clone, Copy,PartialEq, Eq,Default)]
-pub enum LayoutType {
-	#[default]
-	Block,
-	Horizontal,
-	Vertical,
-}
-
 
 // TODO maybe pass return the size instead of the mut widgets
 
@@ -58,12 +35,44 @@ pub trait Layout:Debug {
 	fn align(&self,widgets:&mut Vec<Box<WidgetBody>>,parent_pos:&Position);
 }
 
+
+/// How a [`Widget`] should align it's children
+#[derive(Debug,Clone, Copy,PartialEq,Eq,Default)]
+pub enum AxisAlignment{
+	#[default]
+	Start,
+	Center,
+	End,
+	/// The parent [`Widget`] will attempt to have as much spacing 
+	/// between the widgets as possible.
+	SpaceBetween,
+	/// The parent [`Widget`] will attempt to have equal spacing 
+	/// both around and between the widgets.
+	SpaceEvenly
+}
+
+#[derive(Debug,Clone, Copy,PartialEq, Eq,Default)]
+pub enum LayoutType {
+	#[default]
+	Block,
+	Horizontal,
+	Vertical,
+}
+
 #[derive(Debug,Clone, Copy,Default,PartialEq)]
 pub enum WidgetSize{
 	Fixed(f32),
 	Fill,
 	#[default]
-	Fit,
+	Fit, // TODO maybe change these to grow and shrink
+}
+
+
+pub struct BoxContraints{
+	max_width:f32,
+	max_height:f32,
+	min_height:f32,
+	min_width:f32
 }
 
 /// This is the size that a [`Widget`] will try to be,  

@@ -46,7 +46,7 @@ impl Layout for BlockLayout {
 
 			let size = widget.layout.compute_layout(
 				&mut widget.children, 
-				available_space,
+				child_max_size,
 				widget.surface.get_position()
 			);
 			
@@ -108,15 +108,20 @@ impl Layout for BlockLayout {
 			}
 		};
 
-		// Distribute the size evenly among the children 
-		size.width /= width_fill_count as f32;
-		size.height /= height_fill_count as f32;
+		// Distribute the size evenly among the children
+		if width_fill_count > 0{
+			size.width /= width_fill_count as f32;
+		} 
+		if height_fill_count > 0{
+			size.height /= height_fill_count as f32;
+		}
 
 		size
 	}
 
 	/// Position the `Widgets` according to the [`AxisAlignment`]
 	fn align(&self,widgets:&mut Vec<Box<WidgetBody>>,parent_pos:&Position){
+		// FIXME this should be breaking everything but it's not?
 		let mut current_pos = self.padding as f32 + parent_pos.x;
 	}
 }		

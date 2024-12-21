@@ -1,6 +1,6 @@
 use helium_core::{position::Position, size::Size};
 use crate::widgets::WidgetBody;
-use super::{LayoutType,AxisAlignment,Layout,WidgetSize};
+use super::{AxisAlignment,Layout,WidgetSize};
 
 #[derive(Debug,Clone,Copy)]
 pub struct HorizontalLayout{
@@ -55,7 +55,7 @@ impl Layout for HorizontalLayout {
 			// size required occupy all the children.
 			let size = widget.layout.compute_layout(
 				&mut widget.children,
-				available_space,
+				child_max_size,
 				widget.surface.get_position()
 			);
 
@@ -83,8 +83,10 @@ impl Layout for HorizontalLayout {
 		};
 
 		self.align(widgets, &parent_pos);
+		
 		min_width += (self.padding * 2) as f32;
 		min_height += (self.padding * 2) as f32;
+
 		Size::new(min_width, min_height)
 	}
 
@@ -126,9 +128,15 @@ impl Layout for HorizontalLayout {
 			}
 		};
 
+		// TODO could probably just multiply by a fraction instead
 		// Distribute the size evenly among the children 
-		size.width /= width_fill_count as f32;
-		size.height /= height_fill_count as f32;
+		if width_fill_count > 0 {
+			size.width /= width_fill_count as f32;
+		}
+		if height_fill_count > 0{
+
+			size.height /= height_fill_count as f32;
+		}
 
 		size
 	}

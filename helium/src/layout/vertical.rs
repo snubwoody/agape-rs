@@ -1,3 +1,5 @@
+use std::f32::INFINITY;
+
 use helium_core::{position::Position, size::Size};
 use crate::widgets::WidgetBody;
 use super::{LayoutType,AxisAlignment,Layout,WidgetSize};
@@ -49,6 +51,7 @@ impl Layout for VerticalLayout {
 			return Size::default()
 		}
 
+		// The available space to distribute among the children
 		let child_max_size = self.available_space(widgets, available_space);
 
 		// TODO the same max size gets passes everytime that can't be right.
@@ -56,7 +59,7 @@ impl Layout for VerticalLayout {
 			// Arrange the widget's children recursively and return the min size
 			let size = widget.layout.compute_layout(
 				&mut widget.children,
-				available_space,
+				child_max_size,
 				widget.surface.get_position()
 			);
 
@@ -74,6 +77,7 @@ impl Layout for VerticalLayout {
 				WidgetSize::Fixed(height) => widget.surface.height(height),
 			}
 
+			// Add the spacing in betweent the widgets
 			if i != length - 1{
 				min_height += self.spacing as f32;
 			}
@@ -112,7 +116,7 @@ impl Layout for VerticalLayout {
 			// TODO maybe move this to the enum?
 			match widget.intrinsic_size.width {
 				WidgetSize::Fill => {
-					width_fill_count -= 1;
+					width_fill_count += 1;
 				},
 				_ => {
 					size.width += widget.surface.get_size().width;
@@ -131,8 +135,13 @@ impl Layout for VerticalLayout {
 		};
 
 		// Distribute the size evenly among the children 
-		size.width /= width_fill_count as f32;
-		size.height /= height_fill_count as f32;
+		if width_fill_count > 0{
+			size.width /= width_fill_count as f32;
+
+		}
+		if height_fill_count > 0{
+			size.height /= height_fill_count as f32;
+		}
 
 		size
 	}

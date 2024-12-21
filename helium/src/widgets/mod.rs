@@ -44,6 +44,8 @@ pub trait Widget{
 #[derive(Debug)]
 pub struct WidgetBody{ // TODO this changes a lot so make these fields private
 	pub id:WidgetId,
+	/// A label for debugging purposes
+	pub label:Option<String>,
 	pub surface:Box<dyn Surface>,
 	pub layout:Box<dyn Layout>,
 	pub children:Vec<Box<WidgetBody>>,
@@ -53,6 +55,11 @@ pub struct WidgetBody{ // TODO this changes a lot so make these fields private
 impl WidgetBody {
 	pub fn new() -> Self{
 		Self::default()	
+	}
+
+	pub fn label(mut self,label:&str) -> Self {
+		self.label = Some(label.to_owned());
+		self
 	}
 
 	pub fn surface(mut self,surface:Box<dyn Surface>) -> Self{
@@ -94,7 +101,7 @@ impl WidgetBody {
 		// TODO I think I should change this so that ALL
 		// of the layout is handled by the Layout struct
 		// Maybe return the sizes so instead of passing mutable state
-	
+		// FIXME this is running for every widget with the window size
 		self.arrange(*window_size);
 		
 		//dbg!(&self);
@@ -150,6 +157,7 @@ impl Default for WidgetBody {
 		Self { 
 			id:nanoid!(),
 			surface, 
+			label:None,
 			layout:Box::new(BlockLayout::new(0)), 
 			children:vec![], 
 			intrinsic_size: Default::default(),

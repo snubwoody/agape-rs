@@ -15,3 +15,6 @@ path = "counter.rs"
 [[example]]
 name = "spotify"
 path = "spotify.rs"
+
+[dependencies]
+dotenv = "0.15.0"

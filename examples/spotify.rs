@@ -1,12 +1,15 @@
-use std::{fs, io::{self, Write}};
+use std::{env, fs, io::{self, Write}};
 
-use helium::{app::{events::EventQueue, view::View, App}, hex, hstack, surface::text::TextSurface, vstack, widgets::{Button, Container, Rect, Text, Widget, WidgetBody}, Color, Size, TRANSPARENT};
+use helium::{app::{events::EventQueue, view::View, App}, hstack, vstack, widgets::{Button, Container, Rect, Text, Widget, WidgetBody}, Color, Size, TRANSPARENT};
 
 const BACKGROUND:Color = Color::Hex("#121212");
 const GREY:Color = Color::Hex("#414141");
 const SPOTIFY_GREEN:Color = Color::Hex("#3be477");
 
 fn main(){
+	env::set_var("RUST_LOG", "trace,wgpu_core=error,naga=warn,wgpu_hal=error");
+	env_logger::init();
+
 	let event_queue = EventQueue::new();
 
 	let chips = hstack!{
@@ -34,14 +37,6 @@ fn main(){
 	};
 
 	let home_page = hstack!{sidepanel,mainpanel};
-	let mut k = home_page.build();
-	k.arrange(Size::new(800.0, 800.0));
-
-	let file = fs::File::create("examples/tmp/layout.txt").unwrap();
-	let mut writer = io::BufWriter::new(file);
-
-	write!(writer,"{:#?}",k).unwrap();
-
 	let home = View::new(home_page, event_queue);
 	
 	App::new().add_view(home).run();
@@ -58,6 +53,7 @@ impl Widget for Chip {
 		.color(GREY)
 		.padding(12)
 		.build()
+		.label(&self.0)
 	}
 }
 
@@ -72,6 +68,7 @@ impl SidebarItem {
 		}
 	}
 }
+
 impl Widget for SidebarItem {
 	fn build(&self) -> WidgetBody {
 		hstack!{
