@@ -1207,6 +1207,7 @@ name = "helium_layout"
 version = "0.1.0"
 dependencies = [
  "helium_core",
+ "log",
 ]
 
 [[package]]
