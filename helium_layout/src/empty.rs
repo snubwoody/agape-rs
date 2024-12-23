@@ -1,59 +1,29 @@
-use std::f32::INFINITY;
 use helium_core::{position::Position, size::Size};
 use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout};
 
-/// This layout only has one child
-pub struct BlockLayout{ // TODO add padding
+/// This is a layout with no children
+#[derive(Debug,Default,Clone, Copy)]
+pub struct EmptyLayout{ // TODO add padding
 	size:Size,
 	position:Position,
 	intrinsic_size:IntrinsicSize,
-	// TODO i'm thinking of adding user constraints as well so that people can define their own 
-	// constraints
 	constraints:BoxContraints,
-	child:Box<dyn Layout>
 }
 
-impl BlockLayout {
-	pub fn new(child:impl Layout + 'static) -> Self{
-		Self{
-			size:Size::default(),
-			position:Position::default(),
-			intrinsic_size:IntrinsicSize::default(),
-			constraints:BoxContraints::default(),
-			child:Box::new(child)
-		}
+impl EmptyLayout {
+	pub fn new() -> Self{
+		Self::default()
 	}
-
-	fn fixed_size_sum(&self) -> Size{
-		let mut sum = Size::default();
-
-		match self.child.intrinsic_size().width {
-			BoxSizing::Fixed(width) => {
-				sum.width = sum.width.max(width);
-			},
-			_ => {}
-		}
-		
-		match self.child.intrinsic_size().height {
-			BoxSizing::Fixed(height) => {
-				sum.height += height;
-			},
-			_ => {}
-		}
-
-		sum
-	}
-
 }
 
 
-impl Layout for BlockLayout {
+impl Layout for EmptyLayout {
 	fn size(&self) -> Size {
 		self.size
 	}
 
 	fn children(&self) -> &[Box<dyn Layout>] {
-		std::slice::from_ref(&self.child)
+		&[]
 	}
 
 	fn constraints(&self) -> BoxContraints {
@@ -82,19 +52,14 @@ impl Layout for BlockLayout {
 
 	fn solve_min_constraints(&mut self) -> (f32,f32){
 		// The sum of the size of all the children with fixed sizes
-		let fixed_sum = self.fixed_size_sum();
 
-		// TODO i think im supposed to calculate the min constraints of the children as well
 		match self.intrinsic_size.width {
 			BoxSizing::Fixed(width) => {
 				self.constraints.min_width = width;	
 			},
 			BoxSizing::Flex(_) => {
-				// TODO maybe set the min constraints to either 0 or the size of the children
 			},
-			BoxSizing::Shrink => {
-				self.constraints.min_width = fixed_sum.width;	
-			},
+			BoxSizing::Shrink => {},
 		}
 		
 		match self.intrinsic_size.height {
@@ -104,40 +69,13 @@ impl Layout for BlockLayout {
 			BoxSizing::Flex(_) => {
 
 			},
-			BoxSizing::Shrink => {
-				self.constraints.min_height = fixed_sum.height;	
-			},
+			BoxSizing::Shrink => {},
 		}
 
 		(self.constraints.min_width,self.constraints.min_height)
 	}
 
-	fn solve_max_contraints(&mut self,space:Size) {
-		match self.child.intrinsic_size().width {
-			BoxSizing::Flex(_) => {
-				self.child.set_max_width(space.width);
-			}
-			BoxSizing::Fixed(width) => {
-				self.child.set_max_width(width);
-			}
-			BoxSizing::Shrink => {}
-		}
-		
-		match self.child.intrinsic_size().height {
-			BoxSizing::Flex(_) => {
-				self.child.set_max_height(space.height);					
-			},
-			BoxSizing::Fixed(height) => {
-				self.child.set_max_height(height);
-			}
-			BoxSizing::Shrink => {}
-		}
-
-		// Pass the max size to the children to solve their max constraints
-		self.child.solve_max_contraints(space);
-	}
-
-	
+	fn solve_max_contraints(&mut self,space:Size) {}
 
 	fn update_size(&mut self){
 		match self.intrinsic_size.width {
@@ -165,8 +103,6 @@ impl Layout for BlockLayout {
 				self.size.height = height;
 			}
 		}
-
-		self.child.update_size();
 	}
 }
 
@@ -175,4 +111,31 @@ mod test{
 	use crate::LayoutSolver;
 	use super::*;
 
+	#[test]
+	fn test_flex_sizing(){
+		let window = Size::new(800.0, 800.0);
+		let mut root = EmptyLayout::new();
+
+		root.intrinsic_size.width = BoxSizing::Flex(2);
+		root.intrinsic_size.height = BoxSizing::Flex(2);
+		
+		let mut solver = LayoutSolver::new(root);
+		solver.solve(window);
+		
+		assert_eq!(solver.root.size(),window);
+	}
+
+	#[test]
+	fn test_fixed_sizing(){
+		let window = Size::new(800.0, 800.0);
+		let mut root = EmptyLayout::new();
+		
+		root.intrinsic_size.width = BoxSizing::Fixed(200.0);
+		root.intrinsic_size.height = BoxSizing::Fixed(125.0);
+
+		let mut solver = LayoutSolver::new(root);
+		solver.solve(window);
+
+		assert_eq!(solver.root.size(),Size::new(200.0, 125.0));
+	}
 }

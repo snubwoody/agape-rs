@@ -4,10 +4,13 @@
 mod horizontal;
 mod vertical;
 mod block;
+mod empty;
 use std::f32::INFINITY;
 use helium_core::{position::Position, size::Size};
 pub use horizontal::HorizontalLayout;
-
+pub use vertical::VerticalLayout;
+pub use block::BlockLayout;
+pub use empty::EmptyLayout;
 pub struct LayoutSolver{
 	root:Box<dyn Layout>
 }
