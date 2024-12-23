@@ -721,6 +721,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a81dae078cea95a014a339291cec439d2f232ebe854a9d672b796c6afafa9b7"
 
 [[package]]
+name = "crystal"
+version = "0.1.0"
+dependencies = [
+ "helium_core",
+ "log",
+]
+
+[[package]]
 name = "cursor-icon"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1200,14 +1208,6 @@ name = "helium_core"
 version = "0.1.0"
 dependencies = [
  "winit",
-]
-
-[[package]]
-name = "helium_layout"
-version = "0.1.0"
-dependencies = [
- "helium_core",
- "log",
 ]
 
 [[package]]
