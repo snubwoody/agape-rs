@@ -28,6 +28,7 @@ pub trait Layout:Debug {
 	) -> Size;
 
 	fn align(&self,widgets:&mut Vec<Box<WidgetBody>>,parent_pos:&Position);
+	fn available_space(&self,widgets:&[Box<WidgetBody>],available_space:Size) -> Size;
 }
 
 
