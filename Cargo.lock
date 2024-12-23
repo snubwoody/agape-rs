@@ -1191,6 +1191,7 @@ version = "0.1.0"
 dependencies = [
  "async-std",
  "bytemuck",
+ "crystal",
  "env_logger",
  "helium_core",
  "helium_macros",

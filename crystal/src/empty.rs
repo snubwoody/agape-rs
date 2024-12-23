@@ -6,7 +6,7 @@ use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout};
 pub struct EmptyLayout{ // TODO add padding
 	size:Size,
 	position:Position,
-	intrinsic_size:IntrinsicSize,
+	pub intrinsic_size:IntrinsicSize,
 	constraints:BoxContraints,
 }
 
@@ -119,10 +119,9 @@ mod test{
 		root.intrinsic_size.width = BoxSizing::Flex(2);
 		root.intrinsic_size.height = BoxSizing::Flex(2);
 		
-		let mut solver = LayoutSolver::new(root);
-		solver.solve(window);
+		LayoutSolver::solve(&mut root,window);
 		
-		assert_eq!(solver.root.size(),window);
+		assert_eq!(root.size(),window);
 	}
 
 	#[test]
@@ -133,9 +132,8 @@ mod test{
 		root.intrinsic_size.width = BoxSizing::Fixed(200.0);
 		root.intrinsic_size.height = BoxSizing::Fixed(125.0);
 
-		let mut solver = LayoutSolver::new(root);
-		solver.solve(window);
+		LayoutSolver::solve(&mut root,window);
 
-		assert_eq!(solver.root.size(),Size::new(200.0, 125.0));
+		assert_eq!(root.size(),Size::new(200.0, 125.0));
 	}
 }

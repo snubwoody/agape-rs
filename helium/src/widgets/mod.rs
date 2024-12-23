@@ -15,13 +15,13 @@ pub use container::Container;
 pub use circle::Circle;
 use crate::{
 	app::AppState, 
-	layout::{BlockLayout, BoxContraints, IntrinsicSize, Layout, WidgetSize}, 
 	surface::{
 		rect::RectSurface, Surface
 	}, 
 };
 use helium_core::position::Position;
 use helium_core::size::Size;
+use crystal::{EmptyLayout, Layout, LayoutSolver};
 
 pub type WidgetId = String; // FIXME Redundant type
 
@@ -37,18 +37,15 @@ pub trait Widget{
 	fn build(&self) -> WidgetBody;
 }
 
-// TODO maybe implement iter
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
-#[derive(Debug)]
 pub struct WidgetBody{ // TODO this changes a lot so make these fields private
 	pub id:WidgetId,
 	/// A label for debugging purposes
 	pub label:Option<String>,
 	pub surface:Box<dyn Surface>,
-	pub layout:Box<dyn Layout>,
+	pub layout:Box<dyn crystal::Layout>,
 	pub children:Vec<Box<WidgetBody>>,
-	 // TODO move this to the layout
 }
 
 impl WidgetBody {
@@ -89,30 +86,15 @@ impl WidgetBody {
 		render_pass:&mut wgpu::RenderPass,
 		state: &AppState
 	) {
-		let window_size = &state.size;
 		let context = &state.context;
-		
-		// TODO I think I should change this so that ALL
-		// of the layout is handled by the Layout struct
-		// Maybe return the sizes so instead of passing mutable state
-		// FIXME this is running for every widget with the window size
-		self.arrange(*window_size);
+
+		LayoutSolver::solve(&mut *self.layout,state.size);
 		
 		// Draw the parent then the children to the screen
 		self.surface.draw(render_pass, context,state);
 		self.children.iter_mut().for_each(|child|{
 			child.render(render_pass, state);
 		});
-	}
-
-	pub fn arrange(&mut self,window_size:Size){
-		let position = Position::new(
-			self.surface.get_position().x, 
-			self.surface.get_position().y
-		);
-
-		// Arrange the children and return min size
-		let size = self.layout.compute_layout(&mut self.children,window_size,position);
 	}
 }
 
@@ -124,7 +106,7 @@ impl Default for WidgetBody {
 			id:nanoid!(),
 			surface, 
 			label:None,
-			layout:Box::new(BlockLayout::new(0)), 
+			layout:Box::new(EmptyLayout::new()), 
 			children:vec![], 
 		}
 	}
@@ -140,7 +122,5 @@ macro_rules! impl_style {
 			self.color = color;
 			self
 		} 
-
-		
 	};
 }

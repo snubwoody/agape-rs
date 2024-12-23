@@ -1,6 +1,6 @@
+use crystal::{BoxSizing, HorizontalLayout, IntrinsicSize};
 use crate::{
     app::events::Event, impl_events, impl_style, 
-	layout::{HorizontalLayout, IntrinsicSize, WidgetSize}, 
 	surface::rect::RectSurface, 
 	widgets::{Widget, WidgetBody}, Color
 };
@@ -15,11 +15,6 @@ pub struct HStack {
 }
 
 impl HStack {
-	pub fn fill_height(mut self) -> Self{
-		self.intrinsic_size = self.intrinsic_size.fill_height();
-		self
-	}
-
 	pub fn spacing(mut self, spacing: u32) -> Self {
 		self.layout.spacing(spacing);
 		self
@@ -40,8 +35,8 @@ impl Widget for HStack {
         surface.color(self.color.clone());
 
 		let intrinsic_size = IntrinsicSize {
-			width: WidgetSize::Fill,
-			height: WidgetSize::Fit,
+			width: BoxSizing::Flex(1),
+			height: BoxSizing::Shrink,
 		};
 
 		let mut layout = self.layout;

@@ -221,21 +221,20 @@ mod test{
 		root.add_child(child_1);
 		root.add_child(child_2);
 		
-		let mut solver = LayoutSolver::new(root);
-		solver.solve(window);
+		let mut solver = LayoutSolver::solve(&mut root,window);
 		
 		assert_eq!(
-			solver.root.size(),
+			root.size(),
 			Size::new(500.0, 550.0)
 		);
 
 		assert_eq!(
-			solver.root.children()[0].size(),
+			root.children()[0].size(),
 			Size::new(400.0, 200.0)
 		);
 
 		assert_eq!(
-			solver.root.children()[1].size(),
+			root.children()[1].size(),
 			Size::new(500.0, 350.0)
 		);
 	}
@@ -260,12 +259,11 @@ mod test{
 		root.add_child(child_1);
 		root.add_child(child_2);
 		
-		let mut solver = LayoutSolver::new(root);
-		solver.solve(window);
+		LayoutSolver::solve(&mut root,window);
 		
-		assert_eq!(solver.root.size(),window);
-		assert_eq!(solver.root.children()[0].size(),window/2.0);
-		assert_eq!(solver.root.children()[1].size(),window/2.0);
+		assert_eq!(root.size(),window);
+		assert_eq!(root.children()[0].size(),window/2.0);
+		assert_eq!(root.children()[1].size(),window/2.0);
 	}
 
 	#[test]
@@ -293,26 +291,24 @@ mod test{
 		node.add_child(child_node_1);
 		node.add_child(child_node_2);
 
-		let mut solver = LayoutSolver::new(node);
-		solver.solve(window);
-
+		LayoutSolver::solve(&mut node,window);
 	
 		let flex_1_width = 1.0/4.0 * window.width;
 		// The two children should both be half the size
 		assert_eq!(
-			solver.root.children()[0].size().width,
+			node.children()[0].size().width,
 			flex_1_width
 		);
-		assert_eq!(solver.root.children()[0].size().height,400.0);
+		assert_eq!(node.children()[0].size().height,400.0);
 		assert_eq!(
-			solver.root.children()[0].size().height,
-			solver.root.children()[1].size().height,
+			node.children()[0].size().height,
+			node.children()[1].size().height,
 		);
 		assert!(
-			solver.root.children()[1].size().width == 3.0 * solver.root.children()[0].size().width
+			node.children()[1].size().width == 3.0 * node.children()[0].size().width
 		);
 		assert!(
-			solver.root.children()[1].size().height != 3.0 * solver.root.children()[0].size().height
+			node.children()[1].size().height != 3.0 * node.children()[0].size().height
 		);
 	}
 

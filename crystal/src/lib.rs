@@ -11,24 +11,19 @@ pub use horizontal::HorizontalLayout;
 pub use vertical::VerticalLayout;
 pub use block::BlockLayout;
 pub use empty::EmptyLayout;
-pub struct LayoutSolver{
-	root:Box<dyn Layout>
-}
+
+pub struct LayoutSolver;
 
 impl LayoutSolver {
-	pub fn new(root:impl Layout + 'static) -> Self{
-		Self{root:Box::new(root)}
-	}
-
 	/// Calculates the layout of all the layout nodes
-	pub fn solve(&mut self,window_size:Size){
+	pub fn solve(root:&mut dyn Layout,window_size:Size){
 		// Set the max constraints of the root node to the window size
-		self.root.set_max_width(window_size.width);
-		self.root.set_max_height(window_size.height);
+		root.set_max_width(window_size.width);
+		root.set_max_height(window_size.height);
 
-		self.root.solve_max_contraints(window_size);
-		let _ = self.root.solve_min_constraints();
-		self.root.update_size();
+		root.solve_max_contraints(window_size);
+		let _ = root.solve_min_constraints();
+		root.update_size();
 	}
 }
 
@@ -285,150 +280,6 @@ pub struct IntrinsicSize { // TODO does this really need to be a seperate struct
 #[cfg(test)]
 mod test{
 	use super::*;
-
-	#[test]
-	fn test_grow_sizing(){
-		let window = Size::new(800.0, 400.0);
-		let mut node = LayoutNode::new();
-		let mut inner_node = LayoutNode::new();
-		
-		node.intrinsic_size.width = BoxSizing::Flex(1);
-		node.intrinsic_size.height = BoxSizing::Flex(1);
-		
-		inner_node.intrinsic_size.width = BoxSizing::Flex(1);
-		inner_node.intrinsic_size.height = BoxSizing::Flex(2);
-
-		node.add_child(inner_node.clone());
-		node.add_child(inner_node);
-
-		//let mut solver = LayoutSolver::new(node);
-		//solver.solve(window);
-
-
-		//assert_eq!(solver.root.size,window);
-		
-		let half_size = window / 2.0;
-	
-		// The two children should both be half the size
-		//assert_eq!(solver.root.children[0].size,half_size);
-		//assert_eq!(solver.root.children[1].size,half_size);
-	}
-
-	#[test]
-	fn test_inner_grow_sizing(){
-		let window = Size::new(800.0, 400.0);
-		let mut root_node = LayoutNode::new();
-		let mut child_node = LayoutNode::new();
-		let mut grand_child_node = LayoutNode::new();
-		
-		root_node.intrinsic_size.width = BoxSizing::Flex(1);
-		root_node.intrinsic_size.height = BoxSizing::Flex(1);
-		
-		child_node.intrinsic_size.width = BoxSizing::Flex(1);
-		child_node.intrinsic_size.height = BoxSizing::Flex(1);
-		
-		grand_child_node.intrinsic_size.width = BoxSizing::Flex(1);
-		grand_child_node.intrinsic_size.height = BoxSizing::Flex(1);
-		
-		let mut first_node = child_node.clone();
-		first_node.add_child(grand_child_node.clone());
-		first_node.add_child(grand_child_node.clone());
-		first_node.add_child(grand_child_node.clone());
-
-		root_node.add_child(first_node);
-		root_node.add_child(child_node);
-
-		todo!();
-
-		// let mut solver = LayoutSolver::new(root_node);
-		// solver.solve(window);
-
-
-		// assert_eq!(solver.root.size,window);
-		
-		// let half_size = window * 1.0/2.0;
-		// let inner_size = half_size * 1.0/3.0;
-	
-		// // The two children should both be half the size
-		// assert_eq!(solver.root.children[0].size,half_size);
-		// assert_eq!(solver.root.children[1].size,half_size);
-		
-		// // The two inner children should both be a third the half_size size
-		// // Round the sizes since floats are imprecise
-		// assert_eq!(
-		// 	solver.root.children[0].children[0].size.width.round(),
-		// 	inner_size.width.round()
-		// );
-		// assert_eq!(
-		// 	solver.root.children[0].children[0].size.height.round(),
-		// 	inner_size.height.round()
-		// );
-		// assert!(
-		// 	solver.root.children[0].children[0].size == 
-		// 	solver.root.children[0].children[1].size  
-		// );
-	}
-
-	#[test]
-	fn test_max_sizing(){
-		todo!()
-		// TODO test the max sizing of a node and it's children
-	}
-
-	#[test]
-	fn test_hybrid_layouts(){
-		todo!()
-	}
-
-	#[test]
-	fn test_shrink_sizing(){
-		let window = Size::new(800.0, 400.0);
-		let mut root_node = LayoutNode::new();
-		let mut child_node = LayoutNode::new();
-
-		child_node.intrinsic_size.width = BoxSizing::Fixed(200.0);
-		child_node.intrinsic_size.height = BoxSizing::Fixed(50.0);
-
-		root_node.add_child(child_node.clone());
-		root_node.add_child(child_node);
-
-		// let mut solver = LayoutSolver::new(root_node);
-
-		// solver.solve(window);
-
-		// assert_eq!(solver.root.size,Size::new(400.0, 100.0));
-		// assert_eq!(solver.root.children[0].size,Size::new(200.0, 50.0));
-	}
-
-	#[test]
-	fn test_inner_shrink_sizing(){
-		let window = Size::new(800.0, 800.0);
-
-		let mut root_node = LayoutNode::new();
-		let mut child_node = LayoutNode::new();
-		let mut grand_child_node = LayoutNode::new();
-
-		grand_child_node.intrinsic_size.width = BoxSizing::Fixed(50.0);
-		grand_child_node.intrinsic_size.height = BoxSizing::Fixed(200.0);
-		
-		child_node.add_child(grand_child_node.clone());
-		child_node.add_child(grand_child_node);
-		
-		root_node.add_child(child_node.clone());
-		root_node.add_child(child_node);
-
-		// let mut solver = LayoutSolver::new(root_node);
-
-		// solver.solve(window);
-
-		// // There's two 'shrink' children in the root and two 'fixed' children
-		// // in each of the two children 
-		// assert_eq!(solver.root.size,Size::new(200.0, 400.0));
-		// assert_eq!(
-		// 	solver.root.children[0].size,
-		// 	Size::new(100.0, 400.0)
-		// );
-	}
 }
 
 
