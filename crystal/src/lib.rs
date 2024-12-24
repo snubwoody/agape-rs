@@ -5,7 +5,6 @@ mod horizontal;
 mod vertical;
 mod block;
 mod empty;
-use std::f32::INFINITY;
 use helium_core::{position::Position, size::Size};
 pub use horizontal::HorizontalLayout;
 pub use vertical::VerticalLayout;
@@ -24,6 +23,7 @@ impl LayoutSolver {
 		root.solve_max_contraints(window_size);
 		let _ = root.solve_min_constraints();
 		root.update_size();
+		root.position_children();
 	}
 }
 
@@ -36,6 +36,8 @@ pub trait Layout{
 	fn solve_min_constraints(&mut self) -> (f32,f32);
 
 	fn solve_max_contraints(&mut self,space:Size);
+
+	fn position_children(&mut self);
 	
 	/// Update the size of every [`LayoutNode`] based on it's size and constraints.
 	fn update_size(&mut self);

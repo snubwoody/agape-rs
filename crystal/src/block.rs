@@ -7,6 +7,7 @@ pub struct BlockLayout{ // TODO add padding
 	pub id:String,
 	size:Size,
 	position:Position,
+	pub padding:u32,
 	pub intrinsic_size:IntrinsicSize,
 	// TODO i'm thinking of adding user constraints as well so that people can define their own 
 	// constraints
@@ -19,6 +20,7 @@ impl BlockLayout {
 		Self{
 			id:String::default(),
 			size:Size::default(),
+			padding:0,
 			position:Position::default(),
 			intrinsic_size:IntrinsicSize::default(),
 			constraints:BoxContraints::default(),
@@ -191,11 +193,31 @@ impl Layout for BlockLayout {
 
 		self.child.update_size();
 	}
+
+	fn position_children(&mut self){
+		let mut current_pos = self.position;
+		current_pos += self.padding as f32 * 2.0; 
+		self.child.set_position(current_pos);
+	}
 }
 
 #[cfg(test)]
 mod test{
-	use crate::LayoutSolver;
+	use crate::{EmptyLayout, LayoutSolver};
 	use super::*;
+
+	#[test]
+	fn test_shrink_sizing(){
+		let window = Size::new(800.0, 800.0);
+		let mut child = EmptyLayout::new();
+		child.intrinsic_size.width = BoxSizing::Fixed(200.0);
+		child.intrinsic_size.height = BoxSizing::Fixed(200.0);
+
+		// TODO add padding
+		let mut root = BlockLayout::new(Box::new(child)); 
+		LayoutSolver::solve(&mut root, window);
+
+		assert_eq!(root.size(),Size::new(200.0, 200.0));
+	}
 
 }

@@ -126,6 +126,8 @@ impl Layout for EmptyLayout {
 			}
 		}
 	}
+
+	fn position_children(&mut self){}
 }
 
 #[cfg(test)]
@@ -157,5 +159,15 @@ mod test{
 		LayoutSolver::solve(&mut root,window);
 
 		assert_eq!(root.size(),Size::new(200.0, 125.0));
+	}
+
+	#[test]
+	fn test_shrink_sizing(){
+		let window = Size::new(800.0, 800.0);
+		let mut root = EmptyLayout::new();
+
+		LayoutSolver::solve(&mut root, window);
+
+		assert_eq!(root.size(),Size::default());
 	}
 }

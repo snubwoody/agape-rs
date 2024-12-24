@@ -16,7 +16,8 @@ fn app(){
 		Button::new("Hello world"),
 		Button::new("Hello world"),
 		Button::new("Hello world"),
-		Button::new("Hello world")
+		Button::new("Hello world"),
+		Rect::new(200.0, 200.0, BLACK)
 	};
 	
 	let page = View::new(hstack,event_loop);

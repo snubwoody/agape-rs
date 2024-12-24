@@ -51,19 +51,6 @@ impl HorizontalLayout {
 
 		sum
 	}
-
-	fn position_children(&mut self){
-		let mut current_pos = self.position;
-		current_pos += self.padding as f32 * 2.0;
-		
-		for child in &mut self.children{
-			child.set_position(current_pos);
-			current_pos += child.size().width + self.spacing as f32;
-			dbg!(child.position());
-		}
-
-	}
-
 }
 
 
@@ -204,8 +191,6 @@ impl Layout for HorizontalLayout {
 		}
 	}
 
-	
-
 	fn update_size(&mut self){
 		match self.intrinsic_size.width {
 			BoxSizing::Flex(_) => {
@@ -236,8 +221,19 @@ impl Layout for HorizontalLayout {
 		for child in &mut self.children{
 			child.update_size();
 		}
+	}
 
-		self.position_children()
+	fn position_children(&mut self){
+		let mut current_pos = self.position;
+		current_pos += self.padding as f32 * 2.0;
+		
+		for child in &mut self.children{
+			child.set_position(current_pos);
+			current_pos.x += child.size().width + self.spacing as f32;
+			//println!("\nid:{:?}\nsize:{:?}\nposition:{:?}\n",child.id(),child.size(),child.position());
+			child.position_children();
+		}
+
 	}
 }
 

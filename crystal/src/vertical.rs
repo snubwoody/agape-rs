@@ -10,6 +10,8 @@ pub struct VerticalLayout{ // TODO add padding
 	pub id:String,
 	pub size:Size,
 	pub position:Position,
+	pub spacing:u32,
+	pub padding:u32,
 	pub intrinsic_size:IntrinsicSize,
 	// TODO i'm thinking of adding user constraints as well so that people can define their own 
 	// constraints
@@ -216,6 +218,17 @@ impl Layout for VerticalLayout {
 
 		for child in &mut self.children{
 			child.update_size();
+		}
+	}
+
+	fn position_children(&mut self) {
+		let mut current_pos = self.position;
+		current_pos += self.padding as f32 * 2.0;
+		
+		for child in &mut self.children{
+			child.set_position(current_pos);
+			current_pos.y += child.size().height + self.spacing as f32;
+			child.position_children();
 		}
 	}
 }
