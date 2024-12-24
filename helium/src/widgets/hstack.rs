@@ -9,14 +9,18 @@ pub struct HStack {
 	pub id:String,
     pub children: Vec<Box<dyn Widget>>,
     pub color: Color,
+	pub spacing:u32,
+	pub padding:u32
 }
 
 impl HStack {
 	pub fn spacing(mut self, spacing: u32) -> Self {
+		self.spacing = spacing;
 		self
 	}
-
+	
 	pub fn padding(mut self,padding:u32) -> Self{
+		self.padding = padding;
 		self
 	}
 
@@ -66,6 +70,8 @@ macro_rules! hstack {
 			$crate::widgets::HStack{
 				id:helium::nanoid!(),
 				color:$crate::TRANSPARENT,
+				padding:0,
+				spacing:0,
 				children:vec![
 					$(
 						Box::new($child),

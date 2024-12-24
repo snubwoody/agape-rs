@@ -13,7 +13,6 @@ pub struct View{
 	root_widget:Box<dyn Widget>,
 	root_body:WidgetBody,
 	event_queue:EventQueue,
-	layout_map:HashMap<String,(Size,Position)>
 }
 
 impl View {
@@ -25,7 +24,6 @@ impl View {
 			root_layout,
 			root_widget:Box::new(root_widget),
 			event_queue,
-			layout_map:HashMap::new()
 		}
 	}
 
@@ -36,16 +34,6 @@ impl View {
 		window.request_redraw();
 	}
 
-	pub fn build_layout_map(&mut self){
-		self.layout_map.insert(
-			self.root_layout.id().to_string(), 
-			(
-				self.root_layout.size(),
-				self.root_layout.position(),
-			)
-		);
-	}
-	
 	pub fn render(&mut self,state:&AppState) {
 
 		let output = state.surface.get_current_texture().unwrap(); // TODO maybe handle this error
@@ -71,13 +59,9 @@ impl View {
 		});
 
 		LayoutSolver::solve(&mut *self.root_layout, state.size);
-		self.build_layout_map();
 
-		//dbg!(&self.root_layout);
-		//dbg!(&self.root_layout);
 		self.root_body.update_sizes(&self.root_layout);
 		self.root_body.render(&mut render_pass,state);
-		//dbg!(&self.root_body);		
 		
 		// Drop the render pass because it borrows encoder
 		// mutably

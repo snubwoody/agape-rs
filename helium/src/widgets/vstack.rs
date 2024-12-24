@@ -9,9 +9,21 @@ pub struct VStack {
 	pub id:String,
     pub children: Vec<Box<dyn Widget>>,
     pub color: Color,
+	pub spacing:u32,
+	pub padding:u32
 }
 
 impl VStack {
+	pub fn spacing(mut self, spacing: u32) -> Self {
+		self.spacing = spacing;
+		self
+	}
+	
+	pub fn padding(mut self,padding:u32) -> Self{
+		self.padding = padding;
+		self
+	}
+	
 	impl_style!();
 	impl_events!();
 }
@@ -42,6 +54,8 @@ impl Widget for VStack {
 		layout.intrinsic_size.height = BoxSizing::Flex(1);
 		layout.children = children_layout;
 		layout.id = body.id.clone();
+		layout.padding = self.padding;
+		layout.spacing = self.spacing;
 
 		(body,Box::new(layout))
     }
@@ -49,7 +63,6 @@ impl Widget for VStack {
 
 
 // TODO test these macros pls
-// TODO change the color path because it might conflict with local colors
 #[macro_export]
 macro_rules! vstack {
 	($($child:expr),*) => {
@@ -57,6 +70,8 @@ macro_rules! vstack {
 			$crate::widgets::VStack{
 				id:helium::nanoid!(),
 				color:$crate::TRANSPARENT,
+				spacing:0,
+				padding:0,
 				children:vec![
 					$(
 						Box::new($child),
