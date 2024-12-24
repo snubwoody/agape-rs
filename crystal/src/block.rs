@@ -28,27 +28,6 @@ impl BlockLayout {
 			child
 		}
 	}
-
-	fn fixed_size_sum(&self) -> Size{
-		let mut sum = Size::default();
-
-		match self.child.intrinsic_size().width {
-			BoxSizing::Fixed(width) => {
-				sum.width = sum.width.max(width);
-			},
-			_ => {}
-		}
-		
-		match self.child.intrinsic_size().height {
-			BoxSizing::Fixed(height) => {
-				sum.height += height;
-			},
-			_ => {}
-		}
-
-		sum
-	}
-
 }
 
 
@@ -108,7 +87,22 @@ impl Layout for BlockLayout {
 
 	fn solve_min_constraints(&mut self) -> (f32,f32){
 		// The sum of the size of all the children with fixed sizes
-		let fixed_sum = self.fixed_size_sum();
+		let mut min_size = Size::default();
+		min_size += self.padding as f32 * 2.0;
+		
+		match self.child.intrinsic_size().width {
+			BoxSizing::Fixed(width) => {
+				min_size.width += width;
+			},
+			_ => {}
+		}
+		
+		match self.child.intrinsic_size().height {
+			BoxSizing::Fixed(height) => {
+				min_size.height += height;
+			},
+			_ => {}
+		}
 
 		// TODO i think im supposed to calculate the min constraints of the children as well
 		match self.intrinsic_size.width {
@@ -119,7 +113,7 @@ impl Layout for BlockLayout {
 				// TODO maybe set the min constraints to either 0 or the size of the children
 			},
 			BoxSizing::Shrink => {
-				self.constraints.min_width = fixed_sum.width;	
+				self.constraints.min_width = min_size.width;	
 			},
 		}
 		
@@ -131,7 +125,7 @@ impl Layout for BlockLayout {
 
 			},
 			BoxSizing::Shrink => {
-				self.constraints.min_height = fixed_sum.height;	
+				self.constraints.min_height = min_size.height;	
 			},
 		}
 
@@ -215,10 +209,11 @@ mod test{
 		child.intrinsic_size.height = BoxSizing::Fixed(200.0);
 
 		// TODO add padding
-		let mut root = BlockLayout::new(Box::new(child)); 
+		let mut root = BlockLayout::new(Box::new(child));
+		root.padding = 24; 
 		LayoutSolver::solve(&mut root, window);
 
-		assert_eq!(root.size(),Size::new(200.0, 200.0));
+		assert_eq!(root.size(),Size::new(200.0 + 24.0 * 2.0, 200.0 + 24.0 * 2.0));
 	}
 
 }

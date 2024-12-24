@@ -44,7 +44,6 @@ pub trait Layout:Debug{
 	/// Update the size of every [`LayoutNode`] based on it's size and constraints.
 	fn update_size(&mut self);
 
-
 	fn id(&self) -> &str;
 	fn constraints(&self) -> BoxContraints;
 	fn intrinsic_size(&self) -> IntrinsicSize;

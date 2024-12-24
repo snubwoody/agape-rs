@@ -1,6 +1,6 @@
 use helium::{
     app::{events::EventQueue, view::View, App}, hex, hstack, 
-	widgets::{Button, Container, Rect, Text}, BLACK, BLUE, RED
+	widgets::{Button,Rect}, BLACK,
 };
 
 fn main() {
@@ -10,13 +10,13 @@ fn main() {
 
 /// Broken
 fn app(){
-	let mut event_loop = EventQueue::new();
+	let event_loop = EventQueue::new();
 
 	let hstack = hstack!{
-		Button::new("Hello world"),
-		Button::new("Hello world"),
-		Button::new("Hello world"),
-		Button::new("Hello world"),
+		Button::new("Hello world").padding(24),
+		Button::new("Hello world").padding(24),
+		Button::new("Hello world").padding(24),
+		Button::new("Hello world").padding(24),
 		Rect::new(200.0, 200.0, BLACK)
 	};
 	
