@@ -1,6 +1,6 @@
 use std::f32::INFINITY;
 use helium_core::{position::Position, size::Size};
-use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout};
+use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
 
 /// A [`VerticalLayout`] sizes and position it's children horizontally, of course, the `Flex` 
 /// attribute means a layout node will fill it's widget, however the flex factor only works in 
@@ -104,6 +104,13 @@ impl Layout for VerticalLayout {
 	
 	fn set_min_width(&mut self,width:f32) {
 		self.constraints.min_width = width;
+	}
+
+	fn iter(&self) -> crate::LayoutIter {
+		let j = self;
+		LayoutIter{
+			stack:vec![Box::new(self)]
+		}
 	}
 
 	fn solve_min_constraints(&mut self) -> (f32,f32){

@@ -1,6 +1,6 @@
 use std::f32::INFINITY;
 use helium_core::{position::Position, size::Size};
-use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout};
+use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
 
 /// This layout only has one child
 #[derive(Debug)]
@@ -83,6 +83,12 @@ impl Layout for BlockLayout {
 	
 	fn set_min_width(&mut self,width:f32) {
 		self.constraints.min_width = width;
+	}
+
+	fn iter(&self) -> LayoutIter {
+		LayoutIter{
+			stack:vec![Box::new(self)]
+		}
 	}
 
 	fn solve_min_constraints(&mut self) -> (f32,f32){
@@ -191,7 +197,7 @@ impl Layout for BlockLayout {
 
 	fn position_children(&mut self){
 		let mut current_pos = self.position;
-		current_pos += self.padding as f32 * 2.0; 
+		current_pos += self.padding as f32; 
 		self.child.set_position(current_pos);
 	}
 }

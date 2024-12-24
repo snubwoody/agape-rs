@@ -1,5 +1,5 @@
 use helium_core::{position::Position, size::Size};
-use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout};
+use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
 
 /// This is a layout with no children
 #[derive(Debug,Default,Clone)]
@@ -26,7 +26,6 @@ impl Layout for EmptyLayout {
 	fn id(&self) -> &str {
 		&self.id
 	}
-
 	
 	fn set_position(&mut self,position:Position) {
 		self.position = position;
@@ -70,6 +69,12 @@ impl Layout for EmptyLayout {
 	
 	fn set_min_width(&mut self,width:f32) {
 		self.constraints.min_width = width;
+	}
+
+	fn iter(&self) -> crate::LayoutIter {
+		LayoutIter{
+			stack:vec![Box::new(self)]
+		}
 	}
 
 	fn solve_min_constraints(&mut self) -> (f32,f32){

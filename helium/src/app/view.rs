@@ -1,4 +1,7 @@
+use std::collections::HashMap;
+
 use crystal::{Layout, LayoutSolver};
+use helium_core::{position::Position, size::Size};
 use winit::window::Window;
 
 use crate::widgets::{Widget, WidgetBody};
@@ -10,16 +13,19 @@ pub struct View{
 	root_widget:Box<dyn Widget>,
 	root_body:WidgetBody,
 	event_queue:EventQueue,
+	layout_map:HashMap<String,(Size,Position)>
 }
 
 impl View {
 	pub fn new(root_widget:impl Widget + 'static,event_queue:EventQueue) -> Self {
 		let (root_body,root_layout) = root_widget.build();
+		
 		Self { 
 			root_body,
 			root_layout,
 			root_widget:Box::new(root_widget),
-			event_queue
+			event_queue,
+			layout_map:HashMap::new()
 		}
 	}
 
@@ -29,8 +35,19 @@ impl View {
 		self.event_queue.handle_events(&event,&self.root_body);
 		window.request_redraw();
 	}
+
+	pub fn build_layout_map(&mut self){
+		self.layout_map.insert(
+			self.root_layout.id().to_string(), 
+			(
+				self.root_layout.size(),
+				self.root_layout.position(),
+			)
+		);
+	}
 	
 	pub fn render(&mut self,state:&AppState) {
+
 		let output = state.surface.get_current_texture().unwrap(); // TODO maybe handle this error
 		let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
 		
@@ -54,10 +71,13 @@ impl View {
 		});
 
 		LayoutSolver::solve(&mut *self.root_layout, state.size);
-		dbg!(&self.root_layout);
+		self.build_layout_map();
+
+		//dbg!(&self.root_layout);
+		//dbg!(&self.root_layout);
 		self.root_body.update_sizes(&self.root_layout);
 		self.root_body.render(&mut render_pass,state);
-		//dbg!(&self.root_body);
+		//dbg!(&self.root_body);		
 		
 		// Drop the render pass because it borrows encoder
 		// mutably

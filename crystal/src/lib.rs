@@ -59,6 +59,31 @@ pub trait Layout:Debug{
 	fn set_x(&mut self,x:f32);
 	fn set_y(&mut self,y:f32);
 
+	fn iter(&self) -> LayoutIter;
+}
+
+pub struct LayoutIter<'a>{
+	stack:Vec<Box<&'a dyn Layout>>
+}
+
+impl<'a> Iterator for LayoutIter<'a> {
+	type Item = Box<&'a dyn Layout>;
+
+	fn next(&mut self) -> Option<Self::Item>{
+		if let Some(layout) = self.stack.pop(){
+			let children = layout.children();
+
+			let k = children.iter().map(|child|{
+				// Type gymnastics indeed
+				Box::new(&*child.as_ref())
+			});
+
+			self.stack.extend(k.rev());
+			return Some(layout);
+		}
+
+		None
+	}
 }
 
 #[derive(Debug,Clone, Copy,PartialEq, Eq,Default)]

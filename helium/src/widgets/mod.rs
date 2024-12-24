@@ -72,7 +72,7 @@ impl WidgetBody {
 		self
 	}
 
-	fn check_size(&mut self,layout:&Box<dyn Layout>){
+	fn check_size(&mut self,layout:Box<&dyn Layout>){
 		if layout.id() == self.id{
 			self.surface.size(
 				layout.size().width, 
@@ -83,16 +83,15 @@ impl WidgetBody {
 				layout.position().y
 			);
 			// println!(
-			// 	"\nHit!!!\nSize: {:?}\nPosition: {:?}",
-			// 	self.surface.get_size(),self.surface.get_position()
+			// 	"\nHit!!!\nSurface: {:?}",
+			// 	self.surface,
 			// );
 		}
 	}
 
 	pub fn update_sizes(&mut self,root_layout:&Box<dyn Layout>){
 		// FIXME this probably has disgusting performance
-		self.check_size(root_layout);
-		for layout in root_layout.children(){
+		for (_,layout) in root_layout.iter().enumerate(){
 			self.check_size(layout);
 		}
 		for child in &mut self.children{
