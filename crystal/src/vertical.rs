@@ -7,13 +7,14 @@ use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout};
 /// the x-axis, in the y-axis all nodes will fill the parent and will be the same height.
 #[derive(Default)]
 pub struct VerticalLayout{ // TODO add padding
-	size:Size,
-	position:Position,
-	intrinsic_size:IntrinsicSize,
+	pub id:String,
+	pub size:Size,
+	pub position:Position,
+	pub intrinsic_size:IntrinsicSize,
 	// TODO i'm thinking of adding user constraints as well so that people can define their own 
 	// constraints
+	pub children:Vec<Box<dyn Layout>>,
 	constraints:BoxContraints,
-	children:Vec<Box<dyn Layout>>
 }
 
 impl VerticalLayout {
@@ -51,6 +52,26 @@ impl VerticalLayout {
 
 
 impl Layout for VerticalLayout {
+	fn id(&self) -> &str {
+		&self.id
+	}
+
+	fn position(&self) -> Position {
+		self.position
+	}
+
+	fn set_position(&mut self,position:Position) {
+		self.position = position;
+	}
+
+	fn set_x(&mut self,x:f32) {
+		self.position.x = x;
+	}
+
+	fn set_y(&mut self,y:f32) {
+		self.position.y = y;
+	}
+
 	fn size(&self) -> Size {
 		self.size
 	}

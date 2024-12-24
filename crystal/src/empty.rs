@@ -2,8 +2,9 @@ use helium_core::{position::Position, size::Size};
 use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout};
 
 /// This is a layout with no children
-#[derive(Debug,Default,Clone, Copy)]
+#[derive(Debug,Default,Clone)]
 pub struct EmptyLayout{ // TODO add padding
+	pub id:String,
 	size:Size,
 	position:Position,
 	pub intrinsic_size:IntrinsicSize,
@@ -20,6 +21,27 @@ impl EmptyLayout {
 impl Layout for EmptyLayout {
 	fn size(&self) -> Size {
 		self.size
+	}
+
+	fn id(&self) -> &str {
+		&self.id
+	}
+
+	
+	fn set_position(&mut self,position:Position) {
+		self.position = position;
+	}
+
+	fn set_x(&mut self,x:f32) {
+		self.position.x = x;
+	}
+
+	fn set_y(&mut self,y:f32) {
+		self.position.y = y;
+	}
+
+	fn position(&self) -> Position {
+		self.position
 	}
 
 	fn children(&self) -> &[Box<dyn Layout>] {

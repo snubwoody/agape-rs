@@ -1,12 +1,9 @@
+use crystal::{BoxSizing, EmptyLayout, Layout};
 use nanoid::nanoid;
-
-use crate::{
-	app::events::Event, layout::{self, BlockLayout, IntrinsicSize, Layout, WidgetSize}, surface::{text::TextSurface, Surface} 
-};
+use crate::surface::{text::TextSurface, Surface} ;
 use super::{Widget, WidgetBody};
 
 pub struct Text{
-	id:String,
 	text:String,
 	font_size:u8,
 }
@@ -14,7 +11,6 @@ pub struct Text{
 impl Text {
 	pub fn new(text:&str) -> Self{
 		Self { 
-			id:nanoid!(),
 			text:text.into(), 
 			font_size:16,
 		}	
@@ -28,7 +24,7 @@ impl Text {
 }
 
 impl Widget for Text {
-	fn build(&self) -> WidgetBody {
+	fn build(&self) -> (WidgetBody,Box<dyn Layout>) {
 		// Create the text surface to be rendered
 		let textsurface = TextSurface::new(
 			self.text.as_str(),
@@ -38,19 +34,16 @@ impl Widget for Text {
 		let size = textsurface.get_size();
 		let surface = Box::new(textsurface);
 
-		let intrinsic_size = IntrinsicSize{
-			width:WidgetSize::Fixed(size.width),
-			height:WidgetSize::Fixed(size.height)
+		let body = WidgetBody{
+			surface,
+			..Default::default()
 		};
 
-		let mut layout = BlockLayout::new(0);
-		layout.intrinsic_size(intrinsic_size);
+		let mut layout = EmptyLayout::new();
+		layout.intrinsic_size.width = BoxSizing::Fixed(size.width);
+		layout.intrinsic_size.height = BoxSizing::Fixed(size.height);
+		layout.id = body.id.clone();
 
-		WidgetBody{
-			id:self.id.clone(),
-			surface,
-			layout:Box::new(layout),
-			..Default::default()
-		}
+		(body,Box::new(layout))
 	}
 }

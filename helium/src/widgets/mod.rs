@@ -19,11 +19,8 @@ use crate::{
 		rect::RectSurface, Surface
 	}, 
 };
-use helium_core::position::Position;
-use helium_core::size::Size;
-use crystal::{EmptyLayout, Layout, LayoutSolver};
-
-pub type WidgetId = String; // FIXME Redundant type
+use crystal::Layout;
+// TODO maybe test widgets with layouts to make sure everything's integrated properly;
 
 /// The trait that all widgets must implement. Each `widget` must implement build function
 /// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about 
@@ -34,17 +31,16 @@ pub trait Widget{
 
 	/// Build the [`Widget`] into a primitive [`WidgetBody`] for
 	/// rendering.
-	fn build(&self) -> WidgetBody;
+	fn build(&self) -> (WidgetBody,Box<dyn Layout>);
 }
 
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
 pub struct WidgetBody{ // TODO this changes a lot so make these fields private
-	pub id:WidgetId,
+	pub id:String,
 	/// A label for debugging purposes
 	pub label:Option<String>,
 	pub surface:Box<dyn Surface>,
-	pub layout:Box<dyn crystal::Layout>,
 	pub children:Vec<Box<WidgetBody>>,
 }
 
@@ -63,11 +59,6 @@ impl WidgetBody {
 		self
 	}
 
-	pub fn layout(mut self,layout:impl Layout + 'static) -> Self{
-		self.layout = Box::new(layout);
-		self
-	}
-
 	pub fn add_child(mut self,child:WidgetBody) -> Self{
 		self.children.push(Box::new(child));
 		self
@@ -80,16 +71,35 @@ impl WidgetBody {
 		self
 	}
 
+	fn check_size(&mut self,layout:&Box<dyn Layout>){
+		if layout.id() == self.id{
+			self.surface.size(
+				layout.size().width, 
+				layout.size().height
+			);
+			self.surface.position(
+				layout.position().x, 
+				layout.position().y
+			);
+		}
+	}
+
+	pub fn update_sizes(&mut self,root_layout:&Box<dyn Layout>){
+		// FIXME this probably has disgusting performance
+		self.check_size(root_layout);
+		for layout in root_layout.children(){
+			self.check_size(layout);
+		}
+	}
+
 	/// Draw the [`WidgetBody`] to the screen.
-	pub(crate) fn render(
+	pub fn render(
 		&mut self,
 		render_pass:&mut wgpu::RenderPass,
 		state: &AppState
 	) {
 		let context = &state.context;
 
-		LayoutSolver::solve(&mut *self.layout,state.size);
-		
 		// Draw the parent then the children to the screen
 		self.surface.draw(render_pass, context,state);
 		self.children.iter_mut().for_each(|child|{
@@ -106,13 +116,13 @@ impl Default for WidgetBody {
 			id:nanoid!(),
 			surface, 
 			label:None,
-			layout:Box::new(EmptyLayout::new()), 
 			children:vec![], 
 		}
 	}
 }
 
 
+// TODO remove this and replace with modifiers 
 /// Implement common styling attributes
 #[macro_export]
 macro_rules! impl_style {

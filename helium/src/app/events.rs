@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 use winit::event::WindowEvent;
-use crate::{widgets::{ WidgetBody, WidgetId}, Position};
+use crate::{widgets::WidgetBody, Position};
 
 type EventFunction = Box<dyn FnMut()>; 
 pub enum Event {
@@ -11,11 +11,11 @@ pub enum Event {
 #[derive(Debug)]
 pub struct UserEvent {
 	function:Event,
-	id:WidgetId
+	id:String
 }
 
 impl UserEvent {
-	pub fn new(id:WidgetId,f:Event) -> Self{
+	pub fn new(id:String,f:Event) -> Self{
 		Self { 
 			function:f,
 			id,

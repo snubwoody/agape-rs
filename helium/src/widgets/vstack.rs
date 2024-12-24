@@ -1,59 +1,49 @@
 use crate::{
     app::events::Event, impl_events, impl_style, 
-	layout::{IntrinsicSize,VerticalLayout, WidgetSize}, 
 	surface::rect::RectSurface, 
 	widgets::{Widget, WidgetBody}, Color
 };
+use crystal::{BoxSizing, Layout, VerticalLayout};
 
 pub struct VStack {
 	pub id:String,
     pub children: Vec<Box<dyn Widget>>,
-    pub layout: VerticalLayout,
     pub color: Color,
-	pub intrinsic_size:IntrinsicSize
 }
 
 impl VStack {
-	pub fn fill_height(mut self) -> Self{
-		self.intrinsic_size = self.intrinsic_size.fill_height();
-		self
-	}
-
-	pub fn spacing(mut self, spacing: u32) -> Self {
-		self.layout.spacing(spacing);
-		self
-	}
-
-	pub fn padding(mut self,padding:u32) -> Self{
-		self.layout.padding(padding);
-		self
-	}
-
 	impl_style!();
 	impl_events!();
 }
 
 impl Widget for VStack {
-    fn build(&self) -> WidgetBody {
+    fn build(&self) -> (WidgetBody,Box<dyn Layout>) {
         let mut surface = RectSurface::default();
         surface.color(self.color.clone());
 
-		let layout = self.layout;
+		let (children_body,children_layout):(Vec<Box<WidgetBody>>,Vec<Box<dyn Layout>>) = 
+			self
+			.children
+			.iter()
+			.map(|widget| {
+				let (body,layout) = widget.build();
+				return (Box::new(body),layout);
+			})
+			.collect();
 
-        let children = self
-            .children
-            .iter()
-            .map(|widget| Box::new(widget.build()))
-            .collect();
-
-
-        WidgetBody {
+		let body = WidgetBody {
 			id:self.id.clone(),
-            children,
-            layout: Box::new(layout),
-            surface: Box::new(surface),
-            ..Default::default()
-        }
+			children:children_body,
+			surface: Box::new(surface),
+			..Default::default()
+		};
+	
+		let mut layout = VerticalLayout::new();
+		layout.intrinsic_size.height = BoxSizing::Flex(1);
+		layout.children = children_layout;
+		layout.id = body.id.clone();
+
+		(body,Box::new(layout))
     }
 }
 
@@ -67,7 +57,6 @@ macro_rules! vstack {
 			$crate::widgets::VStack{
 				id:helium::nanoid!(),
 				color:$crate::TRANSPARENT,
-				layout:$crate::layout::VerticalLayout::new(0,0),
 				children:vec![
 					$(
 						Box::new($child),

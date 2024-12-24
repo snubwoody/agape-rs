@@ -4,23 +4,25 @@ use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout};
 
 /// This layout only has one child
 pub struct BlockLayout{ // TODO add padding
+	pub id:String,
 	size:Size,
 	position:Position,
-	intrinsic_size:IntrinsicSize,
+	pub intrinsic_size:IntrinsicSize,
 	// TODO i'm thinking of adding user constraints as well so that people can define their own 
 	// constraints
 	constraints:BoxContraints,
-	child:Box<dyn Layout>
+	pub child:Box<dyn Layout>
 }
 
 impl BlockLayout {
-	pub fn new(child:impl Layout + 'static) -> Self{
+	pub fn new(child:Box<dyn Layout>) -> Self{
 		Self{
+			id:String::default(),
 			size:Size::default(),
 			position:Position::default(),
 			intrinsic_size:IntrinsicSize::default(),
 			constraints:BoxContraints::default(),
-			child:Box::new(child)
+			child
 		}
 	}
 
@@ -48,8 +50,29 @@ impl BlockLayout {
 
 
 impl Layout for BlockLayout {
+	fn id(&self) -> &str {
+		&self.id
+	}
+
 	fn size(&self) -> Size {
 		self.size
+	}
+
+	
+	fn set_position(&mut self,position:Position) {
+		self.position = position;
+	}
+
+	fn set_x(&mut self,x:f32) {
+		self.position.x = x;
+	}
+
+	fn set_y(&mut self,y:f32) {
+		self.position.y = y;
+	}
+
+	fn position(&self) -> Position {
+		self.position
 	}
 
 	fn children(&self) -> &[Box<dyn Layout>] {

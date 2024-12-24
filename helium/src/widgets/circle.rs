@@ -1,4 +1,4 @@
-use crystal::{BoxSizing, EmptyLayout};
+use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::color::Color;
 use crate::surface::circle::CircleSurface;
 use super::{Widget, WidgetBody};
@@ -17,17 +17,18 @@ impl Circle {
 }
 
 impl Widget for Circle {
-	fn build(&self) -> WidgetBody {
+	fn build(&self) -> (WidgetBody,Box<dyn Layout>) {
 		let surface = CircleSurface::new(self.diameter,self.color.clone());
+		let body = WidgetBody { 
+			surface:Box::new(surface),
+			..Default::default()
+		};
+
 		let mut layout = EmptyLayout::new();
 		layout.intrinsic_size.width = BoxSizing::Fixed(self.diameter as f32);
 		layout.intrinsic_size.height = BoxSizing::Fixed(self.diameter as f32);
-		
+		layout.id = body.id.clone();
 
-		WidgetBody { 
-			surface:Box::new(surface),
-			layout:Box::new(layout),
-			..Default::default()
-		}
+		(body,Box::new(layout))
 	}
 }

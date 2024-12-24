@@ -41,197 +41,20 @@ pub trait Layout{
 	fn update_size(&mut self);
 
 
+	fn id(&self) -> &str;
 	fn constraints(&self) -> BoxContraints;
 	fn intrinsic_size(&self) -> IntrinsicSize;
 	fn size(&self) -> Size;
+	fn position(&self) -> Position;
 	fn children(&self) -> &[Box<dyn Layout>];
 
 	fn set_max_width(&mut self,width:f32);
 	fn set_max_height(&mut self,height:f32);
 	fn set_min_width(&mut self,width:f32);
 	fn set_min_height(&mut self,height:f32);
-
-}
-
-
-#[derive(Debug,Default,Clone)]
-pub struct LayoutNode{
-	size:Size,
-	position:Position,
-	intrinsic_size:IntrinsicSize,
-	// TODO i'm thinking of adding user constraints as well so that people can define their own 
-	// constraints
-	constraints:BoxContraints,
-	children:Vec<Box<LayoutNode>>
-}
-
-impl LayoutNode {
-	pub fn new() -> Self{
-		Self::default()
-	}
-
-	pub fn add_child(&mut self,child:LayoutNode){
-		self.children.push(Box::new(child));
-	}
-
-	/// Calculate the sum of all the nodes with fixed sizes
-	fn fixed_size_sum(&self) -> Size{
-		let mut sum = Size::default();
-
-		for child in &self.children{
-			match child.intrinsic_size.width {
-				BoxSizing::Fixed(width) => {
-					sum.width += width;
-				},
-				_ => {}
-			}
-
-			match child.intrinsic_size.height {
-				BoxSizing::Fixed(height) => {
-					sum.height += height;
-				},
-				_ => {}
-			}
-		}
-
-		sum
-	}
-
-	/// Solve the minimum constraints of each layout node recursively, if 
-	/// the node has an instrinsic size of `Fixed` then it's minimum size is 
-	/// set to the fixed values, if it's intrinsic size is set to `Shrink` then
-	/// it get's the min constraints of it's children bubbling them up the layout
-	/// tree.
-	fn solve_min_constraints(&mut self) -> (f32,f32){
-		// The sum of the size of all the children with fixed sizes
-		let fixed_sum = self.fixed_size_sum();
-
-		// TODO don't forget about the flex and shrink children
-		match self.intrinsic_size.width {
-			BoxSizing::Fixed(width) => {
-				self.constraints.min_width = width;	
-			},
-			BoxSizing::Flex(_) => {
-				// TODO maybe set the min constraints to either 0 or the size of the children
-			},
-			BoxSizing::Shrink => {
-				self.constraints.min_width = fixed_sum.width;	
-			},
-		}
-		
-		match self.intrinsic_size.height {
-			BoxSizing::Fixed(height) => {
-				self.constraints.min_height = height;	
-			},
-			BoxSizing::Flex(_) => {
-
-			},
-			BoxSizing::Shrink => {
-				self.constraints.min_height = fixed_sum.height;	
-			},
-		}
-
-		
-
-		(self.constraints.min_width,self.constraints.min_height)
-	}
-
-	fn solve_max_contraints(&mut self,space:Size) {
-		// Sum up all the flex factors
-		let flex_width_total:u8 = 
-			self
-			.children
-			.iter()
-			.filter_map(|child|{
-				if let BoxSizing::Flex(factor) = child.intrinsic_size.width  {
-					Some(factor)				
-				}else {
-					None
-				}
-			})
-			.sum();
-		
-		let flex_height_total:u8 = 
-			self
-			.children
-			.iter()
-			.filter_map(|child|{
-				if let BoxSizing::Flex(factor) = child.intrinsic_size.height  {
-					Some(factor)				
-				}else {
-					None
-				}
-			})
-			.sum();
-		
-		for child in &mut self.children{
-			let mut max_size = Size::default();
-			match child.intrinsic_size.width {
-				BoxSizing::Flex(factor) => {
-					// Make sure the factor isn't bigger than available size
-					let grow_factor = 
-						factor as f32 / flex_width_total as f32;
-					
-					max_size.width = grow_factor * space.width;
-					child.constraints.max_width = max_size.width;
-					
-					// TODO replace with custom err 
-					assert_ne!(grow_factor,INFINITY);
-					
-				}
-				_ => {}
-			}
-			match child.intrinsic_size.height {
-				BoxSizing::Flex(factor) => {
-					let grow_factor = 
-						factor as f32 / flex_height_total as f32;
-
-					max_size.height = grow_factor * space.height;
-					child.constraints.max_height = max_size.height;
-					
-					assert_ne!(grow_factor,INFINITY);					
-				},
-				_ => {}
-			}
-
-			// Pass the max size to the children to solve their max constraints
-			child.solve_max_contraints(max_size);
-		}
-	}
-
-	/// Update the size of every [`LayoutNode`] based on it's size and it's constraints
-	fn update_size(&mut self){
-		match self.intrinsic_size.width {
-			BoxSizing::Flex(_) => {
-				self.size.width = self.constraints.max_width;
-			},
-			BoxSizing::Shrink => {
-				self.size.width = self.constraints.min_width;
-			},
-			BoxSizing::Fixed(width) => {
-				// TODO maybe set the min constrains?
-				self.size.width = width;
-			}
-		}
-
-		match self.intrinsic_size.height {
-			BoxSizing::Flex(_) => {
-				self.size.height = self.constraints.max_height;
-			},
-			BoxSizing::Shrink => {
-				self.size.height = self.constraints.min_height;
-			},
-			BoxSizing::Fixed(height) => {
-				// TODO maybe set the min constrains?
-				self.size.height = height;
-			}
-		}
-
-		for child in &mut self.children{
-			child.update_size();
-		}
-	}
-
+	fn set_position(&mut self,position:Position);
+	fn set_x(&mut self,x:f32);
+	fn set_y(&mut self,y:f32);
 
 }
 

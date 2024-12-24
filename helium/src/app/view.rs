@@ -1,3 +1,4 @@
+use crystal::{Layout, LayoutSolver};
 use winit::window::Window;
 
 use crate::widgets::{Widget, WidgetBody};
@@ -5,6 +6,7 @@ use super::{events::{ EventQueue}, AppState};
 
 /// A page
 pub struct View{
+	root_layout:Box<dyn crystal::Layout>,
 	root_widget:Box<dyn Widget>,
 	root_body:WidgetBody,
 	event_queue:EventQueue,
@@ -12,8 +14,10 @@ pub struct View{
 
 impl View {
 	pub fn new(root_widget:impl Widget + 'static,event_queue:EventQueue) -> Self {
+		let (root_body,root_layout) = root_widget.build();
 		Self { 
-			root_body:root_widget.build(),
+			root_body,
+			root_layout,
 			root_widget:Box::new(root_widget),
 			event_queue
 		}
@@ -49,7 +53,8 @@ impl View {
 			timestamp_writes: None,
 		});
 
-		self.root_body.arrange(state.size);
+		LayoutSolver::solve(&mut *self.root_layout, state.size);
+		self.root_body.update_sizes(&self.root_layout);
 		self.root_body.render(&mut render_pass,state);
 		
 		// Drop the render pass because it borrows encoder

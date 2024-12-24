@@ -1,14 +1,14 @@
-use super::{text::Text, Widget, WidgetId};
+use super::{text::Text, Widget};
 use crate::app::events::Event;
-use crate::layout::BlockLayout;
 use crate::{
     impl_events,
-    layout::{IntrinsicSize, Layout, WidgetSize},
     surface::rect::RectSurface,
     widgets::WidgetBody,
 };
+use crystal::{BlockLayout, Layout};
 use helium_core::color::Color;
 use nanoid::nanoid;
+use winit::keyboard;
 
 /// A simple button.
 pub struct Button {
@@ -16,8 +16,6 @@ pub struct Button {
     text: String,
     color: Color,
     padding: u32,
-    width: WidgetSize,
-    height: WidgetSize,
     corner_radius: u32,
 }
 
@@ -28,13 +26,11 @@ impl Button {
             text: text.into(),
             color: Color::Hex("#615fff"),
             padding: 12,
-            width: WidgetSize::Fit,
-            height: WidgetSize::Fit,
             corner_radius: 12,
         }
     }
 
-    pub fn get_id(&self) -> WidgetId {
+    pub fn get_id(&self) -> String {
         self.id.clone()
     }
 
@@ -48,21 +44,6 @@ impl Button {
         self
     }
 
-    pub fn width(mut self, width: f32) -> Self {
-        self.width = WidgetSize::Fixed(width);
-        self
-    }
-
-    pub fn height(mut self, height: f32) -> Self {
-        self.height = WidgetSize::Fixed(height);
-        self
-    }
-
-    pub fn fill(mut self) -> Self {
-        self.width = WidgetSize::Fill;
-        self
-    }
-
     pub fn corner_radius(mut self, corner_radius: u32) -> Self {
         self.corner_radius = corner_radius;
         self
@@ -73,26 +54,24 @@ impl Button {
 
 // FIXME button text not working
 impl Widget for Button {
-    fn build(&self) -> WidgetBody {
-        let mut surface = RectSurface::new(0.0, 0.0, 200.0, 70.0, self.color.clone());
+    fn build(&self) -> (WidgetBody,Box<dyn Layout>) {
+        let mut surface = RectSurface::default();
+		surface.color = self.color.clone();
         surface.corner_radius(self.corner_radius);
-
 		
-        let text_body = Text::new(&self.text).build();
+        let (text_body,text_layout) = Text::new(&self.text).build();
 		
-        let intrinsic_size = IntrinsicSize {
-			width: self.width,
-            height: self.height,
-        };
-		let mut layout = Box::new(BlockLayout::new(self.padding));
-		layout.intrinsic_size(intrinsic_size);
-
-		WidgetBody {
-            id: self.id.clone(),
+		
+		let body = WidgetBody {
+			id: self.id.clone(),
             surface: Box::new(surface),
-            layout,
             children: vec![Box::new(text_body)],
             ..Default::default()
-        }
+        };
+		
+		let mut layout = BlockLayout::new(text_layout);
+		layout.id = body.id.clone();
+
+		(body,Box::new(layout))
     }
 }

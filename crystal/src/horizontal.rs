@@ -7,13 +7,16 @@ use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout};
 /// the x-axis, in the y-axis all nodes will fill the parent and will be the same height.
 #[derive(Default)]
 pub struct HorizontalLayout{ // TODO add padding
+	pub id:String,
 	size:Size,
 	position:Position,
-	intrinsic_size:IntrinsicSize,
+	spacing:u32,
+	padding:u32,
 	// TODO i'm thinking of adding user constraints as well so that people can define their own 
 	// constraints
 	constraints:BoxContraints,
-	children:Vec<Box<dyn Layout>>
+	pub children:Vec<Box<dyn Layout>>,
+	pub intrinsic_size:IntrinsicSize,
 }
 
 impl HorizontalLayout {
@@ -49,12 +52,45 @@ impl HorizontalLayout {
 		sum
 	}
 
+	fn position_children(&mut self){
+		let mut current_pos = self.position;
+		current_pos += self.padding as f32 * 2.0;
+		
+		for child in &mut self.children{
+			child.set_position(current_pos);
+			current_pos += child.size().width + self.spacing as f32;
+			dbg!(child.position());
+		}
+
+	}
+
 }
 
 
 impl Layout for HorizontalLayout {
+	fn id(&self) -> &str {
+		&self.id
+	}
+
+	
+	fn set_position(&mut self,position:Position) {
+		self.position = position;
+	}
+
+	fn set_x(&mut self,x:f32) {
+		self.position.x = x;
+	}
+
+	fn set_y(&mut self,y:f32) {
+		self.position.y = y;
+	}
+	
 	fn size(&self) -> Size {
 		self.size
+	}
+
+	fn position(&self) -> Position {
+		self.position
 	}
 
 	fn children(&self) -> &[Box<dyn Layout>] {
@@ -200,6 +236,8 @@ impl Layout for HorizontalLayout {
 		for child in &mut self.children{
 			child.update_size();
 		}
+
+		self.position_children()
 	}
 }
 

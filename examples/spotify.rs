@@ -42,44 +42,44 @@ fn main(){
 	App::new().add_view(home).run();
 }
 
-struct Chip(&'static str);
+// struct Chip(&'static str);
 
-impl Widget for Chip {
-	fn build(&self) -> helium::widgets::WidgetBody {
-		let text = Text::new(&self.0);
+// impl Widget for Chip {
+// 	fn build(&self) -> helium::widgets::WidgetBody {
+// 		let text = Text::new(&self.0);
 		
-		Container::new(text)
-		.corner_radius(4)
-		.color(GREY)
-		.padding(12)
-		.build()
-		.label(&self.0)
-	}
-}
+// 		Container::new(text)
+// 		.corner_radius(4)
+// 		.color(GREY)
+// 		.padding(12)
+// 		.build()
+// 		.label(&self.0)
+// 	}
+// }
 
-struct SidebarItem{
-	title:String
-}
+// struct SidebarItem{
+// 	title:String
+// }
 
-impl SidebarItem {
-	fn new(title:&str) -> Self{
-		Self{
-			title:title.into()
-		}
-	}
-}
+// impl SidebarItem {
+// 	fn new(title:&str) -> Self{
+// 		Self{
+// 			title:title.into()
+// 		}
+// 	}
+// }
 
-impl Widget for SidebarItem {
-	fn build(&self) -> WidgetBody {
-		hstack!{
-			Rect::new(50, 50, GREY).corner_radius(12),
-			vstack!{
-				Text::new(&self.title),
-				hstack!{
-					Text::new("Playlist"),
-					Text::new("Charlemagne")
-				}
-			}
-		}.spacing(12).build()		
-	}
-}
+// impl Widget for SidebarItem {
+// 	fn build(&self) -> WidgetBody {
+// 		hstack!{
+// 			Rect::new(50, 50, GREY).corner_radius(12),
+// 			vstack!{
+// 				Text::new(&self.title),
+// 				hstack!{
+// 					Text::new("Playlist"),
+// 					Text::new("Charlemagne")
+// 				}
+// 			}
+// 		}.spacing(12).build()		
+// 	}
+// }

@@ -1,62 +1,58 @@
+use crystal::{BlockLayout, Layout};
 use nanoid::nanoid;
-
 use super::WidgetBody;
-use crate::{
-    app::events::Event,impl_style, layout::{BlockLayout, Layout}, surface::rect::RectSurface, widgets::Widget
-};
+use crate::{impl_style, surface::rect::RectSurface, widgets::Widget};
 use helium_core::color::Color;
 
 /// A container [`Widget`] that wraps its child
 pub struct Container<W> {
-	id:String,
+    id: String,
     color: Color,
     child: W, // TODO make this a generic
-	layout:BlockLayout,
-	corner_radius:u32
+    corner_radius: u32,
 }
 
-impl<W> Container<W> 
-where W:Widget {
-    pub fn new(child:W) -> Self {
+impl<W> Container<W>
+where W: Widget{
+    pub fn new(child: W) -> Self {
         Container {
-			id:nanoid!(),
-			layout:BlockLayout::new(0),
+            id: nanoid!(),
             color: Color::Rgb(255, 255, 255),
             child,
-			corner_radius:0
+            corner_radius: 0,
         }
     }
 
-	pub fn padding(mut self,padding:u32) -> Self{
-		self.layout.padding(padding);
-		self
-	}
+    pub fn corner_radius(mut self, corner_radius: u32) -> Self {
+        self.corner_radius = corner_radius;
+        self
+    }
 
-	pub fn corner_radius(mut self,corner_radius:u32) -> Self{
-		self.corner_radius = corner_radius;
-		self
-	}
-
-	impl_style!();
-
+    impl_style!();
 }
 
 impl<W> Widget for Container<W>
-where W:Widget {
-    fn build(&self) -> WidgetBody {
+where W: Widget {
+    fn build(&self) -> (WidgetBody,Box<dyn Layout>) {
         let surface = Box::new(RectSurface {
             color: self.color.clone(),
-			corner_radius:self.corner_radius,
+            corner_radius: self.corner_radius,
             ..Default::default()
         });
 
+		let (child_body,child_layout) = self.child.build();
 
-		WidgetBody {
-			id:self.id.clone(),
+		
+        let body = WidgetBody{
+			id: self.id.clone(),
             surface,
-            layout:Box::new(self.layout),
-            children: vec![Box::new(self.child.build())],
+            children: vec![Box::new(child_body)],
             ..Default::default()
-        }
+        };
+		
+		let mut layout = BlockLayout::new(child_layout);
+		layout.id = body.id.clone();
+
+		(body,Box::new(layout))
     }
 }

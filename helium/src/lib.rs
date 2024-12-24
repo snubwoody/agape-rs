@@ -2,7 +2,6 @@ pub mod widgets;
 pub mod app;
 pub mod surface;
 pub mod vertex;
-pub mod layout;
 pub mod signal;
 mod renderer;
 

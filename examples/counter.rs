@@ -12,9 +12,14 @@ fn main() {
 fn app(){
 	let mut event_loop = EventQueue::new();
 
-	let button = Button::new("Hello world");
+	let hstack = hstack!{
+		Button::new("Hello world"),
+		Button::new("Hello world"),
+		Button::new("Hello world"),
+		Button::new("Hello world")
+	};
 	
-	let page = View::new(button,event_loop);
+	let page = View::new(hstack,event_loop);
   	
 	App::new()
 	.add_view(page)
