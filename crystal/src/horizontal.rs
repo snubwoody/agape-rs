@@ -137,6 +137,8 @@ impl Layout for HorizontalLayout {
 			},
 		}
 
+		// TODO add the padding
+		// TODO test this and also fetch the child min constraints
 		for child in &mut self.children{
 			child.solve_min_constraints();
 		}
