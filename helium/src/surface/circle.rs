@@ -63,7 +63,7 @@ impl Surface for CircleSurface {
 				contents: bytemuck::cast_slice(&[self.size.width]),
 				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
 			}
-		); // TODO change this to radius
+		);
 
 		let position_buffer = state.device.create_buffer_init(
 			&BufferInitDescriptor{

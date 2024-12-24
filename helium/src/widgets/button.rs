@@ -5,7 +5,7 @@ use crate::{
     surface::rect::RectSurface,
     widgets::WidgetBody,
 };
-use crystal::{BlockLayout, Layout};
+use crystal::{BlockLayout, BoxSizing, Layout};
 use helium_core::color::Color;
 use nanoid::nanoid;
 use winit::keyboard;
@@ -26,7 +26,7 @@ impl Button {
             text: text.into(),
             color: Color::Hex("#615fff"),
             padding: 12,
-            corner_radius: 12,
+            corner_radius: 0,
         }
     }
 
@@ -52,7 +52,6 @@ impl Button {
     impl_events!();
 }
 
-// FIXME button text not working
 impl Widget for Button {
     fn build(&self) -> (WidgetBody,Box<dyn Layout>) {
         let mut surface = RectSurface::default();
@@ -71,6 +70,7 @@ impl Widget for Button {
 		
 		let mut layout = BlockLayout::new(text_layout);
 		layout.id = body.id.clone();
+		layout.padding = self.padding;
 
 		(body,Box::new(layout))
     }

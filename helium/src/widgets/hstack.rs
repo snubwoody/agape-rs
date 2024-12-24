@@ -5,7 +5,6 @@ use crate::{
 	widgets::{Widget, WidgetBody}, Color
 };
 
-// TODO make fields private
 pub struct HStack {
 	pub id:String,
     pub children: Vec<Box<dyn Widget>>,
@@ -51,6 +50,7 @@ impl Widget for HStack {
 		layout.intrinsic_size.width = BoxSizing::Flex(1);
 		layout.children = children_layout;
 		layout.id = body.id.clone();
+		layout.spacing = 20;
 
 		(body,Box::new(layout))
     }

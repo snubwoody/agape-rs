@@ -5,6 +5,8 @@ mod horizontal;
 mod vertical;
 mod block;
 mod empty;
+use std::fmt::Debug;
+
 use helium_core::{position::Position, size::Size};
 pub use horizontal::HorizontalLayout;
 pub use vertical::VerticalLayout;
@@ -27,7 +29,7 @@ impl LayoutSolver {
 	}
 }
 
-pub trait Layout{
+pub trait Layout:Debug{
 	/// Solve the minimum constraints of each layout node recursively, if 
 	/// the node has an instrinsic size of `Fixed` then it's minimum size is 
 	/// set to the fixed values, if it's intrinsic size is set to `Shrink` then
@@ -105,6 +107,47 @@ pub struct IntrinsicSize { // TODO does this really need to be a seperate struct
 #[cfg(test)]
 mod test{
 	use super::*;
+
+	#[test]
+	fn test_horizontal_and_empty_layout(){
+		// TODO test negative sizes as well
+		let window = Size::new(1000.0, 1000.0);
+		let mut child_1 = EmptyLayout::new();
+		child_1.intrinsic_size.width = BoxSizing::Fixed(250.0);
+		child_1.intrinsic_size.height = BoxSizing::Flex(1);
+		
+		let mut child_2 = EmptyLayout::new();
+		child_2.intrinsic_size.width = BoxSizing::Flex(1);
+		child_2.intrinsic_size.height = BoxSizing::Fixed(20.0);
+		
+		let mut child_3 = EmptyLayout::new();
+		child_3.intrinsic_size.height = BoxSizing::Fixed(250.0);
+		
+		let mut root = HorizontalLayout::new();
+		root.add_child(child_1);
+		root.add_child(child_2);
+		root.add_child(child_3);
+		
+		LayoutSolver::solve(&mut root, window);
+		
+		assert_eq!(
+			root.size(),
+			Size::new(250.0, 250.0)
+		);
+		assert_eq!(
+			root.children[0].size(),
+			Size::new(250.0, 250.0)
+		);
+		assert_eq!(
+			root.children[1].size(),
+			Size::new(250.0, 20.0)
+		);
+		assert_eq!(
+			root.children[2].size(),
+			Size::new(0.0, 250.0)
+		);
+
+	}
 }
 
 

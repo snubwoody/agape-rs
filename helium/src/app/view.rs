@@ -26,7 +26,7 @@ impl View {
 	pub fn handle_events(&mut self,event: winit::event::WindowEvent,window:&Window){
 		// Pass the events to the event manager to determine which events have fired
 		// for which widgets.
-		self.event_queue.handle_events(&event,&self.root_body); // TODO should return vec instead
+		self.event_queue.handle_events(&event,&self.root_body);
 		window.request_redraw();
 	}
 	
@@ -54,8 +54,10 @@ impl View {
 		});
 
 		LayoutSolver::solve(&mut *self.root_layout, state.size);
+		dbg!(&self.root_layout);
 		self.root_body.update_sizes(&self.root_layout);
 		self.root_body.render(&mut render_pass,state);
+		//dbg!(&self.root_body);
 		
 		// Drop the render pass because it borrows encoder
 		// mutably

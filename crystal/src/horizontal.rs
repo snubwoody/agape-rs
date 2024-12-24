@@ -5,13 +5,13 @@ use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout};
 /// A [`HorizontalLayout`] sizes and position it's children horizontally, of course, the `Flex` 
 /// attribute means a layout node will fill it's widget, however the flex factor only works in 
 /// the x-axis, in the y-axis all nodes will fill the parent and will be the same height.
-#[derive(Default)]
-pub struct HorizontalLayout{ // TODO add padding
+#[derive(Default,Debug)]
+pub struct HorizontalLayout{
 	pub id:String,
 	size:Size,
 	position:Position,
-	spacing:u32,
-	padding:u32,
+	pub spacing:u32,
+	pub padding:u32,
 	// TODO i'm thinking of adding user constraints as well so that people can define their own 
 	// constraints
 	constraints:BoxContraints,
@@ -135,6 +135,10 @@ impl Layout for HorizontalLayout {
 			BoxSizing::Shrink => {
 				self.constraints.min_height = fixed_sum.height;	
 			},
+		}
+
+		for child in &mut self.children{
+			child.solve_min_constraints();
 		}
 
 		(self.constraints.min_width,self.constraints.min_height)
@@ -297,16 +301,17 @@ mod test{
 		root.add_child(child_1);
 		root.add_child(child_2);
 		
-		let mut solver = LayoutSolver::solve(&mut root,window);
-		
+		LayoutSolver::solve(&mut root,window);
+		let child_size = Size::new(400.0, 800.0);
 		assert_eq!(root.size(),window);
-		assert_eq!(root.children()[0].size(),window/2.0);
-		assert_eq!(root.children()[1].size(),window/2.0);
+		assert_eq!(root.children()[0].size(),child_size);
+		assert_eq!(root.children()[1].size(),child_size);
 	}
 
 	#[test]
 	fn test_flex_inside_shrink(){
 		// Child should have zero width
+		todo!()
 	}
 
 	// TODO test flex grow inside flex shrink
@@ -329,8 +334,7 @@ mod test{
 		node.add_child(child_node_1);
 		node.add_child(child_node_2);
 
-		let mut solver = LayoutSolver::solve(&mut node,window);
-
+		LayoutSolver::solve(&mut node,window);
 	
 		let flex_1_width = 1.0/4.0 * window.width;
 		// The two children should both be half the size

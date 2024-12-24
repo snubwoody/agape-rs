@@ -87,7 +87,6 @@ impl TextSurface {
 	}
 }
 
-// TODO text is stretching
 impl Surface for TextSurface {
 	fn draw(
 		&self,
@@ -102,7 +101,7 @@ impl Surface for TextSurface {
 
 		let vertex_buffer = state.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
 			label: Some("Vertex buffer"),
-			contents: bytemuck::cast_slice(&vertices), // TODO maybe remove bytemuck
+			contents: bytemuck::cast_slice(&vertices),
 			usage: wgpu::BufferUsages::VERTEX,
 		});
 

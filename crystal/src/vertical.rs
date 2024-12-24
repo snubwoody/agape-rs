@@ -5,8 +5,8 @@ use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout};
 /// A [`VerticalLayout`] sizes and position it's children horizontally, of course, the `Flex` 
 /// attribute means a layout node will fill it's widget, however the flex factor only works in 
 /// the x-axis, in the y-axis all nodes will fill the parent and will be the same height.
-#[derive(Default)]
-pub struct VerticalLayout{ // TODO add padding
+#[derive(Default,Debug)]
+pub struct VerticalLayout{
 	pub id:String,
 	pub size:Size,
 	pub position:Position,
@@ -156,7 +156,7 @@ impl Layout for VerticalLayout {
 		// TODO currently the min constraints are bigger then max constraints
 		// for shrink nodes, which doesn't make any sense.
 		for child in &mut self.children{
-			let mut max_size = Size::default();
+			let mut max_size = space;
 
 			match child.intrinsic_size().width {
 				BoxSizing::Flex(_) => {
@@ -255,7 +255,7 @@ mod test{
 		root.add_child(child_1);
 		root.add_child(child_2);
 		
-		let mut solver = LayoutSolver::solve(&mut root,window);
+		LayoutSolver::solve(&mut root,window);
 		
 		assert_eq!(
 			root.size(),
@@ -295,9 +295,10 @@ mod test{
 		
 		LayoutSolver::solve(&mut root,window);
 		
+		let child_size = Size::new(800.0, 400.0);
 		assert_eq!(root.size(),window);
-		assert_eq!(root.children()[0].size(),window/2.0);
-		assert_eq!(root.children()[1].size(),window/2.0);
+		assert_eq!(root.children()[0].size(),child_size);
+		assert_eq!(root.children()[1].size(),child_size);
 	}
 
 	#[test]
@@ -327,22 +328,21 @@ mod test{
 
 		LayoutSolver::solve(&mut node,window);
 	
-		let flex_1_width = 1.0/4.0 * window.width;
+		let flex_1_height = 1.0/4.0 * window.height;
 		// The two children should both be half the size
 		assert_eq!(
-			node.children()[0].size().width,
-			flex_1_width
+			node.children()[0].size(),
+			Size::new(window.width, flex_1_height)
 		);
-		assert_eq!(node.children()[0].size().height,400.0);
 		assert_eq!(
-			node.children()[0].size().height,
-			node.children()[1].size().height,
+			node.children()[0].size().width,
+			node.children()[1].size().width,
 		);
 		assert!(
-			node.children()[1].size().width == 3.0 * node.children()[0].size().width
+			node.children()[1].size().height == 3.0 * node.children()[0].size().height
 		);
 		assert!(
-			node.children()[1].size().height != 3.0 * node.children()[0].size().height
+			node.children()[1].size().width != 3.0 * node.children()[0].size().width
 		);
 	}
 

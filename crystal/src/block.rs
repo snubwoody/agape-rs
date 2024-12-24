@@ -3,7 +3,8 @@ use helium_core::{position::Position, size::Size};
 use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout};
 
 /// This layout only has one child
-pub struct BlockLayout{ // TODO add padding
+#[derive(Debug)]
+pub struct BlockLayout{
 	pub id:String,
 	size:Size,
 	position:Position,

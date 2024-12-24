@@ -58,7 +58,7 @@ impl App {
                 event => {self.views[self.index].handle_events(event,&self.window);}
             },
             _ => {}
-        }) // TODO Print the error
+        })
         .expect("Event loop error occured");
     }
 }

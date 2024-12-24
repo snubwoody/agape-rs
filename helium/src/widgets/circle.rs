@@ -5,7 +5,7 @@ use super::{Widget, WidgetBody};
 
 
 #[derive(Debug,Clone)]
-pub struct Circle{ // TODO add a child maybe
+pub struct Circle{
 	diameter:u32,
 	color:Color
 }

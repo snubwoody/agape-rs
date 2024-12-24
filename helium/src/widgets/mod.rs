@@ -36,6 +36,7 @@ pub trait Widget{
 
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
+#[derive(Debug)]
 pub struct WidgetBody{ // TODO this changes a lot so make these fields private
 	pub id:String,
 	/// A label for debugging purposes
@@ -81,6 +82,10 @@ impl WidgetBody {
 				layout.position().x, 
 				layout.position().y
 			);
+			// println!(
+			// 	"\nHit!!!\nSize: {:?}\nPosition: {:?}",
+			// 	self.surface.get_size(),self.surface.get_position()
+			// );
 		}
 	}
 
@@ -89,6 +94,9 @@ impl WidgetBody {
 		self.check_size(root_layout);
 		for layout in root_layout.children(){
 			self.check_size(layout);
+		}
+		for child in &mut self.children{
+			child.update_sizes(root_layout);
 		}
 	}
 

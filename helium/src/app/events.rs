@@ -36,7 +36,7 @@ impl Debug for Event {
 	}
 }
 
-// TODO test this
+
 #[derive(Debug)]
 pub struct EventQueue{
 	cursor_pos:Position,
