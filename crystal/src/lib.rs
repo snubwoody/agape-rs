@@ -21,8 +21,9 @@ impl LayoutSolver {
 		// Set the max constraints of the root node to the window size
 		root.set_max_width(window_size.width);
 		root.set_max_height(window_size.height);
-		// TODO maybe move this into the layouts?
 
+		// It's important that the min constraints are solved before the max constraints
+		// because the min constraints are used in calculating max constraints for shrink sizing 
 		let _ = root.solve_min_constraints();
 		root.solve_max_contraints(window_size);
 		root.update_size();
