@@ -21,9 +21,10 @@ impl LayoutSolver {
 		// Set the max constraints of the root node to the window size
 		root.set_max_width(window_size.width);
 		root.set_max_height(window_size.height);
+		// TODO maybe move this into the layouts?
 
-		root.solve_max_contraints(window_size);
 		let _ = root.solve_min_constraints();
+		root.solve_max_contraints(window_size);
 		root.update_size();
 		root.position_children();
 	}
@@ -37,6 +38,7 @@ pub trait Layout:Debug{
 	/// tree.
 	fn solve_min_constraints(&mut self) -> (f32,f32);
 
+	/// Solve the max constraints for the children and pass them down the tree
 	fn solve_max_contraints(&mut self,space:Size);
 
 	fn position_children(&mut self);

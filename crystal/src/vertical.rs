@@ -31,7 +31,7 @@ impl VerticalLayout {
 	fn fixed_size_sum(&self) -> Size{
 		let mut sum = Size::default();
 
-		for child in &self.children{
+		for (i,child) in self.children.iter().enumerate(){
 			match child.intrinsic_size().width {
 				BoxSizing::Fixed(width) => {
 					sum.width = sum.width.max(width);
@@ -45,6 +45,11 @@ impl VerticalLayout {
 				},
 				_ => {}
 			}
+
+			// Add the spacing between layouts
+			if i != self.children.len() - 1 {
+				sum.height += self.spacing as f32;
+			} 
 		}
 
 		sum
@@ -115,7 +120,8 @@ impl Layout for VerticalLayout {
 
 	fn solve_min_constraints(&mut self) -> (f32,f32){
 		// The sum of the size of all the children with fixed sizes
-		let fixed_sum = self.fixed_size_sum();
+		let mut fixed_sum = self.fixed_size_sum();
+		fixed_sum += self.padding as f32 * 2.0;
 
 		// TODO i think im supposed to calculate the min constraints of the children as well
 		match self.intrinsic_size.width {
@@ -230,7 +236,7 @@ impl Layout for VerticalLayout {
 
 	fn position_children(&mut self) {
 		let mut current_pos = self.position;
-		current_pos += self.padding as f32 * 2.0;
+		current_pos += self.padding as f32;
 		
 		for child in &mut self.children{
 			child.set_position(current_pos);

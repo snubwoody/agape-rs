@@ -95,53 +95,67 @@ impl Layout for BlockLayout {
 		// The sum of the size of all the children with fixed sizes
 		let mut min_size = Size::default();
 		min_size += self.padding as f32 * 2.0;
-		
-		match self.child.intrinsic_size().width {
-			BoxSizing::Fixed(width) => {
-				min_size.width += width;
-			},
-			_ => {}
-		}
-		
-		match self.child.intrinsic_size().height {
-			BoxSizing::Fixed(height) => {
-				min_size.height += height;
-			},
-			_ => {}
-		}
 
-		// TODO i think im supposed to calculate the min constraints of the children as well
+		// Solve the fix size first
 		match self.intrinsic_size.width {
 			BoxSizing::Fixed(width) => {
 				self.constraints.min_width = width;	
 			},
-			BoxSizing::Flex(_) => {
-				// TODO maybe set the min constraints to either 0 or the size of the children
-			},
-			BoxSizing::Shrink => {
-				self.constraints.min_width = min_size.width;	
-			},
+			_ => {}
 		}
 		
 		match self.intrinsic_size.height {
 			BoxSizing::Fixed(height) => {
 				self.constraints.min_height = height;	
 			},
-			BoxSizing::Flex(_) => {
+			_ => {},
+		}
 
+		
+		match self.child.intrinsic_size().width {
+			BoxSizing::Fixed(width) => {
+				self.constraints.min_width = width + self.padding as f32 * 2.0;
+			},
+			_ => {}
+		}
+		
+		match self.child.intrinsic_size().height {
+			BoxSizing::Fixed(height) => {
+				self.constraints.min_height = height + self.padding as f32 * 2.0;
+			},
+			_ => {}
+		}
+
+		let (min_width,min_height) = self.child.solve_min_constraints();
+		
+		// TODO i think im supposed to calculate the min constraints of the children as well
+		match self.intrinsic_size.width {
+			BoxSizing::Flex(_) => {
+				// TODO maybe set the min constraints to either 0 or the size of the children
 			},
 			BoxSizing::Shrink => {
-				self.constraints.min_height = min_size.height;	
+				self.constraints.min_width = min_width + self.padding as f32 * 2.0;	
 			},
+			_ => {}
+		}
+		
+		match self.intrinsic_size.height {
+			BoxSizing::Flex(_) => {},
+			BoxSizing::Shrink => {
+				self.constraints.min_height = min_height + self.padding as f32 * 2.0;	
+			},
+			_ => {}
 		}
 
 		(self.constraints.min_width,self.constraints.min_height)
 	}
 
 	fn solve_max_contraints(&mut self,space:Size) {
+		let available_space = space - self.padding as f32;
+
 		match self.child.intrinsic_size().width {
 			BoxSizing::Flex(_) => {
-				self.child.set_max_width(space.width);
+				self.child.set_max_width(available_space.width);
 			}
 			BoxSizing::Fixed(width) => {
 				self.child.set_max_width(width);
@@ -151,7 +165,7 @@ impl Layout for BlockLayout {
 		
 		match self.child.intrinsic_size().height {
 			BoxSizing::Flex(_) => {
-				self.child.set_max_height(space.height);					
+				self.child.set_max_height(available_space.height);					
 			},
 			BoxSizing::Fixed(height) => {
 				self.child.set_max_height(height);
@@ -160,7 +174,7 @@ impl Layout for BlockLayout {
 		}
 
 		// Pass the max size to the children to solve their max constraints
-		self.child.solve_max_contraints(space);
+		self.child.solve_max_contraints(available_space);
 	}
 
 	
@@ -222,4 +236,95 @@ mod test{
 		assert_eq!(root.size(),Size::new(200.0 + 24.0 * 2.0, 200.0 + 24.0 * 2.0));
 	}
 
+	#[test]
+	fn test_nested_shrink(){
+		let window = Size::new(800.0, 800.0);
+
+		let mut inner_child = EmptyLayout::new();
+		inner_child.intrinsic_size.width = BoxSizing::Fixed(175.0);
+		inner_child.intrinsic_size.height = BoxSizing::Fixed(15.0);
+		
+		let mut child = BlockLayout::new(Box::new(inner_child));
+		child.padding = 24;
+		
+		let mut root = BlockLayout::new(Box::new(child)); 
+
+		LayoutSolver::solve(&mut root, window);
+
+		let inner_size = Size::new(175.0, 15.0);
+		let child_size = inner_size + 24.0 * 2.0;
+
+		assert_eq!(
+			root.size(),
+			child_size
+		);
+		assert_eq!(
+			root.child.size(),
+			child_size
+		);
+		assert_eq!(
+			root.child.children()[0].size(),
+			inner_size
+		);
+	}
+	
+	#[test]
+	fn test_grow(){
+		let window = Size::new(800.0, 800.0);
+		let mut child = EmptyLayout::new();
+		child.intrinsic_size.width = BoxSizing::Flex(1);
+		child.intrinsic_size.height = BoxSizing::Flex(1);
+
+		// TODO add padding
+		let mut root = BlockLayout::new(Box::new(child));
+		root.intrinsic_size.width = BoxSizing::Flex(1);
+		root.intrinsic_size.height = BoxSizing::Flex(1);
+		root.padding = 24; 
+		
+		LayoutSolver::solve(&mut root, window);
+
+		let child_size = window - root.padding as f32;
+		assert_eq!(
+			root.size(),
+			window
+		);
+		assert_eq!(
+			root.child.size(),
+			child_size
+		);
+	}
+
+	#[test]
+	fn test_inner_grow(){
+		let window = Size::new(800.0, 800.0);
+		let mut inner_child = EmptyLayout::new();
+		inner_child.intrinsic_size.width = BoxSizing::Flex(1);
+		inner_child.intrinsic_size.height = BoxSizing::Flex(1);
+		
+		let mut child = BlockLayout::new(Box::new(inner_child));
+		child.intrinsic_size.width = BoxSizing::Flex(1);
+		child.intrinsic_size.height = BoxSizing::Flex(1);
+		
+		// TODO add padding
+		let mut root = BlockLayout::new(Box::new(child));
+		root.intrinsic_size.width = BoxSizing::Flex(1);
+		root.intrinsic_size.height = BoxSizing::Flex(1);
+		root.padding = 24; 
+		
+		LayoutSolver::solve(&mut root, window);
+
+		let child_size = window - root.padding as f32;
+		assert_eq!(
+			root.size(),
+			window
+		);
+		assert_eq!(
+			root.child.size(),
+			child_size
+		);
+		assert_eq!(
+			root.child.size(),
+			root.child.children()[0].size()
+		);
+	}
 }

@@ -1,5 +1,5 @@
 
-use std::ops::{Add, AddAssign, Div, Mul, Sub};
+use std::ops::{Add, AddAssign, Div, Mul, Sub, SubAssign};
 
 use winit::dpi::PhysicalSize;
 
@@ -53,6 +53,17 @@ where N:Into<f32> {
         *self = Self {
             width: self.width + other,
             height: self.height + other,
+        };
+    }
+}
+
+impl<N> SubAssign<N> for Size
+where N:Into<f32> {
+    fn sub_assign(&mut self, other: N) {
+		let other = other.into();
+        *self = Self {
+            width: self.width - other,
+            height: self.height - other,
         };
     }
 }

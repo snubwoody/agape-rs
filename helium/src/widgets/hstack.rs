@@ -9,6 +9,7 @@ pub struct HStack {
 	pub id:String,
     pub children: Vec<Box<dyn Widget>>,
     pub color: Color,
+	pub intrinsic_size:IntrinsicSize,
 	pub spacing:u32,
 	pub padding:u32
 }
@@ -28,6 +29,7 @@ impl HStack {
 	impl_events!();
 }
 
+// TODO test this
 impl Widget for HStack {
     fn build(&self) -> (WidgetBody,Box<dyn Layout>) {
         let mut surface = RectSurface::default();
@@ -42,6 +44,7 @@ impl Widget for HStack {
 			return (Box::new(body),layout);
 		})
 		.collect();
+		
 
 		let body = WidgetBody {
 			id:self.id.clone(),
@@ -54,7 +57,8 @@ impl Widget for HStack {
 		layout.intrinsic_size.width = BoxSizing::Flex(1);
 		layout.children = children_layout;
 		layout.id = body.id.clone();
-		layout.spacing = 20;
+		layout.spacing = self.spacing;
+		layout.padding = self.padding;
 
 		(body,Box::new(layout))
     }
@@ -72,6 +76,7 @@ macro_rules! hstack {
 				color:$crate::TRANSPARENT,
 				padding:0,
 				spacing:0,
+				intrinsic_size:$crate::IntrinsicSize::default(),
 				children:vec![
 					$(
 						Box::new($child),

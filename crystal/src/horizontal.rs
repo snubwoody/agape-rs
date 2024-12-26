@@ -32,7 +32,7 @@ impl HorizontalLayout {
 	fn fixed_size_sum(&self) -> Size{
 		let mut sum = Size::default();
 
-		for child in &self.children{
+		for (i,child) in self.children.iter().enumerate(){
 			match child.intrinsic_size().width {
 				BoxSizing::Fixed(width) => {
 					sum.width += width;
@@ -47,6 +47,11 @@ impl HorizontalLayout {
 				},
 				_ => {}
 			}
+
+			// Add the spacing between layouts
+			if i != self.children.len() - 1 {
+				sum.width += self.spacing as f32;
+			} 
 		}
 
 		sum
@@ -116,7 +121,8 @@ impl Layout for HorizontalLayout {
 
 	fn solve_min_constraints(&mut self) -> (f32,f32){
 		// The sum of the size of all the children with fixed sizes
-		let fixed_sum = self.fixed_size_sum();
+		let mut fixed_sum = self.fixed_size_sum();
+		fixed_sum += self.padding as f32 * 2.0;
 
 		// TODO i think im supposed to calculate the min constraints of the children as well
 		match self.intrinsic_size.width {
@@ -154,7 +160,7 @@ impl Layout for HorizontalLayout {
 
 	fn solve_max_contraints(&mut self,space:Size) {
 		// Sum up all the flex factors
-		let flex_width_total:u8 = 
+		let flex_total:u8 = 
 			self
 			.children
 			.iter()
@@ -166,31 +172,43 @@ impl Layout for HorizontalLayout {
 				}
 			})
 			.sum();
+			
+		let mut available_space = Size{
+			width:self.constraints.max_width,
+			height:self.constraints.max_height
+		};
+		available_space.width -= self.padding as f32 * 2.0;
+		available_space.height -= self.padding as f32 * 2.0;
+		available_space.width -= self.fixed_size_sum().width;
+
 		
+		// TODO subtract the spacing
 		// TODO currently the min constraints are bigger then max constraints
 		// for shrink nodes, which doesn't make any sense.
 		for child in &mut self.children{
-			let mut max_size = Size::default();
-
 			match child.intrinsic_size().width {
 				BoxSizing::Flex(factor) => {
 					// Make sure the factor isn't bigger than available size
 					let grow_factor = 
-						factor as f32 / flex_width_total as f32;
+						factor as f32 / flex_total as f32;
 					
-					max_size.width = grow_factor * space.width;
-					child.set_max_width(max_size.width);
+					child.set_max_width(grow_factor * available_space.width);
 					
 					// TODO replace with custom err 
 					assert_ne!(grow_factor,INFINITY);
 					
 				}
-				_ => {}
+				BoxSizing::Fixed(width) => {
+					child.set_max_width(width);
+				}
+				BoxSizing::Shrink => {}
 			}
 
 			match child.intrinsic_size().height {
 				BoxSizing::Flex(_) => {
-					child.set_max_height(space.height);
+					// TODO Maybe set to min constraints?
+					let available_height = self.constraints.max_height - self.padding as f32 * 2.0;
+					child.set_max_height(available_height);
 				},
 				BoxSizing::Fixed(height) => {
 					child.set_max_height(height);
@@ -198,8 +216,14 @@ impl Layout for HorizontalLayout {
 				BoxSizing::Shrink => {}
 			}
 
+		
 			// Pass the max size to the children to solve their max constraints
-			child.solve_max_contraints(max_size);
+			let space = Size{
+				width:child.constraints().max_width,
+				height:child.constraints().max_height
+			};
+			// TODO not even using the space anymore
+			child.solve_max_contraints(space);
 		}
 	}
 
@@ -237,12 +261,11 @@ impl Layout for HorizontalLayout {
 
 	fn position_children(&mut self){
 		let mut current_pos = self.position;
-		current_pos += self.padding as f32 * 2.0;
+		current_pos += self.padding as f32;
 		
 		for child in &mut self.children{
 			child.set_position(current_pos);
 			current_pos.x += child.size().width + self.spacing as f32;
-			//println!("\nid:{:?}\nsize:{:?}\nposition:{:?}\n",child.id(),child.size(),child.position());
 			child.position_children();
 		}
 
@@ -251,7 +274,7 @@ impl Layout for HorizontalLayout {
 
 #[cfg(test)]
 mod test{
-	use crate::LayoutSolver;
+	use crate::{BlockLayout, EmptyLayout, LayoutSolver, VerticalLayout};
 	use super::*;
 
 	#[test]
@@ -317,9 +340,162 @@ mod test{
 	}
 
 	#[test]
-	fn test_flex_inside_shrink(){
-		// Child should have zero width
-		todo!()
+	fn test_inner_flex_with_shrink(){
+
+	}
+
+	#[test]
+	fn test_flex_with_fixed(){
+		let window = Size::new(800.0, 800.0);
+		let padding = 24;
+		let spacing = 6;
+
+		let mut child_1 = EmptyLayout::new();
+		child_1.intrinsic_size.width = BoxSizing::Fixed(250.0);// 550
+		child_1.intrinsic_size.height = BoxSizing::Fixed(250.0);
+		
+		let mut child_2 = EmptyLayout::new();
+		child_2.intrinsic_size.width = BoxSizing::Flex(1);
+		child_2.intrinsic_size.height = BoxSizing::Flex(2);
+		
+		let mut child_3 = EmptyLayout::new();
+		child_3.intrinsic_size.width = BoxSizing::Flex(4);
+		child_3.intrinsic_size.height = BoxSizing::Flex(4);
+		
+		let mut root = HorizontalLayout::new();
+		root.intrinsic_size.width = BoxSizing::Flex(1);
+		root.intrinsic_size.height = BoxSizing::Flex(1);
+		root.padding = padding;
+		root.spacing = spacing;
+		root.add_child(child_1);
+		root.add_child(child_2);
+		root.add_child(child_3);
+		
+		LayoutSolver::solve(&mut root, window);
+
+		let mut space = window;
+		space -= (padding * 2) as f32;
+		space -= (spacing * 2) as f32;
+		space.width -= 250.0;
+		dbg!(&root);
+
+		assert_eq!(
+			root.children[1].size().width,
+			1.0/5.0 * space.width
+		);
+		assert_eq!(
+			root.children[2].size().width,
+			4.0/5.0 * space.width
+		);
+		assert_eq!(
+			root.children[1].size().height,
+			window.height - (padding * 2) as f32
+		);
+	}
+
+	#[test]
+	fn test_different_layouts(){
+		let window = Size::new(800.0, 800.0);
+		let padding = 20;
+		let spacing = 54;
+
+		let mut child = EmptyLayout::new();
+		child.intrinsic_size.width = BoxSizing::Fixed(250.0);
+		child.intrinsic_size.height = BoxSizing::Flex(1);
+		
+		let mut block_child = EmptyLayout::new();
+		block_child.intrinsic_size.width = BoxSizing::Fixed(250.0);
+		block_child.intrinsic_size.height = BoxSizing::Fixed(10.0);
+		
+		let mut block = BlockLayout::new(Box::new(block_child));
+		block.padding = padding;
+		
+		let mut vertical_child = EmptyLayout::new();
+		vertical_child.intrinsic_size.width = BoxSizing::Fixed(250.0);
+		vertical_child.intrinsic_size.height = BoxSizing::Fixed(100.0);
+
+		let mut vertical_child_2 = EmptyLayout::new();
+		vertical_child_2.intrinsic_size.width = BoxSizing::Fixed(500.0);
+		vertical_child_2.intrinsic_size.height = BoxSizing::Fixed(100.0);
+		
+		let mut vertical = VerticalLayout::new();
+		vertical.add_child(vertical_child);
+		vertical.add_child(vertical_child_2);
+		vertical.spacing = spacing;
+		vertical.padding = padding;
+		
+		let mut horizontal_child = EmptyLayout::new();
+		horizontal_child.intrinsic_size.width = BoxSizing::Fixed(250.0);
+		horizontal_child.intrinsic_size.height = BoxSizing::Fixed(100.0);
+		
+		let mut horizontal_child_2 = EmptyLayout::new();
+		horizontal_child_2.intrinsic_size.width = BoxSizing::Fixed(20.0);
+		horizontal_child_2.intrinsic_size.height = BoxSizing::Flex(1);
+		
+		let mut horizontal = HorizontalLayout::new();
+		horizontal.add_child(horizontal_child);
+		horizontal.add_child(horizontal_child_2);
+		horizontal.padding = padding;
+		horizontal.spacing = spacing;
+		
+		let mut root = HorizontalLayout::new();
+		root.spacing = padding;
+		root.padding = spacing;
+		root.add_child(child);
+		root.add_child(block);
+		root.add_child(vertical);
+		root.add_child(horizontal);
+
+		LayoutSolver::solve(&mut root, window);
+
+		let block_size = Size::new(250.0, 10.0) + padding as f32 * 2.0;
+		let mut horizontal_size = Size::new(270.0, 100.0) + padding as f32 * 2.0;
+		horizontal_size.width += spacing as f32;
+		
+		let mut vertical_size = Size::new(500.0, 200.0) + padding as f32 * 2.0;
+		vertical_size.height += spacing as f32;
+
+		let horizontal_child_2_size = Size::new(20.0, 100.0);
+		
+		let mut root_size = Size::default();
+		root_size.width += 250.0; // First child
+		root_size.width += block_size.width; 
+		root_size.width += vertical_size.width; 
+		root_size.width += horizontal_size.width;
+		root_size.width += spacing as f32 * 3.0;
+		root_size.width += padding as f32 * 2.0;
+		root_size.height += padding as f32 * 2.0;
+		root_size.height += vertical_size.height;
+		
+		assert_eq!(
+			root.children[1].size(),
+			block_size
+		); // Block child
+		assert_eq!(
+			root.children[1].size(),
+			block_size
+		);
+		assert_eq!(
+			root.children[2].size(),
+			vertical_size
+		);
+		assert_eq!(
+			root.children[3].size(),
+			horizontal_size
+		);
+		assert_eq!(
+			root.children[3].children()[1].size(),
+			horizontal_child_2_size
+		);
+		assert_eq!(
+			root.children[0].size().height,
+			root.size().height - padding as f32 * 2.0
+		); // First child
+		assert_eq!(
+			root.size(),
+			root_size
+		);
+
 	}
 
 	// TODO test flex grow inside flex shrink
