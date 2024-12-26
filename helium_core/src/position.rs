@@ -1,3 +1,5 @@
+use std::ops::AddAssign;
+
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 
 // TODO should probably test these since they are the backbone of everything
@@ -32,6 +34,23 @@ impl Position {
 	pub fn set(&mut self,x:f32,y:f32){
 		self.x = x;
 		self.y = y;
+	}
+}
+
+impl AddAssign<Position> for Position {
+	fn add_assign(&mut self, rhs: Position) {
+		self.x += rhs.x;
+		self.y += rhs.y;
+	}
+}
+
+impl<I> AddAssign<I> for Position
+where 
+	f32:AddAssign<I>, 
+	I:Copy {
+	fn add_assign(&mut self, rhs: I) {
+		self.x += rhs;
+		self.y += rhs;
 	}
 }
 

@@ -1,4 +1,5 @@
 use crate::map;
+
 pub const BLACK:Color = Color::Rgb(0, 0, 0);
 pub const WHITE:Color = Color::Rgb(255, 255, 255);
 pub const AMBER:Color = Color::Rgb(245, 158, 11);
@@ -8,6 +9,7 @@ pub const RED:Color = Color::Rgb(255, 10, 94);
 pub const TEAL:Color = Color::Rgb(20, 184, 166);
 pub const INDIGO:Color = Color::Rgb(99, 102, 241);
 pub const PINK:Color = Color::Rgb(236, 72, 153);
+pub const TRANSPARENT:Color = Color::Rgba(0, 0, 0,0);
 
 
 /// Represents a color. If an invalid hex code is used, it will default back to 
@@ -16,7 +18,7 @@ pub const PINK:Color = Color::Rgb(236, 72, 153);
 pub enum Color{
 	Rgb(u8,u8,u8),
 	Rgba(u8,u8,u8,u8),
-	Hex(String)
+	Hex(&'static str)
 } 
 
 // TODO impl From
@@ -40,7 +42,7 @@ impl Color {
 	/// Convert a hex color to an rgba color. Returns an error if an invalid hex code
 	/// is provided
 	pub fn hex_to_rgba(hex:&str) -> Result<[u8;4],String>{
-		if hex.chars().nth(0) != Some('#'){
+		if hex.chars().nth(0) != Some('#'){// TODO implement a custom error
 			return Err("Invalid hex code: missing # at start of hex".into())
 		}
 		
@@ -78,17 +80,17 @@ impl Color {
 
 impl Default for Color {
 	fn default() -> Self {
-		Self::Rgb(255, 255, 255)
+		Self::Rgba(0,0,0,0)
 	}
 }
 
-impl TryFrom<String> for Color {
-	type Error = String;
-	fn try_from(value: String) -> Result<Self, Self::Error> {
-		let color = Color::hex_to_rgba(&value)?;
-		Ok(Color::Hex(value))
-	}
-}
+// impl TryFrom<String> for Color {
+// 	type Error = String;
+// 	fn try_from(value: String) -> Result<Self, Self::Error> {
+// 		let _ = Color::hex_to_rgba(&value)?;
+// 		Ok(Color::Hex(&value))
+// 	}
+// }
 
 
 

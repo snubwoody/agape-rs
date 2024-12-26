@@ -7,16 +7,16 @@
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "Debug unit tests in library 'rustui'",
+			"name": "Debug unit tests in library 'helium'",
 			"cargo": {
 				"args": [
 					"test",
 					"--no-run",
 					"--lib",
-					"--package=rustui"
+					"--package=helium"
 				],
 				"filter": {
-					"name": "rustui",
+					"name": "helium",
 					"kind": "lib"
 				}
 			},
@@ -26,16 +26,17 @@
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "Debug executable 'example'",
+			"name": "Debug unit tests in library 'helium_core'",
 			"cargo": {
 				"args": [
-					"build",
-					"--bin=example",
-					"--package=example"
+					"test",
+					"--no-run",
+					"--lib",
+					"--package=helium_core"
 				],
 				"filter": {
-					"name": "example",
-					"kind": "bin"
+					"name": "helium_core",
+					"kind": "lib"
 				}
 			},
 			"args": [],
@@ -44,17 +45,72 @@
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "Debug unit tests in executable 'example'",
+			"name": "Debug example 'counter'",
+			"cargo": {
+				"args": [
+					"build",
+					"--example=counter",
+					"--package=examples"
+				],
+				"filter": {
+					"name": "counter",
+					"kind": "example"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug unit tests in example 'counter'",
 			"cargo": {
 				"args": [
 					"test",
 					"--no-run",
-					"--bin=example",
-					"--package=example"
+					"--example=counter",
+					"--package=examples"
 				],
 				"filter": {
-					"name": "example",
-					"kind": "bin"
+					"name": "counter",
+					"kind": "example"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug example 'spotify'",
+			"cargo": {
+				"args": [
+					"build",
+					"--example=spotify",
+					"--package=examples"
+				],
+				"filter": {
+					"name": "spotify",
+					"kind": "example"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug unit tests in example 'spotify'",
+			"cargo": {
+				"args": [
+					"test",
+					"--no-run",
+					"--example=spotify",
+					"--package=examples"
+				],
+				"filter": {
+					"name": "spotify",
+					"kind": "example"
 				}
 			},
 			"args": [],

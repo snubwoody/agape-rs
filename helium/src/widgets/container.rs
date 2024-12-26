@@ -1,84 +1,65 @@
+use crystal::{BlockLayout, Layout};
 use nanoid::nanoid;
-
 use super::WidgetBody;
-use crate::{
-    app::events::{Event, Signal}, impl_events, impl_style, layout::Layout, surface::rect::RectSurface, widgets::Widget
-};
+use crate::{impl_style, surface::rect::RectSurface, widgets::Widget};
 use helium_core::color::Color;
 
 /// A container [`Widget`] that wraps its child
-pub struct Container {
-	id:String,
+pub struct Container<W> {
+    id: String,
     color: Color,
-    child: Box<dyn Widget>,
-    events: Vec<Event>,
-	layout:Layout
+    child: W, // TODO make this a generic
+    corner_radius: u32,
+	padding:u32
 }
 
-impl Container {
-    pub fn new(child: impl Widget + 'static) -> Self {
+impl<W> Container<W>
+where W: Widget{
+    pub fn new(child: W) -> Self {
         Container {
-			id:nanoid!(),
-			layout:Layout::new(),
+            id: nanoid!(),
             color: Color::Rgb(255, 255, 255),
-            child: Box::new(child),
-			events:vec![]
+            child,
+            corner_radius: 0,
+			padding:0
         }
     }
 
-	impl_style!();
+	pub fn padding(mut self,padding:u32) -> Self{
+		self.padding = padding;
+		self
+	}
 
-	impl_events!();
+    pub fn corner_radius(mut self, corner_radius: u32) -> Self {
+        self.corner_radius = corner_radius;
+        self
+    }
+
+    impl_style!();
 }
 
-impl Widget for Container {
-    fn build(&self) -> WidgetBody {
+impl<W> Widget for Container<W>
+where W: Widget {
+    fn build(&self) -> (WidgetBody,Box<dyn Layout>) {
         let surface = Box::new(RectSurface {
             color: self.color.clone(),
+            corner_radius: self.corner_radius,
             ..Default::default()
         });
 
-        let child = self.child.build();
-
-        WidgetBody {
-			id:self.id.clone(),
+		let (child_body,child_layout) = self.child.build();
+		
+        let body = WidgetBody{
+			id: self.id.clone(),
             surface,
-            layout:self.layout,
-            children: vec![Box::new(child)],
+            children: vec![Box::new(child_body)],
             ..Default::default()
-        }
-    }
+        };
+		
+		let mut layout = BlockLayout::new(child_layout);
+		layout.id = body.id.clone();
+		layout.padding = self.padding;
 
-    fn get_children(self: Box<Self>) -> Vec<Box<dyn Widget>> {
-        vec![self.child]
-    }
-
-    fn get_children_ref(&self) -> Vec<&Box<dyn Widget>> {
-        vec![&self.child]
-    }
-
-    fn process_signal(&mut self, signal: &Signal) {
-        match signal {
-            Signal::Click(id) => {
-                if id == &self.id {
-                    for event in self.events.iter_mut() {
-                        match event {
-                            Event::OnClick(func) => func(),
-                            _ => {}
-                        }
-                    }
-                }
-            }
-            Signal::Hover(id) => {
-                if id == &self.id {
-                    for event in self.events.iter_mut() {
-                        match event {
-                            Event::OnHover(func) => func(),
-                            _ => {}
-                        }
-                    }
-                }
-            }
-        }
+		(body,Box::new(layout))
     }
 }

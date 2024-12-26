@@ -1,5 +1,5 @@
 
-use std::ops::{Add, AddAssign, Sub};
+use std::ops::{Add, AddAssign, Div, Mul, Sub, SubAssign};
 
 use winit::dpi::PhysicalSize;
 
@@ -46,6 +46,28 @@ impl AddAssign for Size {
     }
 }
 
+impl<N> AddAssign<N> for Size
+where N:Into<f32> {
+    fn add_assign(&mut self, other: N) {
+		let other = other.into();
+        *self = Self {
+            width: self.width + other,
+            height: self.height + other,
+        };
+    }
+}
+
+impl<N> SubAssign<N> for Size
+where N:Into<f32> {
+    fn sub_assign(&mut self, other: N) {
+		let other = other.into();
+        *self = Self {
+            width: self.width - other,
+            height: self.height - other,
+        };
+    }
+}
+
 impl Add for Size {
 	type Output = Self;
 
@@ -57,6 +79,32 @@ impl Add for Size {
 	}
 }
 
+impl<N> Add<N> for Size
+where N:Into<f32> {
+	type Output = Self;
+
+	fn add(self, rhs: N) -> Self::Output {
+		let rhs = rhs.into();
+		Self{
+			width:self.width + rhs,
+			height:self.height + rhs
+		}
+	}
+}
+
+impl<N> Sub<N> for Size
+where N:Into<f32> {
+	type Output = Self;
+
+	fn sub(self, rhs: N) -> Self::Output {
+		let rhs = rhs.into();
+		Self{
+			width:self.width - rhs,
+			height:self.height - rhs
+		}
+	}
+}
+
 impl Sub for Size {
 	type Output = Self;
 
@@ -64,6 +112,30 @@ impl Sub for Size {
 		Self{
 			width:self.width - rhs.width,
 			height:self.height - rhs.height
+		}
+	}
+}
+
+impl<N> Mul<N> for Size
+where N:Into<f32> {
+	type Output = Self;
+	fn mul(self, rhs: N) -> Self::Output {
+		let rhs:f32 = rhs.into();
+		Self{
+			width:self.width * rhs,
+			height:self.height * rhs,
+		}
+	}
+}
+
+impl<N> Div<N> for Size
+where N:Into<f32> {
+	type Output = Self;
+	fn div(self, rhs: N) -> Self::Output {
+		let rhs:f32 = rhs.into();
+		Self{
+			width:self.width / rhs,
+			height:self.height / rhs,
 		}
 	}
 }

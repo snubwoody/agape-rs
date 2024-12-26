@@ -1,121 +1,77 @@
-use nanoid::nanoid;
-
-use crate::{
-	app::events::Signal, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::rect::RectSurface, widgets::WidgetBody
-};
-use helium_core::color::Color;
 use super::{text::Text, Widget};
 use crate::app::events::Event;
+use crate::{
+    impl_events,
+    surface::rect::RectSurface,
+    widgets::WidgetBody,
+};
+use crystal::{BlockLayout, BoxSizing, Layout};
+use helium_core::color::Color;
+use nanoid::nanoid;
+use winit::keyboard;
 
 /// A simple button.
-pub struct Button{
-	id:String,
-	text:String,
-	color:Color,
-	padding:u32,
-	width: WidgetSize,
-	height: WidgetSize,
-	events: Vec<Event>
+pub struct Button {
+    id: String,
+    text: String,
+    color: Color,
+    padding: u32,
+    corner_radius: u32,
 }
 
 impl Button {
-	pub fn new(text:&str) -> Self {
-		Self { 
-			id:nanoid!(),
-			text:text.into(), 
-			color:Color::Rgb(255, 255, 255),
-			padding:12,
-			width: WidgetSize::Fit,
-			height:WidgetSize::Fit,
-			events:Vec::new()
-		}
-	}
+    pub fn new(text: &str) -> Self {
+        Self {
+            id: nanoid!(),
+            text: text.into(),
+            color: Color::Hex("#615fff"),
+            padding: 12,
+            corner_radius: 0,
+        }
+    }
 
-	pub fn color(mut self,color:Color) -> Self {
-		self.color = color;
-		self
-	}
+    pub fn get_id(&self) -> String {
+        self.id.clone()
+    }
 
-	pub fn padding(mut self, padding:u32) -> Self {
-		self.padding = padding;
-		self
-	}
+    pub fn color(mut self, color: Color) -> Self {
+        self.color = color;
+        self
+    }
 
-	pub fn width(mut self, width:f32) -> Self{
-		self.width = WidgetSize::Fixed(width);
-		self
-	}
+    pub fn padding(mut self, padding: u32) -> Self {
+        self.padding = padding;
+        self
+    }
 
-	pub fn height(mut self, height:f32) -> Self{
-		self.height = WidgetSize::Fixed(height);
-		self
-	}
+    pub fn corner_radius(mut self, corner_radius: u32) -> Self {
+        self.corner_radius = corner_radius;
+        self
+    }
 
-	pub fn fill(mut self) -> Self{
-		self.width = WidgetSize::Fill;
-		self
-	}
-
-	impl_events!();
+    impl_events!();
 }
 
-// FIXME button text not working
 impl Widget for Button {
-	fn build(&self) -> WidgetBody {
-		let surface = Box::new(
-			RectSurface::new(0.0, 0.0, 200.0, 70.0, self.color.clone())
-		);
+    fn build(&self) -> (WidgetBody,Box<dyn Layout>) {
+        let mut surface = RectSurface::default();
+		surface.color = self.color.clone();
+        surface.corner_radius(self.corner_radius);
+		
+        let (text_body,text_layout) = Text::new(&self.text).build();
+		
+		
+		let body = WidgetBody {
+			id: self.id.clone(),
+            surface: Box::new(surface),
+            children: vec![Box::new(text_body)],
+            ..Default::default()
+        };
+		
+		let mut layout = BlockLayout::new(text_layout);
+		layout.id = body.id.clone();
+		layout.padding = self.padding;
 
-		// FIXME redundant put this in the struct
-		let mut layout = Layout::new();
-		layout.padding(self.padding);
-
-		let text_body = Text::new(&self.text).build();
-
-		let intrinsic_size = IntrinsicSize{
-			width:self.width,
-			height:self.height
-		};
-
-		WidgetBody { 
-			id:self.id.clone(),
-			surface,
-			layout,
-			intrinsic_size,
-			children: vec![
-				Box::new(text_body)
-			],
-			..Default::default()
-		}
-	}
-
-	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {
-		vec![]
-	}
-
-	fn process_signal(&mut self,signal:&Signal) {
-		match signal {
-			Signal::Click(id) =>{
-				if id == &self.id{
-					for event in self.events.iter_mut(){
-						match event {
-							Event::OnClick(func) => func(),
-							_ => {}
-						}
-					}
-				}
-			}
-			Signal::Hover(id) => {
-				if id == &self.id{
-					for event in self.events.iter_mut(){
-						match event {
-							Event::OnHover(func)=> func(),
-							_ => {}
-						}
-					}
-				}
-			}
-		}
-	}
-
+		(body,Box::new(layout))
+    }
 }

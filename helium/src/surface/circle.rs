@@ -7,27 +7,21 @@ use crate::{
 /// essential information about the [`Widget`], ie.
 /// the color, coordinates and size.
 #[derive(Debug,Clone,PartialEq,Default)]
-pub struct RectSurface{
+pub struct CircleSurface{
 	pub position:Position,
 	pub size:Size,
 	pub color:Color,
-	pub corner_radius:u32
 }
 
-impl RectSurface {
-	pub fn new(x:f32,y:f32,width:f32,height:f32,color:Color) -> Self{
-		let size = Size::new(width, height);
-		let position = Position::new(x, y);
-		Self { position,size,color,..Default::default() }
+impl CircleSurface {
+	pub fn new(radius:u32,color:Color) -> Self{
+		let size = Size::new(radius as f32, radius as f32);
+		let position = Position::default();
+		Self { position,size,color }
 	}
 
 	pub fn color(&mut self,color:Color) {
 		self.color = color
-	}
-
-	/// Set the `corner radius` of the surface.
-	pub fn corner_radius(&mut self,radius:u32){
-		self.corner_radius = radius
 	}
 
 	pub fn to_vertices(&self) -> Vec<Vertex>{
@@ -48,7 +42,7 @@ impl RectSurface {
 
 }
 
-impl Surface for RectSurface {
+impl Surface for CircleSurface {
 	fn draw(
 		&self,
 		render_pass:&mut wgpu::RenderPass,
@@ -63,18 +57,10 @@ impl Surface for RectSurface {
 			usage: wgpu::BufferUsages::VERTEX,
 		});
 
-		let corner_radius = state.device.create_buffer_init(
-			&BufferInitDescriptor{
-				label:Some("Corner radius buffer"),
-				contents: bytemuck::cast_slice(&[self.corner_radius as f32]), // Type casting is important maybe save field as f32
-				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
-			}
-		);
-
-		let size_buffer = state.device.create_buffer_init(
+		let diameter_buffer = state.device.create_buffer_init(
 			&BufferInitDescriptor{
 				label:Some("Size buffer"),
-				contents: bytemuck::cast_slice(&[self.size.width,self.size.height]),
+				contents: bytemuck::cast_slice(&[self.size.width]),
 				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
 			}
 		);
@@ -89,31 +75,27 @@ impl Surface for RectSurface {
 
 		let bound_bind_group = state.device.create_bind_group(
 			&BindGroupDescriptor{
-				label:Some("Rect bounds bind group"),
-				layout:&context.rect_renderer.bounds_layout,
+				label:Some("Cirlce bounds bind group"),
+				layout:&context.circle_renderer.bounds_layout,
 				entries:&[
 					wgpu::BindGroupEntry{
 						binding:0,
-						resource:corner_radius.as_entire_binding()
+						resource:diameter_buffer.as_entire_binding()
 					},
 					wgpu::BindGroupEntry{
 						binding:1,
-						resource:size_buffer.as_entire_binding()
-					},
-					wgpu::BindGroupEntry{
-						binding:2,
 						resource:position_buffer.as_entire_binding()
 					}
 				]
 			}
 		);
 
+		
 		// Set the render pipeline and vertex buffer
-		render_pass.set_pipeline(&context.rect_renderer.render_pipeline);
-		render_pass.set_bind_group(0, &context.rect_renderer.window_bind_group, &[]);
+		render_pass.set_pipeline(&context.circle_renderer.render_pipeline);
+		render_pass.set_bind_group(0, &context.circle_renderer.window_bind_group, &[]);
 		render_pass.set_bind_group(1, &bound_bind_group, &[]);
 		render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
-
 		render_pass.draw(0..vertices.len() as u32, 0..1);
 	}
 

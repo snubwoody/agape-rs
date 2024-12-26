@@ -1,34 +1,35 @@
-use std::io::Cursor;
+use std::{fmt::Debug, io::Cursor};
+use helium_core::color::BLACK;
 use image::RgbaImage;
 use text_to_png::TextRenderer;
 use wgpu::util::DeviceExt;
 use crate::{
-	app::AppState, Color, surface::Surface, Bounds, Position,Size, vertex::Vertex
+	app::AppState, impl_surface, surface::Surface, vertex::Vertex, Bounds, Color, Position, Size
 };
 
 // FIXME text getting blurry at large window sizes
 // FIXME change the color to Color enum
 /// A rasterized texture of text  
-#[derive(Debug,Clone)]
+#[derive(Clone)]
 pub struct TextSurface{
 	position:Position,
 	size:Size,
 	text:String,
 	font_size:u8,
-	color:String,
-	img: RgbaImage
+	color:Color,
+	img: RgbaImage // impl Debug manually and hide this field
 }
 
 impl TextSurface {
-	pub fn new(text:&str,color:&str,font_size:u8) -> Self{
+	pub fn new(text:&str,font_size:u8) -> Self{
 		let text_renderer = TextRenderer::default();
 
 		// Render the text as a png
 		let text_image = text_renderer.render_text_to_png_data(
 			text, 
 			font_size, 
-			"#000"
-		).unwrap();
+			"#000000"
+		).unwrap(); // TODO Hangle the errors pls
 
 		let img = image::load(
 			Cursor::new(text_image.data), 
@@ -40,11 +41,11 @@ impl TextSurface {
 			size:Size::new(text_image.size.width as f32, text_image.size.height as f32),
 			text:String::from(text), 
 			font_size, 
-			color:String::from(color),
+			color:BLACK,
 			img
 		}
 	}
-	
+
 	/// Rasterize the text and return the texture 
 	pub fn build(&self,device: &wgpu::Device) -> (wgpu::Texture,wgpu::Extent3d) {
 		let texture_size = wgpu::Extent3d{
@@ -86,7 +87,6 @@ impl TextSurface {
 	}
 }
 
-// TODO text is stretching
 impl Surface for TextSurface {
 	fn draw(
 		&self,
@@ -101,7 +101,7 @@ impl Surface for TextSurface {
 
 		let vertex_buffer = state.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
 			label: Some("Vertex buffer"),
-			contents: bytemuck::cast_slice(&vertices), // TODO maybe remove bytemuck
+			contents: bytemuck::cast_slice(&vertices),
 			usage: wgpu::BufferUsages::VERTEX,
 		});
 
@@ -161,36 +161,18 @@ impl Surface for TextSurface {
 		render_pass.draw(0..vertices.len() as u32, 0..1);
 	}
 
-	fn size(&mut self,width:f32,height:f32) {
-		self.size.width = width;
-		self.size.height = height;
-	}
-	
-	fn get_size(&self) -> Size {
-		self.size
-	}
+	impl_surface!();
+}
 
-	fn get_bounds(&self) -> Bounds {
-		Bounds{
-			x:[self.position.x,self.position.x + self.size.width],
-			y:[self.position.y,self.position.y + self.size.height]
-		}
-	}
 
-	fn width(&mut self, width:f32) {
-		self.size.width = width
-	}
-
-	fn height(&mut self, height:f32) {
-		self.size.height = height
-	}
-
-	fn position(&mut self, x:f32,y:f32) {
-		self.position.x = x;
-		self.position.y = y;
-	}
-
-	fn get_position(&self) -> Position {
-		self.position
+impl Debug for TextSurface {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		f.debug_struct("TextSurface")
+		.field("size", &self.size)
+		.field("position", &self.position)
+		.field("text", &self.text)
+		.field("font_size", &self.font_size)
+		.field("color", &self.color)
+		.finish()
 	}
 }

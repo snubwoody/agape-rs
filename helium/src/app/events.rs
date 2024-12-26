@@ -1,10 +1,26 @@
 use std::fmt::Debug;
-use winit::event::{ElementState, MouseButton, WindowEvent};
-use crate::{Position, widgets::{Widget, WidgetBody, WidgetState}};
+use winit::event::WindowEvent;
+use crate::{widgets::WidgetBody, Position};
 
+type EventFunction = Box<dyn FnMut()>; 
 pub enum Event {
-	OnClick(Box<dyn FnMut()>),
-	OnHover(Box<dyn FnMut()>),
+	OnClick(EventFunction),
+	OnHover(EventFunction),
+}
+
+#[derive(Debug)]
+pub struct UserEvent {
+	function:Event,
+	id:String
+}
+
+impl UserEvent {
+	pub fn new(id:String,f:Event) -> Self{
+		Self { 
+			function:f,
+			id,
+		}
+	}
 }
 
 impl Debug for Event {
@@ -20,76 +36,90 @@ impl Debug for Event {
 	}
 }
 
+
 #[derive(Debug)]
-pub enum Signal{
-	Hover(String),
-	Click(String)
+pub struct EventQueue{
+	cursor_pos:Position,
+	_loop:Vec<UserEvent>
 }
 
-/// Handles all widget events and stores useful attributes such 
-/// as the cursor position and the delta position.
-pub struct EventHandler{
-	cursor_pos: Position,
-}
-
-impl EventHandler {
+impl EventQueue {
 	pub fn new() -> Self{
 		Self { 
-			cursor_pos: Position::default(),
+			cursor_pos:Position::default(),
+			_loop:vec![]
+		}
+	}
+
+	pub fn push(&mut self,event:UserEvent){
+		self._loop.push(event);
+	}
+
+	/// Check if the cursor is over the [`Widget`]
+	pub fn check_click(&mut self,root_body:&WidgetBody){
+		// FIXME it's triggering slightly outside
+		let bounds = root_body.surface.get_bounds();
+
+		if !bounds.within(&self.cursor_pos){
+			return;
+		}
+
+		for e in &mut self._loop{
+			if e.id != root_body.id{continue}
+			match &mut e.function {
+				Event::OnClick(func) => func(),
+				_ => {}
+			}
 		}
 	}
 
 	pub fn handle_events(
 		&mut self,
 		event:&winit::event::WindowEvent,
-		root_widget:&mut Box<dyn Widget>,
-		root_body:&mut WidgetBody
+		root_body:&WidgetBody
 	) {
-		let mut signals = vec![];
-		let bounds = root_body.surface.get_bounds();
-		let previous_state = root_body.state;
-
 		match event {
-			WindowEvent::CursorMoved { position,.. } => {
-				self.cursor_pos = position.clone().into(); // Calling clone this much might be expensive
-				if bounds.within(&self.cursor_pos){
-					root_body.state = WidgetState::Hovered;
-					match &previous_state { // Only run the on_hover once
-						&WidgetState::Default => {
-							signals.push(Signal::Hover(root_body.id.clone()));
-						},
-						_ => {}
-					}
-				} 
-				else {
-					root_body.state = WidgetState::Default;
-				}
-			}, 
-			//TODO add on_click, on_right_click, and on_all_click and pass in the mouse button (re-export types)
-			WindowEvent::MouseInput { state, button,.. } => {				
+			WindowEvent::MouseInput { state, button,.. } => {
 				match button {
-					MouseButton::Left => {
+					winit::event::MouseButton::Left => {
 						match state {
-							ElementState::Pressed => {
-								root_body.state = WidgetState::Clicked;
-								if bounds.within(&self.cursor_pos){
-									signals.push(Signal::Click(root_body.id.clone()));
-								}
+							winit::event::ElementState::Pressed => {
+								self.check_click(root_body);
 							},
-							ElementState::Released => {
-								root_body.state = WidgetState::Default
+							winit::event::ElementState::Released => {
+
 							}
 						}
 					},
 					_ => {}
 				}
+			},
+			WindowEvent::CursorMoved { position,.. } => {
+				// Update the cursor position every time it moves
+				self.cursor_pos = Position::from(*position);
 			}
 			_ => {}
 		}
 
-		for signal in signals.iter(){
-			root_widget.process_signal(signal);
-		}
+		root_body.children.iter().for_each(|child|self.handle_events(event, &child));
 	}
 }
 
+#[macro_export]
+macro_rules! impl_events {
+	() => {
+		pub fn on_click(self,event_loop:&mut $crate::app::events::EventQueue,f:impl FnMut() + 'static) -> Self{
+			event_loop.push($crate::app::events::UserEvent::new(self.id.clone(), Event::OnClick(Box::new(f))));
+			self
+		}
+	};
+}
+
+
+#[cfg(test)]
+mod test{
+	#[test]
+	fn test_nested_events(){
+
+	}
+}

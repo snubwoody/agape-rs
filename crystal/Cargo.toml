@@ -1,0 +1,8 @@
+[package]
+name = "crystal"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+helium_core = {path = "../helium_core"}
+log = "0.4.22"

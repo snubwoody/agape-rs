@@ -1,84 +1,37 @@
 mod rect;
-mod stack;
 mod container;
 mod text;
 mod button;
+mod circle;
+mod vstack;
+mod hstack;
 use nanoid::nanoid;
 pub use rect::Rect;
 pub use text::Text;
 pub use button::Button;
-pub use stack::Stack;
+pub use hstack::HStack;
+pub use vstack::VStack;
 pub use container::Container;
+pub use circle::Circle;
 use crate::{
-	app::{events::Signal, AppState}, 
-	layout::{IntrinsicSize, Layout, WidgetSize}, 
+	app::AppState, 
 	surface::{
 		rect::RectSurface, Surface
 	}, 
 };
-use helium_core::position::Position;
-use helium_core::size::Size;
+use crystal::Layout;
+// TODO maybe test widgets with layouts to make sure everything's integrated properly;
 
-/// Implement the events for the widgets.
-#[macro_export]
-macro_rules! impl_events {
-	() => {
-		pub fn on_click(mut self, event: impl FnMut() + 'static ) -> Self {
-			self.events.push(Event::OnClick(Box::new(event)));
-			self
-		}
-	
-		pub fn on_hover(mut self, event: impl FnMut() + 'static ) -> Self {
-			self.events.push(Event::OnHover(Box::new(event)));
-			self
-		}
-	};
-}
-
-
-/// Implement common styling attributes
-#[macro_export]
-macro_rules! impl_style {
-	() => {
-		/// Change the [`Color`] of a [`Widget`].
-		pub fn color(mut self,color:crate::Color) -> Self{
-			self.color = color;
-			self
-		} 
-
-		pub fn spacing(mut self, spacing: u32) -> Self {
-			self.layout = self.layout.spacing(spacing);
-			self
-		}
-	
-		pub fn padding(mut self,padding:u32) -> Self{
-			self.layout = self.layout.padding(padding);
-			self
-		}
-	};
-}
-
-/// The trait that all widgets must implement.
+/// The trait that all widgets must implement. Each `widget` must implement build function
+/// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about 
+/// the widget.
 pub trait Widget{
+	// I've changed this between &self and self, a couple times and my conclusion is 
+	// just keep it as &self forever, it makes it way easier to compose multiple sub-widgets.
+
 	/// Build the [`Widget`] into a primitive [`WidgetBody`] for
 	/// rendering.
-	fn build(&self) -> WidgetBody;
-  
-	fn get_children(self:Box<Self>) -> Vec<Box<dyn Widget>> {vec![]}
-
-	fn get_children_ref(&self) -> Vec<&Box<dyn Widget>> {vec![]}
-
-	/// Process signals sent from the [`EventHandler`].
-	fn process_signal(&mut self,signal:&Signal);
-}
-
-/// The current state of the widget
-#[derive(Debug,Default,Clone,Copy,PartialEq,Eq)]
-pub enum WidgetState{
-	#[default]
-	Default,
-	Hovered,
-	Clicked
+	fn build(&self) -> (WidgetBody,Box<dyn Layout>);
 }
 
 /// Primitive structure that holds all the information
@@ -86,11 +39,10 @@ pub enum WidgetState{
 #[derive(Debug)]
 pub struct WidgetBody{ // TODO this changes a lot so make these fields private
 	pub id:String,
+	/// A label for debugging purposes
+	pub label:Option<String>,
 	pub surface:Box<dyn Surface>,
-	pub layout:Layout,
 	pub children:Vec<Box<WidgetBody>>,
-	pub intrinsic_size:IntrinsicSize, // TODO move this to the layout
-	pub state:WidgetState
 }
 
 impl WidgetBody {
@@ -98,13 +50,13 @@ impl WidgetBody {
 		Self::default()	
 	}
 
-	pub fn surface(mut self,surface:Box<dyn Surface>) -> Self{
-		self.surface = surface;
+	pub fn label(mut self,label:&str) -> Self {
+		self.label = Some(label.to_owned());
 		self
 	}
 
-	pub fn layout(mut self,layout:Layout) -> Self{
-		self.layout = layout;
+	pub fn surface(mut self,surface:Box<dyn Surface>) -> Self{
+		self.surface = surface;
 		self
 	}
 
@@ -120,79 +72,72 @@ impl WidgetBody {
 		self
 	}
 
-	pub fn intrinsic_size(mut self,intrinsic_size:IntrinsicSize) -> Self{
-		self.intrinsic_size = intrinsic_size;
-		self
+	fn check_size(&mut self,layout:Box<&dyn Layout>){
+		if layout.id() == self.id{
+			self.surface.size(
+				layout.size().width, 
+				layout.size().height
+			);
+			self.surface.position(
+				layout.position().x, 
+				layout.position().y
+			);
+			// println!(
+			// 	"\nHit!!!\nSurface: {:?}",
+			// 	self.surface,
+			// );
+		}
+	}
+
+	pub fn update_sizes(&mut self,root_layout:&Box<dyn Layout>){
+		// FIXME this probably has disgusting performance
+		for (_,layout) in root_layout.iter().enumerate(){
+			self.check_size(layout);
+		}
+		for child in &mut self.children{
+			child.update_sizes(root_layout);
+		}
 	}
 
 	/// Draw the [`WidgetBody`] to the screen.
-	pub(crate) fn render(
+	pub fn render(
 		&mut self,
 		render_pass:&mut wgpu::RenderPass,
 		state: &AppState
 	) {
-		let window_size = &state.size;
 		let context = &state.context;
 
-		// TODO I think I should change this so that ALL
-		// of the layout is handled by the Layout struct
-		self.arrange(*window_size);
-		
 		// Draw the parent then the children to the screen
 		self.surface.draw(render_pass, context,state);
 		self.children.iter_mut().for_each(|child|{
-			child.surface.draw(render_pass, context,state);
+			child.render(render_pass, state);
 		});
-	}
-
-	pub(crate) fn arrange(&mut self,window_size:Size){
-		let position = Position::new(
-			self.surface.get_position().x, 
-			self.surface.get_position().y
-		);
-
-		// Arrange the children
-		let size = self.layout.compute_layout(&mut self.children,window_size,position);
-
-		// Set the size of the root widget
-		match self.intrinsic_size.width {
-			WidgetSize::Fill => {
-				self.surface.width(window_size.width as f32);
-			},
-			WidgetSize::Fit => {
-				self.surface.width(size.width);
-			},
-			WidgetSize::Fixed(size) => {
-				self.surface.width(size);
-			}
-		}
-
-		match self.intrinsic_size.height {
-			WidgetSize::Fill => {
-				self.surface.height(window_size.height as f32);
-			},
-			WidgetSize::Fit => {
-				self.surface.height(size.height);
-			},
-			WidgetSize::Fixed(size) => {
-				self.surface.height(size);
-			}
-		}
 	}
 }
 
 impl Default for WidgetBody {
 	fn default() -> Self {
 		let surface = Box::new(RectSurface::default());
-		let layout = Layout::default();
 
 		Self { 
 			id:nanoid!(),
 			surface, 
-			layout, 
+			label:None,
 			children:vec![], 
-			intrinsic_size: Default::default(),
-			state: WidgetState::default()
 		}
 	}
+}
+
+
+// TODO remove this and replace with modifiers 
+/// Implement common styling attributes
+#[macro_export]
+macro_rules! impl_style {
+	() => {
+		/// Change the [`Color`] of a [`Widget`].
+		pub fn color(mut self,color:crate::Color) -> Self{
+			self.color = color;
+			self
+		} 
+	};
 }

@@ -1,24 +1,19 @@
+use crystal::{BoxSizing, EmptyLayout, Layout};
 use nanoid::nanoid;
-
-use crate::{
-	app::events::{Event, Signal}, impl_events, layout::{IntrinsicSize, Layout, WidgetSize}, surface::{text::TextSurface, Surface} 
-};
+use wgpu::hal::auxil::db;
+use crate::surface::{text::TextSurface, Surface} ;
 use super::{Widget, WidgetBody};
 
 pub struct Text{
-	id:String,
 	text:String,
 	font_size:u8,
-	events: Vec<Event>
 }
 
 impl Text {
 	pub fn new(text:&str) -> Self{
 		Self { 
-			id:nanoid!(),
 			text:text.into(), 
 			font_size:16,
-			events: Vec::new()
 		}	
 	}
 
@@ -27,57 +22,29 @@ impl Text {
 		self.font_size = size;
 		self
 	}
-
-	impl_events!();
 }
 
 impl Widget for Text {
-	fn build(&self) -> WidgetBody {
+	fn build(&self) -> (WidgetBody,Box<dyn Layout>) {
 		// Create the text surface to be rendered
 		let textsurface = TextSurface::new(
 			self.text.as_str(),
-			"#000000" , 
 			self.font_size
 		);
 
 		let size = textsurface.get_size();
 		let surface = Box::new(textsurface);
 
-		let intrinsic_size = IntrinsicSize{
-			width:WidgetSize::Fixed(size.width),
-			height:WidgetSize::Fixed(size.height)
+		let body = WidgetBody{
+			surface,
+			..Default::default()
 		};
 
-		WidgetBody{
-			id:self.id.clone(),
-			surface,
-			intrinsic_size,
-			..Default::default()
-		}
-	}
+		let mut layout = EmptyLayout::new();
+		layout.intrinsic_size.width = BoxSizing::Fixed(size.width);
+		layout.intrinsic_size.height = BoxSizing::Fixed(size.height);
+		layout.id = body.id.clone();
 
-	fn process_signal(&mut self,signal:&Signal) {
-		match signal {
-			Signal::Click(id) =>{
-				if id == &self.id{
-					for event in self.events.iter_mut(){
-						match event {
-							Event::OnClick(func) => func(),
-							_ => {}
-						}
-					}
-				}
-			}
-			Signal::Hover(id) => {
-				if id == &self.id{
-					for event in self.events.iter_mut(){
-						match event {
-							Event::OnHover(func)=> func(),
-							_ => {}
-						}
-					}
-				}
-			}
-		}
+		(body,Box::new(layout))
 	}
 }

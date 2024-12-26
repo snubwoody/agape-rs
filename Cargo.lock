@@ -721,6 +721,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a81dae078cea95a014a339291cec439d2f232ebe854a9d672b796c6afafa9b7"
 
 [[package]]
+name = "crystal"
+version = "0.1.0"
+dependencies = [
+ "helium_core",
+ "log",
+]
+
+[[package]]
 name = "cursor-icon"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -780,6 +788,12 @@ checksum = "cb6969eaabd2421f8a2775cfd2471a2b634372b4a25d41e3bd647b79912850a0"
 dependencies = [
  "litrs",
 ]
+
+[[package]]
+name = "dotenv"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
 
 [[package]]
 name = "downcast-rs"
@@ -860,13 +874,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "example"
+name = "examples"
 version = "0.1.0"
 dependencies = [
+ "dotenv",
  "env_logger",
  "helium",
  "log",
- "tokio",
 ]
 
 [[package]]
@@ -1177,6 +1191,7 @@ version = "0.1.0"
 dependencies = [
  "async-std",
  "bytemuck",
+ "crystal",
  "env_logger",
  "helium_core",
  "helium_macros",

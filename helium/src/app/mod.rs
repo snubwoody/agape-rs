@@ -1,6 +1,6 @@
 pub mod events;
 pub mod view;
-use crate::{renderer::{RectRenderer, TextRenderer}, Size};
+use crate::{renderer::{CicleRenderer, RectRenderer, TextRenderer}, Size};
 use async_std::task;
 use view::View;
 use winit::{
@@ -44,18 +44,22 @@ impl App {
 
     pub fn run(mut self) {
         let mut state = task::block_on(AppState::new(&self.window));
-
+		// TODO when the window is minimized the size of the widgets are changing to zero which
+		// causing wgpu to panic.
         self.event_loop
-            .run(|event, window_target| match event {
-                winit::event::Event::WindowEvent { event, .. } => match event {
-                    WindowEvent::CloseRequested => window_target.exit(),
-                    WindowEvent::RedrawRequested => self.views[self.index].render(&state),
-                    WindowEvent::Resized(size) => {state.resize(size);self.window.request_redraw();},
-                    event => {self.views[self.index].handle_events(event,&self.window);}
-                },
-                _ => {}
-            })
-            .expect("Event loop error occured");
+        .run(|event, window_target| match event {
+            winit::event::Event::WindowEvent { event, .. } => match event {
+                WindowEvent::CloseRequested => window_target.exit(),
+                WindowEvent::RedrawRequested => self.views[self.index].render(&state),
+                WindowEvent::Resized(size) => {
+					state.resize(size);
+					self.window.request_redraw();
+				},
+                event => {self.views[self.index].handle_events(event,&self.window);}
+            },
+            _ => {}
+        })
+        .expect("Event loop error occured");
     }
 }
 
@@ -71,6 +75,7 @@ pub struct AppState<'a> {
 impl<'a> AppState<'a> {
     pub async fn new(window: &'a Window) -> Self {
         let size = window.inner_size().into();
+		
 
         // Handle to wpgu for creating a surface and an adapter
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
@@ -131,7 +136,7 @@ impl<'a> AppState<'a> {
         surface.configure(&device, &config);
 
         let context = RenderContext::new(&device, &config, &size);
-
+		
         Self {
             surface,
             device,
@@ -144,6 +149,11 @@ impl<'a> AppState<'a> {
 
     pub fn resize(&mut self, size: PhysicalSize<u32>) {
         self.size = size.into();
+		self.config.width = size.width as u32;
+		self.config.height = size.height as u32;
+		// Resize the surface with the window to keep the right scale
+		self.surface.configure(&self.device, &self.config);
+		
 		//TODO maybe add a global uniform instead
         self.queue.write_buffer(
             &self.context.rect_renderer.window_buffer,
@@ -155,6 +165,11 @@ impl<'a> AppState<'a> {
             0,
             bytemuck::cast_slice(&[self.size.width, self.size.height]),
         );
+        self.queue.write_buffer(
+            &self.context.circle_renderer.window_buffer,
+            0,
+            bytemuck::cast_slice(&[self.size.width, self.size.height]),
+        );
     }
 }
 
@@ -163,16 +178,18 @@ impl<'a> AppState<'a> {
 pub struct RenderContext {
 	pub rect_renderer: RectRenderer,
 	pub text_renderer: TextRenderer,
+	pub circle_renderer: CicleRenderer
 }
 
 impl RenderContext {
     pub fn new(device: &wgpu::Device, config: &wgpu::SurfaceConfiguration, size: &Size) -> Self {
 		let rect_renderer = RectRenderer::new(device, config, size);
 		let text_renderer = TextRenderer::new(device, config, size);
-
+		let circle_renderer = CicleRenderer::new(device, config, size);
         Self {
 			rect_renderer,
-			text_renderer
+			text_renderer,
+			circle_renderer
         }
     }
 }

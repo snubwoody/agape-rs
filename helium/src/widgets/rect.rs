@@ -1,93 +1,77 @@
 use super::{Widget, WidgetBody};
-use crate::app::events::{Event, Signal};
 use crate::Color;
-use crate::impl_events;
-use crate::layout::{IntrinsicSize, Layout, WidgetSize};
 use crate::surface::rect::RectSurface;
 use crate::Size;
+use crystal::{BlockLayout, BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use nanoid::nanoid;
 
 // TODO change size to u32
 /// A simple rectangle
 pub struct Rect{
 	id:String,
-    width: u32,
-    height: u32,
+    width: f32,
+    height: f32,
+	intrinsic_size:crystal::IntrinsicSize,
     color: Color,
-	events: Vec<Event>,
-	intrinsic_size:IntrinsicSize
+	radius:u32
 }
 
 impl Rect {
-    pub fn new(width: u32, height: u32, color: Color) -> Self {
-        Self {
+    pub fn new(width: f32, height: f32, color: Color) -> Self {
+        let intrinsic_size = IntrinsicSize{
+			width:BoxSizing::Fixed(width),
+			height:BoxSizing::Fixed(height)
+		};
+
+		Self {
 			id:nanoid!(),
             width,
             height,
             color,
-			events: Vec::new(),
-			intrinsic_size:IntrinsicSize::fixed(width, height)
+			intrinsic_size,
+			radius:0
         }
     }
 
-	pub fn fill(mut self) -> Self{
-		self.intrinsic_size.fill();
+	/// Set th border radius
+	pub fn corner_radius(mut self,radius:u32) -> Self{
+		self.radius = radius;
 		self
 	}
 
-	pub fn fill_width(mut self) -> Self{
-		self.intrinsic_size.fill_width();
+	pub fn flex_width(mut self,factor:u8) -> Self{
+		self.intrinsic_size.width = BoxSizing::Flex(factor);
 		self
 	}
 
-	pub fn fill_height(mut self) -> Self{
-		self.intrinsic_size.fill_height();
+	pub fn flex_height(mut self,factor:u8) -> Self{
+		self.intrinsic_size.height = BoxSizing::Flex(factor);
 		self
 	}
-
-	impl_events!();
 }
 
 impl Widget for Rect {
-    fn build(&self) -> WidgetBody {
+    fn build(&self) -> (WidgetBody,Box<dyn Layout>) {
         let surface = Box::new(RectSurface {
             size: Size::new(self.width as f32, self.height as f32),
             color: self.color.clone(),
+			corner_radius:self.radius,
             ..Default::default()
         });
 
-        WidgetBody {
+		let body = WidgetBody {
 			id:self.id.clone(),
             surface,
             children: vec![],
-            intrinsic_size:self.intrinsic_size,
             ..Default::default()
-        }
+        };
+
+		let mut layout = EmptyLayout::new();
+		layout.intrinsic_size = self.intrinsic_size;
+		layout.id = body.id.clone();
+
+		(body,Box::new(layout))
     }
 
-	fn process_signal(&mut self,signal:&Signal) {
-		match signal {
-			Signal::Click(id) =>{
-				if id == &self.id{
-					for event in self.events.iter_mut(){
-						match event {
-							Event::OnClick(func) => func(),
-							_ => {}
-						}
-					}
-				}
-			}
-			Signal::Hover(id) => {
-				if id == &self.id{
-					for event in self.events.iter_mut(){
-						match event {
-							Event::OnHover(func)=> func(),
-							_ => {}
-						}
-					}
-				}
-			}
-		}
-	}
 }
 

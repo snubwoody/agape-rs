@@ -1,5 +1,6 @@
 pub mod rect;
 pub mod text;
+pub mod circle;
 use std::fmt::Debug;
 use crate::{app::AppState, Bounds, Position, Size};
 
@@ -34,5 +35,44 @@ pub trait Surface:Debug {
 
 	/// Get the [`Bounds`] of the [`Surface`]
 	fn get_bounds(&self) -> Bounds;
+}
+
+#[macro_export]
+macro_rules! impl_surface {
+	() => {
+		fn position(&mut self, x:f32,y:f32){
+			self.position = Position::new(x, y);
+		} 
+		
+		fn get_position(&self) -> Position {
+			self.position
+		} 
+	
+		fn size(&mut self,width:f32,height:f32){
+			self.size.width = width;
+			self.size.height = height;
+		} 
+	
+		fn width(&mut self, width:f32) {
+			self.size.width = width
+		}
+	
+		fn height(&mut self, height:f32) {
+			self.size.height = height
+		}
+	
+		fn get_size(&self) -> Size {
+			self.size
+		}
+	
+		fn get_bounds(&self) -> Bounds{
+			let position = self.get_position();
+			let size = self.get_size();
+			Bounds{
+				x:[position.x,size.width],
+				y:[position.y,size.height],
+			}
+		}
+	};
 }
 
