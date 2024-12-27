@@ -136,6 +136,7 @@ impl Layout for BlockLayout {
 		match self.intrinsic_size.width {
 			BoxSizing::Flex(_) => {
 				// TODO maybe set the min constraints to either 0 or the size of the children
+				self.constraints.min_width = min_width + self.padding as f32 * 2.0;	
 			},
 			BoxSizing::Shrink => {
 				self.constraints.min_width = min_width + self.padding as f32 * 2.0;	
@@ -144,7 +145,9 @@ impl Layout for BlockLayout {
 		}
 		
 		match self.intrinsic_size.height {
-			BoxSizing::Flex(_) => {},
+			BoxSizing::Flex(_) => {
+				self.constraints.min_height = min_height + self.padding as f32 * 2.0;	
+			},
 			BoxSizing::Shrink => {
 				self.constraints.min_height = min_height + self.padding as f32 * 2.0;	
 			},

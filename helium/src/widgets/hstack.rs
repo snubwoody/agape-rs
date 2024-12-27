@@ -30,6 +30,16 @@ impl HStack {
 		self
 	}
 
+	pub fn width_fill(mut self) -> Self{
+		self.intrinsic_size.width = BoxSizing::Flex(1);
+		self
+	}
+
+	pub fn width_flex(mut self,factor:u8) -> Self{
+		self.intrinsic_size.width = BoxSizing::Flex(factor);
+		self
+	}
+
 	impl_style!();
 	impl_events!();
 }

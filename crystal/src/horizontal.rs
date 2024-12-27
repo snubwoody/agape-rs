@@ -147,6 +147,7 @@ impl Layout for HorizontalLayout {
 			},
 			BoxSizing::Flex(_) => {
 				// TODO maybe set the min constraints to either 0 or the size of the children
+				self.constraints.min_width = child_constraint_sum.width;	
 			},
 			BoxSizing::Shrink => {
 				self.constraints.min_width = child_constraint_sum.width;	
@@ -158,7 +159,7 @@ impl Layout for HorizontalLayout {
 				self.constraints.min_height = height;	
 			},
 			BoxSizing::Flex(_) => {
-
+				self.constraints.min_height = child_constraint_sum.height;	
 			},
 			BoxSizing::Shrink => {
 				self.constraints.min_height = child_constraint_sum.height;	
