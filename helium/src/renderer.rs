@@ -1,5 +1,11 @@
+use std::str;
+
 use wgpu::{
-	util::DeviceExt, ColorTargetState, Device, FragmentState, MultisampleState, PipelineLayoutDescriptor, PrimitiveState, RenderPipelineDescriptor, ShaderModuleDescriptor, ShaderSource, ShaderStages, VertexAttribute, VertexBufferLayout, VertexState
+	util::DeviceExt, ColorTargetState, 
+	FragmentState, MultisampleState, PipelineLayoutDescriptor, 
+	PrimitiveState, RenderPipelineDescriptor, ShaderModuleDescriptor, 
+	ShaderSource, ShaderStages, 
+	VertexAttribute, VertexBufferLayout, VertexState
 };
 use crate::vertex::Vertex;
 use helium_core::size::Size;
@@ -20,7 +26,7 @@ impl RectRenderer {
 		config: &wgpu::SurfaceConfiguration,
 		size:&Size
 	) -> Self {
-		// Compile the shader
+		// Compile the shaders
 		let shader = device.create_shader_module(
 			ShaderModuleDescriptor{
 				label: Some("Rect Shader Module"),
@@ -72,6 +78,7 @@ impl RectRenderer {
 			}
 		);
 
+		
 		let buffer_layout = VertexBufferLayout { 
 			array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress, 
 			step_mode: wgpu::VertexStepMode::Vertex, 
@@ -152,6 +159,7 @@ impl RectRenderer {
 		}
 	}
 }
+
 /// Holds the render pipeline
 #[derive(Debug)]
 pub struct CicleRenderer{
@@ -221,7 +229,7 @@ impl CicleRenderer {
 				VertexAttribute{
 					offset: size_of::<[f32;2]>() as wgpu::BufferAddress,
 					shader_location: 1,
-					format: wgpu::VertexFormat::Float32x4
+					format: wgpu::VertexFormat::Float32x4 // FIXME this seems incorrect?
 				},
 				VertexAttribute{
 					offset: size_of::<[f32;6]>() as wgpu::BufferAddress,
@@ -361,27 +369,12 @@ impl TextRenderer {
 			}
 		);
 
-		let vertex_buffer_layout = VertexBufferLayout { 
-			array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress, 
-			step_mode: wgpu::VertexStepMode::Vertex, 
-			attributes: &[
-				VertexAttribute{
-					offset: 0,
-					shader_location: 0,
-					format: wgpu::VertexFormat::Float32x2
-				},
-				VertexAttribute{
-					offset: size_of::<[f32;2]>() as wgpu::BufferAddress,
-					shader_location: 1,
-					format: wgpu::VertexFormat::Float32x4
-				},
-				VertexAttribute{
-					offset: size_of::<[f32;6]>() as wgpu::BufferAddress,
-					shader_location: 2,
-					format: wgpu::VertexFormat::Float32x2 
-				},
-			]
-		};
+		let vertex_buffer_layout = 
+			VertexBufferLayoutBuilder::new()
+			.add_attribute(0, wgpu::VertexFormat::Float32x2)
+			.add_attribute(size_of::<[f32;2]>(), wgpu::VertexFormat::Float32x4)
+			.add_attribute(size_of::<[f32;6]>(), wgpu::VertexFormat::Float32x2)
+			.build();
 
 		let render_pipeline_layout = 
 			device.create_pipeline_layout(
@@ -432,7 +425,12 @@ impl TextRenderer {
 			}
 		);
 
-		(render_pipeline,window_uniform.buffer,window_uniform.bind_group,texture_bind_group_layout)
+		(
+			render_pipeline,
+			window_uniform.buffer,
+			window_uniform.bind_group,
+			texture_bind_group_layout
+		)
 	}
 }
 
@@ -519,5 +517,77 @@ impl Uniform {
 	}
 	pub fn bind_group(&self) -> &wgpu::BindGroup{
 		&self.bind_group
+	}
+}
+
+
+fn create_vertex_buffer_layout(){
+	let buffer_layout = VertexBufferLayout { 
+		array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress, 
+		step_mode: wgpu::VertexStepMode::Vertex, 
+		attributes: &[
+			VertexAttribute{
+				offset: 0,
+				shader_location: 0,
+				format: wgpu::VertexFormat::Float32x2
+			},
+			VertexAttribute{
+				offset: size_of::<[f32;2]>() as wgpu::BufferAddress,
+				shader_location: 1,
+				format: wgpu::VertexFormat::Float32x4
+			},
+			VertexAttribute{
+				offset: size_of::<[f32;6]>() as wgpu::BufferAddress,
+				shader_location: 2,
+				format: wgpu::VertexFormat::Float32x2 
+			},
+		]
+	};
+}
+
+pub struct VertexBufferLayoutBuilder{
+	attributes:Vec<wgpu::VertexAttribute>
+}
+
+impl VertexBufferLayoutBuilder {
+	pub fn new() -> Self{
+		Self{
+			attributes:vec![]
+		}
+	}
+
+	pub fn add_attribute(mut self,offset:usize,format:wgpu::VertexFormat) -> Self{
+		let shader_location = self.attributes.len() as u32;
+		let attribute = VertexAttribute{
+			offset: offset as wgpu::BufferAddress,
+			shader_location,
+			format
+		};
+		self.attributes.push(attribute);
+		self
+	}
+
+	pub fn build(self) -> VertexBufferLayout<'static>{
+		VertexBufferLayout { 
+			array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress, 
+			step_mode: wgpu::VertexStepMode::Vertex, 
+			attributes: &[
+				VertexAttribute{
+					offset: 0,
+					shader_location: 0,
+					format: wgpu::VertexFormat::Float32x2
+				},
+				VertexAttribute{
+					offset: size_of::<[f32;2]>() as wgpu::BufferAddress,
+					shader_location: 1,
+					format: wgpu::VertexFormat::Float32x4
+				},
+				VertexAttribute{
+					offset: size_of::<[f32;6]>() as wgpu::BufferAddress,
+					shader_location: 2,
+					format: wgpu::VertexFormat::Float32x2 
+				},
+			]
+		}
 	}
 }

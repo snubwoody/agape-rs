@@ -5,6 +5,7 @@ mod button;
 mod circle;
 mod vstack;
 mod hstack;
+mod icon;
 use nanoid::nanoid;
 pub use rect::Rect;
 pub use text::Text;

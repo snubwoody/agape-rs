@@ -1,3 +1,10 @@
+//! The surfaces are the items that are actually responsible for drawing the pixels to the 
+//! screen. It is the final stage in the pipeline, each [`Surface`] surface holds the data 
+//! responsible for it's rendering needs, all surfaces, however, hold their [`Position`] and
+//! [`Size`] which is calculated during the layout stage. There are currently three surfaces
+//! - [`RectSurface`]: drawing rectangular primitives to the screen
+//! - [`TextSurface`]: drawing text to the screen
+//! - [`CircleSurface`]: drawing circle primitives to the screen
 pub mod rect;
 pub mod text;
 pub mod circle;

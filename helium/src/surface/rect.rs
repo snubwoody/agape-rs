@@ -63,6 +63,7 @@ impl Surface for RectSurface {
 			usage: wgpu::BufferUsages::VERTEX,
 		});
 
+		// TODO could maybe use the uniform struct
 		let corner_radius = state.device.create_buffer_init(
 			&BufferInitDescriptor{
 				label:Some("Corner radius buffer"),
