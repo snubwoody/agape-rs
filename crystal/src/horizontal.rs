@@ -15,8 +15,8 @@ pub struct HorizontalLayout{
 	// TODO i'm thinking of adding user constraints as well so that people can define their own 
 	// constraints
 	constraints:BoxContraints,
-	pub children:Vec<Box<dyn Layout>>,
 	pub intrinsic_size:IntrinsicSize,
+	pub children:Vec<Box<dyn Layout>>,
 }
 
 impl HorizontalLayout {
@@ -111,6 +111,12 @@ impl Layout for HorizontalLayout {
 	
 	fn set_min_width(&mut self,width:f32) {
 		self.constraints.min_width = width;
+	}
+
+	fn sort_children(&mut self) {
+		self.children.sort_by(|a,b|
+			a.intrinsic_size().width.partial_cmp(&b.intrinsic_size().width).unwrap()
+		);
 	}
 
 	fn iter(&self) -> crate::LayoutIter {

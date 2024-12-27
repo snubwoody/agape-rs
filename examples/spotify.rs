@@ -1,10 +1,7 @@
 use helium::{
-    app::{events::EventQueue, view::View, App},
-    hstack, vstack,
-    widgets::{Button, Container, Rect, Text, Widget, WidgetBody},
-    Color, Size, TRANSPARENT,
+    app::{events::EventQueue, view::View, App}, hstack, vstack, widgets::{Button, Container, Rect, Text, Widget, WidgetBody}, Color, LayoutSolver, Size, TRANSPARENT
 };
-use std::env;
+use std::{env, fs::{File, OpenOptions}, io::{BufWriter, Write}};
 
 const BACKGROUND: Color = Color::Hex("#121212");
 const GREY: Color = Color::Hex("#414141");
@@ -22,8 +19,10 @@ fn main() {
         Chip("Artist"),
         Chip("Downloaded")
     }
-    .spacing(12);
+    .spacing(12)
+	.width_fit();
 
+	// FIXME has a width of 106 should be like 500
     let sidepanel = vstack! {
         Text::new("Your library"),
         chips,
@@ -43,10 +42,24 @@ fn main() {
         }.spacing(12)
     };
 
+	// FIXME has a height of zero
     let home_page = hstack! {sidepanel,mainpanel};
-    let home = View::new(home_page, event_queue);
 
+	let (_,mut layout) = home_page.build();
+	LayoutSolver::solve(&mut *layout, Size::new(500.0, 500.0));
+
+	let file = OpenOptions::new()
+		.write(true)
+		.read(true)
+		.open("C:/Users/wakun/Projects/Tools/Rust-UI/examples/temp/layout.txt").unwrap();
+	let mut writer = BufWriter::new(file);
+
+	writer.write(format!("{:#?}",layout).as_bytes()).unwrap();
+	writer.flush().unwrap();
+	
+	let home = View::new(home_page, event_queue);
     App::new().add_view(home).run();
+
 }
 
 fn Chip(text: &str) -> impl Widget {
@@ -66,7 +79,7 @@ fn SidebarItem(title:&str) -> impl Widget{
 			hstack!{
 				Text::new("Playlist"),
 				Text::new("Charlemagne")
-			}
+			}.spacing(12)
 		}
 	}
 	.spacing(12)

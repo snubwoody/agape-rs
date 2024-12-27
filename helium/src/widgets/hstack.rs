@@ -25,6 +25,11 @@ impl HStack {
 		self
 	}
 
+	pub fn width_fit(mut self) -> Self{
+		self.intrinsic_size.width = BoxSizing::Shrink;
+		self
+	}
+
 	impl_style!();
 	impl_events!();
 }
@@ -54,7 +59,7 @@ impl Widget for HStack {
         };
 	
 		let mut layout = HorizontalLayout::new();
-		layout.intrinsic_size.width = BoxSizing::Flex(1);
+		layout.intrinsic_size.width = self.intrinsic_size.width;
 		layout.children = children_layout;
 		layout.id = body.id.clone();
 		layout.spacing = self.spacing;
