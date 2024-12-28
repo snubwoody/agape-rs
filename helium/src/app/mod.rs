@@ -156,17 +156,17 @@ impl<'a> AppState<'a> {
 		
 		//TODO maybe add a global uniform instead
         self.queue.write_buffer(
-            &self.context.rect_renderer.window_buffer,
+            &self.context.rect_pipeline.window_buffer,
             0,
             bytemuck::cast_slice(&[self.size.width, self.size.height]),
         );
         self.queue.write_buffer(
-            &self.context.text_renderer.window_buffer,
+            &self.context.text_pipeline.window_buffer,
             0,
             bytemuck::cast_slice(&[self.size.width, self.size.height]),
         );
         self.queue.write_buffer(
-            &self.context.circle_renderer.window_uniform.buffer(),
+            &self.context.circle_pipeline.window_uniform.buffer(),
             0,
             bytemuck::cast_slice(&[self.size.width, self.size.height]),
         );

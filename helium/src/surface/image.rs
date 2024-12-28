@@ -1,47 +1,36 @@
-use std::{fmt::Debug, io::Cursor};
-use helium_core::color::BLACK;
-use image::RgbaImage;
+use std::{error::Error, fmt::Debug};
+use image::{ImageReader, RgbaImage};
 use wgpu::util::DeviceExt;
 use crate::{
 	app::AppState, impl_surface, surface::Surface, 
 	geometry::vertex::Vertex, Bounds, Color, Position, Size
 };
 
+pub enum Image{
+	File,
+	Url
+}
+
 // FIXME change the color to Color enum
+/// Draws images to the screen
 #[derive(Clone)]
-pub struct TextSurface{
+pub struct ImageSurface{
 	position:Position,
 	size:Size,
-	text:String,
-	font_size:u8,
-	color:Color,
 	img: RgbaImage
 }
 
-impl TextSurface {
-	pub fn new(text:&str,font_size:u8) -> Self{
-		let text_pipeline = text_to_png::TextRenderer::default();
+impl ImageSurface {
+	pub fn new(path:&str) -> Result<Self,Box<dyn Error>>{
+		let img = ImageReader::open(path)?.decode()?.to_rgba8();
 
-		// Render the text as a png
-		let text_image = text_pipeline.render_text_to_png_data(
-			text, 
-			font_size, 
-			"#000000"
-		).unwrap(); // TODO Hangle the errors pls
-
-		let img = image::load(
-			Cursor::new(text_image.data), 
-			image::ImageFormat::Png
-		).unwrap().to_rgba8();
-		
-		Self {
-			position:Position::new(0.0, 0.0), 
-			size:Size::new(text_image.size.width as f32, text_image.size.height as f32),
-			text:String::from(text), 
-			font_size, 
-			color:BLACK,
-			img
-		}
+		Ok(
+			Self {
+				position:Position::new(0.0, 0.0), 
+				size:Size::default(),
+				img
+			}
+		)
 	}
 
 	/// Rasterize the text and return the texture 
@@ -85,7 +74,7 @@ impl TextSurface {
 	}
 }
 
-impl Surface for TextSurface {
+impl Surface for ImageSurface {
 	fn draw(
 		&self,
 		render_pass:&mut wgpu::RenderPass,
@@ -119,7 +108,7 @@ impl Surface for TextSurface {
 
 		let texture_bind_group = state.device.create_bind_group(
 			&wgpu::BindGroupDescriptor { 
-				label: Some("Text bind group"), 
+				label: Some("Image Texture bind group"), 
 				layout:&context.text_pipeline.texture_bind_group_layout, 
 				entries: &[
 					wgpu::BindGroupEntry{
@@ -144,15 +133,15 @@ impl Surface for TextSurface {
 			&self.img, 
 			wgpu::ImageDataLayout { 
 				offset: 0, 
-				bytes_per_row: Some(4 * self.size.width as u32), 
+				bytes_per_row: Some(4 * self.size.width as u32), // TODO don't even know what this is
 				rows_per_image: Some(self.size.height as u32)
 			}, 
 			texture_size
 		);
 
 		// Set the render pipeline and vertex buffer
-		render_pass.set_pipeline(&context.text_pipeline.pipeline);
-		render_pass.set_bind_group(0, &context.text_pipeline.window_bind_group, &[]);
+		render_pass.set_pipeline(&context.image_pipeline.pipeline);
+		render_pass.set_bind_group(0, &context.image_pipeline.window_bind_group, &[]);
 		render_pass.set_bind_group(1, &texture_bind_group, &[]);
 		render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 
@@ -163,14 +152,11 @@ impl Surface for TextSurface {
 }
 
 
-impl Debug for TextSurface {
+impl Debug for ImageSurface {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		f.debug_struct("TextSurface")
+		f.debug_struct("ImageSurface")
 		.field("size", &self.size)
 		.field("position", &self.position)
-		.field("text", &self.text)
-		.field("font_size", &self.font_size)
-		.field("color", &self.color)
 		.finish()
 	}
 }

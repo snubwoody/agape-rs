@@ -91,7 +91,7 @@ impl Surface for RectSurface {
 
         let bound_bind_group = state.device.create_bind_group(&BindGroupDescriptor {
             label: Some("Rect bounds bind group"),
-            layout: &context.rect_renderer.bounds_layout,
+            layout: &context.rect_pipeline.bounds_layout,
             entries: &[
                 wgpu::BindGroupEntry {
                     binding: 0,
@@ -109,8 +109,8 @@ impl Surface for RectSurface {
         });
 
         // Set the render pipeline and vertex buffer
-        render_pass.set_pipeline(&context.rect_renderer.pipeline);
-        render_pass.set_bind_group(0, &context.rect_renderer.window_bind_group, &[]);
+        render_pass.set_pipeline(&context.rect_pipeline.pipeline);
+        render_pass.set_bind_group(0, &context.rect_pipeline.window_bind_group, &[]);
         render_pass.set_bind_group(1, &bound_bind_group, &[]);
         render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 

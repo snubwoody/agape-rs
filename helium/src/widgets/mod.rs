@@ -6,6 +6,7 @@ mod circle;
 mod vstack;
 mod hstack;
 mod icon;
+mod image;
 use nanoid::nanoid;
 pub use rect::Rect;
 pub use text::Text;
@@ -14,6 +15,7 @@ pub use hstack::HStack;
 pub use vstack::VStack;
 pub use container::Container;
 pub use circle::Circle;
+pub use image::Image;
 use crate::{
 	app::AppState, 
 	surface::{

@@ -4,6 +4,7 @@ pub mod rect;
 pub mod circle;
 use std::str;
 use circle::CirclePipeline;
+use image::ImagePipeline;
 use rect::RectPipeline;
 use text::TextPipeline;
 use wgpu::{
@@ -25,7 +26,7 @@ struct RenderPipelineBuilder<'a>{
 	fragment_entry_point:String,
 	layout:Option<&'a wgpu::PipelineLayout>,
 	bind_group_layouts:Vec<&'a wgpu::BindGroupLayout>,
-	buffers:Vec<VertexBufferLayout<'a>>
+	buffer_layouts:Vec<VertexBufferLayout<'a>>
 }
 
 impl<'a> RenderPipelineBuilder<'a> {
@@ -38,7 +39,7 @@ impl<'a> RenderPipelineBuilder<'a> {
 			shader,
 			vertex_entry_point,
 			fragment_entry_point,
-			buffers:vec![],
+			buffer_layouts:vec![],
 			bind_group_layouts:vec![],
 			layout:None
 		}
@@ -60,13 +61,8 @@ impl<'a> RenderPipelineBuilder<'a> {
 		self
 	}
 
-	fn layout(mut self,layout:&'a wgpu::PipelineLayout) -> Self{
-		self.layout = Some(layout);
-		self
-	}
-
 	fn add_buffer(mut self,buffer:wgpu::VertexBufferLayout<'a>) -> Self{
-		self.buffers.push(buffer);
+		self.buffer_layouts.push(buffer);
 		self
 	}
 
@@ -88,7 +84,7 @@ impl<'a> RenderPipelineBuilder<'a> {
 					module: &self.shader,
 					entry_point: &self.vertex_entry_point,
 					compilation_options: Default::default(),
-					buffers: &self.buffers
+					buffers: &self.buffer_layouts
 				}, 
 				fragment: Some(FragmentState{
 					module: &self.shader,
@@ -124,17 +120,19 @@ impl<'a> RenderPipelineBuilder<'a> {
 
 /// Contains the renderers
 pub struct RenderContext {
-	pub rect_renderer: RectPipeline,
-	pub text_renderer: TextPipeline,
-	pub circle_renderer: CirclePipeline,
+	pub rect_pipeline: RectPipeline,
+	pub text_pipeline: TextPipeline,
+	pub circle_pipeline: CirclePipeline,
+	pub image_pipeline: ImagePipeline,
 	pub window_uniform:Uniform
 }
 
 impl RenderContext {
     pub fn new(device: &wgpu::Device, config: &wgpu::SurfaceConfiguration, size: &Size) -> Self {
-		let rect_renderer = RectPipeline::new(device, config, size);
-		let text_renderer = TextPipeline::new(device, config, size);
-		let circle_renderer = CirclePipeline::new(device, config, size);
+		let rect_pipeline = RectPipeline::new(device, config, size);
+		let text_pipeline = TextPipeline::new(device, config, size);
+		let circle_pipeline = CirclePipeline::new(device, config, size);
+		let image_pipeline = ImagePipeline::new(device, config, size);
 
 		let window_buffer = UniformBuilder::new()
 			.label("Window uniform")
@@ -142,9 +140,10 @@ impl RenderContext {
 			.build(device);
 		
         Self {
-			rect_renderer,
-			text_renderer,
-			circle_renderer,
+			rect_pipeline,
+			text_pipeline,
+			circle_pipeline,
+			image_pipeline,
 			window_uniform:window_buffer
         }
     }

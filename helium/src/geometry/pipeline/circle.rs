@@ -42,19 +42,21 @@ impl CirclePipeline {
 			.contents(&[size.width,size.height])
 			.build(device);
 
-		let diameter_buffer = device.create_buffer_init(
-			&BufferInitDescriptor{
-				label:Some("Size buffer"),
-				contents: bytemuck::cast_slice(&[0.0,0.0]),
-				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
+		let diameter_buffer = device.create_buffer(
+			&wgpu::BufferDescriptor { 
+				label: Some("Diameter buffer"), 
+				size: size_of::<[f32;2]>() as wgpu::BufferAddress, 
+				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST, 
+				mapped_at_creation: false
 			}
 		);
 
-		let position_buffer = device.create_buffer_init(
-			&BufferInitDescriptor{
-				label:Some("Position buffer"),
-				contents: bytemuck::cast_slice(&[0.0,0.0]),
-				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
+		let position_buffer = device.create_buffer(
+			&wgpu::BufferDescriptor { 
+				label: Some("Position buffer"), 
+				size: size_of::<[f32;2]>() as wgpu::BufferAddress, 
+				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST, 
+				mapped_at_creation: false
 			}
 		);
 
@@ -111,20 +113,10 @@ impl CirclePipeline {
 			.add_attribute(size_of::<[f32;6]>(), wgpu::VertexFormat::Float32x2)
 			.build();
 
-		let render_pipeline_layout = 
-			device.create_pipeline_layout(
-				&PipelineLayoutDescriptor{
-					label: Some("Circle Pipeline Layout"),
-					bind_group_layouts: &[window_uniform.layout(),&bounds_layout],
-					push_constant_ranges: &[]
-				}
-			);
-
 		let pipeline = 
 			RenderPipelineBuilder::new("Circle",&shader)
 			.add_bind_group_layout(&window_uniform.layout)
 			.add_bind_group_layout(&bounds_layout)
-			.layout(&render_pipeline_layout)
 			.add_buffer(buffer_layout)
 			.build(device, config);
 

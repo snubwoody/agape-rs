@@ -59,20 +59,20 @@ impl Surface for CircleSurface {
 		});
 
 		state.queue.write_buffer(
-            &state.context.circle_renderer.position_buffer,
+            &state.context.circle_pipeline.position_buffer,
             0,
             bytemuck::cast_slice(&[self.position.x,self.position.y]),
         );
 		state.queue.write_buffer(
-            &state.context.circle_renderer.diameter_buffer,
+            &state.context.circle_pipeline.diameter_buffer,
             0,
             bytemuck::cast_slice(&[self.size.width]),
         );
 
 		// Set the render pipeline and vertex buffer
-		render_pass.set_pipeline(&context.circle_renderer.pipeline);
-		render_pass.set_bind_group(0, &context.circle_renderer.window_uniform.bind_group(), &[]);
-		render_pass.set_bind_group(1, &context.circle_renderer.bounds_bind_group, &[]);
+		render_pass.set_pipeline(&context.circle_pipeline.pipeline);
+		render_pass.set_bind_group(0, &context.circle_pipeline.window_uniform.bind_group(), &[]);
+		render_pass.set_bind_group(1, &context.circle_pipeline.bounds_bind_group, &[]);
 		render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 		render_pass.draw(0..vertices.len() as u32, 0..1);
 	}

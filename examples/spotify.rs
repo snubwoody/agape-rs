@@ -1,5 +1,5 @@
 use helium::{
-    app::{events::EventQueue, view::View, App}, hstack, vstack, widgets::{Button, Container, Rect, Text, Widget, WidgetBody}, Color, LayoutSolver, Size, BLACK, TRANSPARENT
+    app::{events::EventQueue, view::View, App}, hstack, vstack, widgets::{Button, Container, Image, Rect, Text, Widget, WidgetBody}, Color, LayoutSolver, Size, BLACK, TRANSPARENT
 };
 use std::{env, fs::OpenOptions, io::{BufWriter, Write}};
 

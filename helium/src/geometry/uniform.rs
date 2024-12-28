@@ -32,6 +32,7 @@ impl<T:bytemuck::Pod> UniformBuilder<T> {
 
 	/// Build a uniform buffer
 	pub fn build(self,device:&wgpu::Device) -> Uniform{
+		// TODO use create_buffer instead
 		let buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
 			label: self.label.clone().map(|label|format!("{} buffer",label)).as_deref(),
 			contents: bytemuck::cast_slice(&self.contents),

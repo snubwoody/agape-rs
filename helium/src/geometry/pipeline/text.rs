@@ -4,12 +4,11 @@ use crate::{
 };
 use helium_core::size::Size;
 use wgpu::{
-    PipelineLayoutDescriptor, ShaderModuleDescriptor, ShaderSource,
+    ShaderModuleDescriptor, ShaderSource,
 };
-
 use super::RenderPipelineBuilder;
 
-/// Holds the buffer and pipeline for rendering text to the screen
+/// Holds the buffers and pipeline for rendering text to the screen
 #[derive(Debug)]
 pub struct TextPipeline {
     pub pipeline: wgpu::RenderPipeline,
@@ -20,29 +19,8 @@ pub struct TextPipeline {
 
 impl TextPipeline {
     pub fn new(device: &wgpu::Device, config: &wgpu::SurfaceConfiguration, size: &Size) -> Self {
-        let (pipeline, window_buffer, window_bind_group, texture_bind_group_layout) =
-            TextPipeline::create_pipeline(device, config, size);
-
-        Self {
-            pipeline,
-            window_bind_group,
-            window_buffer,
-            texture_bind_group_layout,
-        }
-    }
-
-    fn create_pipeline(
-        device: &wgpu::Device,
-        config: &wgpu::SurfaceConfiguration,
-        size: &Size,
-    ) -> (
-        wgpu::RenderPipeline,
-        wgpu::Buffer,
-        wgpu::BindGroup,
-        wgpu::BindGroupLayout,
-    ) {
-        // Compile the shader
-        let shader = device.create_shader_module(ShaderModuleDescriptor {
+		 // Compile the shader
+		let shader = device.create_shader_module(ShaderModuleDescriptor {
             label: Some("Text Shader Module"),
             source: ShaderSource::Wgsl(include_str!("../../../shaders/text.wgsl").into()),
         });
@@ -54,9 +32,8 @@ impl TextPipeline {
 
         let texture_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-                label: Some("Text bind group layout"),
+                label: Some("Text texture bind group layout"),
                 entries: &[
-                    // For the texture
                     wgpu::BindGroupLayoutEntry {
                         binding: 0,
                         visibility: wgpu::ShaderStages::FRAGMENT,
@@ -82,24 +59,18 @@ impl TextPipeline {
             .add_attribute(size_of::<[f32; 6]>(), wgpu::VertexFormat::Float32x2)
             .build();
 
-        let pipeline_layout = device.create_pipeline_layout(&PipelineLayoutDescriptor {
-            label: Some("Text Pipeline Layout"),
-            bind_group_layouts: &[&window_uniform.layout, &texture_bind_group_layout],
-            push_constant_ranges: &[],
-        });
-
         let pipeline = RenderPipelineBuilder::new("Text", &shader)
-            .layout(&pipeline_layout)
             .add_bind_group_layout(&window_uniform.layout)
             .add_bind_group_layout(&texture_bind_group_layout)
             .add_buffer(vertex_buffer_layout)
             .build(device, config);
+	
 
-        (
+        Self {
             pipeline,
-            window_uniform.buffer,
-            window_uniform.bind_group,
+            window_bind_group:window_uniform.bind_group,
+            window_buffer:window_uniform.buffer,
             texture_bind_group_layout,
-        )
+        }
     }
 }

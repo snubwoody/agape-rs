@@ -2,6 +2,7 @@ pub mod widgets;
 pub mod app;
 pub mod surface;
 pub mod signal;
+pub mod error;
 mod geometry;
 
 pub use nanoid::nanoid;
