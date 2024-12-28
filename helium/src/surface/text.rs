@@ -89,7 +89,7 @@ impl Surface for TextSurface {
 	fn draw(
 		&self,
 		render_pass:&mut wgpu::RenderPass,
-		context: &crate::geometry::renderer::RenderContext,
+		context: &crate::geometry::RenderContext,
 		state: &AppState
 	) {
 
@@ -151,7 +151,7 @@ impl Surface for TextSurface {
 		);
 
 		// Set the render pipeline and vertex buffer
-		render_pass.set_pipeline(&context.text_renderer.render_pipeline);
+		render_pass.set_pipeline(&context.text_renderer.pipeline);
 		render_pass.set_bind_group(0, &context.text_renderer.window_bind_group, &[]);
 		render_pass.set_bind_group(1, &texture_bind_group, &[]);
 		render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));

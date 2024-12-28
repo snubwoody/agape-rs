@@ -19,7 +19,7 @@ pub trait Surface:Debug {
 	fn draw(
 		&self,
 		render_pass:&mut wgpu::RenderPass,
-		context: &crate::geometry::renderer::RenderContext,
+		context: &crate::geometry::RenderContext,
 		state:&AppState
 	);
 

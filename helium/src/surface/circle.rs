@@ -1,7 +1,8 @@
-use wgpu::{util::{BufferInitDescriptor, DeviceExt}, BindGroupDescriptor};
+use wgpu::util::DeviceExt;
 use crate::{
-	geometry::renderer::RenderContext,
-	app::AppState, impl_surface, surface::Surface, geometry::vertex::Vertex, Bounds, Color, Position, Size
+	geometry::RenderContext,
+	app::AppState, impl_surface, surface::Surface, 
+	geometry::vertex::Vertex, Bounds, Color, Position, Size
 };
 
 /// This is a primitive that draws to the screen. This holds
@@ -69,7 +70,7 @@ impl Surface for CircleSurface {
         );
 
 		// Set the render pipeline and vertex buffer
-		render_pass.set_pipeline(&context.circle_renderer.render_pipeline);
+		render_pass.set_pipeline(&context.circle_renderer.pipeline);
 		render_pass.set_bind_group(0, &context.circle_renderer.window_uniform.bind_group(), &[]);
 		render_pass.set_bind_group(1, &context.circle_renderer.bounds_bind_group, &[]);
 		render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));

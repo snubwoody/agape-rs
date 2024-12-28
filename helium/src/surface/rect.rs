@@ -1,6 +1,6 @@
 use crate::{
     app::AppState, impl_surface, 
-	geometry::renderer::RenderContext, 
+	geometry::RenderContext, 
 	surface::Surface, 
 	geometry::vertex::Vertex, Bounds,
     Color, Position, Size,
@@ -109,7 +109,7 @@ impl Surface for RectSurface {
         });
 
         // Set the render pipeline and vertex buffer
-        render_pass.set_pipeline(&context.rect_renderer.render_pipeline);
+        render_pass.set_pipeline(&context.rect_renderer.pipeline);
         render_pass.set_bind_group(0, &context.rect_renderer.window_bind_group, &[]);
         render_pass.set_bind_group(1, &bound_bind_group, &[]);
         render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));

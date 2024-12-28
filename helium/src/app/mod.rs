@@ -1,6 +1,6 @@
 pub mod events;
 pub mod view;
-use crate::{geometry::renderer::{CircleRenderContext, RectRenderContext, RenderContext, TextRenderContext}, Size};
+use crate::{geometry::{CirclePipeline, RectPipeline, RenderContext, TextPipeline}, Size};
 use async_std::task;
 use view::View;
 use winit::{
