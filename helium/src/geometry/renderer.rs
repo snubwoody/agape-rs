@@ -7,20 +7,23 @@ use wgpu::{
 	ShaderSource, ShaderStages, 
 	VertexAttribute, VertexBufferLayout, VertexState
 };
-use crate::vertex::Vertex;
+use crate::geometry::vertex::Vertex;
 use helium_core::size::Size;
 
+use super::{uniform::{Uniform, UniformBuilder}, vertex::VertexBufferLayoutBuilder};
+
+// TODO could maybe move the buffers into herer
 // TODO pls refactor this long and ugly code, there's a lot of reused code;
 /// Holds the render pipeline
 #[derive(Debug)]
-pub struct RectRenderer{
+pub struct RectRenderContext{
 	pub render_pipeline: wgpu::RenderPipeline,
 	pub window_bind_group: wgpu::BindGroup,
 	pub bounds_layout: wgpu::BindGroupLayout,
     pub window_buffer: wgpu::Buffer,
 }
 
-impl RectRenderer {
+impl RectRenderContext {
 	pub fn new(
 		device: &wgpu::Device,
 		config: &wgpu::SurfaceConfiguration,
@@ -30,14 +33,14 @@ impl RectRenderer {
 		let shader = device.create_shader_module(
 			ShaderModuleDescriptor{
 				label: Some("Rect Shader Module"),
-				source: ShaderSource::Wgsl(include_str!("../shaders/rect.wgsl").into())
+				source: ShaderSource::Wgsl(include_str!("../../shaders/rect.wgsl").into())
 			}
 		);
 
 		let window_uniform = 
 			UniformBuilder::new()
 			.label("Window")
-			.contents(vec![size.width,size.height])
+			.contents(&[size.width,size.height])
 			.build(device);
 
 		let bounds_layout = device.create_bind_group_layout(
@@ -162,14 +165,14 @@ impl RectRenderer {
 
 /// Holds the render pipeline
 #[derive(Debug)]
-pub struct CicleRenderer{
+pub struct CircleRenderContext{
 	pub render_pipeline: wgpu::RenderPipeline,
 	pub window_bind_group: wgpu::BindGroup,
 	pub bounds_layout: wgpu::BindGroupLayout,
     pub window_buffer: wgpu::Buffer,
 }
 
-impl CicleRenderer {
+impl CircleRenderContext {
 	pub fn new(
 		device: &wgpu::Device,
 		config: &wgpu::SurfaceConfiguration,
@@ -179,14 +182,14 @@ impl CicleRenderer {
 		let shader = device.create_shader_module(
 			ShaderModuleDescriptor{
 				label: Some("Circle Shader Module"),
-				source: ShaderSource::Wgsl(include_str!("../shaders/circle.wgsl").into())
+				source: ShaderSource::Wgsl(include_str!("../../shaders/circle.wgsl").into())
 			}
 		);
 
 		let window_uniform = 
 			UniformBuilder::new()
 			.label("Window")
-			.contents(vec![size.width,size.height])
+			.contents(&[size.width,size.height])
 			.build(device);
 
 		let bounds_layout = device.create_bind_group_layout(
@@ -217,27 +220,12 @@ impl CicleRenderer {
 			}
 		);
 
-		let buffer_layout = VertexBufferLayout { 
-			array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress, 
-			step_mode: wgpu::VertexStepMode::Vertex, 
-			attributes: &[
-				VertexAttribute{
-					offset: 0,
-					shader_location: 0,
-					format: wgpu::VertexFormat::Float32x2
-				},
-				VertexAttribute{
-					offset: size_of::<[f32;2]>() as wgpu::BufferAddress,
-					shader_location: 1,
-					format: wgpu::VertexFormat::Float32x4 // FIXME this seems incorrect?
-				},
-				VertexAttribute{
-					offset: size_of::<[f32;6]>() as wgpu::BufferAddress,
-					shader_location: 2,
-					format: wgpu::VertexFormat::Float32x2 
-				},
-			]
-		};
+		let buffer_layout = 
+			VertexBufferLayoutBuilder::new()
+			.add_attribute(0, wgpu::VertexFormat::Float32x2)
+			.add_attribute(size_of::<[f32;2]>(), wgpu::VertexFormat::Float32x4)
+			.add_attribute(size_of::<[f32;6]>(), wgpu::VertexFormat::Float32x2)
+			.build();
 
 		let render_pipeline_layout = 
 			device.create_pipeline_layout(
@@ -248,47 +236,12 @@ impl CicleRenderer {
 				}
 			);
 
-		let render_pipeline = device.create_render_pipeline(
-			&RenderPipelineDescriptor { 
-				label: Some("Circle Render Pipeline"), 
-				layout: Some(&render_pipeline_layout), 
-				vertex: VertexState{
-					module: &shader,
-					entry_point: "vs_main",
-					compilation_options: Default::default(),
-					buffers: &[buffer_layout]
-				}, 
-				fragment: Some(FragmentState{
-					module: &shader,
-					entry_point: "fs_main",
-					compilation_options: Default::default(),
-					targets: &[Some(ColorTargetState {
-						format: config.format,
-						blend: Some(wgpu::BlendState::ALPHA_BLENDING),
-						write_mask: wgpu::ColorWrites::ALL,
-					})]
-				}), 
-				primitive: PrimitiveState{
-					topology: wgpu::PrimitiveTopology::TriangleList,
-                	strip_index_format: None,
-                	front_face: wgpu::FrontFace::Ccw,
-                	cull_mode: None,
-                	unclipped_depth: false,
-                	polygon_mode: wgpu::PolygonMode::Fill,
-                	conservative: false,
-				}, 
-				multisample: MultisampleState {
-					count: 1,
-					mask: !0,
-					alpha_to_coverage_enabled: false,
-				}, 
-				depth_stencil: None, 
-				multiview: None, 
-				cache: None 
-			}
-		);
+		let render_pipeline = 
+			RenderPipelineBuilder::new(&shader)
+			.layout(&render_pipeline_layout)
+			.add_buffer(buffer_layout)
+			.build(device, config);
 
-		
 		Self { 
 			render_pipeline, 
 			window_bind_group:window_uniform.bind_group, 
@@ -301,21 +254,21 @@ impl CicleRenderer {
 // TODO test this
 /// Controls the rendering of text to the screen
 #[derive(Debug)]
-pub struct TextRenderer{
+pub struct TextRenderContext{
 	pub render_pipeline: wgpu::RenderPipeline,
 	pub window_bind_group: wgpu::BindGroup,
     pub window_buffer: wgpu::Buffer,
 	pub texture_bind_group_layout: wgpu::BindGroupLayout
 }
 
-impl TextRenderer {
+impl TextRenderContext {
 	pub fn new(
 		device: &wgpu::Device,
 		config: &wgpu::SurfaceConfiguration,
 		size:&Size
 	) -> Self {
 		let (render_pipeline,window_buffer,window_bind_group,texture_bind_group_layout) = 
-			TextRenderer::create_pipeline(device, config, size);
+			TextRenderContext::create_pipeline(device, config, size);
 		
 		Self { 
 			render_pipeline, 
@@ -334,14 +287,14 @@ impl TextRenderer {
 		let shader = device.create_shader_module(
 			ShaderModuleDescriptor{
 				label: Some("Text Shader Module"),
-				source: ShaderSource::Wgsl(include_str!("../shaders/text.wgsl").into())
+				source: ShaderSource::Wgsl(include_str!("../../shaders/text.wgsl").into())
 			}
 		);
 
 		let window_uniform = 
 			UniformBuilder::new()
 			.label("Window")
-			.contents(vec![size.width,size.height])
+			.contents(&[size.width,size.height])
 			.build(device);
 
 		let texture_bind_group_layout = device.create_bind_group_layout(
@@ -385,19 +338,78 @@ impl TextRenderer {
 				}
 			);
 
-		let render_pipeline = device.create_render_pipeline(
+		let render_pipeline = 
+			RenderPipelineBuilder::new(&shader)
+			.layout(&render_pipeline_layout)
+			.add_buffer(vertex_buffer_layout)
+			.build(device, config);
+
+		(
+			render_pipeline,
+			window_uniform.buffer,
+			window_uniform.bind_group,
+			texture_bind_group_layout
+		)
+	}
+}
+
+
+pub struct RenderPipelineBuilder<'a>{
+	shader:&'a wgpu::ShaderModule,
+	vertex_entry_point:String,
+	fragment_entry_point:String,
+	layout:Option<&'a wgpu::PipelineLayout>,
+	buffers:Vec<VertexBufferLayout<'a>>
+}
+
+impl<'a> RenderPipelineBuilder<'a> {
+	pub fn new(shader:&'a wgpu::ShaderModule) -> Self{
+		let vertex_entry_point = String::from("vs_main");
+		let fragment_entry_point = String::from("fs_main");
+		
+		Self{
+			shader,
+			vertex_entry_point,
+			fragment_entry_point,
+			buffers:vec![],
+			layout:None
+		}
+	}
+
+	pub fn vertex_entry_point(mut self,entry_point:&str) -> Self {
+		self.vertex_entry_point = entry_point.to_owned();
+		self
+	}
+
+	pub fn fragment_entry_point(mut self,entry_point:&str) -> Self {
+		self.fragment_entry_point = entry_point.to_owned();
+		self
+	}
+
+	pub fn layout(mut self,layout:&'a wgpu::PipelineLayout) -> Self{
+		self.layout = Some(layout);
+		self
+	}
+
+	pub fn add_buffer(mut self,buffer:wgpu::VertexBufferLayout<'a>) -> Self{
+		self.buffers.push(buffer);
+		self
+	}
+
+	pub fn build(self,device:&wgpu::Device,config:&wgpu::SurfaceConfiguration) -> wgpu::RenderPipeline{
+		device.create_render_pipeline(
 			&RenderPipelineDescriptor { 
 				label: Some("Text Render Pipeline"), 
-				layout: Some(&render_pipeline_layout), 
+				layout: self.layout, 
 				vertex: VertexState{
-					module: &shader,
-					entry_point: "vs_main",
+					module: &self.shader,
+					entry_point: &self.vertex_entry_point,
 					compilation_options: Default::default(),
-					buffers: &[vertex_buffer_layout]
+					buffers: &self.buffers
 				}, 
 				fragment: Some(FragmentState{
-					module: &shader,
-					entry_point: "fs_main",
+					module: &self.shader,
+					entry_point: &self.fragment_entry_point,
 					compilation_options: Default::default(),
 					targets: &[Some(ColorTargetState {
 						format: config.format,
@@ -423,171 +435,34 @@ impl TextRenderer {
 				multiview: None, 
 				cache: None 
 			}
-		);
-
-		(
-			render_pipeline,
-			window_uniform.buffer,
-			window_uniform.bind_group,
-			texture_bind_group_layout
 		)
 	}
 }
 
-pub struct UniformBuilder<T>{
-	label:Option<String>,
-	visibility:wgpu::ShaderStages,
-	contents:Vec<T>
+/// Contains the renderers
+pub struct RenderContext {
+	pub rect_renderer: RectRenderContext,
+	pub text_renderer: TextRenderContext,
+	pub circle_renderer: CircleRenderContext,
+	pub window_uniform:Uniform
 }
 
-impl<T:bytemuck::Pod> UniformBuilder<T> {
-	pub fn new() -> Self {
-		Self { 
-			label: None, 
-			visibility: wgpu::ShaderStages::VERTEX_FRAGMENT, 
-			contents: vec![] 
-		}
-	}
+impl RenderContext {
+    pub fn new(device: &wgpu::Device, config: &wgpu::SurfaceConfiguration, size: &Size) -> Self {
+		let rect_renderer = RectRenderContext::new(device, config, size);
+		let text_renderer = TextRenderContext::new(device, config, size);
+		let circle_renderer = CircleRenderContext::new(device, config, size);
 
-	pub fn label(mut self,label:&str) -> Self{
-		self.label = Some(label.into());
-		self
-	}
-
-	pub fn visibility(mut self,visibility:wgpu::ShaderStages) -> Self{
-		self.visibility = visibility;
-		self
-	}
-
-	pub fn contents(mut self,contents:Vec<T>) -> Self{
-		self.contents = contents;
-		self
-	}
-
-	/// Build a uniform buffer
-	pub fn build(self,device:&wgpu::Device) -> Uniform{
-		let buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-			label: self.label.clone().map(|label|format!("{} buffer",label)).as_deref(),
-			contents: bytemuck::cast_slice(&self.contents),
-			usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-		});
+		let window_buffer = UniformBuilder::new()
+			.label("Window uniform")
+			.contents(&[size.width,size.height])
+			.build(device);
 		
-		let layout =
-			device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-				label: self.label.clone().map(|label|format!("{} bind group layout",label)).as_deref(),
-				entries: &[wgpu::BindGroupLayoutEntry {
-					binding: 0,
-					visibility: self.visibility,
-					ty: wgpu::BindingType::Buffer {
-						ty: wgpu::BufferBindingType::Uniform,
-						has_dynamic_offset: false,
-						min_binding_size: None,
-					},
-					count: None,
-				}],
-			});
-		
-		let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-			label: self.label.map(|label|format!("{} bind group",label)).as_deref(),
-			layout: &layout,
-			entries: &[wgpu::BindGroupEntry {
-				binding: 0,
-				resource: buffer.as_entire_binding(),
-			}],
-		});
-
-		Uniform { buffer,layout,bind_group }
-	}
-}
-
-/// A uniform buffer
-pub struct Uniform{
-	buffer:wgpu::Buffer,
-	layout:wgpu::BindGroupLayout,
-	bind_group:wgpu::BindGroup
-}
-
-impl Uniform {
-	pub fn buffer(&self) -> &wgpu::Buffer{
-		&self.buffer
-	}
-
-	pub fn layout(&self) -> &wgpu::BindGroupLayout{
-		&self.layout
-	}
-	pub fn bind_group(&self) -> &wgpu::BindGroup{
-		&self.bind_group
-	}
-}
-
-
-fn create_vertex_buffer_layout(){
-	let buffer_layout = VertexBufferLayout { 
-		array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress, 
-		step_mode: wgpu::VertexStepMode::Vertex, 
-		attributes: &[
-			VertexAttribute{
-				offset: 0,
-				shader_location: 0,
-				format: wgpu::VertexFormat::Float32x2
-			},
-			VertexAttribute{
-				offset: size_of::<[f32;2]>() as wgpu::BufferAddress,
-				shader_location: 1,
-				format: wgpu::VertexFormat::Float32x4
-			},
-			VertexAttribute{
-				offset: size_of::<[f32;6]>() as wgpu::BufferAddress,
-				shader_location: 2,
-				format: wgpu::VertexFormat::Float32x2 
-			},
-		]
-	};
-}
-
-pub struct VertexBufferLayoutBuilder{
-	attributes:Vec<wgpu::VertexAttribute>
-}
-
-impl VertexBufferLayoutBuilder {
-	pub fn new() -> Self{
-		Self{
-			attributes:vec![]
-		}
-	}
-
-	pub fn add_attribute(mut self,offset:usize,format:wgpu::VertexFormat) -> Self{
-		let shader_location = self.attributes.len() as u32;
-		let attribute = VertexAttribute{
-			offset: offset as wgpu::BufferAddress,
-			shader_location,
-			format
-		};
-		self.attributes.push(attribute);
-		self
-	}
-
-	pub fn build(self) -> VertexBufferLayout<'static>{
-		VertexBufferLayout { 
-			array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress, 
-			step_mode: wgpu::VertexStepMode::Vertex, 
-			attributes: &[
-				VertexAttribute{
-					offset: 0,
-					shader_location: 0,
-					format: wgpu::VertexFormat::Float32x2
-				},
-				VertexAttribute{
-					offset: size_of::<[f32;2]>() as wgpu::BufferAddress,
-					shader_location: 1,
-					format: wgpu::VertexFormat::Float32x4
-				},
-				VertexAttribute{
-					offset: size_of::<[f32;6]>() as wgpu::BufferAddress,
-					shader_location: 2,
-					format: wgpu::VertexFormat::Float32x2 
-				},
-			]
-		}
-	}
+        Self {
+			rect_renderer,
+			text_renderer,
+			circle_renderer,
+			window_uniform:window_buffer
+        }
+    }
 }

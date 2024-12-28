@@ -5,6 +5,7 @@
 //! - [`RectSurface`]: drawing rectangular primitives to the screen
 //! - [`TextSurface`]: drawing text to the screen
 //! - [`CircleSurface`]: drawing circle primitives to the screen
+
 pub mod rect;
 pub mod text;
 pub mod circle;
@@ -18,7 +19,7 @@ pub trait Surface:Debug {
 	fn draw(
 		&self,
 		render_pass:&mut wgpu::RenderPass,
-		context: &crate::app::RenderContext,
+		context: &crate::geometry::renderer::RenderContext,
 		state:&AppState
 	);
 

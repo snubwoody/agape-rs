@@ -1,6 +1,6 @@
 pub mod events;
 pub mod view;
-use crate::{renderer::{CicleRenderer, RectRenderer, TextRenderer}, Size};
+use crate::{geometry::renderer::{CircleRenderContext, RectRenderContext, RenderContext, TextRenderContext}, Size};
 use async_std::task;
 use view::View;
 use winit::{
@@ -173,23 +173,4 @@ impl<'a> AppState<'a> {
     }
 }
 
-/// Contains the renderers
-#[derive(Debug)]
-pub struct RenderContext {
-	pub rect_renderer: RectRenderer,
-	pub text_renderer: TextRenderer,
-	pub circle_renderer: CicleRenderer
-}
 
-impl RenderContext {
-    pub fn new(device: &wgpu::Device, config: &wgpu::SurfaceConfiguration, size: &Size) -> Self {
-		let rect_renderer = RectRenderer::new(device, config, size);
-		let text_renderer = TextRenderer::new(device, config, size);
-		let circle_renderer = CicleRenderer::new(device, config, size);
-        Self {
-			rect_renderer,
-			text_renderer,
-			circle_renderer
-        }
-    }
-}

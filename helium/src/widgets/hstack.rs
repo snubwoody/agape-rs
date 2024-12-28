@@ -81,7 +81,6 @@ impl Widget for HStack {
 
 
 // TODO test these macros pls
-// TODO change the color path because it might conflict with local colors
 #[macro_export]
 macro_rules! hstack {
 	($($child:expr),*) => {
@@ -101,4 +100,12 @@ macro_rules! hstack {
 		}
 		
 	};
+}
+
+#[cfg(test)]
+mod test{
+	#[test]
+	fn test_build(){
+		todo!()
+	}
 }

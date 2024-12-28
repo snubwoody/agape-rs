@@ -1,6 +1,7 @@
 use wgpu::{util::{BufferInitDescriptor, DeviceExt}, BindGroupDescriptor};
 use crate::{
-	app::{AppState, RenderContext}, impl_surface, surface::Surface, vertex::Vertex, Bounds, Color, Position, Size
+	geometry::renderer::RenderContext,
+	app::AppState, impl_surface, surface::Surface, geometry::vertex::Vertex, Bounds, Color, Position, Size
 };
 
 /// This is a primitive that draws to the screen. This holds
@@ -25,7 +26,6 @@ impl CircleSurface {
 	}
 
 	pub fn to_vertices(&self) -> Vec<Vertex>{
-
 		let color = self.color.normalize();
 		let x = self.position.x;
 		let y = self.position.y;

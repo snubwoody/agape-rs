@@ -1,9 +1,8 @@
 pub mod widgets;
 pub mod app;
 pub mod surface;
-pub mod vertex;
 pub mod signal;
-mod renderer;
+mod geometry;
 
 pub use nanoid::nanoid;
 pub use helium_core::color::*;

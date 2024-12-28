@@ -1,15 +1,13 @@
 use std::{fmt::Debug, io::Cursor};
 use helium_core::color::BLACK;
 use image::RgbaImage;
-use text_to_png::TextRenderer;
 use wgpu::util::DeviceExt;
 use crate::{
-	app::AppState, impl_surface, surface::Surface, vertex::Vertex, Bounds, Color, Position, Size
+	app::AppState, impl_surface, surface::Surface, 
+	geometry::vertex::Vertex, Bounds, Color, Position, Size
 };
 
-// FIXME text getting blurry at large window sizes
 // FIXME change the color to Color enum
-/// A rasterized texture of text  
 #[derive(Clone)]
 pub struct TextSurface{
 	position:Position,
@@ -17,12 +15,12 @@ pub struct TextSurface{
 	text:String,
 	font_size:u8,
 	color:Color,
-	img: RgbaImage // impl Debug manually and hide this field
+	img: RgbaImage
 }
 
 impl TextSurface {
 	pub fn new(text:&str,font_size:u8) -> Self{
-		let text_renderer = TextRenderer::default();
+		let text_renderer = text_to_png::TextRenderer::default();
 
 		// Render the text as a png
 		let text_image = text_renderer.render_text_to_png_data(
@@ -91,7 +89,7 @@ impl Surface for TextSurface {
 	fn draw(
 		&self,
 		render_pass:&mut wgpu::RenderPass,
-		context: &crate::app::RenderContext,
+		context: &crate::geometry::renderer::RenderContext,
 		state: &AppState
 	) {
 
