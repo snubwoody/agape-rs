@@ -1,11 +1,7 @@
 use std::str;
 
 use wgpu::{
-	util::DeviceExt, ColorTargetState, 
-	FragmentState, MultisampleState, PipelineLayoutDescriptor, 
-	PrimitiveState, RenderPipelineDescriptor, ShaderModuleDescriptor, 
-	ShaderSource, ShaderStages, 
-	VertexAttribute, VertexBufferLayout, VertexState
+	util::{BufferInitDescriptor, DeviceExt}, BindGroupDescriptor, ColorTargetState, FragmentState, MultisampleState, PipelineLayoutDescriptor, PrimitiveState, RenderPipelineDescriptor, ShaderModuleDescriptor, ShaderSource, ShaderStages, VertexAttribute, VertexBufferLayout, VertexState
 };
 use crate::geometry::vertex::Vertex;
 use helium_core::size::Size;
@@ -164,12 +160,13 @@ impl RectRenderContext {
 }
 
 /// Holds the render pipeline
-#[derive(Debug)]
 pub struct CircleRenderContext{
 	pub render_pipeline: wgpu::RenderPipeline,
-	pub window_bind_group: wgpu::BindGroup,
 	pub bounds_layout: wgpu::BindGroupLayout,
-    pub window_buffer: wgpu::Buffer,
+	pub window_uniform:Uniform,
+	pub bounds_bind_group:wgpu::BindGroup,
+	pub position_buffer:wgpu::Buffer,
+	pub diameter_buffer:wgpu::Buffer
 }
 
 impl CircleRenderContext {
@@ -191,6 +188,22 @@ impl CircleRenderContext {
 			.label("Window")
 			.contents(&[size.width,size.height])
 			.build(device);
+
+		let diameter_buffer = device.create_buffer_init(
+			&BufferInitDescriptor{
+				label:Some("Size buffer"),
+				contents: bytemuck::cast_slice(&[0.0,0.0]),
+				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
+			}
+		);
+
+		let position_buffer = device.create_buffer_init(
+			&BufferInitDescriptor{
+				label:Some("Position buffer"),
+				contents: bytemuck::cast_slice(&[0.0,0.0]),
+				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
+			}
+		);
 
 		let bounds_layout = device.create_bind_group_layout(
 			&wgpu::BindGroupLayoutDescriptor{
@@ -220,6 +233,24 @@ impl CircleRenderContext {
 			}
 		);
 
+		
+		let bounds_bind_group = device.create_bind_group(
+			&BindGroupDescriptor{
+				label:Some("Cirlce bounds bind group"),
+				layout:&bounds_layout,
+				entries:&[
+					wgpu::BindGroupEntry{
+						binding:0,
+						resource:diameter_buffer.as_entire_binding()
+					},
+					wgpu::BindGroupEntry{
+						binding:1,
+						resource:position_buffer.as_entire_binding()
+					}
+				]
+			}
+		);
+
 		let buffer_layout = 
 			VertexBufferLayoutBuilder::new()
 			.add_attribute(0, wgpu::VertexFormat::Float32x2)
@@ -237,16 +268,20 @@ impl CircleRenderContext {
 			);
 
 		let render_pipeline = 
-			RenderPipelineBuilder::new(&shader)
+			RenderPipelineBuilder::new("Circle",&shader)
+			.add_bind_group_layout(&window_uniform.layout)
+			.add_bind_group_layout(&bounds_layout)
 			.layout(&render_pipeline_layout)
 			.add_buffer(buffer_layout)
 			.build(device, config);
 
 		Self { 
 			render_pipeline, 
-			window_bind_group:window_uniform.bind_group, 
+			window_uniform,
 			bounds_layout,
-			window_buffer:window_uniform.buffer
+			bounds_bind_group,
+			position_buffer,
+			diameter_buffer
 		}
 	}
 }
@@ -339,8 +374,10 @@ impl TextRenderContext {
 			);
 
 		let render_pipeline = 
-			RenderPipelineBuilder::new(&shader)
+			RenderPipelineBuilder::new("Text",&shader)
 			.layout(&render_pipeline_layout)
+			.add_bind_group_layout(&window_uniform.layout)
+			.add_bind_group_layout(&texture_bind_group_layout)
 			.add_buffer(vertex_buffer_layout)
 			.build(device, config);
 
@@ -355,26 +392,31 @@ impl TextRenderContext {
 
 
 pub struct RenderPipelineBuilder<'a>{
+	label:String,
 	shader:&'a wgpu::ShaderModule,
 	vertex_entry_point:String,
 	fragment_entry_point:String,
 	layout:Option<&'a wgpu::PipelineLayout>,
+	bind_group_layouts:Vec<&'a wgpu::BindGroupLayout>,
 	buffers:Vec<VertexBufferLayout<'a>>
 }
 
 impl<'a> RenderPipelineBuilder<'a> {
-	pub fn new(shader:&'a wgpu::ShaderModule) -> Self{
+	pub fn new(label:&str,shader:&'a wgpu::ShaderModule) -> Self{
 		let vertex_entry_point = String::from("vs_main");
 		let fragment_entry_point = String::from("fs_main");
 		
 		Self{
+			label:label.to_owned(),
 			shader,
 			vertex_entry_point,
 			fragment_entry_point,
 			buffers:vec![],
+			bind_group_layouts:vec![],
 			layout:None
 		}
 	}
+
 
 	pub fn vertex_entry_point(mut self,entry_point:&str) -> Self {
 		self.vertex_entry_point = entry_point.to_owned();
@@ -383,6 +425,11 @@ impl<'a> RenderPipelineBuilder<'a> {
 
 	pub fn fragment_entry_point(mut self,entry_point:&str) -> Self {
 		self.fragment_entry_point = entry_point.to_owned();
+		self
+	}
+
+	pub fn add_bind_group_layout(mut self,layout:&'a wgpu::BindGroupLayout) -> Self{
+		self.bind_group_layouts.push(layout);
 		self
 	}
 
@@ -397,10 +444,19 @@ impl<'a> RenderPipelineBuilder<'a> {
 	}
 
 	pub fn build(self,device:&wgpu::Device,config:&wgpu::SurfaceConfiguration) -> wgpu::RenderPipeline{
+		let render_pipeline_layout = 
+			device.create_pipeline_layout(
+				&PipelineLayoutDescriptor{
+					label: Some(format!("{} Pipeline Layout",self.label).as_str()),
+					bind_group_layouts: self.bind_group_layouts.as_slice(),
+					push_constant_ranges: &[]
+				}
+			);
+
 		device.create_render_pipeline(
 			&RenderPipelineDescriptor { 
-				label: Some("Text Render Pipeline"), 
-				layout: self.layout, 
+				label: Some(format!("{} Pipeline Layout",self.label).as_str()), 
+				layout: Some(&render_pipeline_layout), 
 				vertex: VertexState{
 					module: &self.shader,
 					entry_point: &self.vertex_entry_point,

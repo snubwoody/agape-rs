@@ -114,6 +114,7 @@ impl Surface for RectSurface {
         render_pass.set_bind_group(1, &bound_bind_group, &[]);
         render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 
+		// TODO could maybe use some kind of batch drawing later?
         render_pass.draw(0..vertices.len() as u32, 0..1);
     }
 

@@ -166,7 +166,7 @@ impl<'a> AppState<'a> {
             bytemuck::cast_slice(&[self.size.width, self.size.height]),
         );
         self.queue.write_buffer(
-            &self.context.circle_renderer.window_buffer,
+            &self.context.circle_renderer.window_uniform.buffer(),
             0,
             bytemuck::cast_slice(&[self.size.width, self.size.height]),
         );
