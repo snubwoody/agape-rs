@@ -2,9 +2,9 @@
 var<uniform> window_size: vec2<f32>;
 
 @group(1) @binding(0)
-var text_texture: texture_2d<f32>;
+var image_texture: texture_2d<f32>;
 @group(1) @binding(1)
-var text_sampler: sampler;
+var image_sampler: sampler;
 
 struct VertexOutput{
 	@builtin(position) position: vec4<f32>,
@@ -40,5 +40,5 @@ fn vs_main(in:VertexInput) -> VertexOutput {
 
 @fragment
 fn fs_main(in:VertexOutput) -> @location(0) vec4<f32> {
-	return textureSample(text_texture,text_sampler,in.uv);
+	return textureSample(image_texture,image_sampler,in.uv);
 }

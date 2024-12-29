@@ -21,20 +21,16 @@ pub struct ImageSurface{
 }
 
 impl ImageSurface {
-	pub fn new(path:&str) -> Result<Self,Box<dyn Error>>{
-		let img = ImageReader::open(path)?.decode()?.to_rgba8();
-
-		Ok(
-			Self {
-				position:Position::new(0.0, 0.0), 
-				size:Size::default(),
-				img
-			}
-		)
+	pub fn new(img:image::RgbaImage) -> Self{
+		Self {
+			position:Position::new(0.0, 0.0), 
+			size:Size::default(),
+			img
+		}
 	}
 
-	/// Rasterize the text and return the texture 
 	pub fn build(&self,device: &wgpu::Device) -> (wgpu::Texture,wgpu::Extent3d) {
+		// TODO maybe move this to the pipeline
 		let texture_size = wgpu::Extent3d{
 			width:self.size.width as u32,
 			height: self.size.height as u32,
@@ -49,7 +45,7 @@ impl ImageSurface {
 				dimension: wgpu::TextureDimension::D2,
 				format: wgpu::TextureFormat::Rgba8UnormSrgb,
 				usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
-				label: Some("Text Texture"),
+				label: Some("Image Texture"),
 				view_formats: &[],
 			}
 		);
@@ -95,13 +91,7 @@ impl Surface for ImageSurface {
 		let texture_view = texture.create_view(&Default::default());
 		let texture_sampler = state.device.create_sampler(
 			&wgpu::SamplerDescriptor { 
-				label: Some("Texture sampler"), 
-				address_mode_u: wgpu::AddressMode::ClampToEdge, 
-				address_mode_v: wgpu::AddressMode::ClampToEdge, 
-				address_mode_w: wgpu::AddressMode::ClampToEdge, 
-				mag_filter: wgpu::FilterMode::Linear, 
-				min_filter: wgpu::FilterMode::Nearest, 
-				mipmap_filter: wgpu::FilterMode::Nearest, 
+				label: Some("Image Texture sampler"), 
 				..Default::default()
 			}
 		);
@@ -134,7 +124,7 @@ impl Surface for ImageSurface {
 			wgpu::ImageDataLayout { 
 				offset: 0, 
 				bytes_per_row: Some(4 * self.size.width as u32), // TODO don't even know what this is
-				rows_per_image: Some(self.size.height as u32)
+				rows_per_image: None
 			}, 
 			texture_size
 		);

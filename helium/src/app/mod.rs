@@ -170,6 +170,11 @@ impl<'a> AppState<'a> {
             0,
             bytemuck::cast_slice(&[self.size.width, self.size.height]),
         );
+        self.queue.write_buffer(
+            &self.context.image_pipeline.window_buffer,
+            0,
+            bytemuck::cast_slice(&[self.size.width, self.size.height]),
+        );
     }
 }
 
