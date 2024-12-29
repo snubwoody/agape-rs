@@ -40,6 +40,21 @@ impl HStack {
 		self
 	}
 
+	pub fn height_fit(mut self) -> Self{
+		self.intrinsic_size.height = BoxSizing::Shrink;
+		self
+	}
+
+	pub fn height_fill(mut self) -> Self{
+		self.intrinsic_size.height = BoxSizing::Flex(1);
+		self
+	}
+
+	pub fn height_flex(mut self,factor:u8) -> Self{
+		self.intrinsic_size.height = BoxSizing::Flex(factor);
+		self
+	}
+
 	impl_style!();
 	impl_events!();
 }
@@ -87,7 +102,7 @@ macro_rules! hstack {
 	($($child:expr),*) => {
 		{
 			$crate::widgets::HStack{
-				id:helium::nanoid!(),
+				id:$crate::nanoid!(),
 				color:$crate::TRANSPARENT,
 				padding:0,
 				spacing:0,

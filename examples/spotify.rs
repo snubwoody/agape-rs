@@ -1,5 +1,5 @@
 use helium::{
-    app::{events::EventQueue, view::View, App}, hstack, vstack, widgets::{Button, Container, Image, Rect, Text, Widget, WidgetBody}, Color, LayoutSolver, Size, BLACK, TRANSPARENT
+    app::{events::EventQueue, view::View, App}, hstack, vstack, widgets::{icon::feather_icons, Button, Container, Image, Rect, Spacer, Text, Widget, WidgetBody}, Color, LayoutSolver, Size, BLACK, TRANSPARENT
 };
 use std::{env, fs::OpenOptions, io::{BufWriter, Write}};
 
@@ -9,6 +9,7 @@ const SPOTIFY_GREEN: Color = Color::Hex("#3be477");
 
 fn main() {
 	// TODO add individual padding
+	// TODO add alignment options
     env::set_var("RUST_LOG", "trace,wgpu_core=error,naga=warn,wgpu_hal=error");
     env_logger::init();
 
@@ -27,8 +28,18 @@ fn main() {
 
 	// FIXME has a width of 0 should be like 500
     let sidebar = vstack! {
-        Text::new("Your library"),
+		hstack!{
+			feather_icons::menu(),
+			Text::new("Your library"),
+			feather_icons::plus(),
+			feather_icons::arrow_right()
+		},
         chips,
+		hstack!{
+			feather_icons::search(),
+			Text::new("Recents"),
+			feather_icons::list()
+		},
         SidebarItem("Liked songs"),
         SidebarItem("Channel Orange"),
         SidebarItem("Wunna"),
@@ -39,7 +50,7 @@ fn main() {
 	.padding(24)
 	.height_fill();
 
-    let mainpanel = vstack! {
+    let mainpanel = vstack!{
 		announcements,
         hstack!{
             Chip("All"),
@@ -51,12 +62,17 @@ fn main() {
 	.spacing(24)
 	.width_fill();
 
-    let home_page = hstack!{sidebar,mainpanel}.width_fill();
+    let home_page = hstack!{sidebar,mainpanel}
+		.width_fill()
+		.height_fill();
 
 	let home = vstack!{
 		Navbar(),
-		home_page
-	}.height_fill().width_fill();
+		home_page,
+		BottomBar()
+	}
+	.height_fill()
+	.width_fill();
 
 	let (_,mut layout) = home.build();
 	LayoutSolver::solve(&mut *layout, Size::new(500.0, 500.0));
@@ -75,6 +91,34 @@ fn main() {
 	let home = View::new(home, event_queue);
     App::new().add_view(home).run();
 
+}
+
+fn BottomBar() -> impl Widget{
+	hstack!{
+		hstack!{
+			Rect::new(50.0, 50.0, BLACK)
+			.corner_radius(12),
+			vstack!{
+				Text::new("You've been missed"),
+				Text::new("PARTYNEXTDOOR")
+			}
+		},
+		Spacer(),
+		vstack!{
+			hstack!{
+				feather_icons::shuffle(),
+				feather_icons::skip_back(),
+				feather_icons::play(),
+				feather_icons::skip_forward(),
+				feather_icons::repeat()
+			},
+			hstack!{
+				Text::new("0:00"),
+				Rect::new(150.0, 5.0, BLACK).corner_radius(2),
+				Text::new("4:00")
+			}
+		}.height_fit()
+	}.width_fill()
 }
 
 fn Navbar() -> impl Widget{

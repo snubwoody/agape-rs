@@ -83,7 +83,7 @@ impl Widget for VStack {
 	
 		let mut layout = VerticalLayout::new();
 		layout.intrinsic_size.width = self.intrinsic_size.width;
-		layout.intrinsic_size.height = BoxSizing::Flex(1);
+		layout.intrinsic_size.height = self.intrinsic_size.height;
 		layout.children = children_layout;
 		layout.id = body.id.clone();
 		layout.padding = self.padding;
