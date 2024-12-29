@@ -5,8 +5,8 @@ mod button;
 mod circle;
 mod vstack;
 mod hstack;
-mod icon;
-mod image;
+pub mod icon;
+pub (crate) mod image;
 use nanoid::nanoid;
 pub use rect::*;
 pub use text::*;
@@ -16,7 +16,6 @@ pub use vstack::*;
 pub use container::*;
 pub use circle::*;
 pub use image::*;
-pub use icon::*;
 use crate::{
 	app::AppState, 
 	surface::{

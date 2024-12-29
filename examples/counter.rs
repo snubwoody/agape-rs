@@ -1,5 +1,5 @@
 use helium::{
-    app::{events::EventQueue, view::View, App}, hstack, widgets::{Image, Text, Widget}, LayoutSolver, Size
+    app::{events::EventQueue, view::View, App}, hstack, widgets::{icon::feather_icons, Image, Text, Widget}, LayoutSolver, Size
 };
 
 fn main() {
@@ -7,7 +7,6 @@ fn main() {
 	app();
 }
 
-/// Broken
 fn app(){
 	let event_loop = EventQueue::new();
 
@@ -18,9 +17,9 @@ fn app(){
 	let svg_path_2 = "C:/Users/wakun/Projects/Tools/Rust-UI/helium/icons/feather-icons/alert-octagon.svg";
 
 	let main = hstack!{
-		Image::file(path),
-		Image::svg(svg_path),
-		Image::svg(svg_path_2)
+		feather_icons::airplay(),
+		feather_icons::_box(),
+		feather_icons::facebook()
 	};
 
 	let page = View::new(main,event_loop);
@@ -29,3 +28,4 @@ fn app(){
 	.add_view(page)
 	.run();
 }
+

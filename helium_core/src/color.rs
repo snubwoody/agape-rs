@@ -1,5 +1,6 @@
 use crate::map;
 
+// TODO make a macro for this and use some kind of config
 pub const BLACK:Color = Color::Rgb(0, 0, 0);
 pub const WHITE:Color = Color::Rgb(255, 255, 255);
 pub const AMBER:Color = Color::Rgb(245, 158, 11);
@@ -40,7 +41,11 @@ impl Color {
 	}
 
 	/// Convert a hex color to an rgba color. Returns an error if an invalid hex code
-	/// is provided
+	/// is provided.  
+	/// Examples of invalid hexcodes
+	/// - Strings that don't begin with `#`
+	/// - Any string that isn't six characters in length
+	/// - Any string that isn't is hexadecimal format
 	pub fn hex_to_rgba(hex:&str) -> Result<[u8;4],String>{
 		if hex.chars().nth(0) != Some('#'){// TODO implement a custom error
 			return Err("Invalid hex code: missing # at start of hex".into())
