@@ -1,5 +1,7 @@
 use helium::{
-    app::{events::EventQueue, view::View, App}, hex, hstack, widgets::{Button, Circle, Image, Rect, Text}, BoxSizing, BLACK
+    app::{events::EventQueue, view::View, App}, 
+	hex, hstack, 
+	widgets::{Button, Circle, Image, ImageSource, Rect, Text}, BoxSizing, BLACK
 };
 
 fn main() {
@@ -11,7 +13,11 @@ fn main() {
 fn app(){
 	let event_loop = EventQueue::new();
 
-	let image = Image{};
+	let path = "c:/Users/wakun/Projects/Tools/Rust-UI/helium/icons/menu.png";
+	let path = "c:/Users/wakun/Projects/Tools/Rust-UI/examples/temp/image.jpg";
+	let path = "C:/Users/wakun/Projects/Tools/Rust-UI/examples/temp/legends never die.png";
+
+	let image = Image::file(path);
 	let page = View::new(image,event_loop);
   	
 	App::new()

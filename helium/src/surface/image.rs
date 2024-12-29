@@ -1,5 +1,5 @@
 use std::{error::Error, fmt::Debug};
-use image::{ImageReader, RgbaImage};
+use image::{GenericImageView, ImageReader, RgbaImage};
 use wgpu::util::DeviceExt;
 use crate::{
 	app::AppState, impl_surface, surface::Surface, 
@@ -17,11 +17,11 @@ pub enum Image{
 pub struct ImageSurface{
 	position:Position,
 	size:Size,
-	img: RgbaImage
+	img: image::DynamicImage
 }
 
 impl ImageSurface {
-	pub fn new(img:image::RgbaImage) -> Self{
+	pub fn new(img:image::DynamicImage) -> Self{
 		Self {
 			position:Position::new(0.0, 0.0), 
 			size:Size::default(),
@@ -78,6 +78,8 @@ impl Surface for ImageSurface {
 		state: &AppState
 	) {
 
+		// FIXME issue with fill sizing causing overflow
+		// FIXME wgpu panics if size is 0 
 		let (texture,texture_size) = self.build(&state.device);
 
 		let vertices = self.to_vertices(texture_size.width as f32,texture_size.height as f32);
@@ -112,6 +114,12 @@ impl Surface for ImageSurface {
 				]
 			}
 		);
+		
+		let img_data = self.img.resize(
+			self.size.width as u32, 
+			self.size.height as u32, 
+			image::imageops::FilterType::CatmullRom
+		).to_rgba8();
 
 		state.queue.write_texture(
 			wgpu::ImageCopyTextureBase { 
@@ -120,7 +128,7 @@ impl Surface for ImageSurface {
 				origin: wgpu::Origin3d::ZERO, 
 				aspect: wgpu::TextureAspect::All
 			},
-			&self.img, 
+			&img_data, 
 			wgpu::ImageDataLayout { 
 				offset: 0, 
 				bytes_per_row: Some(4 * self.size.width as u32), // TODO don't even know what this is

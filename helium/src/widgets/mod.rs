@@ -15,7 +15,7 @@ pub use hstack::HStack;
 pub use vstack::VStack;
 pub use container::Container;
 pub use circle::Circle;
-pub use image::Image;
+pub use image::*;
 use crate::{
 	app::AppState, 
 	surface::{
