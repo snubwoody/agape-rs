@@ -1,7 +1,6 @@
 use helium::{
     app::{events::EventQueue, view::View, App}, 
-	hex, hstack, 
-	widgets::{Button, Circle, Image, ImageSource, Rect, Text}, BoxSizing, BLACK
+	widgets::Image
 };
 
 fn main() {

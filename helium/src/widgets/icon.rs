@@ -1,5 +1,4 @@
 
-pub enum IconType {
-	File,
-	Url
+mod feather_icons{
+
 }

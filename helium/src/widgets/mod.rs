@@ -144,3 +144,72 @@ macro_rules! impl_style {
 		} 
 	};
 }
+
+/// Implement common methods for widgets
+/// TODO match arms for padding and spacing
+#[macro_export]
+macro_rules! impl_widget {
+	(padding) => {
+		pub fn padding(mut self, padding: u32) -> Self {
+			self.layout.padding = padding;
+			self
+		}
+
+		pub fn width_fit(mut self) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Shrink;
+			self
+		}
+	
+		pub fn width_fill(mut self) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Flex(1);
+			self
+		}
+	
+		pub fn width_flex(mut self,factor:u8) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Flex(factor);
+			self
+		}
+	};
+	(padding,spacing) => {
+		pub fn padding(mut self, padding: u32) -> Self {
+			self.layout.padding = padding;
+			self
+		}
+
+		pub fn spacing(mut self, spacing: u32) -> Self {
+			self.layout.spacing = spacing;
+			self
+		}
+
+		pub fn width_fit(mut self) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Shrink;
+			self
+		}
+	
+		pub fn width_fill(mut self) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Flex(1);
+			self
+		}
+	
+		pub fn width_flex(mut self,factor:u8) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Flex(factor);
+			self
+		}
+	};
+	() => {
+		pub fn width_fit(mut self) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Shrink;
+			self
+		}
+	
+		pub fn width_fill(mut self) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Flex(1);
+			self
+		}
+	
+		pub fn width_flex(mut self,factor:u8) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Flex(factor);
+			self
+		}
+	};
+}

@@ -1,17 +1,7 @@
 use crystal::{BoxSizing, EmptyLayout};
 use image::{DynamicImage, GenericImageView, ImageReader};
-use crate::{surface::image::ImageSurface, widgets::WidgetBody};
+use crate::{impl_widget, surface::image::ImageSurface, widgets::WidgetBody};
 use super::Widget;
-
-/// The source of an image passed to the [`Image`] `widget`
-pub enum ImageSource {
-	File(&'static str),
-	Bytes,
-	Url
-}
-
-// TODO maybe impl into?
-// TODO impl into for the image crate?
 
 pub struct Image{
 	id:String,
@@ -45,6 +35,8 @@ impl Image {
 	pub fn bytes() -> Self{
 		todo!()
 	}
+
+	impl_widget!();
 }
 
 impl Widget for Image {
