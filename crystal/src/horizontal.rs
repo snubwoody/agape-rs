@@ -114,9 +114,10 @@ impl Layout for HorizontalLayout {
 	}
 
 	fn sort_children(&mut self) {
-		self.children.sort_by(|a,b|
-			a.intrinsic_size().width.partial_cmp(&b.intrinsic_size().width).unwrap()
-		);
+		// FIXME this is messing with the order of the children, so probably just return?
+		// self.children.sort_by(|a,b|
+		// 	a.intrinsic_size().width.partial_cmp(&b.intrinsic_size().width).unwrap()
+		// );
 	}
 
 	fn iter(&self) -> crate::LayoutIter {

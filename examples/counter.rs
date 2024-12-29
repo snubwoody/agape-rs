@@ -1,5 +1,5 @@
 use helium::{
-    app::{events::EventQueue, view::View, App}, hstack, widgets::{Image, Text}
+    app::{events::EventQueue, view::View, App}, hstack, widgets::{Image, Text, Widget}, LayoutSolver, Size
 };
 
 fn main() {
@@ -18,13 +18,9 @@ fn app(){
 	let svg_path_2 = "C:/Users/wakun/Projects/Tools/Rust-UI/helium/icons/feather-icons/alert-octagon.svg";
 
 	let main = hstack!{
-		Text::new("Hello world"),
 		Image::file(path),
-		Text::new("Hello world"),
 		Image::svg(svg_path),
-		Text::new("Hello world"),
-		Image::svg(svg_path_2),
-		Text::new("Hello world")
+		Image::svg(svg_path_2)
 	};
 
 	let page = View::new(main,event_loop);

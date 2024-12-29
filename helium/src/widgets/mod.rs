@@ -8,14 +8,15 @@ mod hstack;
 mod icon;
 mod image;
 use nanoid::nanoid;
-pub use rect::Rect;
-pub use text::Text;
-pub use button::Button;
-pub use hstack::HStack;
-pub use vstack::VStack;
-pub use container::Container;
-pub use circle::Circle;
+pub use rect::*;
+pub use text::*;
+pub use button::*;
+pub use hstack::*;
+pub use vstack::*;
+pub use container::*;
+pub use circle::*;
 pub use image::*;
+pub use icon::*;
 use crate::{
 	app::AppState, 
 	surface::{

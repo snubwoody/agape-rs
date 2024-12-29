@@ -86,7 +86,7 @@ impl Layout for BlockLayout {
 	}
 
 	fn sort_children(&mut self) {
-		self.child.sort_children();
+		// self.child.sort_children();
 	}
 
 	fn iter(&self) -> LayoutIter {

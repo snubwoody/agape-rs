@@ -120,9 +120,9 @@ impl Layout for VerticalLayout {
 
 	fn sort_children(&mut self) {
 		// TODO add a custom error and return it
-		self.children.sort_by(|a,b|
-			a.intrinsic_size().height.partial_cmp(&b.intrinsic_size().height).unwrap()
-		);
+		// self.children.sort_by(|a,b|
+		// 	a.intrinsic_size().height.partial_cmp(&b.intrinsic_size().height).unwrap()
+		// );
 	}
 
 	fn solve_min_constraints(&mut self) -> (f32,f32){
