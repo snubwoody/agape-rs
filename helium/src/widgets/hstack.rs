@@ -80,7 +80,8 @@ impl Widget for HStack {
 }
 
 
-// TODO test these macros pls
+// TODO allow trailing commas
+/// An [`HStack`] is a `widget` that positions it's children horizontally
 #[macro_export]
 macro_rules! hstack {
 	($($child:expr),*) => {

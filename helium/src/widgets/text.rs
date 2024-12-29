@@ -1,9 +1,8 @@
 use crystal::{BoxSizing, EmptyLayout, Layout};
-use nanoid::nanoid;
-use wgpu::hal::auxil::db;
 use crate::surface::{text::TextSurface, Surface} ;
 use super::{Widget, WidgetBody};
 
+// TODO probably crate a rich text then make text a tuple struct or a function
 pub struct Text{
 	text:String,
 	font_size:u8,

@@ -17,3 +17,5 @@ nanoid = "0.4.0"
 helium_core = {path = "../helium_core"}
 helium_macros = {path = "../helium_macros"}
 crystal = {path = "../crystal"}
+resvg = "0.44.0"
+usvg = "0.44.0"

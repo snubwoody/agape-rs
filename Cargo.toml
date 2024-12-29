@@ -8,3 +8,7 @@ members = [
 	"helium_core", 
 	"crystal",
 ]
+
+[workspace.dependencies]
+thiserror = "2.0.9"
+

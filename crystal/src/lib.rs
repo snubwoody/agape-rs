@@ -6,12 +6,12 @@ mod vertical;
 mod block;
 mod empty;
 use std::fmt::Debug;
-
-use helium_core::{position::Position, size::Size};
+pub use helium_core::{position::Position, size::Size};
 pub use horizontal::HorizontalLayout;
 pub use vertical::VerticalLayout;
 pub use block::BlockLayout;
 pub use empty::EmptyLayout;
+
 
 pub struct LayoutSolver;
 
@@ -103,6 +103,7 @@ pub enum LayoutType {
 	Vertical,
 }
 
+/// Decribes the size a [`Layout`] will try to be.
 #[derive(Debug,Clone, Copy,Default,PartialEq,PartialOrd)]
 pub enum BoxSizing{
 	Fixed(f32),
