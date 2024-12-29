@@ -1,5 +1,5 @@
 use helium::{
-    app::{events::EventQueue, view::View, App}, hex, hstack, widgets::{Button,Rect, Text}, BoxSizing, BLACK
+    app::{events::EventQueue, view::View, App}, hstack, widgets::{icon::feather_icons, Image, Text, Widget}, LayoutSolver, Size
 };
 
 fn main() {
@@ -7,23 +7,25 @@ fn main() {
 	app();
 }
 
-/// Broken
 fn app(){
 	let event_loop = EventQueue::new();
 
+	let path = "c:/Users/wakun/Projects/Tools/Rust-UI/helium/icons/menu.png";
+	let path = "c:/Users/wakun/Projects/Tools/Rust-UI/examples/temp/image.jpg";
+	let path = "C:/Users/wakun/Projects/Tools/Rust-UI/examples/temp/legends never die.png";
+	let svg_path = "C:/Users/wakun/Projects/Tools/Rust-UI/helium/icons/feather-icons/airplay.svg";
+	let svg_path_2 = "C:/Users/wakun/Projects/Tools/Rust-UI/helium/icons/feather-icons/alert-octagon.svg";
 
-	let mut hstack = hstack!{
-		Rect::new(200.0, 200.0, BLACK),
-		Rect::new(200.0, 200.0, BLACK).flex_width(1),
-		Rect::new(200.0, 200.0, BLACK).flex_width(2)
-	}.spacing(12).padding(24);
+	let main = hstack!{
+		feather_icons::airplay(),
+		feather_icons::_box(),
+		feather_icons::facebook()
+	};
 
-	hstack.intrinsic_size.width = BoxSizing::Flex(1);
-	hstack.intrinsic_size.height = BoxSizing::Flex(2);
-	
-	let page = View::new(hstack,event_loop);
+	let page = View::new(main,event_loop);
   	
 	App::new()
 	.add_view(page)
 	.run();
 }
+

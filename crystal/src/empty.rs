@@ -71,6 +71,10 @@ impl Layout for EmptyLayout {
 		self.constraints.min_width = width;
 	}
 
+	fn sort_children(&mut self) {
+		
+	}
+
 	fn iter(&self) -> crate::LayoutIter {
 		LayoutIter{
 			stack:vec![Box::new(self)]

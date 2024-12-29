@@ -1,6 +1,16 @@
+//! The surfaces are the items that are actually responsible for drawing the pixels to the 
+//! screen. It is the final stage in the pipeline, each [`Surface`] surface holds the data 
+//! responsible for it's rendering needs, all surfaces, however, hold their [`Position`] and
+//! [`Size`] which is calculated during the layout stage. There are currently four surfaces
+//! - [`RectSurface`]: drawing rectangular primitives to the screen
+//! - [`TextSurface`]: drawing text to the screen
+//! - [`CircleSurface`]: drawing circle primitives to the screen
+//! - [`ImageSurface`]: drawing images to the screen
+
 pub mod rect;
 pub mod text;
 pub mod circle;
+pub mod image;
 use std::fmt::Debug;
 use crate::{app::AppState, Bounds, Position, Size};
 
@@ -11,7 +21,7 @@ pub trait Surface:Debug {
 	fn draw(
 		&self,
 		render_pass:&mut wgpu::RenderPass,
-		context: &crate::app::RenderContext,
+		context: &crate::geometry::RenderContext,
 		state:&AppState
 	);
 

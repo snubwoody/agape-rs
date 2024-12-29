@@ -6,23 +6,25 @@ mod vertical;
 mod block;
 mod empty;
 use std::fmt::Debug;
-
-use helium_core::{position::Position, size::Size};
+pub use helium_core::{position::Position, size::Size};
 pub use horizontal::HorizontalLayout;
 pub use vertical::VerticalLayout;
 pub use block::BlockLayout;
 pub use empty::EmptyLayout;
+
 
 pub struct LayoutSolver;
 
 impl LayoutSolver {
 	/// Calculates the layout of all the layout nodes
 	pub fn solve(root:&mut dyn Layout,window_size:Size){
+		root.sort_children();
 		// Set the max constraints of the root node to the window size
 		root.set_max_width(window_size.width);
 		root.set_max_height(window_size.height);
-		// TODO maybe move this into the layouts?
 
+		// It's important that the min constraints are solved before the max constraints
+		// because the min constraints are used in calculating max constraints for shrink sizing 
 		let _ = root.solve_min_constraints();
 		root.solve_max_contraints(window_size);
 		root.update_size();
@@ -45,6 +47,11 @@ pub trait Layout:Debug{
 	
 	/// Update the size of every [`LayoutNode`] based on it's size and constraints.
 	fn update_size(&mut self);
+
+	/// Sort the children based on their intrinsic sizing, [`HorizontalLayout`]'s are ordered
+	/// based on the children's `intrinsic width` and [`VerticalLayout`]'s are ordered based on their 
+	/// children's `intrinsic height`.
+	fn sort_children(&mut self);
 
 	fn id(&self) -> &str;
 	fn constraints(&self) -> BoxContraints;
@@ -96,15 +103,16 @@ pub enum LayoutType {
 	Vertical,
 }
 
-#[derive(Debug,Clone, Copy,Default,PartialEq)]
+/// Decribes the size a [`Layout`] will try to be.
+#[derive(Debug,Clone, Copy,Default,PartialEq,PartialOrd)]
 pub enum BoxSizing{
 	Fixed(f32),
+	/// Tries to be as small as possible
+	#[default]
+	Shrink,
 	/// Tries to be as big as possible, the behaviour of the flex factor is 
 	/// dependant on the type of layout.
 	Flex(u8),
-	#[default]
-	/// Tries to be as small as possible
-	Shrink,
 }
 
 #[derive(Debug,Clone, Copy,Default,PartialEq)]

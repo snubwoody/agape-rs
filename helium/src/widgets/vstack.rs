@@ -10,7 +10,8 @@ pub struct VStack {
     pub children: Vec<Box<dyn Widget>>,
     pub color: Color,
 	pub spacing:u32,
-	pub padding:u32
+	pub padding:u32,
+	pub intrinsic_size:crystal::IntrinsicSize
 }
 
 impl VStack {
@@ -21,6 +22,36 @@ impl VStack {
 	
 	pub fn padding(mut self,padding:u32) -> Self{
 		self.padding = padding;
+		self
+	}
+
+	pub fn width_fit(mut self) -> Self{
+		self.intrinsic_size.width = BoxSizing::Shrink;
+		self
+	}
+
+	pub fn width_fill(mut self) -> Self{
+		self.intrinsic_size.width = BoxSizing::Flex(1);
+		self
+	}
+
+	pub fn width_flex(mut self,factor:u8) -> Self{
+		self.intrinsic_size.width = BoxSizing::Flex(factor);
+		self
+	}
+
+	pub fn height_fit(mut self) -> Self{
+		self.intrinsic_size.height = BoxSizing::Shrink;
+		self
+	}
+
+	pub fn height_fill(mut self) -> Self{
+		self.intrinsic_size.height = BoxSizing::Flex(1);
+		self
+	}
+
+	pub fn height_flex(mut self,factor:u8) -> Self{
+		self.intrinsic_size.height = BoxSizing::Flex(factor);
 		self
 	}
 	
@@ -51,6 +82,7 @@ impl Widget for VStack {
 		};
 	
 		let mut layout = VerticalLayout::new();
+		layout.intrinsic_size.width = self.intrinsic_size.width;
 		layout.intrinsic_size.height = BoxSizing::Flex(1);
 		layout.children = children_layout;
 		layout.id = body.id.clone();
@@ -72,6 +104,7 @@ macro_rules! vstack {
 				color:$crate::TRANSPARENT,
 				spacing:0,
 				padding:0,
+				intrinsic_size:$crate::IntrinsicSize::default(),
 				children:vec![
 					$(
 						Box::new($child),

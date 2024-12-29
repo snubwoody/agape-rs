@@ -46,6 +46,7 @@ impl VerticalLayout {
 				_ => {}
 			}
 
+			// TODO leaving this here is confusing should move it to the constraint functions
 			// Add the spacing between layouts
 			if i != self.children.len() - 1 {
 				sum.height += self.spacing as f32;
@@ -112,16 +113,31 @@ impl Layout for VerticalLayout {
 	}
 
 	fn iter(&self) -> crate::LayoutIter {
-		let j = self;
 		LayoutIter{
 			stack:vec![Box::new(self)]
 		}
+	}
+
+	fn sort_children(&mut self) {
+		// TODO add a custom error and return it
+		// self.children.sort_by(|a,b|
+		// 	a.intrinsic_size().height.partial_cmp(&b.intrinsic_size().height).unwrap()
+		// );
 	}
 
 	fn solve_min_constraints(&mut self) -> (f32,f32){
 		// The sum of the size of all the children with fixed sizes
 		let mut fixed_sum = self.fixed_size_sum();
 		fixed_sum += self.padding as f32 * 2.0;
+
+		let mut child_constraint_sum = Size::default();
+		for child in &mut self.children{
+			let (min_width,min_height) = child.solve_min_constraints();
+			child_constraint_sum.height += min_height;
+			child_constraint_sum.height += self.spacing as f32; // Not sure about this
+			child_constraint_sum.width = child_constraint_sum.width.max(min_width);
+		}
+		child_constraint_sum += self.padding as f32 * 2.0;
 
 		// TODO i think im supposed to calculate the min constraints of the children as well
 		match self.intrinsic_size.width {
@@ -130,9 +146,10 @@ impl Layout for VerticalLayout {
 			},
 			BoxSizing::Flex(_) => {
 				// TODO maybe set the min constraints to either 0 or the size of the children
+				self.constraints.min_width = child_constraint_sum.width;	
 			},
 			BoxSizing::Shrink => {
-				self.constraints.min_width = fixed_sum.width;	
+				self.constraints.min_width = child_constraint_sum.width;	
 			},
 		}
 		
@@ -141,10 +158,10 @@ impl Layout for VerticalLayout {
 				self.constraints.min_height = height;	
 			},
 			BoxSizing::Flex(_) => {
-
+				self.constraints.min_height = child_constraint_sum.height;	
 			},
 			BoxSizing::Shrink => {
-				self.constraints.min_height = fixed_sum.height;	
+				self.constraints.min_height = child_constraint_sum.height;	
 			},
 		}
 
@@ -165,38 +182,73 @@ impl Layout for VerticalLayout {
 				}
 			})
 			.sum();
-		
-		// TODO currently the min constraints are bigger then max constraints
-		// for shrink nodes, which doesn't make any sense.
-		for child in &mut self.children{
-			let mut max_size = space;
 
+		let children_len = self.children.len();
+
+		// TODO could maybe merge this, but it might be even more verbose
+		let mut available_height;
+		match self.intrinsic_size.height {
+			BoxSizing::Shrink => {
+				available_height = self.constraints.min_height
+			},
+			BoxSizing::Fixed(_) | 
+			BoxSizing::Flex(_) => {
+				available_height = self.constraints.max_height;
+				available_height -= self.padding as f32 * 2.0;
+			}
+		}
+
+		let mut available_width;
+		match self.intrinsic_size.width {
+			BoxSizing::Shrink => {
+				available_width = self.constraints.min_width
+			},
+			BoxSizing::Fixed(_) | 
+			BoxSizing::Flex(_) => {
+				available_width = self.constraints.max_width;
+				available_width -= self.padding as f32 * 2.0;
+			}
+		}
+		
+		for (i,child) in self.children.iter_mut().enumerate(){
 			match child.intrinsic_size().width {
 				BoxSizing::Flex(_) => {
-					child.set_max_width(max_size.width);
+					// The child fills the parent width
+					child.set_max_width(available_width);
+				},
+				BoxSizing::Shrink => {
+					child.set_max_width(child.constraints().min_width);	
+				},
+				BoxSizing::Fixed(width) => {
+					child.set_max_width(width);
 				}
-				_ => {}
 			}
 			
 			match child.intrinsic_size().height {
 				BoxSizing::Flex(factor) => {
 					let grow_factor = 
 						factor as f32 / flex_total as f32;
-					
-					max_size.height = grow_factor * space.height;
-					child.set_max_height(max_size.height);
+					child.set_max_height(grow_factor * available_height);
 					
 					// TODO replace with custom err 
 					assert_ne!(grow_factor,INFINITY);
 				},
 				BoxSizing::Fixed(height) => {
 					child.set_max_height(height);
+					available_height -= height;
 				}
-				BoxSizing::Shrink => {}
+				BoxSizing::Shrink => {
+					available_height -= child.constraints().min_height
+				}
 			}
 
+			if i != children_len - 1{
+				available_height -= self.spacing as f32
+			}
+
+			// TODO not using size anymore
 			// Pass the max size to the children to solve their max constraints
-			child.solve_max_contraints(max_size);
+			child.solve_max_contraints(Size::default());
 		}
 	}
 
@@ -248,7 +300,7 @@ impl Layout for VerticalLayout {
 
 #[cfg(test)]
 mod test{
-	use crate::LayoutSolver;
+	use crate::{BlockLayout, EmptyLayout, HorizontalLayout, LayoutSolver};
 	use super::*;
 
 	#[test]
@@ -285,6 +337,50 @@ mod test{
 			Size::new(500.0, 350.0)
 		);
 	}
+
+	#[test]
+	fn test_horizontal_with_vertical_shrink_width(){
+		let window = Size::new(800.0, 800.0);
+		let spacing = 24;
+		let padding = 50;
+		
+		let mut inner_child = EmptyLayout::new();
+		inner_child.intrinsic_size.width = BoxSizing::Fixed(350.0);
+		
+		let mut child = HorizontalLayout::new();
+		child.spacing = spacing;
+		child.padding = padding;
+		child.add_child(inner_child.clone());
+		child.add_child(inner_child.clone());
+		child.add_child(inner_child.clone());
+		child.add_child(inner_child);
+
+		let mut root = VerticalLayout::new();
+		root.padding = padding;
+		root.add_child(child);
+
+		let mut child_size = Size::default();
+		child_size.height = 0.0;
+		child_size.width += 350.0 * 4.0; 
+		child_size.width += (spacing as f32) * 3.0; 
+		child_size.width += (padding as f32) * 2.0; 
+		dbg!(child_size);
+		
+		let mut root_size = Size::default();
+		root_size.width += child_size.width;
+		root_size.width += (padding as f32) * 2.0;
+		
+		LayoutSolver::solve(&mut root, window);
+
+		assert_eq!(
+			root.size(),
+			root_size
+		);
+		assert_eq!(
+			root.children[0].size(),
+			child_size
+		)
+	}
 	
 	#[test]
 	fn test_flex_sizing(){
@@ -315,8 +411,58 @@ mod test{
 	}
 
 	#[test]
-	fn test_flex_inside_shrink(){
-		// Child should have zero width
+	fn test_flex_with_shrink(){
+		let window = Size::new(800.0, 800.0);
+		let padding = 24;
+		let spacing = 45;
+
+		let mut inner_child = EmptyLayout::new();
+		inner_child.intrinsic_size.width = BoxSizing::Fixed(250.0);
+		inner_child.intrinsic_size.height = BoxSizing::Fixed(250.0);
+		
+		let mut child_1 = BlockLayout::new(Box::new(inner_child));
+		child_1.padding = padding;
+		
+		let mut child_2 = EmptyLayout::new();
+		child_2.intrinsic_size.width = BoxSizing::Flex(1);
+		child_2.intrinsic_size.height = BoxSizing::Flex(1);
+		
+		let mut root = VerticalLayout::new();
+		root.intrinsic_size.height = BoxSizing::Flex(1);
+		root.padding = padding;
+		root.spacing = spacing;
+		root.add_child(child_1);
+		root.add_child(child_2);
+		
+		LayoutSolver::solve(&mut root, window);
+
+		let mut child_1_size = Size::new(250.0, 250.0);
+		child_1_size += (padding * 2) as f32;
+
+		let mut root_size = Size::new(0.0, 800.0);
+		root_size.width += child_1_size.width;  
+		root_size.width += (padding * 2) as f32;
+
+		// I feel like the math is slightly wrong due to padding
+		let mut child_2_size = Size::default();
+		child_2_size.width = root_size.width;
+		child_2_size.height = root_size.height;
+		child_2_size.height -= child_1_size.height;
+		child_2_size.height -= spacing as f32;
+		child_2_size.height -= (padding * 2) as f32;
+		
+		assert_eq!(
+			root.size(),
+			root_size
+		);
+		assert_eq!(
+			root.children[0].size(),
+			child_1_size
+		);
+		assert_eq!(
+			root.children[1].size(),
+			child_2_size
+		);
 	}
 
 	// TODO test flex grow inside flex shrink
@@ -361,7 +507,7 @@ mod test{
 
 	#[test]
 	fn test_positioning(){
-		let window = Size::new(800.0, 800.0);
+		todo!()
 	}
 
 }

@@ -1,6 +1,8 @@
-use wgpu::{util::{BufferInitDescriptor, DeviceExt}, BindGroupDescriptor};
+use wgpu::util::DeviceExt;
 use crate::{
-	app::{AppState, RenderContext}, impl_surface, surface::Surface, vertex::Vertex, Bounds, Color, Position, Size
+	geometry::RenderContext,
+	app::AppState, impl_surface, surface::Surface, 
+	geometry::vertex::Vertex, Bounds, Color, Position, Size
 };
 
 /// This is a primitive that draws to the screen. This holds
@@ -25,7 +27,6 @@ impl CircleSurface {
 	}
 
 	pub fn to_vertices(&self) -> Vec<Vertex>{
-
 		let color = self.color.normalize();
 		let x = self.position.x;
 		let y = self.position.y;
@@ -57,44 +58,21 @@ impl Surface for CircleSurface {
 			usage: wgpu::BufferUsages::VERTEX,
 		});
 
-		let diameter_buffer = state.device.create_buffer_init(
-			&BufferInitDescriptor{
-				label:Some("Size buffer"),
-				contents: bytemuck::cast_slice(&[self.size.width]),
-				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
-			}
-		);
+		state.queue.write_buffer(
+            &state.context.circle_pipeline.position_buffer,
+            0,
+            bytemuck::cast_slice(&[self.position.x,self.position.y]),
+        );
+		state.queue.write_buffer(
+            &state.context.circle_pipeline.diameter_buffer,
+            0,
+            bytemuck::cast_slice(&[self.size.width]),
+        );
 
-		let position_buffer = state.device.create_buffer_init(
-			&BufferInitDescriptor{
-				label:Some("Position buffer"),
-				contents: bytemuck::cast_slice(&[self.position.x,self.position.y]),
-				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
-			}
-		);
-
-		let bound_bind_group = state.device.create_bind_group(
-			&BindGroupDescriptor{
-				label:Some("Cirlce bounds bind group"),
-				layout:&context.circle_renderer.bounds_layout,
-				entries:&[
-					wgpu::BindGroupEntry{
-						binding:0,
-						resource:diameter_buffer.as_entire_binding()
-					},
-					wgpu::BindGroupEntry{
-						binding:1,
-						resource:position_buffer.as_entire_binding()
-					}
-				]
-			}
-		);
-
-		
 		// Set the render pipeline and vertex buffer
-		render_pass.set_pipeline(&context.circle_renderer.render_pipeline);
-		render_pass.set_bind_group(0, &context.circle_renderer.window_bind_group, &[]);
-		render_pass.set_bind_group(1, &bound_bind_group, &[]);
+		render_pass.set_pipeline(&context.circle_pipeline.pipeline);
+		render_pass.set_bind_group(0, &context.circle_pipeline.window_uniform.bind_group(), &[]);
+		render_pass.set_bind_group(1, &context.circle_pipeline.bounds_bind_group, &[]);
 		render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 		render_pass.draw(0..vertices.len() as u32, 0..1);
 	}

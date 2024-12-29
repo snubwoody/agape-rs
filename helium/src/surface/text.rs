@@ -1,15 +1,13 @@
 use std::{fmt::Debug, io::Cursor};
 use helium_core::color::BLACK;
 use image::RgbaImage;
-use text_to_png::TextRenderer;
 use wgpu::util::DeviceExt;
 use crate::{
-	app::AppState, impl_surface, surface::Surface, vertex::Vertex, Bounds, Color, Position, Size
+	app::AppState, impl_surface, surface::Surface, 
+	geometry::vertex::Vertex, Bounds, Color, Position, Size
 };
 
-// FIXME text getting blurry at large window sizes
 // FIXME change the color to Color enum
-/// A rasterized texture of text  
 #[derive(Clone)]
 pub struct TextSurface{
 	position:Position,
@@ -17,15 +15,15 @@ pub struct TextSurface{
 	text:String,
 	font_size:u8,
 	color:Color,
-	img: RgbaImage // impl Debug manually and hide this field
+	img: RgbaImage
 }
 
 impl TextSurface {
 	pub fn new(text:&str,font_size:u8) -> Self{
-		let text_renderer = TextRenderer::default();
+		let text_pipeline = text_to_png::TextRenderer::default();
 
 		// Render the text as a png
-		let text_image = text_renderer.render_text_to_png_data(
+		let text_image = text_pipeline.render_text_to_png_data(
 			text, 
 			font_size, 
 			"#000000"
@@ -91,7 +89,7 @@ impl Surface for TextSurface {
 	fn draw(
 		&self,
 		render_pass:&mut wgpu::RenderPass,
-		context: &crate::app::RenderContext,
+		context: &crate::geometry::RenderContext,
 		state: &AppState
 	) {
 
@@ -122,7 +120,7 @@ impl Surface for TextSurface {
 		let texture_bind_group = state.device.create_bind_group(
 			&wgpu::BindGroupDescriptor { 
 				label: Some("Text bind group"), 
-				layout:&context.text_renderer.texture_bind_group_layout, 
+				layout:&context.text_pipeline.texture_bind_group_layout, 
 				entries: &[
 					wgpu::BindGroupEntry{
 						binding:0,
@@ -153,8 +151,8 @@ impl Surface for TextSurface {
 		);
 
 		// Set the render pipeline and vertex buffer
-		render_pass.set_pipeline(&context.text_renderer.render_pipeline);
-		render_pass.set_bind_group(0, &context.text_renderer.window_bind_group, &[]);
+		render_pass.set_pipeline(&context.text_pipeline.pipeline);
+		render_pass.set_bind_group(0, &context.text_pipeline.window_bind_group, &[]);
 		render_pass.set_bind_group(1, &texture_bind_group, &[]);
 		render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 

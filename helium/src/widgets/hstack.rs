@@ -25,6 +25,21 @@ impl HStack {
 		self
 	}
 
+	pub fn width_fit(mut self) -> Self{
+		self.intrinsic_size.width = BoxSizing::Shrink;
+		self
+	}
+
+	pub fn width_fill(mut self) -> Self{
+		self.intrinsic_size.width = BoxSizing::Flex(1);
+		self
+	}
+
+	pub fn width_flex(mut self,factor:u8) -> Self{
+		self.intrinsic_size.width = BoxSizing::Flex(factor);
+		self
+	}
+
 	impl_style!();
 	impl_events!();
 }
@@ -54,7 +69,7 @@ impl Widget for HStack {
         };
 	
 		let mut layout = HorizontalLayout::new();
-		layout.intrinsic_size.width = BoxSizing::Flex(1);
+		layout.intrinsic_size.width = self.intrinsic_size.width;
 		layout.children = children_layout;
 		layout.id = body.id.clone();
 		layout.spacing = self.spacing;
@@ -65,8 +80,8 @@ impl Widget for HStack {
 }
 
 
-// TODO test these macros pls
-// TODO change the color path because it might conflict with local colors
+// TODO allow trailing commas
+/// An [`HStack`] is a `widget` that positions it's children horizontally
 #[macro_export]
 macro_rules! hstack {
 	($($child:expr),*) => {
@@ -86,4 +101,12 @@ macro_rules! hstack {
 		}
 		
 	};
+}
+
+#[cfg(test)]
+mod test{
+	#[test]
+	fn test_build(){
+		todo!()
+	}
 }

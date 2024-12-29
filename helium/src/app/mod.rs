@@ -1,6 +1,6 @@
 pub mod events;
 pub mod view;
-use crate::{renderer::{CicleRenderer, RectRenderer, TextRenderer}, Size};
+use crate::{geometry::{CirclePipeline, RectPipeline, RenderContext, TextPipeline}, Size};
 use async_std::task;
 use view::View;
 use winit::{
@@ -156,40 +156,26 @@ impl<'a> AppState<'a> {
 		
 		//TODO maybe add a global uniform instead
         self.queue.write_buffer(
-            &self.context.rect_renderer.window_buffer,
+            &self.context.rect_pipeline.window_buffer,
             0,
             bytemuck::cast_slice(&[self.size.width, self.size.height]),
         );
         self.queue.write_buffer(
-            &self.context.text_renderer.window_buffer,
+            &self.context.text_pipeline.window_buffer,
             0,
             bytemuck::cast_slice(&[self.size.width, self.size.height]),
         );
         self.queue.write_buffer(
-            &self.context.circle_renderer.window_buffer,
+            &self.context.circle_pipeline.window_uniform.buffer(),
+            0,
+            bytemuck::cast_slice(&[self.size.width, self.size.height]),
+        );
+        self.queue.write_buffer(
+            &self.context.image_pipeline.window_buffer,
             0,
             bytemuck::cast_slice(&[self.size.width, self.size.height]),
         );
     }
 }
 
-/// Contains the renderers
-#[derive(Debug)]
-pub struct RenderContext {
-	pub rect_renderer: RectRenderer,
-	pub text_renderer: TextRenderer,
-	pub circle_renderer: CicleRenderer
-}
 
-impl RenderContext {
-    pub fn new(device: &wgpu::Device, config: &wgpu::SurfaceConfiguration, size: &Size) -> Self {
-		let rect_renderer = RectRenderer::new(device, config, size);
-		let text_renderer = TextRenderer::new(device, config, size);
-		let circle_renderer = CicleRenderer::new(device, config, size);
-        Self {
-			rect_renderer,
-			text_renderer,
-			circle_renderer
-        }
-    }
-}

@@ -1,9 +1,11 @@
+//! A gui library built using `wgpu`. It uses an entirely custom renderer for drawing 
+//! the ui and uses the `crystal` crate for layout. 
 pub mod widgets;
 pub mod app;
 pub mod surface;
-pub mod vertex;
 pub mod signal;
-mod renderer;
+pub mod error;
+mod geometry;
 
 pub use nanoid::nanoid;
 pub use helium_core::color::*;

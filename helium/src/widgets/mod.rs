@@ -5,14 +5,17 @@ mod button;
 mod circle;
 mod vstack;
 mod hstack;
+pub mod icon;
+pub (crate) mod image;
 use nanoid::nanoid;
-pub use rect::Rect;
-pub use text::Text;
-pub use button::Button;
-pub use hstack::HStack;
-pub use vstack::VStack;
-pub use container::Container;
-pub use circle::Circle;
+pub use rect::*;
+pub use text::*;
+pub use button::*;
+pub use hstack::*;
+pub use vstack::*;
+pub use container::*;
+pub use circle::*;
+pub use image::*;
 use crate::{
 	app::AppState, 
 	surface::{
@@ -139,5 +142,74 @@ macro_rules! impl_style {
 			self.color = color;
 			self
 		} 
+	};
+}
+
+/// Implement common methods for widgets
+/// TODO match arms for padding and spacing
+#[macro_export]
+macro_rules! impl_widget {
+	(padding) => {
+		pub fn padding(mut self, padding: u32) -> Self {
+			self.layout.padding = padding;
+			self
+		}
+
+		pub fn width_fit(mut self) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Shrink;
+			self
+		}
+	
+		pub fn width_fill(mut self) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Flex(1);
+			self
+		}
+	
+		pub fn width_flex(mut self,factor:u8) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Flex(factor);
+			self
+		}
+	};
+	(padding,spacing) => {
+		pub fn padding(mut self, padding: u32) -> Self {
+			self.layout.padding = padding;
+			self
+		}
+
+		pub fn spacing(mut self, spacing: u32) -> Self {
+			self.layout.spacing = spacing;
+			self
+		}
+
+		pub fn width_fit(mut self) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Shrink;
+			self
+		}
+	
+		pub fn width_fill(mut self) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Flex(1);
+			self
+		}
+	
+		pub fn width_flex(mut self,factor:u8) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Flex(factor);
+			self
+		}
+	};
+	() => {
+		pub fn width_fit(mut self) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Shrink;
+			self
+		}
+	
+		pub fn width_fill(mut self) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Flex(1);
+			self
+		}
+	
+		pub fn width_flex(mut self,factor:u8) -> Self{
+			self.layout.intrinsic_size.width = BoxSizing::Flex(factor);
+			self
+		}
 	};
 }
