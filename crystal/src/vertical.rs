@@ -1,6 +1,6 @@
 use std::f32::INFINITY;
 use helium_core::{position::Position, size::Size};
-use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
+use crate::{AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
 
 /// A [`VerticalLayout`] sizes and position it's children horizontally, of course, the `Flex` 
 /// attribute means a layout node will fill it's widget, however the flex factor only works in 
@@ -16,7 +16,11 @@ pub struct VerticalLayout{
 	// TODO i'm thinking of adding user constraints as well so that people can define their own 
 	// constraints
 	pub children:Vec<Box<dyn Layout>>,
-	constraints:BoxContraints,
+	/// The main axis is the `y-axis`
+	pub main_axis_alignment:AxisAlignment,
+	/// The main axis is the `x-axis`
+	pub cross_axis_alignment:AxisAlignment,
+	pub constraints:BoxContraints,
 }
 
 impl VerticalLayout {

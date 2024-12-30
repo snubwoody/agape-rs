@@ -115,6 +115,15 @@ pub enum BoxSizing{
 	Flex(u8),
 }
 
+/// Describes how a [`Layout`] should arrange it's children
+#[derive(Debug,Clone,Copy,Default,PartialEq,Eq,PartialOrd,Ord)]
+pub enum AxisAlignment{
+	#[default]
+	Start,
+	Center,
+	End
+}
+
 #[derive(Debug,Clone, Copy,Default,PartialEq)]
 pub struct BoxContraints{
 	pub max_width:f32,

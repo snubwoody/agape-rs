@@ -5,10 +5,11 @@ use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
 #[derive(Debug,Default,Clone)]
 pub struct EmptyLayout{ // TODO add padding
 	pub id:String,
-	size:Size,
-	position:Position,
+	pub size:Size,
+	pub position:Position,
+	// TODO could probably just inline this
 	pub intrinsic_size:IntrinsicSize,
-	constraints:BoxContraints,
+	pub constraints:BoxContraints,
 }
 
 impl EmptyLayout {

@@ -1,18 +1,22 @@
 use std::f32::INFINITY;
 use helium_core::{position::Position, size::Size};
-use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
+use crate::{AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
 
 /// This layout only has one child
 #[derive(Debug)]
 pub struct BlockLayout{
 	pub id:String,
-	size:Size,
-	position:Position,
+	pub size:Size,
+	pub position:Position,
 	pub padding:u32,
 	pub intrinsic_size:IntrinsicSize,
 	// TODO i'm thinking of adding user constraints as well so that people can define their own 
 	// constraints
-	constraints:BoxContraints,
+	pub constraints:BoxContraints,
+	/// The main axis is the `x-axis`
+	pub main_axis_alignment:AxisAlignment,
+	/// The main axis is the `y-axis`
+	pub cross_axis_alignment:AxisAlignment,
 	pub child:Box<dyn Layout>
 }
 
@@ -25,6 +29,8 @@ impl BlockLayout {
 			position:Position::default(),
 			intrinsic_size:IntrinsicSize::default(),
 			constraints:BoxContraints::default(),
+			main_axis_alignment:AxisAlignment::default(),
+			cross_axis_alignment:AxisAlignment::default(),
 			child
 		}
 	}

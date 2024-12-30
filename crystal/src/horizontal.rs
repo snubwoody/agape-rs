@@ -1,6 +1,6 @@
 use std::f32::INFINITY;
 use helium_core::{position::Position, size::Size};
-use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
+use crate::{AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
 
 /// A [`HorizontalLayout`] sizes and position it's children horizontally, of course, the `Flex` 
 /// attribute means a layout node will fill it's widget, however the flex factor only works in 
@@ -8,14 +8,19 @@ use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
 #[derive(Default,Debug)]
 pub struct HorizontalLayout{
 	pub id:String,
-	size:Size,
-	position:Position,
+	pub size:Size,
+	pub position:Position,
 	pub spacing:u32,
 	pub padding:u32,
 	// TODO i'm thinking of adding user constraints as well so that people can define their own 
 	// constraints
-	constraints:BoxContraints,
+	pub constraints:BoxContraints,
 	pub intrinsic_size:IntrinsicSize,
+	/// The main axis is the axis which the content flows in, for the [`HorizontalLayout`]
+	/// main axis is the `x-axis`
+	pub main_axis_alignment:AxisAlignment,
+	/// The cross axis is the `y-axis`
+	pub cross_axis_alignment:AxisAlignment,
 	pub children:Vec<Box<dyn Layout>>,
 }
 
@@ -26,6 +31,15 @@ impl HorizontalLayout {
 
 	pub fn add_child(&mut self,child:impl Layout + 'static){
 		self.children.push(Box::new(child));
+	}
+	
+	pub fn add_children<I>(&mut self,children:I)
+	where 
+		I:IntoIterator<Item:Layout + 'static>
+	{
+		for child in children{
+			self.children.push(Box::new(child));
+		}
 	}
 
 	/// Calculate the sum of the width's of all nodes with fixed sizes and the max height
@@ -59,6 +73,32 @@ impl HorizontalLayout {
 		}
 
 		sum
+	}
+
+	/// Align the children on the main axis in the center
+	fn align_cross_axis_center(&mut self){
+		let mut current_pos = self.position;
+		current_pos += self.padding as f32;
+		
+		for child in &mut self.children{
+			// TODO handle overflow
+			let y_pos = (self.size.height - child.size().height) / 2.0 + self.position.y;
+			child.set_y(y_pos);
+			
+		}
+	}
+
+	/// Align the children on the main axis in the center
+	fn align_main_axis_center(&mut self){
+		// TODO handle overflow
+		let child_width_sum = 
+			self.children.iter().map(|child|child.size().width).sum::<f32>();
+		let mut center_start = self.position.x + (self.size.width - child_width_sum)/2.0;
+
+		for child in &mut self.children{
+			child.set_x(center_start);
+			center_start += child.size().width + (self.spacing * 2) as f32;
+		}
 	}
 }
 
@@ -312,9 +352,29 @@ impl Layout for HorizontalLayout {
 		let mut current_pos = self.position;
 		current_pos += self.padding as f32;
 		
+		
+		match self.main_axis_alignment {
+			AxisAlignment::Center => self.align_main_axis_center(),
+			_ => {
+				for child in &mut self.children{
+					child.set_position(current_pos);
+					current_pos.x += child.size().width + self.spacing as f32;
+					child.position_children();
+				}
+			}
+		}
+
+		match self.cross_axis_alignment {
+			AxisAlignment::Center => self.align_cross_axis_center(),
+			_ => {
+				for child in &mut self.children{
+					child.set_position(current_pos);
+					current_pos.x += child.size().width + self.spacing as f32;
+					child.position_children();
+				}
+			}
+		}
 		for child in &mut self.children{
-			child.set_position(current_pos);
-			current_pos.x += child.size().width + self.spacing as f32;
 			child.position_children();
 		}
 

@@ -1,4 +1,4 @@
-use crystal::{BoxSizing, HorizontalLayout, IntrinsicSize, Layout};
+use crystal::{AxisAlignment, BoxSizing, HorizontalLayout, IntrinsicSize, Layout};
 use crate::{
     app::events::Event, impl_events, impl_style, 
 	surface::rect::RectSurface, 
@@ -66,14 +66,14 @@ impl Widget for HStack {
         surface.color(self.color.clone());
 		
         let (children_body,children_layout):(Vec<Box<WidgetBody>>,Vec<Box<dyn Layout>>) = 
-		self
-		.children
-		.iter()
-		.map(|widget| {
+			self
+			.children
+			.iter()
+			.map(|widget| {
 			let (body,layout) = widget.build();
 			return (Box::new(body),layout);
-		})
-		.collect();
+			})
+			.collect();
 		
 
 		let body = WidgetBody {
@@ -116,12 +116,4 @@ macro_rules! hstack {
 		}
 		
 	};
-}
-
-#[cfg(test)]
-mod test{
-	#[test]
-	fn test_build(){
-		todo!()
-	}
 }

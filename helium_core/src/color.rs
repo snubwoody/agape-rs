@@ -89,16 +89,6 @@ impl Default for Color {
 	}
 }
 
-// impl TryFrom<String> for Color {
-// 	type Error = String;
-// 	fn try_from(value: String) -> Result<Self, Self::Error> {
-// 		let _ = Color::hex_to_rgba(&value)?;
-// 		Ok(Color::Hex(&value))
-// 	}
-// }
-
-
-
 #[cfg(test)]
 mod test{
     use super::*;
