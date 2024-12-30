@@ -12,6 +12,15 @@ pub use vertical::VerticalLayout;
 pub use block::BlockLayout;
 pub use empty::EmptyLayout;
 
+// Derive EQ so that we don't have repeat errors
+// #[derive(Debug)]
+// pub enum LayoutError {
+//     ChildOutOfBounds { child_id: String, position: Position },
+//     Overflow { node_id: String, size: Size },
+//     NegativeSpacing { node_id: String, spacing: f32 },
+//     InfiniteValue { node_id: String, value: f32 },
+//     Other(String),
+// }
 
 pub struct LayoutSolver;
 

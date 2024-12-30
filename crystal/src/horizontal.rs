@@ -2,6 +2,7 @@ use std::f32::INFINITY;
 use helium_core::{position::Position, size::Size};
 use crate::{AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
 
+// TODO instead of panicking probabaly just return an array of errors
 /// A [`HorizontalLayout`] sizes and position it's children horizontally, of course, the `Flex` 
 /// attribute means a layout node will fill it's widget, however the flex factor only works in 
 /// the x-axis, in the y-axis all nodes will fill the parent and will be the same height.
@@ -91,13 +92,14 @@ impl HorizontalLayout {
 	/// Align the children on the main axis in the center
 	fn align_main_axis_center(&mut self){
 		// TODO handle overflow
-		let child_width_sum = 
+		let mut width_sum = 
 			self.children.iter().map(|child|child.size().width).sum::<f32>();
-		let mut center_start = self.position.x + (self.size.width - child_width_sum)/2.0;
+		width_sum += (self.spacing * (self.children.len() as u32 - 1)) as f32;
+		let mut center_start = self.position.x + (self.size.width - width_sum)/2.0;
 
 		for child in &mut self.children{
 			child.set_x(center_start);
-			center_start += child.size().width + (self.spacing * 2) as f32;
+			center_start += child.size().width + self.spacing as f32;
 		}
 	}
 }
@@ -326,12 +328,11 @@ impl Layout for HorizontalLayout {
 		let mut current_pos = self.position;
 		current_pos += self.padding as f32;
 		
-		
 		match self.main_axis_alignment {
 			AxisAlignment::Center => self.align_main_axis_center(),
 			AxisAlignment::Start | AxisAlignment::End => {
 				for child in &mut self.children{
-					child.set_position(current_pos);
+					child.set_x(current_pos.x);
 					current_pos.x += child.size().width + self.spacing as f32;
 				}
 			}
@@ -341,16 +342,15 @@ impl Layout for HorizontalLayout {
 			AxisAlignment::Center => self.align_cross_axis_center(),
 			AxisAlignment::Start | AxisAlignment::End => {
 				for child in &mut self.children{
-					child.set_position(current_pos);
-					current_pos.x += child.size().width + self.spacing as f32;
+					child.set_y(current_pos.y);
 				}
-			}
+			} 
 		}
-		// for child in &mut self.children{
-		// 	child.set_position(current_pos);
-		// 	current_pos.x += child.size().width + self.spacing as f32;
-		// }
+		
 		for child in &mut self.children{
+			if child.position().x > self.position.x + self.size.width{
+				log::warn!("Child out of bounds")
+			}
 			child.position_children();
 		}
 

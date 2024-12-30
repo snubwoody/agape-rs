@@ -83,12 +83,20 @@ impl Widget for HStack {
             ..Default::default()
         };
 	
-		let mut layout = HorizontalLayout::new();
-		layout.intrinsic_size.width = self.intrinsic_size.width;
-		layout.children = children_layout;
-		layout.id = body.id.clone();
-		layout.spacing = self.spacing;
-		layout.padding = self.padding;
+		// TODO maybe impl into?
+		let layout = HorizontalLayout{
+			id:body.id.clone(),
+			spacing:self.spacing,
+			padding:self.padding,
+			children:children_layout,
+			intrinsic_size:self.intrinsic_size,
+			..Default::default()
+		};
+		// layout.intrinsic_size.width = self.intrinsic_size.width;
+		// layout.children = children_layout;
+		// layout.id = body.id.clone();
+		// layout.spacing = self.spacing;
+		// layout.padding = self.padding;
 
 		(body,Box::new(layout))
     }
