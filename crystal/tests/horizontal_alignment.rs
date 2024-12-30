@@ -167,4 +167,58 @@ fn test_start_alignment(){
 	);
 }
 
+#[test]
+fn test_end_alignment(){
+	let window = Size::new(200.0, 200.0);
+	
+	let padding = 32;
+	let spacing = 10;
+	
+	let child_1 = EmptyLayout{
+		intrinsic_size:IntrinsicSize{
+			width:BoxSizing::Fixed(240.0),
+			height:BoxSizing::Fixed(40.0),
+		},
+		..Default::default()
+	};
+
+	let child_2 = EmptyLayout{
+		intrinsic_size:IntrinsicSize{
+			width:BoxSizing::Fixed(20.0),
+			..Default::default()
+		},
+		..Default::default()
+	};
+	
+	let mut root = HorizontalLayout{
+		position:Position { x: 250.0, y: 10.0 },
+		spacing,
+		padding,
+		children:vec![Box::new(child_1),Box::new(child_2)],
+		main_axis_alignment:AxisAlignment::End,
+		cross_axis_alignment:AxisAlignment::End,
+		..Default::default()
+	};
+
+	LayoutSolver::solve(&mut root, window);
+
+	let mut child_2_pos = Position{
+		x:root.position.x + root.size.width,
+		y:root.position.y + root.size.height
+	};
+	child_2_pos -= padding as f32;
+	
+	let mut child_1_pos = child_2_pos;
+	child_1_pos.x -= root.children[1].size().width - spacing as f32;
+
+	assert_eq!(
+		root.children[0].position(),
+		child_1_pos
+	);
+	assert_eq!(
+		root.children[1].position(),
+		child_2_pos
+	);
+}
+
 // TODO test overflow

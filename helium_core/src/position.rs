@@ -1,4 +1,4 @@
-use std::ops::AddAssign;
+use std::ops::{AddAssign, SubAssign};
 
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 
@@ -44,6 +44,13 @@ impl AddAssign<Position> for Position {
 	}
 }
 
+impl SubAssign<Position> for Position {
+	fn sub_assign(&mut self, rhs: Position) {
+		self.x -= rhs.x;
+		self.y -= rhs.y;
+	}
+}
+
 impl<I> AddAssign<I> for Position
 where 
 	f32:AddAssign<I>, 
@@ -51,6 +58,16 @@ where
 	fn add_assign(&mut self, rhs: I) {
 		self.x += rhs;
 		self.y += rhs;
+	}
+}
+
+impl<I> SubAssign<I> for Position
+where 
+	f32:SubAssign<I>, 
+	I:Copy {
+	fn sub_assign(&mut self, rhs: I) {
+		self.x -= rhs;
+		self.y -= rhs;
 	}
 }
 
@@ -68,7 +85,7 @@ impl From<PhysicalPosition<f64>> for Position {
 /// and [`Position`].
 #[derive(Debug,Clone,Copy,PartialEq, PartialOrd,Default)]
 pub struct Bounds {
-	pub x:[f32;2], // TODO change this to start and end position and add a center, and make private
+	pub x:[f32;2], // TODO change this to start and end position and add a center, and test
 	pub y:[f32;2],
 }
 

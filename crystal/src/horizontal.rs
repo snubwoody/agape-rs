@@ -76,16 +76,13 @@ impl HorizontalLayout {
 		sum
 	}
 
-	/// Align the children on the main axis in the center
-	fn align_cross_axis_center(&mut self){
-		let mut current_pos = self.position;
-		current_pos += self.padding as f32;
-		
+	fn align_main_axis_start(&mut self){
+		let mut x_pos = self.position.x;
+		x_pos += self.padding as f32;
+
 		for child in &mut self.children{
-			// TODO handle overflow
-			let y_pos = (self.size.height - child.size().height) / 2.0 + self.position.y;
-			child.set_y(y_pos);
-			
+			child.set_x(x_pos);
+			x_pos += child.size().width + self.spacing as f32;
 		}
 	}
 
@@ -102,6 +99,39 @@ impl HorizontalLayout {
 			center_start += child.size().width + self.spacing as f32;
 		}
 	}
+
+	fn align_main_axis_end(&mut self){
+		let mut x_pos = self.position.x + self.size.width;
+		x_pos -= self.padding as f32;
+
+		for child in self.children.iter_mut().rev(){
+			child.set_x(x_pos);
+			x_pos -= child.size().width - self.spacing as f32;
+		}
+	}
+
+	fn align_cross_axis_start(&mut self){
+		let y = self.position.y + self.padding as f32;
+		for child in &mut self.children{
+			child.set_y(y);
+		}
+	}
+
+	fn align_cross_axis_center(&mut self){
+		for child in &mut self.children{
+			// TODO handle overflow
+			let y_pos = (self.size.height - child.size().height) / 2.0 + self.position.y;
+			child.set_y(y_pos);
+			
+		}
+	}
+
+	fn align_cross_axis_end(&mut self){
+		for child in &mut self.children{
+			child.set_y(self.position.y + self.size.height - self.padding as f32);
+		} 	
+	}
+
 }
 
 
@@ -338,26 +368,16 @@ impl Layout for HorizontalLayout {
 	}
 
 	fn position_children(&mut self){
-		let mut current_pos = self.position;
-		current_pos += self.padding as f32;
-		
 		match self.main_axis_alignment {
+			AxisAlignment::Start => self.align_main_axis_start(), 
 			AxisAlignment::Center => self.align_main_axis_center(),
-			AxisAlignment::Start | AxisAlignment::End => {
-				for child in &mut self.children{
-					child.set_x(current_pos.x);
-					current_pos.x += child.size().width + self.spacing as f32;
-				}
-			}
+			AxisAlignment::End => self.align_main_axis_end(),
 		}
 
 		match self.cross_axis_alignment {
+			AxisAlignment::Start => self.align_cross_axis_start(), 
 			AxisAlignment::Center => self.align_cross_axis_center(),
-			AxisAlignment::Start | AxisAlignment::End => {
-				for child in &mut self.children{
-					child.set_y(current_pos.y);
-				}
-			} 
+			AxisAlignment::End => self.align_cross_axis_end(),
 		}
 		
 		for child in &mut self.children{
