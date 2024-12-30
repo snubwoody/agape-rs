@@ -10,6 +10,7 @@ pub struct EmptyLayout{ // TODO add padding
 	// TODO could probably just inline this
 	pub intrinsic_size:IntrinsicSize,
 	pub constraints:BoxContraints,
+	pub errors:Vec<crate::LayoutError>
 }
 
 impl EmptyLayout {
@@ -74,6 +75,14 @@ impl Layout for EmptyLayout {
 
 	fn sort_children(&mut self) {
 		
+	}
+
+	
+	fn collect_errors(&self) -> Vec<crate::LayoutError> {
+		self.errors
+		.iter()
+		.cloned()
+		.collect::<Vec<_>>()
 	}
 
 	fn iter(&self) -> crate::LayoutIter {

@@ -17,7 +17,8 @@ pub struct BlockLayout{
 	pub main_axis_alignment:AxisAlignment,
 	/// The main axis is the `y-axis`
 	pub cross_axis_alignment:AxisAlignment,
-	pub child:Box<dyn Layout>
+	pub child:Box<dyn Layout>,
+	pub errors:Vec<crate::LayoutError>
 }
 
 impl BlockLayout {
@@ -31,6 +32,7 @@ impl BlockLayout {
 			constraints:BoxContraints::default(),
 			main_axis_alignment:AxisAlignment::default(),
 			cross_axis_alignment:AxisAlignment::default(),
+			errors:vec![],
 			child
 		}
 	}
@@ -93,6 +95,20 @@ impl Layout for BlockLayout {
 
 	fn sort_children(&mut self) {
 		// self.child.sort_children();
+	}
+
+	
+	fn collect_errors(&self) -> Vec<crate::LayoutError> {
+		self.errors
+		.iter()
+		.cloned()
+		.chain(
+			self
+			.child
+			.iter()
+			.flat_map(|child|child.collect_errors())
+			.collect::<Vec<_>>()
+		).collect::<Vec<_>>()
 	}
 
 	fn iter(&self) -> LayoutIter {

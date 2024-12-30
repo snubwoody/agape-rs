@@ -5,39 +5,36 @@ mod horizontal;
 mod vertical;
 mod block;
 mod empty;
+mod error;
 use std::fmt::Debug;
 pub use helium_core::{position::Position, size::Size};
 pub use horizontal::HorizontalLayout;
 pub use vertical::VerticalLayout;
 pub use block::BlockLayout;
 pub use empty::EmptyLayout;
+pub use error::LayoutError;
 
-// Derive EQ so that we don't have repeat errors
-// #[derive(Debug)]
-// pub enum LayoutError {
-//     ChildOutOfBounds { child_id: String, position: Position },
-//     Overflow { node_id: String, size: Size },
-//     NegativeSpacing { node_id: String, spacing: f32 },
-//     InfiniteValue { node_id: String, value: f32 },
-//     Other(String),
-// }
 
 pub struct LayoutSolver;
 
 impl LayoutSolver {
 	/// Calculates the layout of all the layout nodes
-	pub fn solve(root:&mut dyn Layout,window_size:Size){
-		root.sort_children();
+	pub fn solve(root:&mut dyn Layout,window_size:Size) -> Vec<crate::LayoutError>{
+		// Sorting the children caused errors because i didn't realise that it actually messes with the order
+		//root.sort_children();
+
 		// Set the max constraints of the root node to the window size
 		root.set_max_width(window_size.width);
 		root.set_max_height(window_size.height);
 
 		// It's important that the min constraints are solved before the max constraints
-		// because the min constraints are used in calculating max constraints for shrink sizing 
+		// because the min constraints are used in calculating max constraints 
 		let _ = root.solve_min_constraints();
 		root.solve_max_contraints(window_size);
 		root.update_size();
 		root.position_children();
+		
+		root.collect_errors()
 	}
 }
 
@@ -56,6 +53,9 @@ pub trait Layout:Debug{
 	
 	/// Update the size of every [`LayoutNode`] based on it's size and constraints.
 	fn update_size(&mut self);
+
+	/// Collect all the errors from the error stack
+	fn collect_errors(&self) -> Vec<LayoutError>;
 
 	/// Sort the children based on their intrinsic sizing, [`HorizontalLayout`]'s are ordered
 	/// based on the children's `intrinsic width` and [`VerticalLayout`]'s are ordered based on their 

@@ -2,7 +2,6 @@ use std::f32::INFINITY;
 use helium_core::{position::Position, size::Size};
 use crate::{AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
 
-// TODO instead of panicking probabaly just return an array of errors
 /// A [`HorizontalLayout`] sizes and position it's children horizontally, of course, the `Flex` 
 /// attribute means a layout node will fill it's widget, however the flex factor only works in 
 /// the x-axis, in the y-axis all nodes will fill the parent and will be the same height.
@@ -23,6 +22,7 @@ pub struct HorizontalLayout{
 	/// The cross axis is the `y-axis`
 	pub cross_axis_alignment:AxisAlignment,
 	pub children:Vec<Box<dyn Layout>>,
+	pub errors:Vec<crate::LayoutError>
 }
 
 impl HorizontalLayout {
@@ -157,6 +157,19 @@ impl Layout for HorizontalLayout {
 	
 	fn set_min_width(&mut self,width:f32) {
 		self.constraints.min_width = width;
+	}
+
+	fn collect_errors(&self) -> Vec<crate::LayoutError> {
+		self.errors
+		.iter()
+		.cloned()
+		.chain(
+			self
+			.children
+			.iter()
+			.flat_map(|child|child.collect_errors())
+			.collect::<Vec<_>>()
+		).collect::<Vec<_>>()
 	}
 
 	fn sort_children(&mut self) {

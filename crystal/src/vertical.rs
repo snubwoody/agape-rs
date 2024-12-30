@@ -21,6 +21,7 @@ pub struct VerticalLayout{
 	/// The main axis is the `x-axis`
 	pub cross_axis_alignment:AxisAlignment,
 	pub constraints:BoxContraints,
+	pub errors:Vec<crate::LayoutError>
 }
 
 impl VerticalLayout {
@@ -114,6 +115,19 @@ impl Layout for VerticalLayout {
 	
 	fn set_min_width(&mut self,width:f32) {
 		self.constraints.min_width = width;
+	}
+
+	fn collect_errors(&self) -> Vec<crate::LayoutError> {
+		self.errors
+		.iter()
+		.cloned()
+		.chain(
+			self
+			.children
+			.iter()
+			.flat_map(|child|child.collect_errors())
+			.collect::<Vec<_>>()
+		).collect::<Vec<_>>()
 	}
 
 	fn iter(&self) -> crate::LayoutIter {
