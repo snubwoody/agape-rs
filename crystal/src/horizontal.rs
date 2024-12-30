@@ -238,32 +238,6 @@ impl Layout for HorizontalLayout {
 		available_space -= self.padding as f32 * 2.0;
 		available_space.width -= self.fixed_size_sum().width;
 
-		// TODO could maybe merge this, but it might be even more verbose
-		let mut available_height;
-		match self.intrinsic_size.height {
-			BoxSizing::Shrink => {
-				available_height = self.constraints.min_height
-			},
-			BoxSizing::Fixed(_) | 
-			BoxSizing::Flex(_) => {
-				available_height = self.constraints.max_height;
-				available_height -= self.padding as f32 * 2.0;
-			}
-		}
-
-		let mut available_width;
-		match self.intrinsic_size.width {
-			BoxSizing::Shrink => {
-				available_width = self.constraints.min_width
-			},
-			BoxSizing::Fixed(_) | 
-			BoxSizing::Flex(_) => {
-				available_width = self.constraints.max_width;
-				available_width -= self.padding as f32 * 2.0;
-			}
-		}
-
-		
 		// TODO subtract the spacing
 		// TODO currently the min constraints are bigger then max constraints
 		// for shrink nodes, which doesn't make any sense.
@@ -355,25 +329,27 @@ impl Layout for HorizontalLayout {
 		
 		match self.main_axis_alignment {
 			AxisAlignment::Center => self.align_main_axis_center(),
-			_ => {
+			AxisAlignment::Start | AxisAlignment::End => {
 				for child in &mut self.children{
 					child.set_position(current_pos);
 					current_pos.x += child.size().width + self.spacing as f32;
-					child.position_children();
 				}
 			}
 		}
 
 		match self.cross_axis_alignment {
 			AxisAlignment::Center => self.align_cross_axis_center(),
-			_ => {
+			AxisAlignment::Start | AxisAlignment::End => {
 				for child in &mut self.children{
 					child.set_position(current_pos);
 					current_pos.x += child.size().width + self.spacing as f32;
-					child.position_children();
 				}
 			}
 		}
+		// for child in &mut self.children{
+		// 	child.set_position(current_pos);
+		// 	current_pos.x += child.size().width + self.spacing as f32;
+		// }
 		for child in &mut self.children{
 			child.position_children();
 		}

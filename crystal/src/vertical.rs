@@ -342,6 +342,7 @@ mod test{
 		);
 	}
 
+	// FIXME test failing
 	#[test]
 	fn test_horizontal_with_vertical_shrink_width(){
 		let window = Size::new(800.0, 800.0);
@@ -508,10 +509,4 @@ mod test{
 			node.children()[1].size().width != 3.0 * node.children()[0].size().width
 		);
 	}
-
-	#[test]
-	fn test_positioning(){
-		todo!()
-	}
-
 }

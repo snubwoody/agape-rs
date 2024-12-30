@@ -37,9 +37,10 @@ fn main() {
         chips,
 		hstack!{
 			feather_icons::search(),
+			Spacer(), 
 			Text::new("Recents"),
 			feather_icons::list()
-		},
+		}.width_fill(),
         SidebarItem("Liked songs"),
         SidebarItem("Channel Orange"),
         SidebarItem("Wunna"),

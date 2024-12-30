@@ -65,13 +65,6 @@ fn test_flex_sizing(){
 }
 
 #[test]
-fn test_empty_inner_flex_size(){
-	// Test that inner flex widgets have a width of zero when their parent is set
-	// to shrink
-	todo!()
-}
-
-#[test]
 fn test_flex_with_shrink(){
 	let window = Size::new(800.0, 800.0);
 	let padding = 24;
