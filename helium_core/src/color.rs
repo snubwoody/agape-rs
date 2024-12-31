@@ -21,6 +21,13 @@ pub enum Color{
 } 
 
 impl Color {
+	// TODO test this and add other variants
+	/// Convert any variant of [`Color`] to the `Rgb` variant
+	pub fn as_rgb(&self) -> Self{
+		let [r,g,b,_] = self.to_rgba();
+		Self::Rgb(r, g, b)
+	}
+
 	/// Parse any type of color to rgba values
 	pub fn to_rgba(&self) -> [u8;4] {		
 		match self {
@@ -42,10 +49,6 @@ impl Color {
 	/// - Any string that isn't six characters in length
 	/// - Any string that isn't is hexadecimal format
 	pub fn hex_to_rgba(hex:&str) -> Result<[u8;4],String>{
-		// if hex.chars().nth(0) != Some('#'){
-		// 	return Err("Invalid hex code: missing # at start of hex".into())
-		// }
-		
 		let hex_code = hex.strip_prefix("#").ok_or("Invalid hex code: missing `#` at the start of hex")?;
 
 		if hex_code.len() != 6 {
