@@ -2,7 +2,7 @@ name: Rust
 
 on:
   push:
-    branches: [ "main","unstable"]
+    branches: [ "unstable"]
   pull_request:
     branches: [ "main","unstable" ]
 

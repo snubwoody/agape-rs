@@ -11,7 +11,6 @@ pub const INDIGO:Color = Color::Rgb(99, 102, 241);
 pub const PINK:Color = Color::Rgb(236, 72, 153);
 pub const TRANSPARENT:Color = Color::Rgba(0, 0, 0,0);
 
-
 /// Represents a color. If an invalid hex code is used, it will default back to 
 /// white. Use the `hex!` macro to validate hex codes at compile time.
 #[derive(Debug,Clone,PartialEq, Eq)]
@@ -31,9 +30,7 @@ impl Color {
 				[*r,*g,*b,a]
 			},
 			Self::Hex(color) => {
-				// Map invalid colors to white
-				let color = Color::hex_to_rgba(&color).unwrap_or([255,255,255,100]);
-				color
+				Color::hex_to_rgba(&color).unwrap_or([255,255,255,100])
 			}
 		}
 	}
@@ -45,11 +42,11 @@ impl Color {
 	/// - Any string that isn't six characters in length
 	/// - Any string that isn't is hexadecimal format
 	pub fn hex_to_rgba(hex:&str) -> Result<[u8;4],String>{
-		if hex.chars().nth(0) != Some('#'){// TODO implement a custom error
-			return Err("Invalid hex code: missing # at start of hex".into())
-		}
+		// if hex.chars().nth(0) != Some('#'){
+		// 	return Err("Invalid hex code: missing # at start of hex".into())
+		// }
 		
-		let hex_code = hex.strip_prefix("#").unwrap();
+		let hex_code = hex.strip_prefix("#").ok_or("Invalid hex code: missing `#` at the start of hex")?;
 
 		if hex_code.len() != 6 {
 			return Err("Invalid hex code: Hex colors should be 6 characters in length".into());
@@ -109,8 +106,8 @@ mod test{
 
 	#[test]
 	fn test_hex_conversion_errors(){
-		assert_eq!(Color::hex_to_rgba(""),Err("Invalid hex code: missing # at start of hex".into()));
+		assert_eq!(Color::hex_to_rgba(""),Err("Invalid hex code: missing `#` at the start of hex".into()));
 		assert_eq!(Color::hex_to_rgba("#"),Err("Invalid hex code: Hex colors should be 6 characters in length".into()));
-		assert_eq!(Color::hex_to_rgba("ffffff"),Err("Invalid hex code: missing # at start of hex".into()));
+		assert_eq!(Color::hex_to_rgba("ffffff"),Err("Invalid hex code: missing `#` at the start of hex".into()));
 	}
 }
