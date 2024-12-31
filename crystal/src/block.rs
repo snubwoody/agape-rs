@@ -1,8 +1,7 @@
-use std::f32::INFINITY;
 use helium_core::{position::Position, size::Size};
-use crate::{AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
+use crate::{AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter};
 
-/// This layout only has one child
+/// A [`BlockLayout`] is a layout that only has one child.
 #[derive(Debug)]
 pub struct BlockLayout{
 	pub id:String,
@@ -36,6 +35,43 @@ impl BlockLayout {
 			child
 		}
 	}
+
+	fn align_main_axis_start(&mut self){
+		let mut x_pos = self.position.x;
+		x_pos += self.padding as f32;
+
+		self.child.set_x(x_pos);
+	}
+
+	/// Align the children on the main axis in the center
+	fn align_main_axis_center(&mut self){
+		// TODO handle overflow
+		let center_start = self.position.x + (self.size.width - self.child.size().width)/2.0;
+		self.child.set_x(center_start);
+	}
+
+	fn align_main_axis_end(&mut self){
+		let mut x_pos = self.position.x + self.size.width;
+		x_pos -= self.padding as f32;
+
+		self.child.set_x(x_pos);
+	}
+
+	fn align_cross_axis_start(&mut self){
+		let y = self.position.y + self.padding as f32;
+		self.child.set_y(y);
+	}
+
+	fn align_cross_axis_center(&mut self){
+		// TODO handle overflow
+		let y_pos = (self.size.height - self.child.size().height) / 2.0 + self.position.y;
+		self.child.set_y(y_pos);
+	}
+
+	fn align_cross_axis_end(&mut self){
+		self.child.set_y(self.position.y + self.size.height - self.padding as f32);
+	}
+
 }
 
 
@@ -239,9 +275,30 @@ impl Layout for BlockLayout {
 	}
 
 	fn position_children(&mut self){
-		let mut current_pos = self.position;
-		current_pos += self.padding as f32; 
-		self.child.set_position(current_pos);
+		match self.main_axis_alignment {
+			AxisAlignment::Start => self.align_main_axis_start(), 
+			AxisAlignment::Center => self.align_main_axis_center(),
+			AxisAlignment::End => self.align_main_axis_end(),
+		}
+
+		match self.cross_axis_alignment {
+			AxisAlignment::Start => self.align_cross_axis_start(), 
+			AxisAlignment::Center => self.align_cross_axis_center(),
+			AxisAlignment::End => self.align_cross_axis_end(),
+		}
+		
+		if 
+			self.child.position().x > self.position.x + self.size.width||
+			self.child.position().y > self.position.y + self.size.height
+		{
+			self.errors.push(
+				LayoutError::OutOfBounds { 
+					parent_id: self.id.clone(), 
+					child_id: self.child.id().to_owned()
+				}
+			);
+		}
+		self.child.position_children();
 	}
 }
 

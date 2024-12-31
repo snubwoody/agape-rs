@@ -1,7 +1,12 @@
 use helium_core::{position::Position, size::Size};
 use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
 
-/// This is a layout with no children
+/// An [`EmptyLayout`] is a layout with no children.  
+/// Common use cases are
+/// - Images
+/// - Text
+/// - Placeholders
+/// - Icons
 #[derive(Debug,Default,Clone)]
 pub struct EmptyLayout{ // TODO add padding
 	pub id:String,
