@@ -8,8 +8,6 @@ const GREY: Color = Color::Hex("#414141");
 const SPOTIFY_GREEN: Color = Color::Hex("#3be477");
 
 fn main() {
-	// TODO add individual padding
-	// TODO add alignment options
     env::set_var("RUST_LOG", "trace,wgpu_core=error,naga=warn,wgpu_hal=error");
     env_logger::init();
 

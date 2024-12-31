@@ -94,7 +94,14 @@ impl Widget for VStack {
 }
 
 
-// TODO test these macros pls
+/// Creates an [`VStack`].  
+/// `vstack!` allows [`VStack`]'s to be declared in a more declarative manner.
+/// ```
+/// vstack!{
+/// 	Button::new("Click me"),
+/// 	Text::new("Hello world")
+/// }
+/// ```
 #[macro_export]
 macro_rules! vstack {
 	($($child:expr), + $(,)?) => {

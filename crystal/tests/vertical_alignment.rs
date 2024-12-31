@@ -4,7 +4,7 @@ use crystal::{
 };
 
 #[test]
-fn test_single_vertical_center_alignment(){
+fn test_single_center_alignment(){
 	let window = Size::new(500.0, 500.0);
 
 	let child_1 = EmptyLayout{
@@ -39,7 +39,7 @@ fn test_single_vertical_center_alignment(){
 }
 
 #[test]
-fn test_vertical_center_alignment(){
+fn test_center_alignment(){
 	let window = Size::new(1500.0, 1500.0);
 
 	let child_1 = EmptyLayout{
@@ -86,26 +86,26 @@ fn test_vertical_center_alignment(){
 	LayoutSolver::solve(&mut root, window);
 
 	let height_sum = (350.0 * 3.0) + (50.0 * 2.0);
-	let center_start = (root.size.width - height_sum) / 2.0;
+	let center_start = (root.size.height - height_sum) / 2.0;
 	
 	let child_1_pos = Position{
-		x:center_start,
-		y:(root.size.height - root.children[0].size().height) / 2.0 + root.position.y
+		x:(root.size.width - root.children[0].size().width) / 2.0 + root.position.x,
+		y:center_start,
 	};
 
 	let child_2_pos = Position{
-		x:center_start + root.children[0].size().width + 50.0,
-		y:(root.size.height - root.children[1].size().height) / 2.0 + root.position.y
+		x:(root.size.width - root.children[1].size().width) / 2.0 + root.position.x,
+		y:center_start + root.children[0].size().height + 50.0,
 	};
 
 	// A bit long but allow it
 	let child_3_pos = Position{
-		x:
+		y:
 			center_start + 
-			root.children[0].size().width + 
-			root.children[1].size().width + 
+			root.children[0].size().height + 
+			root.children[1].size().height + 
 			(50.0 * 2.0),
-		y:(root.size.height - root.children[2].size().height) / 2.0 + root.position.y
+		x:(root.size.width - root.children[2].size().width) / 2.0 + root.position.x
 	};
 
 	assert_eq!(
@@ -145,7 +145,7 @@ fn test_start_alignment(){
 		..Default::default()
 	};
 	
-	let mut root = HorizontalLayout{
+	let mut root = VerticalLayout{
 		position:Position { x: 250.0, y: 10.0 },
 		spacing,
 		padding,
@@ -158,7 +158,7 @@ fn test_start_alignment(){
 	let mut child_1_pos = root.position;
 	child_1_pos += padding as f32;
 	let mut child_2_pos = child_1_pos;
-	child_2_pos.x += root.children[0].size().width + spacing as f32;
+	child_2_pos.y += root.children[0].size().height + spacing as f32;
 
 	assert_eq!(
 		root.children[0].position(),
@@ -193,7 +193,7 @@ fn test_end_alignment(){
 		..Default::default()
 	};
 	
-	let mut root = HorizontalLayout{
+	let mut root = VerticalLayout{
 		position:Position { x: 250.0, y: 10.0 },
 		spacing,
 		padding,
@@ -212,7 +212,7 @@ fn test_end_alignment(){
 	child_2_pos -= padding as f32;
 	
 	let mut child_1_pos = child_2_pos;
-	child_1_pos.x -= root.children[1].size().width - spacing as f32;
+	child_1_pos.y -= root.children[1].size().height - spacing as f32;
 
 	assert_eq!(
 		root.children[0].position(),

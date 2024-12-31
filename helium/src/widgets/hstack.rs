@@ -102,9 +102,17 @@ impl Widget for HStack {
     }
 }
 
-
-// TODO allow trailing commas
-/// An [`HStack`] is a `widget` that positions it's children horizontally
+// TODO add array style syntax like the vec! macro
+/// Creates an [`HStack`].  
+/// `hstack!` allows [`HStack`]'s to be declared in a more declarative manner.
+/// ```
+/// hstack!{
+/// 	Button::new("Click me"),
+/// 	Text::new("Hello world")
+/// }
+/// ```
+/// It is more idiomatic to use `{}` when defining widget structures however you can
+/// use any macro syntax you prefer.
 #[macro_export]
 macro_rules! hstack {
 	($($child:expr), + $(,)?) => {
