@@ -1,4 +1,4 @@
-use crystal::{HorizontalLayout,Layout};
+use crystal::{AxisAlignment, HorizontalLayout, Layout};
 use helium_core::color::TRANSPARENT;
 use crate::{
     app::events::Event, impl_events, impl_style, impl_widget, surface::rect::RectSurface, widgets::{Widget, WidgetBody}, Color
@@ -28,6 +28,16 @@ impl HStack {
 
 	pub fn spacing(mut self, spacing: u32) -> Self {
 		self.layout.spacing = spacing;
+		self
+	}
+
+	pub fn main_axis_alignment(mut self,alignment:AxisAlignment) -> Self{
+		self.layout.main_axis_alignment = alignment;
+		self
+	}
+
+	pub fn cross_axis_alignment(mut self,alignment:AxisAlignment) -> Self{
+		self.layout.cross_axis_alignment = alignment;
 		self
 	}
 

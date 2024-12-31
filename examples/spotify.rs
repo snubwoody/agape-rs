@@ -1,10 +1,7 @@
 use helium::{
-    app::{events::EventQueue, view::View, App},
-    hstack, vstack,
-    widgets::{
+    app::{events::EventQueue, view::View, App}, hstack, vstack, widgets::{
         icon::feather_icons, Container, Rect, Spacer, Text, Widget,
-    },
-    Color, LayoutSolver, Size, BLACK,
+    }, AxisAlignment, Color, LayoutSolver, Size, BLACK
 };
 use std::{
     env,
@@ -17,6 +14,7 @@ const GREY: Color = Color::Hex("#414141");
 const SPOTIFY_GREEN: Color = Color::Hex("#3be477");
 
 fn main() {
+	// TODO fix the block layout max constraints
     env::set_var("RUST_LOG", "trace,wgpu_core=error,naga=warn,wgpu_hal=error,async_std=warn");
     env_logger::init();
 
@@ -39,9 +37,12 @@ fn main() {
         hstack!{
             feather_icons::menu(),
             Text::new("Your library"),
+			Spacer(),
             feather_icons::plus(),
             feather_icons::arrow_right()
-        },
+        }
+		.cross_axis_alignment(AxisAlignment::Center)
+		.fill_width(),
         chips,
         hstack!{
             feather_icons::search(),
@@ -108,8 +109,8 @@ fn BottomBar() -> impl Widget {
             vstack!{
                 Text::new("You've been missed"),
                 Text::new("PARTYNEXTDOOR")
-            }
-        },
+            }.cross_axis_alignment(AxisAlignment::Center).main_axis_alignment(AxisAlignment::Center),
+        }.main_axis_alignment(AxisAlignment::Center),
         Spacer(),
         vstack!{
             hstack!{
@@ -124,7 +125,8 @@ fn BottomBar() -> impl Widget {
                 Rect::new(150.0, 5.0, BLACK).corner_radius(2),
                 Text::new("4:00")
             }
-        }.fit_height()
+        }.fit_height(),
+		Spacer(),
     }
     .fill_width()
 }

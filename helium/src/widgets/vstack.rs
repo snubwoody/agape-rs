@@ -1,7 +1,7 @@
 use crate::{
     app::events::Event, impl_events, impl_style, impl_widget, surface::rect::RectSurface, widgets::{Widget, WidgetBody}, Color
 };
-use crystal::{Layout, VerticalLayout};
+use crystal::{AxisAlignment, Layout, VerticalLayout};
 use helium_core::color::TRANSPARENT;
 
 pub struct VStack {
@@ -28,6 +28,16 @@ impl VStack {
 
 	pub fn spacing(mut self, spacing: u32) -> Self {
 		self.layout.spacing = spacing;
+		self
+	}
+
+	pub fn main_axis_alignment(mut self,alignment:AxisAlignment) -> Self{
+		self.layout.main_axis_alignment = alignment;
+		self
+	}
+
+	pub fn cross_axis_alignment(mut self,alignment:AxisAlignment) -> Self{
+		self.layout.cross_axis_alignment = alignment;
 		self
 	}
 

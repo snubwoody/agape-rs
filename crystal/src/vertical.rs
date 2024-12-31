@@ -288,7 +288,7 @@ impl Layout for VerticalLayout {
 		}
 		
 		
-		for (i,child) in self.children.iter_mut().enumerate(){
+		for (_,child) in self.children.iter_mut().enumerate(){
 			match child.intrinsic_size().width {
 				BoxSizing::Flex(_) => {
 					// The child fills the parent width

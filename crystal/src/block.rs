@@ -231,7 +231,6 @@ impl Layout for BlockLayout {
 			BoxSizing::Shrink => {}
 		}
 
-		// Pass the max size to the children to solve their max constraints
 		self.child.solve_max_contraints(available_space);
 	}
 
