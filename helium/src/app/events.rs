@@ -114,12 +114,3 @@ macro_rules! impl_events {
 		}
 	};
 }
-
-
-#[cfg(test)]
-mod test{
-	#[test]
-	fn test_nested_events(){
-
-	}
-}

@@ -22,7 +22,7 @@ fn main() {
         Chip("Downloaded")
     }
     .spacing(12)
-	.width_fit();
+	.fill_width();
 
 	// FIXME has a width of 0 should be like 500
 	// TODO change width_x to x_width eg fixed_width
@@ -39,7 +39,7 @@ fn main() {
 			Spacer(), 
 			Text::new("Recents"),
 			feather_icons::list(),
-		}.width_fill(),
+		}.fill_width(),
         SidebarItem("Liked songs"),
         SidebarItem("Channel Orange"),
         SidebarItem("Wunna"),
@@ -48,7 +48,7 @@ fn main() {
     .color(BACKGROUND)
     .spacing(24)
 	.padding(24)
-	.height_fill();
+	.fill_height();
 
     let mainpanel = vstack!{
 		announcements,
@@ -60,19 +60,19 @@ fn main() {
     }
 	.padding(24)
 	.spacing(24)
-	.width_fill();
+	.fill_width();
 
     let home_page = hstack!{sidebar,mainpanel}
-		.width_fill()
-		.height_fill();
+		.fill_width()
+		.fill_height();
 
 	let home = vstack!{
 		Navbar(),
 		home_page,
 		BottomBar()
 	}
-	.height_fill()
-	.width_fill();
+	.fill_height()
+	.fill_width();
 
 	let (_,mut layout) = home.build();
 	LayoutSolver::solve(&mut *layout, Size::new(500.0, 500.0));
@@ -117,15 +117,15 @@ fn BottomBar() -> impl Widget{
 				Rect::new(150.0, 5.0, BLACK).corner_radius(2),
 				Text::new("4:00")
 			}
-		}.height_fit()
-	}.width_fill()
+		}.fit_height()
+	}.fill_width()
 }
 
 fn Navbar() -> impl Widget{
 	hstack!{
 		Text::new("Test")
 	}
-	.width_fill()
+	.fill_width()
 	.color(BACKGROUND)
 }
 

@@ -33,7 +33,7 @@ mod test{
 			Rect::new(20.0, 20.0, BLACK),
 			Spacer(),
 			Rect::new(20.0, 20.0, BLACK)
-		}.width_fit();
+		}.fit_width();
 
 		let (_,mut layout) = widget.build();
 
@@ -49,7 +49,7 @@ mod test{
 			Rect::new(20.0, 20.0, BLACK),
 			Spacer(),
 			Rect::new(20.0, 20.0, BLACK)
-		}.width_fill();
+		}.fill_width();
 
 		let (_,mut layout) = widget.build();
 
