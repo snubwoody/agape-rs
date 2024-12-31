@@ -1,7 +1,16 @@
 use helium::{
-    app::{events::EventQueue, view::View, App}, hstack, vstack, widgets::{icon::feather_icons, Button, Container, Image, Rect, Spacer, Text, Widget, WidgetBody}, Color, LayoutSolver, Size, BLACK, TRANSPARENT
+    app::{events::EventQueue, view::View, App},
+    hstack, vstack,
+    widgets::{
+        icon::feather_icons, Container, Rect, Spacer, Text, Widget,
+    },
+    Color, LayoutSolver, Size, BLACK,
 };
-use std::{env, fs::OpenOptions, io::{BufWriter, Write}};
+use std::{
+    env,
+    fs::OpenOptions,
+    io::{BufWriter, Write},
+};
 
 const BACKGROUND: Color = Color::Hex("#121212");
 const GREY: Color = Color::Hex("#414141");
@@ -13,7 +22,9 @@ fn main() {
 
     let event_queue = EventQueue::new();
 
-	let announcements = Rect::new(0.0, 400.0, BACKGROUND).flex_width(1).corner_radius(24);
+    let announcements = Rect::new(0.0, 400.0, BACKGROUND)
+        .flex_width(1)
+        .corner_radius(24);
 
     let chips = hstack! {
         Chip("Playlist"),
@@ -22,24 +33,24 @@ fn main() {
         Chip("Downloaded")
     }
     .spacing(12)
-	.fill_width();
+    .fill_width();
 
-	// FIXME has a width of 0 should be like 500
-	// TODO change width_x to x_width eg fixed_width
+    // FIXME has a width of 0 should be like 500
+    // TODO change width_x to x_width eg fixed_width
     let sidebar = vstack! {
-		hstack!{
-			feather_icons::menu(),
-			Text::new("Your library"),
-			feather_icons::plus(),
-			feather_icons::arrow_right()
-		},
+        hstack!{
+            feather_icons::menu(),
+            Text::new("Your library"),
+            feather_icons::plus(),
+            feather_icons::arrow_right()
+        },
         chips,
-		hstack!{
-			feather_icons::search(),
-			Spacer(), 
-			Text::new("Recents"),
-			feather_icons::list(),
-		}.fill_width(),
+        hstack!{
+            feather_icons::search(),
+            Spacer(),
+            Text::new("Recents"),
+            feather_icons::list(),
+        }.fill_width(),
         SidebarItem("Liked songs"),
         SidebarItem("Channel Orange"),
         SidebarItem("Wunna"),
@@ -47,86 +58,85 @@ fn main() {
     }
     .color(BACKGROUND)
     .spacing(24)
-	.padding(24)
-	.fill_height();
+    .padding(24)
+    .fill_height();
 
-    let mainpanel = vstack!{
-		announcements,
+    let mainpanel = vstack! {
+        announcements,
         hstack!{
             Chip("All"),
             Chip("Music"),
             Chip("Podcasts")
         }.spacing(12)
     }
-	.padding(24)
-	.spacing(24)
-	.fill_width();
+    .padding(24)
+    .spacing(24)
+    .fill_width();
 
-    let home_page = hstack!{sidebar,mainpanel}
-		.fill_width()
-		.fill_height();
+    let home_page = hstack! {sidebar,mainpanel}.fill_width().fill_height();
 
-	let home = vstack!{
-		Navbar(),
-		home_page,
-		BottomBar()
-	}
-	.fill_height()
-	.fill_width();
+    let home = vstack! {
+        Navbar(),
+        home_page,
+        BottomBar()
+    }
+    .fill_height()
+    .fill_width();
 
-	let (_,mut layout) = home.build();
-	LayoutSolver::solve(&mut *layout, Size::new(500.0, 500.0));
+    let (_, mut layout) = home.build();
+    LayoutSolver::solve(&mut *layout, Size::new(500.0, 500.0));
 
-	// TODO im probably going to be using this a lot so probs just make it a function
-	// maybe LayoutSolver::solve_and_write(path:&str)
-	let file = OpenOptions::new()
-		.write(true)
-		.read(true)
-		.open("C:/Users/wakun/Projects/Tools/Rust-UI/examples/temp/layout.txt").unwrap();
-	let mut writer = BufWriter::new(file);
+    // TODO im probably going to be using this a lot so probs just make it a function
+    // maybe LayoutSolver::solve_and_write(path:&str)
+    let file = OpenOptions::new()
+        .write(true)
+        .read(true)
+        .open("C:/Users/wakun/Projects/Tools/Rust-UI/examples/temp/layout.txt")
+        .unwrap();
+    let mut writer = BufWriter::new(file);
 
-	writer.write(format!("{:#?}",layout).as_bytes()).unwrap();
-	writer.flush().unwrap();
-	
-	let home = View::new(home, event_queue);
+    writer.write(format!("{:#?}", layout).as_bytes()).unwrap();
+    writer.flush().unwrap();
+
+    let home = View::new(home, event_queue);
     App::new().add_view(home).run();
-
 }
 
-fn BottomBar() -> impl Widget{
-	hstack!{
-		hstack!{
-			Rect::new(50.0, 50.0, BLACK)
-			.corner_radius(12),
-			vstack!{
-				Text::new("You've been missed"),
-				Text::new("PARTYNEXTDOOR")
-			}
-		},
-		Spacer(),
-		vstack!{
-			hstack!{
-				feather_icons::shuffle(),
-				feather_icons::skip_back(),
-				feather_icons::play(),
-				feather_icons::skip_forward(),
-				feather_icons::repeat()
-			},
-			hstack!{
-				Text::new("0:00"),
-				Rect::new(150.0, 5.0, BLACK).corner_radius(2),
-				Text::new("4:00")
-			}
-		}.fit_height()
-	}.fill_width()
+fn BottomBar() -> impl Widget {
+    hstack! {
+        hstack!{
+            Rect::new(50.0, 50.0, BLACK)
+            .corner_radius(12),
+            vstack!{
+                Text::new("You've been missed"),
+                Text::new("PARTYNEXTDOOR")
+            }
+        },
+        Spacer(),
+        vstack!{
+            hstack!{
+                feather_icons::shuffle(),
+                feather_icons::skip_back(),
+                feather_icons::play(),
+                feather_icons::skip_forward(),
+                feather_icons::repeat()
+            },
+            hstack!{
+                Text::new("0:00"),
+                Rect::new(150.0, 5.0, BLACK).corner_radius(2),
+                Text::new("4:00")
+            }
+        }.fit_height()
+    }
+    .fill_width()
 }
 
-fn Navbar() -> impl Widget{
-	hstack!{
-		Text::new("Test")
-	}
-	.fill_width()
-	.color(BACKGROUND)
+fn Navbar() -> impl Widget {
+    hstack! {
+        Text::new("Test")
+    }
+    .fill_width()
+    .color(BACKGROUND)
 }
 
 fn Chip(text: &str) -> impl Widget {
@@ -138,17 +148,16 @@ fn Chip(text: &str) -> impl Widget {
         .padding(12)
 }
 
-fn SidebarItem(title:&str) -> impl Widget{
-	hstack! {
-		Rect::new(50.0, 50.0, GREY).corner_radius(12),
-		vstack!{
-			Text::new(title),
-			hstack!{
-				Text::new("Playlist"),
-				Text::new("Charlemagne")
-			}.spacing(12)
-		}
-	}
-	.spacing(12)
+fn SidebarItem(title: &str) -> impl Widget {
+    hstack! {
+        Rect::new(50.0, 50.0, GREY).corner_radius(12),
+        vstack!{
+            Text::new(title),
+            hstack!{
+                Text::new("Playlist"),
+                Text::new("Charlemagne")
+            }.spacing(12)
+        }
+    }
+    .spacing(12)
 }
-

@@ -2,6 +2,7 @@ use std::f32::INFINITY;
 use helium_core::{position::Position, size::Size};
 use crate::{AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter};
 
+// TODO if min width is larger than max width then it's an overflow
 /// A [`VerticalLayout`] sizes and position it's children horizontally, of course, the `Flex` 
 /// attribute means a layout node will fill it's widget, however the flex factor only works in 
 /// the x-axis, in the y-axis all nodes will fill the parent and will be the same height.
@@ -47,6 +48,9 @@ impl VerticalLayout {
 			match child.intrinsic_size().height {
 				BoxSizing::Fixed(height) => {
 					sum.height += height;
+				}
+				BoxSizing::Shrink => {
+					sum.height += child.constraints().min_height;
 				},
 				_ => {}
 			}
@@ -320,7 +324,6 @@ impl Layout for VerticalLayout {
 			}
 
 			// TODO not using size anymore
-			// Pass the max size to the children to solve their max constraints
 			child.solve_max_contraints(Size::default());
 		}
 	}
