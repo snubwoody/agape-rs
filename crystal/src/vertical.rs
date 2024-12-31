@@ -54,12 +54,6 @@ impl VerticalLayout {
 				},
 				_ => {}
 			}
-
-			// TODO leaving this here is confusing should move it to the constraint functions
-			// Add the spacing between layouts
-			if i != self.children.len() - 1 {
-				sum.height += self.spacing as f32;
-			} 
 		}
 
 		sum
@@ -195,7 +189,6 @@ impl Layout for VerticalLayout {
 	}
 
 	fn sort_children(&mut self) {
-		// TODO add a custom error and return it
 		// self.children.sort_by(|a,b|
 		// 	a.intrinsic_size().height.partial_cmp(&b.intrinsic_size().height).unwrap()
 		// );
@@ -264,12 +257,14 @@ impl Layout for VerticalLayout {
 		let mut available_height;
 		match self.intrinsic_size.height {
 			BoxSizing::Shrink => {
-				available_height = self.constraints.min_height
+				available_height = self.constraints.min_height;
+				available_height -= self.fixed_size_sum().height;
 			},
 			BoxSizing::Fixed(_) | 
 			BoxSizing::Flex(_) => {
 				available_height = self.constraints.max_height;
 				available_height -= self.padding as f32 * 2.0;
+				available_height -= self.fixed_size_sum().height;
 			}
 		}
 
@@ -284,6 +279,14 @@ impl Layout for VerticalLayout {
 				available_width -= self.padding as f32 * 2.0;
 			}
 		}
+
+		if !self.children.is_empty(){
+			// Add the spacing between layouts
+			for _ in 0..self.children.len() - 1 {
+				available_height -= self.spacing as f32;
+			} 
+		}
+		
 		
 		for (i,child) in self.children.iter_mut().enumerate(){
 			match child.intrinsic_size().width {
@@ -310,15 +313,11 @@ impl Layout for VerticalLayout {
 				},
 				BoxSizing::Fixed(height) => {
 					child.set_max_height(height);
-					available_height -= height;
+					//available_height -= height;
 				}
 				BoxSizing::Shrink => {
-					available_height -= child.constraints().min_height
+					//available_height -= child.constraints().min_height
 				}
-			}
-
-			if i != children_len - 1{
-				available_height -= self.spacing as f32
 			}
 
 			// TODO not using size anymore
