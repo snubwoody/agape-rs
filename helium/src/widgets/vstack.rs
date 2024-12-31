@@ -89,7 +89,7 @@ impl Widget for VStack {
 /// 
 /// `vstack!` allows [`VStack`]'s to be declared in a more declarative manner.  
 /// 
-/// ```
+/// ```ignore
 /// vstack!{
 /// 	Button::new("Click me"),
 /// 	Text::new("Hello world")

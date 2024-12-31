@@ -163,8 +163,9 @@ mod test{
 	// FIXME
 	#[test]
 	fn test_horizontal_and_empty_layout(){
-		// TODO test negative sizes as well
+		// TODO split this into a smaller function that tests flex layouts have 0 size
 		let window = Size::new(1000.0, 1000.0);
+
 		let mut child_1 = EmptyLayout::new();
 		child_1.intrinsic_size.width = BoxSizing::Fixed(250.0);
 		child_1.intrinsic_size.height = BoxSizing::Flex(1);
@@ -177,9 +178,7 @@ mod test{
 		child_3.intrinsic_size.height = BoxSizing::Fixed(250.0);
 		
 		let mut root = HorizontalLayout::new();
-		root.add_child(child_1);
-		root.add_child(child_2);
-		root.add_child(child_3);
+		root.add_children([child_1,child_2,child_3]);
 		
 		LayoutSolver::solve(&mut root, window);
 		
@@ -193,7 +192,7 @@ mod test{
 		);
 		assert_eq!(
 			root.children[1].size(),
-			Size::new(250.0, 20.0)
+			Size::new(0.0,20.0)
 		);
 		assert_eq!(
 			root.children[2].size(),

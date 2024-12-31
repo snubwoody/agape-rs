@@ -2,6 +2,7 @@ use std::f32::INFINITY;
 use helium_core::{position::Position, size::Size};
 use crate::{AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter};
 
+// TODO test max constraints
 /// A [`HorizontalLayout`] sizes and position it's children horizontally, of course, the `Flex` 
 /// attribute means a layout node will fill it's widget, however the flex factor only works in 
 /// the x-axis, in the y-axis all nodes will fill the parent and will be the same height.
@@ -12,8 +13,6 @@ pub struct HorizontalLayout{
 	pub position:Position,
 	pub spacing:u32,
 	pub padding:u32,
-	// TODO i'm thinking of adding user constraints as well so that people can define their own 
-	// constraints
 	pub constraints:BoxContraints,
 	pub intrinsic_size:IntrinsicSize,
 	/// The main axis is the axis which the content flows in, for the [`HorizontalLayout`]
@@ -213,7 +212,6 @@ impl Layout for HorizontalLayout {
 	}
 
 	fn solve_min_constraints(&mut self) -> (f32,f32){
-		// The sum of the size of all the children with fixed sizes
 		let mut fixed_sum = self.fixed_size_sum();
 		fixed_sum += self.padding as f32 * 2.0;
 
@@ -232,7 +230,6 @@ impl Layout for HorizontalLayout {
 				self.constraints.min_width = width;	
 			},
 			BoxSizing::Flex(_) => {
-				// TODO maybe set the min constraints to either 0 or the size of the children
 				self.constraints.min_width = child_constraint_sum.width;	
 			},
 			BoxSizing::Shrink => {
@@ -271,26 +268,37 @@ impl Layout for HorizontalLayout {
 			})
 			.sum();
 			
-		let mut available_space = Size{
-			width:self.constraints.max_width,
-			height:self.constraints.max_height
-		};
-		available_space -= self.padding as f32 * 2.0;
-		available_space.width -= self.fixed_size_sum().width;
+		let mut available_height;
+		match self.intrinsic_size.height {
+			BoxSizing::Shrink => {
+				available_height = self.constraints.min_height
+			},
+			BoxSizing::Fixed(_) | 
+			BoxSizing::Flex(_) => {
+				available_height = self.constraints.max_height;
+				available_height -= self.padding as f32 * 2.0;
+			}
+		}
 
-		// for shrink nodes, which doesn't make any sense.
+		let mut available_width;
+		match self.intrinsic_size.width {
+			BoxSizing::Shrink => {
+				available_width = self.constraints.min_width;
+				available_width -= self.fixed_size_sum().width;
+			},
+			BoxSizing::Fixed(_) | 
+			BoxSizing::Flex(_) => {
+				available_width = self.constraints.max_width;
+				available_width -= self.padding as f32 * 2.0;
+				available_width -= self.fixed_size_sum().width;
+			}
+		}
+		
 		for child in &mut self.children{
 			match child.intrinsic_size().width {
 				BoxSizing::Flex(factor) => {
-					// Make sure the factor isn't bigger than available size
-					let grow_factor = 
-						factor as f32 / flex_total as f32;
-					
-					child.set_max_width(grow_factor * available_space.width);
-					
-					// TODO replace with custom err 
-					assert_ne!(grow_factor,INFINITY);
-					
+					let grow_factor = factor as f32 / flex_total as f32;
+					child.set_max_width(grow_factor * available_width);
 				}
 				BoxSizing::Fixed(width) => {
 					child.set_max_width(width);
@@ -303,8 +311,6 @@ impl Layout for HorizontalLayout {
 
 			match child.intrinsic_size().height {
 				BoxSizing::Flex(_) => {
-					let available_height = 
-						self.constraints.max_height - self.padding as f32 * 2.0;
 					child.set_max_height(available_height);
 				},
 				BoxSizing::Fixed(height) => {
@@ -322,6 +328,7 @@ impl Layout for HorizontalLayout {
 				width:child.constraints().max_width,
 				height:child.constraints().max_height
 			};
+
 			// TODO not even using the space anymore
 			child.solve_max_contraints(space);
 		}

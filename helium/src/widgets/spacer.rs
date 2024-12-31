@@ -2,7 +2,10 @@ use crystal::{BoxSizing, EmptyLayout};
 
 use super::{Widget, WidgetBody};
 
-/// A [`Widget`] that fills up all the available space
+/// A [`Widget`] that fills up all the available space.  
+/// Note that `Spacer`'s have no effect when the parent `widget` has
+/// an intrinsic size of `Shrink`, because the parent will try to be 
+/// as small as possible, hence the spacer will have 0 size.
 pub struct Spacer();
 
 impl Widget for Spacer {
@@ -38,6 +41,7 @@ mod test{
 		let (_,mut layout) = widget.build();
 
 		LayoutSolver::solve(layout.as_mut(), window);
+		dbg!(&layout);
 
 		assert_eq!(layout.children()[1].size().width,0.0);
 	}

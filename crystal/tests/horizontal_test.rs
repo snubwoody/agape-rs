@@ -96,10 +96,11 @@ fn test_flex_with_shrink(){
 	let mut root_size = Size::new(800.0, 250.0);
 	root_size.height += (padding * 4) as f32; // Add the padding for child_1 and for the root 
 
-	let mut child_2_size = window;
+	let mut child_2_size = Size::new(window.width, child_1_size.height);
 	child_2_size.width -= child_1_size.width;
 	child_2_size.width -= spacing as f32;
-	child_2_size -= (padding * 2) as f32;
+	child_2_size.width -= (padding * 2) as f32;
+	child_2_size.height += (padding * 2) as f32;
 	
 	assert_eq!(
 		root.size(),
@@ -138,11 +139,10 @@ fn test_flex_with_fixed(){
 	root.intrinsic_size.height = BoxSizing::Flex(1);
 	root.padding = padding;
 	root.spacing = spacing;
-	root.add_child(child_1);
-	root.add_child(child_2);
-	root.add_child(child_3);
+	root.add_children([child_1,child_2,child_3]);
 	
 	LayoutSolver::solve(&mut root, window);
+	dbg!(&root);
 
 	let mut space = window;
 	space -= (padding * 2) as f32;

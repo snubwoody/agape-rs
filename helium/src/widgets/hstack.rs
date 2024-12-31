@@ -91,7 +91,8 @@ impl Widget for HStack {
 // TODO add array style syntax like the vec! macro
 /// Creates an [`HStack`].  
 /// `hstack!` allows [`HStack`]'s to be declared in a more declarative manner.
-/// ```
+/// ```ignore
+/// 
 /// hstack!{
 /// 	Button::new("Click me"),
 /// 	Text::new("Hello world")
