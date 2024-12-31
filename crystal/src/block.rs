@@ -134,16 +134,11 @@ impl Layout for BlockLayout {
 	}
 
 	
-	fn collect_errors(&self) -> Vec<crate::LayoutError> {
+	fn collect_errors(&mut self) -> Vec<crate::LayoutError> {
 		self.errors
-		.iter()
-		.cloned()
+		.drain(..)
 		.chain(
-			self
-			.child
-			.iter()
-			.flat_map(|child|child.collect_errors())
-			.collect::<Vec<_>>()
+			self.child.collect_errors()
 		).collect::<Vec<_>>()
 	}
 

@@ -189,14 +189,13 @@ impl Layout for HorizontalLayout {
 		self.constraints.min_width = width;
 	}
 
-	fn collect_errors(&self) -> Vec<crate::LayoutError> {
+	fn collect_errors(&mut self) -> Vec<crate::LayoutError> {
 		self.errors
-		.iter()
-		.cloned()
+		.drain(..)
 		.chain(
 			self
 			.children
-			.iter()
+			.iter_mut()
 			.flat_map(|child|child.collect_errors())
 			.collect::<Vec<_>>()
 		).collect::<Vec<_>>()

@@ -17,7 +17,7 @@ const GREY: Color = Color::Hex("#414141");
 const SPOTIFY_GREEN: Color = Color::Hex("#3be477");
 
 fn main() {
-    env::set_var("RUST_LOG", "trace,wgpu_core=error,naga=warn,wgpu_hal=error");
+    env::set_var("RUST_LOG", "trace,wgpu_core=error,naga=warn,wgpu_hal=error,async_std=warn");
     env_logger::init();
 
     let event_queue = EventQueue::new();

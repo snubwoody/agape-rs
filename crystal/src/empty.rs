@@ -83,10 +83,9 @@ impl Layout for EmptyLayout {
 	}
 
 	
-	fn collect_errors(&self) -> Vec<crate::LayoutError> {
+	fn collect_errors(&mut self) -> Vec<crate::LayoutError> {
 		self.errors
-		.iter()
-		.cloned()
+		.drain(..)
 		.collect::<Vec<_>>()
 	}
 

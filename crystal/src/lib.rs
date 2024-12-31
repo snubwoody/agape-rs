@@ -33,7 +33,7 @@ impl LayoutSolver {
 		root.solve_max_contraints(window_size);
 		root.update_size();
 		root.position_children();
-		
+		// TODO add a push error function that checks for equality so that we don't have duplicate errors
 		root.collect_errors()
 	}
 }
@@ -55,7 +55,7 @@ pub trait Layout:Debug{
 	fn update_size(&mut self);
 
 	/// Collect all the errors from the error stack
-	fn collect_errors(&self) -> Vec<LayoutError>;
+	fn collect_errors(&mut self) -> Vec<LayoutError>;
 
 	/// Sort the children based on their intrinsic sizing, [`HorizontalLayout`]'s are ordered
 	/// based on the children's `intrinsic width` and [`VerticalLayout`]'s are ordered based on their 
