@@ -4,7 +4,6 @@ use std::ops::{Add, AddAssign, Div, Mul, Sub, SubAssign};
 use winit::dpi::PhysicalSize;
 
 /// Anything with a width and a height
-// TODO change size and position to u32
 #[derive(Debug,Clone,Copy,PartialEq,PartialOrd,Default)]
 pub struct Size{
 	pub width:f32,

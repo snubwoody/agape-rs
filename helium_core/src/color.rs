@@ -1,6 +1,5 @@
 use crate::map;
 
-// TODO make a macro for this and use some kind of config
 pub const BLACK:Color = Color::Rgb(0, 0, 0);
 pub const WHITE:Color = Color::Rgb(255, 255, 255);
 pub const AMBER:Color = Color::Rgb(245, 158, 11);
@@ -22,7 +21,6 @@ pub enum Color{
 	Hex(&'static str)
 } 
 
-// TODO impl From
 impl Color {
 	/// Parse any type of color to rgba values
 	pub fn to_rgba(&self) -> [u8;4] {		

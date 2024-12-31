@@ -8,7 +8,7 @@ use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
 /// - Placeholders
 /// - Icons
 #[derive(Debug,Default,Clone)]
-pub struct EmptyLayout{ // TODO add padding
+pub struct EmptyLayout{
 	pub id:String,
 	pub size:Size,
 	pub position:Position,
@@ -131,7 +131,6 @@ impl Layout for EmptyLayout {
 				self.size.width = self.constraints.min_width;
 			},
 			BoxSizing::Fixed(width) => {
-				// TODO maybe set the min constrains?
 				self.size.width = width;
 			}
 		}
@@ -144,7 +143,6 @@ impl Layout for EmptyLayout {
 				self.size.height = self.constraints.min_height;
 			},
 			BoxSizing::Fixed(height) => {
-				// TODO maybe set the min constrains?
 				self.size.height = height;
 			}
 		}

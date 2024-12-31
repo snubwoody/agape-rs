@@ -1,8 +1,7 @@
 use std::ops::{AddAssign, SubAssign};
+use winit::dpi::PhysicalPosition;
+use crate::size::Size;
 
-use winit::dpi::{PhysicalPosition, PhysicalSize};
-
-// TODO should probably test these since they are the backbone of everything
 /// Represents the position of any structure
 #[derive(Debug,Clone,Copy,PartialEq,PartialOrd,Default)]
 pub struct Position{
@@ -80,17 +79,35 @@ impl From<PhysicalPosition<f64>> for Position {
 	}
 }
 
-
 /// The bounds of any object that has a [`Size`] 
 /// and [`Position`].
 #[derive(Debug,Clone,Copy,PartialEq, PartialOrd,Default)]
 pub struct Bounds {
-	pub x:[f32;2], // TODO change this to start and end position and add a center, and test
+	pub x:[f32;2],
 	pub y:[f32;2],
 }
 
 impl Bounds{
-	/// Check if a [`Position`] is within the bounds
+	pub fn new(position:&Position,size:&Size) -> Self{
+		Self { 
+			x: [position.x,position.x + size.width], 
+			y: [position.y, position.y + size.height]
+		}
+	}
+
+	/// Check if a [`Position`] is within the [`Bounds`].
+	/// 
+	/// # Example
+	/// ```
+	/// 	use helium_core::{position::{Position,Bounds},size::Size};
+	/// 
+	/// 	let size = Size::new(250.0,100.0);
+	/// 	let position = Position::new(10.0,0.0);
+	/// 
+	/// 	let bounds = Bounds::new(&position,&size);
+	/// 
+	/// 	assert!(bounds.within(&Position::new(50.0,45.5)));
+	/// ```
 	pub fn within(&self,position:&Position) -> bool {
 		if 
 			position.x > self.x[0] && 

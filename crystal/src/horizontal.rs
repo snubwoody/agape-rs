@@ -43,11 +43,11 @@ impl HorizontalLayout {
 		}
 	}
 
+	// TODO should probably rename this function
 	/// Calculate the sum of the width's of all nodes with fixed sizes and the max height
 	fn fixed_size_sum(&self) -> Size{
 		let mut sum = Size::default();
 
-		// TODO should probably rename this function
 		for (i,child) in self.children.iter().enumerate(){
 			match child.intrinsic_size().width {
 				BoxSizing::Fixed(width) => {
@@ -61,7 +61,6 @@ impl HorizontalLayout {
 
 			match child.intrinsic_size().height {
 				BoxSizing::Fixed(height) => {
-					// TODO not sure about this
 					sum.height = sum.height.max(height);
 				},
 				_ => {}
@@ -202,7 +201,6 @@ impl Layout for HorizontalLayout {
 	}
 
 	fn sort_children(&mut self) {
-		// FIXME this is messing with the order of the children, so probably just return?
 		// self.children.sort_by(|a,b|
 		// 	a.intrinsic_size().width.partial_cmp(&b.intrinsic_size().width).unwrap()
 		// );
@@ -229,7 +227,6 @@ impl Layout for HorizontalLayout {
 		}
 		child_constraint_sum += self.padding as f32 * 2.0;
 
-		// TODO i think im supposed to calculate the min constraints of the children as well
 		match self.intrinsic_size.width {
 			BoxSizing::Fixed(width) => {
 				self.constraints.min_width = width;	
@@ -259,7 +256,6 @@ impl Layout for HorizontalLayout {
 		(self.constraints.min_width,self.constraints.min_height)
 	}
 
-	// TODO add custom errors for negative and infinite spacing
 	fn solve_max_contraints(&mut self,space:Size) {
 		// Sum up all the flex factors
 		let flex_total:u8 = 
@@ -282,8 +278,6 @@ impl Layout for HorizontalLayout {
 		available_space -= self.padding as f32 * 2.0;
 		available_space.width -= self.fixed_size_sum().width;
 
-		// TODO subtract the spacing
-		// TODO currently the min constraints are bigger then max constraints
 		// for shrink nodes, which doesn't make any sense.
 		for child in &mut self.children{
 			match child.intrinsic_size().width {
@@ -309,7 +303,6 @@ impl Layout for HorizontalLayout {
 
 			match child.intrinsic_size().height {
 				BoxSizing::Flex(_) => {
-					// TODO Maybe set to min constraints?
 					let available_height = 
 						self.constraints.max_height - self.padding as f32 * 2.0;
 					child.set_max_height(available_height);
@@ -343,7 +336,6 @@ impl Layout for HorizontalLayout {
 				self.size.width = self.constraints.min_width;
 			},
 			BoxSizing::Fixed(width) => {
-				// TODO maybe set the min constrains?
 				self.size.width = width;
 			}
 		}
@@ -356,7 +348,6 @@ impl Layout for HorizontalLayout {
 				self.size.height = self.constraints.min_height;
 			},
 			BoxSizing::Fixed(height) => {
-				// TODO maybe set the min constrains?
 				self.size.height = height;
 			}
 		}

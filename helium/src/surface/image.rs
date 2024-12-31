@@ -1,17 +1,10 @@
-use std::{error::Error, fmt::Debug};
-use image::{GenericImageView, ImageReader, RgbaImage};
+use std::fmt::Debug;
 use wgpu::util::DeviceExt;
 use crate::{
 	app::AppState, impl_surface, surface::Surface, 
 	geometry::vertex::Vertex, Bounds, Color, Position, Size
 };
 
-pub enum Image{
-	File,
-	Url
-}
-
-// FIXME change the color to Color enum
 /// Draws images to the screen
 #[derive(Clone)]
 pub struct ImageSurface{

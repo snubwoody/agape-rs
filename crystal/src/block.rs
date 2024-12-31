@@ -185,10 +185,8 @@ impl Layout for BlockLayout {
 
 		let (min_width,min_height) = self.child.solve_min_constraints();
 		
-		// TODO i think im supposed to calculate the min constraints of the children as well
 		match self.intrinsic_size.width {
 			BoxSizing::Flex(_) => {
-				// TODO maybe set the min constraints to either 0 or the size of the children
 				self.constraints.min_width = min_width + self.padding as f32 * 2.0;	
 			},
 			BoxSizing::Shrink => {
@@ -248,7 +246,6 @@ impl Layout for BlockLayout {
 				self.size.width = self.constraints.min_width;
 			},
 			BoxSizing::Fixed(width) => {
-				// TODO maybe set the min constrains?
 				self.size.width = width;
 			}
 		}
@@ -261,7 +258,6 @@ impl Layout for BlockLayout {
 				self.size.height = self.constraints.min_height;
 			},
 			BoxSizing::Fixed(height) => {
-				// TODO maybe set the min constrains?
 				self.size.height = height;
 			}
 		}
@@ -309,7 +305,6 @@ mod test{
 		child.intrinsic_size.width = BoxSizing::Fixed(200.0);
 		child.intrinsic_size.height = BoxSizing::Fixed(200.0);
 
-		// TODO add padding
 		let mut root = BlockLayout::new(Box::new(child));
 		root.padding = 24; 
 		LayoutSolver::solve(&mut root, window);
@@ -356,7 +351,6 @@ mod test{
 		child.intrinsic_size.width = BoxSizing::Flex(1);
 		child.intrinsic_size.height = BoxSizing::Flex(1);
 
-		// TODO add padding
 		let mut root = BlockLayout::new(Box::new(child));
 		root.intrinsic_size.width = BoxSizing::Flex(1);
 		root.intrinsic_size.height = BoxSizing::Flex(1);
@@ -386,7 +380,6 @@ mod test{
 		child.intrinsic_size.width = BoxSizing::Flex(1);
 		child.intrinsic_size.height = BoxSizing::Flex(1);
 		
-		// TODO add padding
 		let mut root = BlockLayout::new(Box::new(child));
 		root.intrinsic_size.width = BoxSizing::Flex(1);
 		root.intrinsic_size.height = BoxSizing::Flex(1);

@@ -35,8 +35,6 @@ fn main() {
     .spacing(12)
     .fill_width();
 
-    // FIXME has a width of 0 should be like 500
-    // TODO change width_x to x_width eg fixed_width
     let sidebar = vstack! {
         hstack!{
             feather_icons::menu(),
