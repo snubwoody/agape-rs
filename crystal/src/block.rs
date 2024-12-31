@@ -1,19 +1,23 @@
-use std::f32::INFINITY;
 use helium_core::{position::Position, size::Size};
-use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
+use crate::{AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter};
 
-/// This layout only has one child
+/// A [`BlockLayout`] is a layout that only has one child.
 #[derive(Debug)]
 pub struct BlockLayout{
 	pub id:String,
-	size:Size,
-	position:Position,
+	pub size:Size,
+	pub position:Position,
 	pub padding:u32,
 	pub intrinsic_size:IntrinsicSize,
 	// TODO i'm thinking of adding user constraints as well so that people can define their own 
 	// constraints
-	constraints:BoxContraints,
-	pub child:Box<dyn Layout>
+	pub constraints:BoxContraints,
+	/// The main axis is the `x-axis`
+	pub main_axis_alignment:AxisAlignment,
+	/// The main axis is the `y-axis`
+	pub cross_axis_alignment:AxisAlignment,
+	pub child:Box<dyn Layout>,
+	pub errors:Vec<crate::LayoutError>
 }
 
 impl BlockLayout {
@@ -25,9 +29,49 @@ impl BlockLayout {
 			position:Position::default(),
 			intrinsic_size:IntrinsicSize::default(),
 			constraints:BoxContraints::default(),
+			main_axis_alignment:AxisAlignment::default(),
+			cross_axis_alignment:AxisAlignment::default(),
+			errors:vec![],
 			child
 		}
 	}
+
+	fn align_main_axis_start(&mut self){
+		let mut x_pos = self.position.x;
+		x_pos += self.padding as f32;
+
+		self.child.set_x(x_pos);
+	}
+
+	/// Align the children on the main axis in the center
+	fn align_main_axis_center(&mut self){
+		// TODO handle overflow
+		let center_start = self.position.x + (self.size.width - self.child.size().width)/2.0;
+		self.child.set_x(center_start);
+	}
+
+	fn align_main_axis_end(&mut self){
+		let mut x_pos = self.position.x + self.size.width;
+		x_pos -= self.padding as f32;
+
+		self.child.set_x(x_pos);
+	}
+
+	fn align_cross_axis_start(&mut self){
+		let y = self.position.y + self.padding as f32;
+		self.child.set_y(y);
+	}
+
+	fn align_cross_axis_center(&mut self){
+		// TODO handle overflow
+		let y_pos = (self.size.height - self.child.size().height) / 2.0 + self.position.y;
+		self.child.set_y(y_pos);
+	}
+
+	fn align_cross_axis_end(&mut self){
+		self.child.set_y(self.position.y + self.size.height - self.padding as f32);
+	}
+
 }
 
 
@@ -89,6 +133,15 @@ impl Layout for BlockLayout {
 		// self.child.sort_children();
 	}
 
+	
+	fn collect_errors(&mut self) -> Vec<crate::LayoutError> {
+		self.errors
+		.drain(..)
+		.chain(
+			self.child.collect_errors()
+		).collect::<Vec<_>>()
+	}
+
 	fn iter(&self) -> LayoutIter {
 		LayoutIter{
 			stack:vec![Box::new(self)]
@@ -132,10 +185,8 @@ impl Layout for BlockLayout {
 
 		let (min_width,min_height) = self.child.solve_min_constraints();
 		
-		// TODO i think im supposed to calculate the min constraints of the children as well
 		match self.intrinsic_size.width {
 			BoxSizing::Flex(_) => {
-				// TODO maybe set the min constraints to either 0 or the size of the children
 				self.constraints.min_width = min_width + self.padding as f32 * 2.0;	
 			},
 			BoxSizing::Shrink => {
@@ -195,7 +246,6 @@ impl Layout for BlockLayout {
 				self.size.width = self.constraints.min_width;
 			},
 			BoxSizing::Fixed(width) => {
-				// TODO maybe set the min constrains?
 				self.size.width = width;
 			}
 		}
@@ -208,7 +258,6 @@ impl Layout for BlockLayout {
 				self.size.height = self.constraints.min_height;
 			},
 			BoxSizing::Fixed(height) => {
-				// TODO maybe set the min constrains?
 				self.size.height = height;
 			}
 		}
@@ -217,9 +266,30 @@ impl Layout for BlockLayout {
 	}
 
 	fn position_children(&mut self){
-		let mut current_pos = self.position;
-		current_pos += self.padding as f32; 
-		self.child.set_position(current_pos);
+		match self.main_axis_alignment {
+			AxisAlignment::Start => self.align_main_axis_start(), 
+			AxisAlignment::Center => self.align_main_axis_center(),
+			AxisAlignment::End => self.align_main_axis_end(),
+		}
+
+		match self.cross_axis_alignment {
+			AxisAlignment::Start => self.align_cross_axis_start(), 
+			AxisAlignment::Center => self.align_cross_axis_center(),
+			AxisAlignment::End => self.align_cross_axis_end(),
+		}
+		
+		if 
+			self.child.position().x > self.position.x + self.size.width||
+			self.child.position().y > self.position.y + self.size.height
+		{
+			self.errors.push(
+				LayoutError::OutOfBounds { 
+					parent_id: self.id.clone(), 
+					child_id: self.child.id().to_owned()
+				}
+			);
+		}
+		self.child.position_children();
 	}
 }
 
@@ -235,7 +305,6 @@ mod test{
 		child.intrinsic_size.width = BoxSizing::Fixed(200.0);
 		child.intrinsic_size.height = BoxSizing::Fixed(200.0);
 
-		// TODO add padding
 		let mut root = BlockLayout::new(Box::new(child));
 		root.padding = 24; 
 		LayoutSolver::solve(&mut root, window);
@@ -282,7 +351,6 @@ mod test{
 		child.intrinsic_size.width = BoxSizing::Flex(1);
 		child.intrinsic_size.height = BoxSizing::Flex(1);
 
-		// TODO add padding
 		let mut root = BlockLayout::new(Box::new(child));
 		root.intrinsic_size.width = BoxSizing::Flex(1);
 		root.intrinsic_size.height = BoxSizing::Flex(1);
@@ -312,7 +380,6 @@ mod test{
 		child.intrinsic_size.width = BoxSizing::Flex(1);
 		child.intrinsic_size.height = BoxSizing::Flex(1);
 		
-		// TODO add padding
 		let mut root = BlockLayout::new(Box::new(child));
 		root.intrinsic_size.width = BoxSizing::Flex(1);
 		root.intrinsic_size.height = BoxSizing::Flex(1);

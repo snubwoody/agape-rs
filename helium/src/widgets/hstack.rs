@@ -1,45 +1,37 @@
-use crystal::{BoxSizing, HorizontalLayout, IntrinsicSize, Layout};
+use crystal::{HorizontalLayout,Layout};
+use helium_core::color::TRANSPARENT;
 use crate::{
-    app::events::Event, impl_events, impl_style, 
-	surface::rect::RectSurface, 
-	widgets::{Widget, WidgetBody}, Color
+    app::events::Event, impl_events, impl_style, impl_widget, surface::rect::RectSurface, widgets::{Widget, WidgetBody}, Color
 };
 
 pub struct HStack {
 	pub id:String,
     pub children: Vec<Box<dyn Widget>>,
     pub color: Color,
-	pub intrinsic_size:IntrinsicSize,
-	pub spacing:u32,
-	pub padding:u32
+	pub layout:HorizontalLayout
 }
 
 impl HStack {
+	pub fn new() -> Self{
+		HStack{
+			id:String::default(),
+			color:TRANSPARENT,
+			children:vec![],
+			layout:HorizontalLayout::new()
+		}
+	}
+
+	pub fn padding(mut self, padding: u32) -> Self {
+		self.layout.padding = padding;
+		self
+	}
+
 	pub fn spacing(mut self, spacing: u32) -> Self {
-		self.spacing = spacing;
-		self
-	}
-	
-	pub fn padding(mut self,padding:u32) -> Self{
-		self.padding = padding;
+		self.layout.spacing = spacing;
 		self
 	}
 
-	pub fn width_fit(mut self) -> Self{
-		self.intrinsic_size.width = BoxSizing::Shrink;
-		self
-	}
-
-	pub fn width_fill(mut self) -> Self{
-		self.intrinsic_size.width = BoxSizing::Flex(1);
-		self
-	}
-
-	pub fn width_flex(mut self,factor:u8) -> Self{
-		self.intrinsic_size.width = BoxSizing::Flex(factor);
-		self
-	}
-
+	impl_widget!();
 	impl_style!();
 	impl_events!();
 }
@@ -51,14 +43,14 @@ impl Widget for HStack {
         surface.color(self.color.clone());
 		
         let (children_body,children_layout):(Vec<Box<WidgetBody>>,Vec<Box<dyn Layout>>) = 
-		self
-		.children
-		.iter()
-		.map(|widget| {
+			self
+			.children
+			.iter()
+			.map(|widget| {
 			let (body,layout) = widget.build();
 			return (Box::new(body),layout);
-		})
-		.collect();
+			})
+			.collect();
 		
 
 		let body = WidgetBody {
@@ -67,31 +59,55 @@ impl Widget for HStack {
 			children:children_body,
             ..Default::default()
         };
-	
-		let mut layout = HorizontalLayout::new();
-		layout.intrinsic_size.width = self.intrinsic_size.width;
-		layout.children = children_layout;
-		layout.id = body.id.clone();
-		layout.spacing = self.spacing;
-		layout.padding = self.padding;
+
+		let HorizontalLayout{
+			spacing,
+			padding,
+			intrinsic_size,
+			main_axis_alignment,
+			cross_axis_alignment,
+			constraints,
+			..
+		} = self.layout;
+
+		// TODO maybe impl into?
+		let layout = HorizontalLayout{
+			id:body.id.clone(),
+			spacing,
+			padding,
+			intrinsic_size,
+			cross_axis_alignment,
+			main_axis_alignment,
+			constraints,
+			children:children_layout,
+			..Default::default()
+		};
+		
 
 		(body,Box::new(layout))
     }
 }
 
-
-// TODO allow trailing commas
-/// An [`HStack`] is a `widget` that positions it's children horizontally
+// TODO add array style syntax like the vec! macro
+/// Creates an [`HStack`].  
+/// `hstack!` allows [`HStack`]'s to be declared in a more declarative manner.
+/// ```ignore
+/// 
+/// hstack!{
+/// 	Button::new("Click me"),
+/// 	Text::new("Hello world")
+/// }
+/// ```
+/// It is more idiomatic to use `{}` when defining widget structures however you can
+/// use any macro syntax you prefer.
 #[macro_export]
 macro_rules! hstack {
-	($($child:expr),*) => {
+	($($child:expr), + $(,)?) => {
 		{
 			$crate::widgets::HStack{
-				id:helium::nanoid!(),
+				id:$crate::nanoid!(),
 				color:$crate::TRANSPARENT,
-				padding:0,
-				spacing:0,
-				intrinsic_size:$crate::IntrinsicSize::default(),
+				layout:$crate::HorizontalLayout::new(),
 				children:vec![
 					$(
 						Box::new($child),
@@ -101,12 +117,4 @@ macro_rules! hstack {
 		}
 		
 	};
-}
-
-#[cfg(test)]
-mod test{
-	#[test]
-	fn test_build(){
-		todo!()
-	}
 }

@@ -1,7 +1,8 @@
 use std::f32::INFINITY;
 use helium_core::{position::Position, size::Size};
-use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
+use crate::{AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter};
 
+// TODO if min width is larger than max width then it's an overflow
 /// A [`VerticalLayout`] sizes and position it's children horizontally, of course, the `Flex` 
 /// attribute means a layout node will fill it's widget, however the flex factor only works in 
 /// the x-axis, in the y-axis all nodes will fill the parent and will be the same height.
@@ -16,7 +17,12 @@ pub struct VerticalLayout{
 	// TODO i'm thinking of adding user constraints as well so that people can define their own 
 	// constraints
 	pub children:Vec<Box<dyn Layout>>,
-	constraints:BoxContraints,
+	/// The main axis is the `y-axis`
+	pub main_axis_alignment:AxisAlignment,
+	/// The main axis is the `x-axis`
+	pub cross_axis_alignment:AxisAlignment,
+	pub constraints:BoxContraints,
+	pub errors:Vec<crate::LayoutError>
 }
 
 impl VerticalLayout {
@@ -42,6 +48,9 @@ impl VerticalLayout {
 			match child.intrinsic_size().height {
 				BoxSizing::Fixed(height) => {
 					sum.height += height;
+				}
+				BoxSizing::Shrink => {
+					sum.height += child.constraints().min_height;
 				},
 				_ => {}
 			}
@@ -56,6 +65,61 @@ impl VerticalLayout {
 		sum
 	}
 
+	fn align_main_axis_start(&mut self){
+		let mut y = self.position.y;
+		y += self.padding as f32;
+
+		for child in &mut self.children{
+			child.set_y(y);
+			y += child.size().height + self.spacing as f32;
+		}
+	}
+
+	/// Align the children on the main axis in the center
+	fn align_main_axis_center(&mut self){
+		// TODO handle overflow
+		let mut height_sum = 
+			self.children.iter().map(|child|child.size().height).sum::<f32>();
+		height_sum += (self.spacing * (self.children.len() as u32 - 1)) as f32;
+		let mut center_start = self.position.y + (self.size.height - height_sum)/2.0;
+
+		for child in &mut self.children{
+			child.set_y(center_start);
+			center_start += child.size().height + self.spacing as f32;
+		}
+	}
+
+	fn align_main_axis_end(&mut self){
+		let mut y = self.position.y + self.size.height;
+		y -= self.padding as f32;
+
+		for child in self.children.iter_mut().rev(){
+			child.set_y(y);
+			y -= child.size().height - self.spacing as f32;
+		}
+	}
+
+	fn align_cross_axis_start(&mut self){
+		let x = self.position.x + self.padding as f32;
+		for child in &mut self.children{
+			child.set_x(x);
+		}
+	}
+
+	fn align_cross_axis_center(&mut self){
+		for child in &mut self.children{
+			// TODO handle overflow
+			let x_pos = (self.size.width - child.size().width) / 2.0 + self.position.x;
+			child.set_x(x_pos);
+			
+		}
+	}
+
+	fn align_cross_axis_end(&mut self){
+		for child in &mut self.children{
+			child.set_x(self.position.x + self.size.width - self.padding as f32);
+		} 	
+	}
 }
 
 
@@ -110,6 +174,18 @@ impl Layout for VerticalLayout {
 	
 	fn set_min_width(&mut self,width:f32) {
 		self.constraints.min_width = width;
+	}
+
+	fn collect_errors(&mut self) -> Vec<crate::LayoutError> {
+		self.errors
+		.drain(..)
+		.chain(
+			self
+			.children
+			.iter_mut()
+			.flat_map(|child|child.collect_errors())
+			.collect::<Vec<_>>()
+		).collect::<Vec<_>>()
 	}
 
 	fn iter(&self) -> crate::LayoutIter {
@@ -185,7 +261,6 @@ impl Layout for VerticalLayout {
 
 		let children_len = self.children.len();
 
-		// TODO could maybe merge this, but it might be even more verbose
 		let mut available_height;
 		match self.intrinsic_size.height {
 			BoxSizing::Shrink => {
@@ -247,7 +322,6 @@ impl Layout for VerticalLayout {
 			}
 
 			// TODO not using size anymore
-			// Pass the max size to the children to solve their max constraints
 			child.solve_max_contraints(Size::default());
 		}
 	}
@@ -286,13 +360,28 @@ impl Layout for VerticalLayout {
 		}
 	}
 
-	fn position_children(&mut self) {
-		let mut current_pos = self.position;
-		current_pos += self.padding as f32;
+	fn position_children(&mut self){
+		match self.main_axis_alignment {
+			AxisAlignment::Start => self.align_main_axis_start(), 
+			AxisAlignment::Center => self.align_main_axis_center(),
+			AxisAlignment::End => self.align_main_axis_end(),
+		}
+
+		match self.cross_axis_alignment {
+			AxisAlignment::Start => self.align_cross_axis_start(), 
+			AxisAlignment::Center => self.align_cross_axis_center(),
+			AxisAlignment::End => self.align_cross_axis_end(),
+		}
 		
 		for child in &mut self.children{
-			child.set_position(current_pos);
-			current_pos.y += child.size().height + self.spacing as f32;
+			if child.position().y > self.position.y + self.size.height{
+				self.errors.push(
+					LayoutError::OutOfBounds { 
+						parent_id: self.id.clone(), 
+						child_id: child.id().to_owned()
+					}
+				);
+			}
 			child.position_children();
 		}
 	}
@@ -300,7 +389,7 @@ impl Layout for VerticalLayout {
 
 #[cfg(test)]
 mod test{
-	use crate::{BlockLayout, EmptyLayout, HorizontalLayout, LayoutSolver};
+	use crate::{BlockLayout, EmptyLayout,LayoutSolver};
 	use super::*;
 
 	#[test]
@@ -338,50 +427,34 @@ mod test{
 		);
 	}
 
+	/// Padding should still be applied when a `VerticalLayout` is empty to ensure
+	/// consistency in the overall layout. It also preserves the structure
+	/// if layouts are added later on
 	#[test]
-	fn test_horizontal_with_vertical_shrink_width(){
-		let window = Size::new(800.0, 800.0);
-		let spacing = 24;
-		let padding = 50;
+	fn padding_applied_when_empty(){
+		let mut empty = VerticalLayout{
+			padding:23,
+			..Default::default()
+		};
+		LayoutSolver::solve(&mut empty, Size::new(200.0, 200.0));
 		
-		let mut inner_child = EmptyLayout::new();
-		inner_child.intrinsic_size.width = BoxSizing::Fixed(350.0);
-		
-		let mut child = HorizontalLayout::new();
-		child.spacing = spacing;
-		child.padding = padding;
-		child.add_child(inner_child.clone());
-		child.add_child(inner_child.clone());
-		child.add_child(inner_child.clone());
-		child.add_child(inner_child);
-
-		let mut root = VerticalLayout::new();
-		root.padding = padding;
-		root.add_child(child);
-
-		let mut child_size = Size::default();
-		child_size.height = 0.0;
-		child_size.width += 350.0 * 4.0; 
-		child_size.width += (spacing as f32) * 3.0; 
-		child_size.width += (padding as f32) * 2.0; 
-		dbg!(child_size);
-		
-		let mut root_size = Size::default();
-		root_size.width += child_size.width;
-		root_size.width += (padding as f32) * 2.0;
-		
-		LayoutSolver::solve(&mut root, window);
-
-		assert_eq!(
-			root.size(),
-			root_size
-		);
-		assert_eq!(
-			root.children[0].size(),
-			child_size
-		)
+		assert_eq!(empty.size,Size::new(23.0 * 2.0, 23.0 * 2.0));
 	}
-	
+
+	/// Spacing should not be applied when a [`VerticalLayout`] is empty even though the 
+	/// `padding` should, as spacing is the space in between `layouts` so there is no consistency
+	/// being lost, it would actually mess up with the size as it would be added with the `padding`,
+	#[test]
+	fn spacing_not_applied_when_empty(){
+		let mut empty = VerticalLayout{
+			spacing:50,
+			..Default::default()
+		};
+		LayoutSolver::solve(&mut empty, Size::new(200.0, 200.0));
+		
+		assert_eq!(empty.size,Size::default());
+	}
+
 	#[test]
 	fn test_flex_sizing(){
 		let window = Size::new(800.0, 800.0);
@@ -504,10 +577,4 @@ mod test{
 			node.children()[1].size().width != 3.0 * node.children()[0].size().width
 		);
 	}
-
-	#[test]
-	fn test_positioning(){
-		todo!()
-	}
-
 }

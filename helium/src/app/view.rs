@@ -50,7 +50,7 @@ impl View {
 				resolve_target: None,
 				ops: wgpu::Operations {
 					load: wgpu::LoadOp::Clear(wgpu::Color{r: 1.0,g: 1.0,b: 1.0,a:1.0}),
-					store: wgpu::StoreOp::Store, // TODO discard might potentially be faster
+					store: wgpu::StoreOp::Store,
 				},
 			})],
 			depth_stencil_attachment: None,
@@ -58,13 +58,19 @@ impl View {
 			timestamp_writes: None,
 		});
 
-		LayoutSolver::solve(&mut *self.root_layout, state.size);
-
+		
+		let errors = LayoutSolver::solve(&mut *self.root_layout, state.size);
+		
+		// Has to be in this order otherwise it crashes particularly because of 0 size textures
+		// FIXME above
 		self.root_body.update_sizes(&self.root_layout);
 		self.root_body.render(&mut render_pass,state);
 		
-		// Drop the render pass because it borrows encoder
-		// mutably
+		for error in errors{
+			log::warn!("{error}")
+		}
+
+		// Drop the render pass because it borrows encoder mutably
 		std::mem::drop(render_pass);
 	
 		state.queue.submit(std::iter::once(encoder.finish()));

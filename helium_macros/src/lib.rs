@@ -76,11 +76,9 @@ pub fn include_icons(dir:TokenStream) -> TokenStream{
 
 				let fn_name = proc_macro2::Ident::new(&file_name, Span::call_site());
 				
-				let path_str = raw_file_name.to_str().unwrap();
 				let svg_data = fs::read(path.as_path()).unwrap(); // TODO compile time check this
 				let svg_data_literal = Literal::byte_string(&svg_data);
 
-				// TODO handle reserved keyword
 				icons.push(quote! {
 						pub fn #fn_name() -> crate::widgets::image::Image{
 							crate::widgets::image::Image::svg_bytes(#svg_data_literal)

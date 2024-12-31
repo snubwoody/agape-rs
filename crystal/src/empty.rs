@@ -1,14 +1,21 @@
 use helium_core::{position::Position, size::Size};
 use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
 
-/// This is a layout with no children
+/// An [`EmptyLayout`] is a layout with no children.  
+/// Common use cases are
+/// - Images
+/// - Text
+/// - Placeholders
+/// - Icons
 #[derive(Debug,Default,Clone)]
-pub struct EmptyLayout{ // TODO add padding
+pub struct EmptyLayout{
 	pub id:String,
-	size:Size,
-	position:Position,
+	pub size:Size,
+	pub position:Position,
+	// TODO could probably just inline this
 	pub intrinsic_size:IntrinsicSize,
-	constraints:BoxContraints,
+	pub constraints:BoxContraints,
+	pub errors:Vec<crate::LayoutError>
 }
 
 impl EmptyLayout {
@@ -75,6 +82,13 @@ impl Layout for EmptyLayout {
 		
 	}
 
+	
+	fn collect_errors(&mut self) -> Vec<crate::LayoutError> {
+		self.errors
+		.drain(..)
+		.collect::<Vec<_>>()
+	}
+
 	fn iter(&self) -> crate::LayoutIter {
 		LayoutIter{
 			stack:vec![Box::new(self)]
@@ -117,7 +131,6 @@ impl Layout for EmptyLayout {
 				self.size.width = self.constraints.min_width;
 			},
 			BoxSizing::Fixed(width) => {
-				// TODO maybe set the min constrains?
 				self.size.width = width;
 			}
 		}
@@ -130,7 +143,6 @@ impl Layout for EmptyLayout {
 				self.size.height = self.constraints.min_height;
 			},
 			BoxSizing::Fixed(height) => {
-				// TODO maybe set the min constrains?
 				self.size.height = height;
 			}
 		}

@@ -1,60 +1,37 @@
 use crate::{
-    app::events::Event, impl_events, impl_style, 
-	surface::rect::RectSurface, 
-	widgets::{Widget, WidgetBody}, Color
+    app::events::Event, impl_events, impl_style, impl_widget, surface::rect::RectSurface, widgets::{Widget, WidgetBody}, Color
 };
-use crystal::{BoxSizing, Layout, VerticalLayout};
+use crystal::{Layout, VerticalLayout};
+use helium_core::color::TRANSPARENT;
 
 pub struct VStack {
 	pub id:String,
     pub children: Vec<Box<dyn Widget>>,
     pub color: Color,
-	pub spacing:u32,
-	pub padding:u32,
-	pub intrinsic_size:crystal::IntrinsicSize
+	pub layout:VerticalLayout
 }
 
 impl VStack {
+	pub fn new() -> Self{
+		VStack{
+			id:String::default(),
+			color:TRANSPARENT,
+			children:vec![],
+			layout:VerticalLayout::new()
+		}
+	}
+
+	pub fn padding(mut self, padding: u32) -> Self {
+		self.layout.padding = padding;
+		self
+	}
+
 	pub fn spacing(mut self, spacing: u32) -> Self {
-		self.spacing = spacing;
-		self
-	}
-	
-	pub fn padding(mut self,padding:u32) -> Self{
-		self.padding = padding;
+		self.layout.spacing = spacing;
 		self
 	}
 
-	pub fn width_fit(mut self) -> Self{
-		self.intrinsic_size.width = BoxSizing::Shrink;
-		self
-	}
-
-	pub fn width_fill(mut self) -> Self{
-		self.intrinsic_size.width = BoxSizing::Flex(1);
-		self
-	}
-
-	pub fn width_flex(mut self,factor:u8) -> Self{
-		self.intrinsic_size.width = BoxSizing::Flex(factor);
-		self
-	}
-
-	pub fn height_fit(mut self) -> Self{
-		self.intrinsic_size.height = BoxSizing::Shrink;
-		self
-	}
-
-	pub fn height_fill(mut self) -> Self{
-		self.intrinsic_size.height = BoxSizing::Flex(1);
-		self
-	}
-
-	pub fn height_flex(mut self,factor:u8) -> Self{
-		self.intrinsic_size.height = BoxSizing::Flex(factor);
-		self
-	}
-	
+	impl_widget!();	
 	impl_style!();
 	impl_events!();
 }
@@ -80,31 +57,52 @@ impl Widget for VStack {
 			surface: Box::new(surface),
 			..Default::default()
 		};
+
+		let VerticalLayout{
+			spacing,
+			padding,
+			intrinsic_size,
+			main_axis_alignment,
+			cross_axis_alignment,
+			constraints,
+			..
+		} = self.layout;
 	
-		let mut layout = VerticalLayout::new();
-		layout.intrinsic_size.width = self.intrinsic_size.width;
-		layout.intrinsic_size.height = BoxSizing::Flex(1);
-		layout.children = children_layout;
-		layout.id = body.id.clone();
-		layout.padding = self.padding;
-		layout.spacing = self.spacing;
+		let layout = VerticalLayout{
+			id:body.id.clone(),
+			spacing,
+			padding,
+			intrinsic_size,
+			constraints,
+			main_axis_alignment,
+			cross_axis_alignment,
+			children:children_layout,
+			..Default::default()
+		};
 
 		(body,Box::new(layout))
     }
 }
 
 
-// TODO test these macros pls
+/// Creates an [`VStack`].  
+/// 
+/// `vstack!` allows [`VStack`]'s to be declared in a more declarative manner.  
+/// 
+/// ```ignore
+/// vstack!{
+/// 	Button::new("Click me"),
+/// 	Text::new("Hello world")
+/// }
+/// ```
 #[macro_export]
 macro_rules! vstack {
-	($($child:expr),*) => {
+	($($child:expr), + $(,)?) => {
 		{
 			$crate::widgets::VStack{
 				id:helium::nanoid!(),
 				color:$crate::TRANSPARENT,
-				spacing:0,
-				padding:0,
-				intrinsic_size:$crate::IntrinsicSize::default(),
+				layout:$crate::VerticalLayout::new(),
 				children:vec![
 					$(
 						Box::new($child),
