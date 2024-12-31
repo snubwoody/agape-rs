@@ -97,7 +97,7 @@ impl Widget for VStack {
 // TODO test these macros pls
 #[macro_export]
 macro_rules! vstack {
-	($($child:expr),*) => {
+	($($child:expr), + $(,)?) => {
 		{
 			$crate::widgets::VStack{
 				id:helium::nanoid!(),

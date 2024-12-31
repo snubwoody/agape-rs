@@ -1,6 +1,6 @@
 use std::f32::INFINITY;
 use helium_core::{position::Position, size::Size};
-use crate::{AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
+use crate::{AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter};
 
 /// A [`HorizontalLayout`] sizes and position it's children horizontally, of course, the `Flex` 
 /// attribute means a layout node will fill it's widget, however the flex factor only works in 
@@ -382,10 +382,14 @@ impl Layout for HorizontalLayout {
 		
 		for child in &mut self.children{
 			if child.position().x > self.position.x + self.size.width{
-				log::warn!("Child out of bounds")
+				self.errors.push(
+					LayoutError::OutOfBounds { 
+						parent_id: self.id.clone(), 
+						child_id: child.id().to_owned()
+					}
+				);
 			}
 			child.position_children();
 		}
-
 	}
 }

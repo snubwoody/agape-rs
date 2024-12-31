@@ -1,4 +1,4 @@
-use crystal::{AxisAlignment, BoxSizing, HorizontalLayout, IntrinsicSize, Layout};
+use crystal::{BoxSizing, HorizontalLayout, IntrinsicSize, Layout};
 use crate::{
     app::events::Event, impl_events, impl_style, 
 	surface::rect::RectSurface, 
@@ -82,7 +82,7 @@ impl Widget for HStack {
 			children:children_body,
             ..Default::default()
         };
-	
+
 		// TODO maybe impl into?
 		let layout = HorizontalLayout{
 			id:body.id.clone(),
@@ -107,7 +107,7 @@ impl Widget for HStack {
 /// An [`HStack`] is a `widget` that positions it's children horizontally
 #[macro_export]
 macro_rules! hstack {
-	($($child:expr),*) => {
+	($($child:expr), + $(,)?) => {
 		{
 			$crate::widgets::HStack{
 				id:$crate::nanoid!(),

@@ -27,6 +27,7 @@ fn main() {
 	.width_fit();
 
 	// FIXME has a width of 0 should be like 500
+	// TODO change width_x to x_width eg fixed_width
     let sidebar = vstack! {
 		hstack!{
 			feather_icons::menu(),
@@ -39,7 +40,7 @@ fn main() {
 			feather_icons::search(),
 			Spacer(), 
 			Text::new("Recents"),
-			feather_icons::list()
+			feather_icons::list(),
 		}.width_fill(),
         SidebarItem("Liked songs"),
         SidebarItem("Channel Orange"),

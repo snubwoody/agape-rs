@@ -1,6 +1,6 @@
 use std::f32::INFINITY;
 use helium_core::{position::Position, size::Size};
-use crate::{AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
+use crate::{AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter};
 
 /// A [`VerticalLayout`] sizes and position it's children horizontally, of course, the `Flex` 
 /// attribute means a layout node will fill it's widget, however the flex factor only works in 
@@ -61,6 +61,61 @@ impl VerticalLayout {
 		sum
 	}
 
+	fn align_main_axis_start(&mut self){
+		let mut y = self.position.y;
+		y += self.padding as f32;
+
+		for child in &mut self.children{
+			child.set_y(y);
+			y += child.size().height + self.spacing as f32;
+		}
+	}
+
+	/// Align the children on the main axis in the center
+	fn align_main_axis_center(&mut self){
+		// TODO handle overflow
+		let mut height_sum = 
+			self.children.iter().map(|child|child.size().height).sum::<f32>();
+		height_sum += (self.spacing * (self.children.len() as u32 - 1)) as f32;
+		let mut center_start = self.position.y + (self.size.height - height_sum)/2.0;
+
+		for child in &mut self.children{
+			child.set_y(center_start);
+			center_start += child.size().height + self.spacing as f32;
+		}
+	}
+
+	fn align_main_axis_end(&mut self){
+		let mut y = self.position.y + self.size.height;
+		y -= self.padding as f32;
+
+		for child in self.children.iter_mut().rev(){
+			child.set_y(y);
+			y -= child.size().height - self.spacing as f32;
+		}
+	}
+
+	fn align_cross_axis_start(&mut self){
+		let x = self.position.x + self.padding as f32;
+		for child in &mut self.children{
+			child.set_x(x);
+		}
+	}
+
+	fn align_cross_axis_center(&mut self){
+		for child in &mut self.children{
+			// TODO handle overflow
+			let x_pos = (self.size.width - child.size().width) / 2.0 + self.position.x;
+			child.set_x(x_pos);
+			
+		}
+	}
+
+	fn align_cross_axis_end(&mut self){
+		for child in &mut self.children{
+			child.set_x(self.position.x + self.size.width - self.padding as f32);
+		} 	
+	}
 }
 
 
@@ -304,13 +359,28 @@ impl Layout for VerticalLayout {
 		}
 	}
 
-	fn position_children(&mut self) {
-		let mut current_pos = self.position;
-		current_pos += self.padding as f32;
+	fn position_children(&mut self){
+		match self.main_axis_alignment {
+			AxisAlignment::Start => self.align_main_axis_start(), 
+			AxisAlignment::Center => self.align_main_axis_center(),
+			AxisAlignment::End => self.align_main_axis_end(),
+		}
+
+		match self.cross_axis_alignment {
+			AxisAlignment::Start => self.align_cross_axis_start(), 
+			AxisAlignment::Center => self.align_cross_axis_center(),
+			AxisAlignment::End => self.align_cross_axis_end(),
+		}
 		
 		for child in &mut self.children{
-			child.set_position(current_pos);
-			current_pos.y += child.size().height + self.spacing as f32;
+			if child.position().y > self.position.y + self.size.height{
+				self.errors.push(
+					LayoutError::OutOfBounds { 
+						parent_id: self.id.clone(), 
+						child_id: child.id().to_owned()
+					}
+				);
+			}
 			child.position_children();
 		}
 	}
