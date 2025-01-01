@@ -13,7 +13,6 @@ pub mod feather_icons{
 
 	// The path is relative to the root crate
 	include_icons!("./helium/icons/feather-icons");
-
 }
 
 pub struct Icon{
