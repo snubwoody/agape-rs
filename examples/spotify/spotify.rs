@@ -174,12 +174,15 @@ fn BottomBar() -> impl Widget {
                 feather_icons::play(),
                 feather_icons::skip_forward(),
                 feather_icons::repeat()
-            },
+            }
+			.spacing(16),
             hstack!{
                 Text::new("0:00"),
-                Rect::new(150.0, 5.0, BLACK).corner_radius(2),
+                Rect::new(350.0, 5.0, BLACK).corner_radius(2),
                 Text::new("4:00")
             }
+			.spacing(8)
+			.cross_axis_alignment(AxisAlignment::Center)
         }
 		.spacing(12)
 		.fit_height()
@@ -187,6 +190,7 @@ fn BottomBar() -> impl Widget {
 		Spacer(),
     }
     .fill_width()
+	.color(BACKGROUND)
 	.padding(16)
 }
 
@@ -213,7 +217,7 @@ fn Chip(text: &str) -> impl Widget {
     let text = Text::new(text);
 
     Container::new(text)
-    .corner_radius(4)
+    .corner_radius(14)
     .color(GREY)
     .padding(12)
 }

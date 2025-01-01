@@ -2,6 +2,7 @@ use crystal::{BoxSizing, EmptyLayout, Layout};
 use crate::surface::{text::TextSurface, Surface} ;
 use super::{Widget, WidgetBody};
 
+// TODO add background, foreground color,padding and border radius
 // TODO probably crate a rich text then make text a tuple struct or a function
 pub struct Text{
 	text:String,
