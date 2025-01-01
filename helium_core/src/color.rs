@@ -11,12 +11,13 @@ pub const INDIGO:Color = Color::Rgb(99, 102, 241);
 pub const PINK:Color = Color::Rgb(236, 72, 153);
 pub const TRANSPARENT:Color = Color::Rgba(0, 0, 0,0);
 
-/// Represents a color. If an invalid hex code is used, it will default back to 
-/// white. Use the `hex!` macro to validate hex codes at compile time.
-#[derive(Debug,Clone,PartialEq, Eq)]
+/// Represents a color. 
+#[derive(Debug,Clone,PartialEq,Eq)]
 pub enum Color{
 	Rgb(u8,u8,u8),
 	Rgba(u8,u8,u8,u8),
+	/// If an invalid hex code is used, it will default back to 
+	/// white. Use the `hex!` macro to validate hex codes at compile time.
 	Hex(&'static str)
 } 
 
@@ -26,6 +27,27 @@ impl Color {
 	pub fn as_rgb(&self) -> Self{
 		let [r,g,b,_] = self.to_rgba();
 		Self::Rgb(r, g, b)
+	}
+
+	/// Convert a [`Color`] into a hex string  
+	/// # Example
+	/// ```
+	/// use helium_core::color::Color;
+	/// 
+	/// let color = Color::Rgb(255,255,255);
+	/// 
+	/// assert_eq!(color.into_hex_string(),format!("#ffffff"))
+	/// ```
+	/// Note than this does not do any color conversion
+	/// so invalid hex codes will returned as is
+	pub fn into_hex_string(&self) -> String {
+		match self {
+			Self::Hex(hex) => hex.to_string(),
+			Self::Rgb(r,g,b)|
+			Self::Rgba(r,g,b,_) => {
+				format!("#{:x}{:x}{:x}", r, g, b)
+			}
+		}
 	}
 
 	/// Parse any type of color to rgba values
@@ -49,6 +71,8 @@ impl Color {
 	/// - Any string that isn't six characters in length
 	/// - Any string that isn't is hexadecimal format
 	pub fn hex_to_rgba(hex:&str) -> Result<[u8;4],String>{
+		// TODO add custom error
+		
 		let hex_code = hex.strip_prefix("#").ok_or("Invalid hex code: missing `#` at the start of hex")?;
 
 		if hex_code.len() != 6 {
@@ -93,6 +117,7 @@ mod test{
 
 	#[test]
 	fn test_valid_hex_colors(){
+		// Invalid hex colors are defaulted to white
 		let color = Color::Hex("#".into());
 		assert_eq!(color.to_rgba(),[255,255,255,100]);
 		

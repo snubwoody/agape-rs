@@ -19,14 +19,14 @@ pub struct TextSurface{
 }
 
 impl TextSurface {
-	pub fn new(text:&str,font_size:u8) -> Self{
+	pub fn new(text:&str,font_size:u8,color:&Color) -> Self{
 		let text_pipeline = text_to_png::TextRenderer::default();
 
 		// Render the text as a png
 		let text_image = text_pipeline.render_text_to_png_data(
 			text, 
 			font_size, 
-			"#000000"
+			color.into_hex_string().as_str()
 		).unwrap(); // TODO Hangle the errors pls
 
 		let img = image::load(

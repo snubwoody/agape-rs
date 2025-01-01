@@ -2,7 +2,7 @@
 use helium::{
     app::{events::EventQueue, view::View, App}, hstack, vstack, widgets::{
         icon::feather_icons, Container, Rect, Spacer, Text, Widget,
-    }, AxisAlignment, Color, LayoutSolver, Size, BLACK
+    }, AxisAlignment, Color, LayoutSolver, Size, BLACK, WHITE
 };
 use std::{
     env,
@@ -214,7 +214,7 @@ fn Navbar() -> impl Widget {
 }
 
 fn Chip(text: &str) -> impl Widget {
-    let text = Text::new(text);
+    let text = Text::new(text).color(WHITE);
 
     Container::new(text)
     .corner_radius(14)
