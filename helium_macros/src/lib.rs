@@ -12,10 +12,10 @@ pub fn hex(item:TokenStream) -> TokenStream{
 
 	match helium_core::color::Color::hex_to_rgba(&s) {
 		Ok(_) => {
-			return quote! {helium::Color::Hex(#s)}.into()
+			return quote!{helium::Color::Hex(#s)}.into()
 		},
 		Err(err) => {
-			return quote! {
+			return quote!{
 				compile_error!(#err)
 			}.into()
 		},
@@ -32,7 +32,6 @@ pub fn hex(item:TokenStream) -> TokenStream{
 pub fn include_icons(dir:TokenStream) -> TokenStream{
 	let dir_name = dir.to_string().replace("\"","");
 	let path = Path::new(&dir_name);
-	//let path = Path::new("./");
 
 	let mut icons:Vec<proc_macro2::TokenStream> = vec![];
 	match fs::read_dir(path) {
@@ -63,7 +62,6 @@ pub fn include_icons(dir:TokenStream) -> TokenStream{
 					.replace(" ", "_") // Convert to snake case
 					.replace("-", "_");
 
-				
 				// Filter reserved keywords
 				match file_name.as_str() {
 					"box" | 

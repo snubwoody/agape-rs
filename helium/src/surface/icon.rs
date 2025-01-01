@@ -24,6 +24,7 @@ impl IconSurface {
 		}
 	}
 
+	// FIXME Creating the texture every frame is not a good idea 
 	pub fn build(&self,device: &wgpu::Device) -> (wgpu::Texture,wgpu::Extent3d) {
 		// TODO maybe move this to the pipeline
 		let texture_size = wgpu::Extent3d{
@@ -40,7 +41,7 @@ impl IconSurface {
 				dimension: wgpu::TextureDimension::D2,
 				format: wgpu::TextureFormat::Rgba8UnormSrgb,
 				usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
-				label: Some("Image Texture"),
+				label: Some("Icon Texture"),
 				view_formats: &[],
 			}
 		);
@@ -49,16 +50,16 @@ impl IconSurface {
 	}
 
 	fn to_vertices(&self,width:f32,height:f32) -> Vec<Vertex>{
-		let color = Color::default().normalize();
+		let color = self.color.normalize();
 		let x = self.position.x;
 		let y = self.position.y;
 
-		let vertex1 = Vertex::new_with_texture(x,y,color,[0.0,0.0]); //Top left
-		let vertex2 = Vertex::new_with_texture(x+width,y,color,[1.0,0.0]); // Top right
-		let vertex3 = Vertex::new_with_texture(x, y+height,color,[0.0,1.0]); //Bottom left
-		let vertex4 = Vertex::new_with_texture(x+width,y,color,[1.0,0.0]); //Top right
-		let vertex5 = Vertex::new_with_texture(x, y+height,color,[0.0,1.0]); // Bottom left
-		let vertex6 = Vertex::new_with_texture(x+width, y+height,color,[1.0,1.0]); //Bottom right
+		let vertex1 = Vertex::new_with_uv(x,y,color,[0.0,0.0]); //Top left
+		let vertex2 = Vertex::new_with_uv(x+width,y,color,[1.0,0.0]); // Top right
+		let vertex3 = Vertex::new_with_uv(x, y+height,color,[0.0,1.0]); //Bottom left
+		let vertex4 = Vertex::new_with_uv(x+width,y,color,[1.0,0.0]); //Top right
+		let vertex5 = Vertex::new_with_uv(x, y+height,color,[0.0,1.0]); // Bottom left
+		let vertex6 = Vertex::new_with_uv(x+width, y+height,color,[1.0,1.0]); //Bottom right
 	
 		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
 	}
@@ -72,7 +73,6 @@ impl Surface for IconSurface {
 		state: &AppState
 	) {
 
-		// FIXME issue with fill sizing causing overflow
 		// FIXME wgpu panics if size is 0 
 		let (texture,texture_size) = self.build(&state.device);
 
@@ -87,14 +87,14 @@ impl Surface for IconSurface {
 		let texture_view = texture.create_view(&Default::default());
 		let texture_sampler = state.device.create_sampler(
 			&wgpu::SamplerDescriptor { 
-				label: Some("Image Texture sampler"), 
+				label: Some("Icon Texture sampler"), 
 				..Default::default()
 			}
 		);
 
 		let texture_bind_group = state.device.create_bind_group(
 			&wgpu::BindGroupDescriptor { 
-				label: Some("Image Texture bind group"), 
+				label: Some("Icon Texture bind group"), 
 				layout:&context.text_pipeline.texture_bind_group_layout, 
 				entries: &[
 					wgpu::BindGroupEntry{
@@ -126,7 +126,7 @@ impl Surface for IconSurface {
 			wgpu::ImageDataLayout { 
 				offset: 0, 
 				bytes_per_row: Some(4 * self.size.width as u32), // TODO don't even know what this is
-				rows_per_image: None
+				rows_per_image: Some(self.size.height as u32)
 			}, 
 			texture_size
 		);

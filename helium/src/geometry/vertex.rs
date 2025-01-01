@@ -1,4 +1,4 @@
-/// Represents a singles vertex
+/// Represents a single vertex
 #[repr(C)]
 #[derive(Debug,Clone,Copy,PartialEq,bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Vertex{
@@ -18,7 +18,7 @@ impl Vertex {
 	}
 	
 	/// Creates a new [`Vertex`] with texture uv's.
-	pub fn new_with_texture(x:f32,y:f32,color:[f32;4],texture_coords:[f32;2]) -> Self {
+	pub fn new_with_uv(x:f32,y:f32,color:[f32;4],uv:[f32;2]) -> Self {
 		let r = color[0];
 		let g = color[1];
 		let b = color[2];
@@ -27,7 +27,7 @@ impl Vertex {
 		Self { 
 			position: [x,y],
 			color:[r,g,b,a],
-			uv:texture_coords,
+			uv
 		}
 	}
 }

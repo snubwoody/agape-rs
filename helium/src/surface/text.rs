@@ -74,12 +74,12 @@ impl TextSurface {
 		let x = self.position.x;
 		let y = self.position.y;
 
-		let vertex1 = Vertex::new_with_texture(x,y,color,[0.0,0.0]); //Top left
-		let vertex2 = Vertex::new_with_texture(x+width,y,color,[1.0,0.0]); // Top right
-		let vertex3 = Vertex::new_with_texture(x, y+height,color,[0.0,1.0]); //Bottom left
-		let vertex4 = Vertex::new_with_texture(x+width,y,color,[1.0,0.0]); //Top right
-		let vertex5 = Vertex::new_with_texture(x, y+height,color,[0.0,1.0]); // Bottom left
-		let vertex6 = Vertex::new_with_texture(x+width, y+height,color,[1.0,1.0]); //Bottom right
+		let vertex1 = Vertex::new_with_uv(x,y,color,[0.0,0.0]); //Top left
+		let vertex2 = Vertex::new_with_uv(x+width,y,color,[1.0,0.0]); // Top right
+		let vertex3 = Vertex::new_with_uv(x, y+height,color,[0.0,1.0]); //Bottom left
+		let vertex4 = Vertex::new_with_uv(x+width,y,color,[1.0,0.0]); //Top right
+		let vertex5 = Vertex::new_with_uv(x, y+height,color,[0.0,1.0]); // Bottom left
+		let vertex6 = Vertex::new_with_uv(x+width, y+height,color,[1.0,1.0]); //Bottom right
 	
 		return vec![vertex1,vertex2,vertex3,vertex4,vertex5,vertex6];
 	}
