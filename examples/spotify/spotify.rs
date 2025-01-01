@@ -100,7 +100,7 @@ fn main() {
         home_page,
         BottomBar()
     }
-	.color(BLACK)
+	.color(BACKGROUND)
     .fill_height()
     .fill_width();
 

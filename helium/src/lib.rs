@@ -2,7 +2,7 @@
 //! the ui and uses the `crystal` crate for layout. 
 pub mod widgets;
 pub mod app;
-pub mod surface;
+pub(crate) mod surface;
 pub mod signal;
 pub mod error;
 mod geometry;
