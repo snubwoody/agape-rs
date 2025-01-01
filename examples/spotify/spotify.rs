@@ -37,7 +37,7 @@ fn main() {
     let sidebar = vstack! {
         hstack!{
             feather_icons::menu(),
-            Text::new("Your library"),
+            Text::new("Your library").color(WHITE),
 			Spacer(),
             feather_icons::plus(),
             feather_icons::arrow_right()
@@ -48,7 +48,7 @@ fn main() {
         hstack!{
             feather_icons::search(),
             Spacer(),
-            Text::new("Recents"),
+            Text::new("Recents").color(WHITE),
             feather_icons::list(),
         }.fill_width(),
         SidebarPlaylist("Liked songs"),
@@ -56,7 +56,6 @@ fn main() {
         SidebarPlaylist("Wunna"),
         SidebarPlaylist("2014 Forest Hills Drive")
     }
-    .color(BACKGROUND)
     .spacing(24)
     .padding(24)
     .fill_height();
@@ -101,6 +100,7 @@ fn main() {
         home_page,
         BottomBar()
     }
+	.color(BLACK)
     .fill_height()
     .fill_width();
 
@@ -134,9 +134,11 @@ fn DiscoveryPlaylist() -> impl Widget{
 fn HomeSection() -> impl Widget{
 	vstack!{
 		hstack!{
-			Text::new("Made for charlemagne").font_size(24),
+			Text::new("Made for charlemagne")
+			.font_size(24)
+			.color(WHITE),
 			Spacer(),
-			Text::new("Show all"),
+			Text::new("Show all").color(WHITE),
 		}
 		.fill_width(),
 		hstack!{
@@ -159,8 +161,10 @@ fn BottomBar() -> impl Widget {
             Rect::new(50.0, 50.0, BLACK)
             .corner_radius(12),
             vstack!{
-                Text::new("You've been missed"),
+                Text::new("You've been missed")
+				.color(WHITE),
                 Text::new("PARTYNEXTDOOR")
+				.color(WHITE)
             }
 			.spacing(4)
         }
@@ -177,9 +181,11 @@ fn BottomBar() -> impl Widget {
             }
 			.spacing(16),
             hstack!{
-                Text::new("0:00"),
+                Text::new("0:00")
+				.color(WHITE),
                 Rect::new(350.0, 5.0, BLACK).corner_radius(2),
                 Text::new("4:00")
+				.color(WHITE)
             }
 			.spacing(8)
 			.cross_axis_alignment(AxisAlignment::Center)
@@ -190,7 +196,6 @@ fn BottomBar() -> impl Widget {
 		Spacer(),
     }
     .fill_width()
-	.color(BACKGROUND)
 	.padding(16)
 }
 
@@ -202,7 +207,8 @@ fn Navbar() -> impl Widget {
 		Spacer(),
 		feather_icons::home(),
 		feather_icons::search(),
-		Text::new("What do you want to play?"),
+		Text::new("What do you want to play?")
+		.color(WHITE),
 		Spacer(),
 		feather_icons::bell(),
 		feather_icons::users()
@@ -224,12 +230,12 @@ fn Chip(text: &str) -> impl Widget {
 
 fn SidebarPlaylist(title: &str) -> impl Widget {
     hstack! {
-        Rect::new(50.0, 50.0, GREY).corner_radius(12),
+        Rect::new(50.0, 50.0, BACKGROUND).corner_radius(12),
         vstack!{
-            Text::new(title),
+            Text::new(title).color(WHITE),
             hstack!{
-                Text::new("Playlist"),
-                Text::new("Charlemagne")
+                Text::new("Playlist").color(WHITE),
+                Text::new("Charlemagne").color(WHITE)
             }
 			.spacing(12)
         }
@@ -240,8 +246,8 @@ fn SidebarPlaylist(title: &str) -> impl Widget {
 
 fn HomePlaylist(name:&str) -> impl Widget{
 	hstack! {
-		Rect::new(50.0, 50.0, BLACK).corner_radius(12),
-		Text::new(name)
+		Rect::new(50.0, 50.0, BACKGROUND).corner_radius(12),
+		Text::new(name).color(WHITE)
 	}
 	.spacing(12)
 	.cross_axis_alignment(AxisAlignment::Center)
