@@ -126,7 +126,7 @@ impl Surface for IconSurface {
 			wgpu::ImageDataLayout { 
 				offset: 0, 
 				bytes_per_row: Some(4 * self.size.width as u32), // TODO don't even know what this is
-				rows_per_image: Some(self.size.height as u32)
+				rows_per_image: None
 			}, 
 			texture_size
 		);
