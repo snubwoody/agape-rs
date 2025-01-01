@@ -10,15 +10,17 @@ use crate::{
 pub struct IconSurface{
 	position:Position,
 	size:Size,
-	img: image::DynamicImage
+	img: image::DynamicImage,
+	color:Color
 }
 
 impl IconSurface {
-	pub fn new(img:image::DynamicImage) -> Self{
+	pub fn new(img:image::DynamicImage,color:Color) -> Self{
 		Self {
 			position:Position::new(0.0, 0.0), 
 			size:Size::default(),
-			img
+			img,
+			color
 		}
 	}
 
@@ -130,8 +132,8 @@ impl Surface for IconSurface {
 		);
 
 		// Set the render pipeline and vertex buffer
-		render_pass.set_pipeline(&context.image_pipeline.pipeline);
-		render_pass.set_bind_group(0, &context.image_pipeline.window_bind_group, &[]);
+		render_pass.set_pipeline(&context.icon_pipeline.pipeline);
+		render_pass.set_bind_group(0, &context.icon_pipeline.window_bind_group, &[]);
 		render_pass.set_bind_group(1, &texture_bind_group, &[]);
 		render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 

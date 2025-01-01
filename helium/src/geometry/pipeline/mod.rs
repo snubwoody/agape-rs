@@ -2,8 +2,10 @@ pub mod image;
 pub mod text;
 pub mod rect;
 pub mod circle;
+pub mod icon;
 use std::str;
 use circle::CirclePipeline;
+use icon::IconPipeline;
 use image::ImagePipeline;
 use rect::RectPipeline;
 use text::TextPipeline;
@@ -124,6 +126,7 @@ pub struct RenderContext {
 	pub text_pipeline: TextPipeline,
 	pub circle_pipeline: CirclePipeline,
 	pub image_pipeline: ImagePipeline,
+	pub icon_pipeline: IconPipeline,
 	pub window_uniform:Uniform
 }
 
@@ -133,6 +136,7 @@ impl RenderContext {
 		let text_pipeline = TextPipeline::new(device, config, size);
 		let circle_pipeline = CirclePipeline::new(device, config, size);
 		let image_pipeline = ImagePipeline::new(device, config, size);
+		let icon_pipeline = IconPipeline::new(device, config, size);
 
 		let window_buffer = UniformBuilder::new()
 			.label("Window uniform")
@@ -144,6 +148,7 @@ impl RenderContext {
 			text_pipeline,
 			circle_pipeline,
 			image_pipeline,
+			icon_pipeline,
 			window_uniform:window_buffer
         }
     }

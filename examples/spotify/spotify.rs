@@ -2,7 +2,7 @@
 use helium::{
     app::{events::EventQueue, view::View, App}, hstack, vstack, widgets::{
         icon::feather_icons, Container, Rect, Spacer, Text, Widget,
-    }, AxisAlignment, Color, LayoutSolver, Size, BLACK, WHITE
+    }, AxisAlignment, Color, LayoutSolver, Size, BLACK, PINK, WHITE
 };
 use std::{
     env,
@@ -46,7 +46,7 @@ fn main() {
 		.fill_width(),
         chips,
         hstack!{
-            feather_icons::search(),
+            feather_icons::search().color(PINK),
             Spacer(),
             Text::new("Recents").color(WHITE),
             feather_icons::list(),

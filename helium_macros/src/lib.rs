@@ -27,6 +27,7 @@ pub fn hex(item:TokenStream) -> TokenStream{
 /// This macro does the very tedius job of defining a function for each icon in a 
 /// directory. The icon must be in svg format, all non-svg files in the directory will be ignored.
 /// Files that start with reserved keywords will be prefixed with `_`.
+/// eg `box.svg -> _box()`
 #[proc_macro]
 pub fn include_icons(dir:TokenStream) -> TokenStream{
 	let dir_name = dir.to_string().replace("\"","");
@@ -80,8 +81,8 @@ pub fn include_icons(dir:TokenStream) -> TokenStream{
 				let svg_data_literal = Literal::byte_string(&svg_data);
 
 				icons.push(quote! {
-						pub fn #fn_name() -> crate::widgets::image::Image{
-							crate::widgets::image::Image::svg_bytes(#svg_data_literal)
+						pub fn #fn_name() -> crate::widgets::icon::Icon{
+							crate::widgets::icon::Icon::bytes(#svg_data_literal)
 						}
 					}
 				);

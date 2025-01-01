@@ -40,5 +40,5 @@ fn vs_main(in:VertexInput) -> VertexOutput {
 
 @fragment
 fn fs_main(in:VertexOutput) -> @location(0) vec4<f32> {
-	return vec4(1.0,1.0,1.0,0.0) + textureSample(image_texture,image_sampler,in.uv);
+	return vec4(in.color.xyz,0.0) * textureSample(image_texture,image_sampler,in.uv);
 }

@@ -1,5 +1,4 @@
-use std::{fs, io::Cursor};
-
+use std::fs;
 use crystal::{BoxSizing, EmptyLayout};
 use image::{GenericImageView, ImageReader};
 use resvg::tiny_skia::Pixmap;
