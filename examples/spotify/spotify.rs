@@ -1,3 +1,4 @@
+#![allow(non_snake_case)]
 use helium::{
     app::{events::EventQueue, view::View, App}, hstack, vstack, widgets::{
         icon::feather_icons, Container, Rect, Spacer, Text, Widget,
@@ -13,8 +14,8 @@ const BACKGROUND: Color = Color::Hex("#121212");
 const GREY: Color = Color::Hex("#414141");
 const SPOTIFY_GREEN: Color = Color::Hex("#3be477");
 
+// TODO theres some sizes that are making the icons pixelated, very weird
 fn main() {
-	// TODO fix the block layout max constraints
     env::set_var("RUST_LOG", "trace,wgpu_core=error,naga=warn,wgpu_hal=error,async_std=warn");
     env_logger::init();
 
@@ -50,10 +51,10 @@ fn main() {
             Text::new("Recents"),
             feather_icons::list(),
         }.fill_width(),
-        SidebarItem("Liked songs"),
-        SidebarItem("Channel Orange"),
-        SidebarItem("Wunna"),
-        SidebarItem("2014 Forest Hills Drive")
+        SidebarPlaylist("Liked songs"),
+        SidebarPlaylist("Channel Orange"),
+        SidebarPlaylist("Wunna"),
+        SidebarPlaylist("2014 Forest Hills Drive")
     }
     .color(BACKGROUND)
     .spacing(24)
@@ -66,13 +67,34 @@ fn main() {
             Chip("All"),
             Chip("Music"),
             Chip("Podcasts")
-        }.spacing(12)
+        }.spacing(12),
+		hstack!{
+			HomePlaylist("Car music"),
+			HomePlaylist("Euphoria"),
+			HomePlaylist("Liked songs"),
+			HomePlaylist("Hype hype"),
+		}
+		.spacing(24)
+		.fill_width(),
+		hstack!{
+			HomePlaylist("Car music"),
+			HomePlaylist("Euphoria"),
+			HomePlaylist("Liked songs"),
+			HomePlaylist("Hype hype"),
+		}
+		.spacing(24)
+		.fill_width(),
+		HomeSection(),
+		HomeSection(),
+		HomeSection(),
+		HomeSection(),
+		HomeSection(),
     }
     .padding(24)
     .spacing(24)
     .fill_width();
 
-    let home_page = hstack! {sidebar,mainpanel}.fill_width().fill_height();
+    let home_page = hstack!{sidebar,mainpanel}.fill_width().fill_height();
 
     let home = vstack! {
         Navbar(),
@@ -101,6 +123,36 @@ fn main() {
     App::new().add_view(home).run();
 }
 
+fn DiscoveryPlaylist() -> impl Widget{
+	vstack!{
+		Rect::new(200.0, 200.0, BACKGROUND).corner_radius(12),
+		Text::new("Daily mix")
+	}
+	.spacing(12)
+}
+
+fn HomeSection() -> impl Widget{
+	vstack!{
+		hstack!{
+			Text::new("Made for charlemagne").font_size(24),
+			Spacer(),
+			Text::new("Show all"),
+		}
+		.fill_width(),
+		hstack!{
+			DiscoveryPlaylist(),
+			DiscoveryPlaylist(),
+			DiscoveryPlaylist(),
+			DiscoveryPlaylist(),
+			DiscoveryPlaylist(),
+			DiscoveryPlaylist(),
+		}.spacing(36)
+		
+	}
+	.spacing(10)
+	.fill_width()
+}
+
 fn BottomBar() -> impl Widget {
     hstack! {
         hstack!{
@@ -109,8 +161,11 @@ fn BottomBar() -> impl Widget {
             vstack!{
                 Text::new("You've been missed"),
                 Text::new("PARTYNEXTDOOR")
-            }.cross_axis_alignment(AxisAlignment::Center).main_axis_alignment(AxisAlignment::Center),
-        }.main_axis_alignment(AxisAlignment::Center),
+            }
+			.spacing(4)
+        }
+		.spacing(12)
+		.cross_axis_alignment(AxisAlignment::Center),
         Spacer(),
         vstack!{
             hstack!{
@@ -125,30 +180,45 @@ fn BottomBar() -> impl Widget {
                 Rect::new(150.0, 5.0, BLACK).corner_radius(2),
                 Text::new("4:00")
             }
-        }.fit_height(),
+        }
+		.spacing(12)
+		.fit_height()
+		.cross_axis_alignment(AxisAlignment::Center),
 		Spacer(),
     }
     .fill_width()
+	.padding(16)
 }
 
 fn Navbar() -> impl Widget {
     hstack! {
-        Text::new("Test")
+		feather_icons::more_horizontal(),
+		feather_icons::chevron_left(),
+		feather_icons::chevron_right(),
+		Spacer(),
+		feather_icons::home(),
+		feather_icons::search(),
+		Text::new("What do you want to play?"),
+		Spacer(),
+		feather_icons::bell(),
+		feather_icons::users()
     }
     .fill_width()
-    .color(BACKGROUND)
+	.spacing(12)
+	.padding(12)
+	.cross_axis_alignment(AxisAlignment::Center)
 }
 
 fn Chip(text: &str) -> impl Widget {
     let text = Text::new(text);
 
     Container::new(text)
-        .corner_radius(4)
-        .color(GREY)
-        .padding(12)
+    .corner_radius(4)
+    .color(GREY)
+    .padding(12)
 }
 
-fn SidebarItem(title: &str) -> impl Widget {
+fn SidebarPlaylist(title: &str) -> impl Widget {
     hstack! {
         Rect::new(50.0, 50.0, GREY).corner_radius(12),
         vstack!{
@@ -156,8 +226,20 @@ fn SidebarItem(title: &str) -> impl Widget {
             hstack!{
                 Text::new("Playlist"),
                 Text::new("Charlemagne")
-            }.spacing(12)
+            }
+			.spacing(12)
         }
     }
     .spacing(12)
+	.cross_axis_alignment(AxisAlignment::Center)
+}
+
+fn HomePlaylist(name:&str) -> impl Widget{
+	hstack! {
+		Rect::new(50.0, 50.0, BLACK).corner_radius(12),
+		Text::new(name)
+	}
+	.spacing(12)
+	.cross_axis_alignment(AxisAlignment::Center)
+	.fill_width()
 }

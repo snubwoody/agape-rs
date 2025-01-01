@@ -43,8 +43,7 @@ impl ImageSurface {
 			}
 		);
 
-		return (texture,texture_size);
-
+		(texture,texture_size)
 	}
 
 	fn to_vertices(&self,width:f32,height:f32) -> Vec<Vertex>{
