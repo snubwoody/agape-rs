@@ -179,6 +179,16 @@ macro_rules! impl_widget {
 			self
 		}
 
+		pub fn fixed_width(mut self,width:f32) -> Self{
+			self.layout.intrinsic_size.width = crystal::BoxSizing::Fixed(width);
+			self
+		}
+	
+		pub fn fixed_height(mut self,height:f32) -> Self{
+			self.layout.intrinsic_size.height = crystal::BoxSizing::Fixed(height);
+			self
+		}
+
 		pub fn fit_width(mut self) -> Self{
 			self.layout.intrinsic_size.width = crystal::BoxSizing::Shrink;
 			self

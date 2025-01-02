@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, time::Instant};
 
 use crystal::{Layout, LayoutSolver};
 use helium_core::{position::Position, size::Size};
@@ -35,7 +35,7 @@ impl View {
 	}
 
 	pub fn render(&mut self,state:&AppState) {
-
+		let now = Instant::now();
 		let output = state.surface.get_current_texture().unwrap(); // TODO maybe handle this error
 		let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
 		
@@ -66,15 +66,16 @@ impl View {
 		self.root_body.update_sizes(&self.root_layout);
 		self.root_body.render(&mut render_pass,state);
 		
-		for error in errors{
-			log::warn!("{error}")
-		}
+		// for error in errors{
+		// 	log::warn!("{error}")
+		// }
 
 		// Drop the render pass because it borrows encoder mutably
 		std::mem::drop(render_pass);
 	
 		state.queue.submit(std::iter::once(encoder.finish()));
 		output.present();
+		log::info!("{}ms",now.elapsed().as_millis())
 	}
 }
 

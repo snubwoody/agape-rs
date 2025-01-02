@@ -19,3 +19,4 @@ helium_macros = {path = "../helium_macros"}
 crystal = {path = "../crystal"}
 resvg = "0.44.0"
 usvg = "0.44.0"
+reqwest = {version = "0.12.12",features = ["blocking"]}

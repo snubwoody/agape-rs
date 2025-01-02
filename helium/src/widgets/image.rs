@@ -84,8 +84,23 @@ impl Image {
 		}
 	}
 
-	pub fn url() -> Self{
-		todo!()
+	/// Create an image from a url
+	pub fn url(url:&str) -> Self{
+		let id = nanoid::nanoid!();
+		let img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
+
+		let image = image::load_from_memory(&img).unwrap();
+		
+		let mut layout = EmptyLayout::new();
+		layout.intrinsic_size.width = BoxSizing::Fixed(image.dimensions().0 as f32);
+		layout.intrinsic_size.height = BoxSizing::Fixed(image.dimensions().1 as f32);
+		layout.id = id.clone();
+		
+		Self{
+			id,
+			image,
+			layout
+		}
 	}
 
 	pub fn bytes() -> Self{

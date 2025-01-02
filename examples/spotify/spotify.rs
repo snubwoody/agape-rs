@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use helium::{
     app::{events::EventQueue, view::View, App}, hstack, vstack, widgets::{
-        icon::feather_icons, Container, Rect, Spacer, Text, Widget,
+        icon::feather_icons, Container, Image, Rect, Spacer, Text, Widget
     }, AxisAlignment, Color, LayoutSolver, Size, BLACK, PINK, WHITE
 };
 use std::{
@@ -16,7 +16,7 @@ const SPOTIFY_GREEN: Color = Color::Hex("#3be477");
 
 // TODO theres some sizes that are making the icons pixelated, very weird
 fn main() {
-    env::set_var("RUST_LOG", "trace,wgpu_core=error,naga=warn,wgpu_hal=error,async_std=warn");
+    env::set_var("RUST_LOG", "trace,wgpu_core=error,naga=warn,wgpu_hal=error,async_std=warn,reqwest=warn");
     env_logger::init();
 
     let event_queue = EventQueue::new();
@@ -245,8 +245,10 @@ fn SidebarPlaylist(title: &str) -> impl Widget {
 }
 
 fn HomePlaylist(name:&str) -> impl Widget{
-	hstack! {
-		Rect::new(50.0, 50.0, BACKGROUND).corner_radius(12),
+	hstack!{
+		// Image::url("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
+		// .fixed_width(50.0)
+		// .fixed_height(50.0),
 		Text::new(name).color(WHITE)
 	}
 	.spacing(12)
