@@ -40,10 +40,16 @@ fn vs_main(in:VertexInput) -> VertexOutput {
 
 @fragment
 fn fs_main(in:VertexOutput) -> @location(0) vec4<f32> {
-	return textureSample(image_texture,image_sampler,in.uv) + vec4(in.color.xyz,0.0);
-	// return mix(
-	// 	textureSample(image_texture,image_sampler,in.uv),
-	// 	vec4(in.color.xyz,1.0),
-	// 	0.1
-	// );
+	var texture_color:vec4<f32> = textureSample(image_texture,image_sampler,in.uv); 
+	
+	// Mix between the icon color from the svg and the color of the vertex, works best with
+	// black icons 
+	// FIXME this means the input color alpha won't work properly
+	var icon_color:vec3<f32> = mix(
+		texture_color.xyz,
+		in.color.xyz,
+		1.0
+	);
+
+	return vec4(icon_color,texture_color.w);
 }

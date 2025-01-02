@@ -36,11 +36,11 @@ fn main() {
 
     let sidebar = vstack! {
         hstack!{
-            feather_icons::menu(),
+            feather_icons::menu().color(WHITE),
             Text::new("Your library").color(WHITE),
 			Spacer(),
-            feather_icons::plus(),
-            feather_icons::arrow_right()
+            feather_icons::plus().color(WHITE),
+            feather_icons::arrow_right().color(WHITE)
         }
 		.cross_axis_alignment(AxisAlignment::Center)
 		.fill_width(),
@@ -49,7 +49,7 @@ fn main() {
             feather_icons::search().color(PINK),
             Spacer(),
             Text::new("Recents").color(WHITE),
-            feather_icons::list(),
+            feather_icons::list().color(WHITE),
         }.fill_width(),
         SidebarPlaylist("Liked songs"),
         SidebarPlaylist("Channel Orange"),
@@ -100,7 +100,7 @@ fn main() {
         home_page,
         BottomBar()
     }
-	.color(BACKGROUND)
+	.color(BLACK)
     .fill_height()
     .fill_width();
 
@@ -173,11 +173,11 @@ fn BottomBar() -> impl Widget {
         Spacer(),
         vstack!{
             hstack!{
-                feather_icons::shuffle(),
-                feather_icons::skip_back(),
-                feather_icons::play(),
-                feather_icons::skip_forward(),
-                feather_icons::repeat()
+                feather_icons::shuffle().color(WHITE),
+                feather_icons::skip_back().color(WHITE),
+                feather_icons::play().color(WHITE),
+                feather_icons::skip_forward().color(WHITE),
+                feather_icons::repeat().color(WHITE)
             }
 			.spacing(16),
             hstack!{
@@ -201,17 +201,17 @@ fn BottomBar() -> impl Widget {
 
 fn Navbar() -> impl Widget {
     hstack! {
-		feather_icons::more_horizontal(),
-		feather_icons::chevron_left(),
-		feather_icons::chevron_right(),
+		feather_icons::more_horizontal().color(WHITE),
+		feather_icons::chevron_left().color(WHITE),
+		feather_icons::chevron_right().color(WHITE),
 		Spacer(),
-		feather_icons::home(),
-		feather_icons::search(),
+		feather_icons::home().color(WHITE),
+		feather_icons::search().color(WHITE),
 		Text::new("What do you want to play?")
 		.color(WHITE),
 		Spacer(),
-		feather_icons::bell(),
-		feather_icons::users()
+		feather_icons::bell().color(WHITE),
+		feather_icons::users().color(WHITE)
     }
     .fill_width()
 	.spacing(12)
