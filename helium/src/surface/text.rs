@@ -87,7 +87,7 @@ impl TextSurface {
 
 impl Surface for TextSurface {
 	fn draw(
-		&self,
+		&mut self,
 		render_pass:&mut wgpu::RenderPass,
 		context: &crate::geometry::RenderContext,
 		state: &AppState

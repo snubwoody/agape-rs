@@ -67,7 +67,7 @@ impl IconSurface {
 
 impl Surface for IconSurface {
 	fn draw(
-		&self,
+		&mut self,
 		render_pass:&mut wgpu::RenderPass,
 		context: &crate::geometry::RenderContext,
 		state: &AppState

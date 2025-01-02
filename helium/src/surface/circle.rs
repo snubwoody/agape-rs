@@ -45,7 +45,7 @@ impl CircleSurface {
 
 impl Surface for CircleSurface {
 	fn draw(
-		&self,
+		&mut self,
 		render_pass:&mut wgpu::RenderPass,
 		context: &RenderContext,
 		state: &AppState

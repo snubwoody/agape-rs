@@ -57,9 +57,11 @@ impl View {
 			occlusion_query_set: None,
 			timestamp_writes: None,
 		});
-
 		
-		let errors = LayoutSolver::solve(&mut *self.root_layout, state.size);
+		
+		let layout_now = Instant::now();
+		let _ = LayoutSolver::solve(&mut *self.root_layout, state.size);
+		log::debug!("{:?}ms taken to solve layout",layout_now.elapsed());
 		
 		// Has to be in this order otherwise it crashes particularly because of 0 size textures
 		// FIXME above
@@ -75,7 +77,7 @@ impl View {
 	
 		state.queue.submit(std::iter::once(encoder.finish()));
 		output.present();
-		log::info!("{}ms",now.elapsed().as_millis())
+		//log::debug!("{}ms",now.elapsed().as_millis())
 	}
 }
 

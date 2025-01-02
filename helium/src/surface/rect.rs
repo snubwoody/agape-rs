@@ -59,7 +59,7 @@ impl RectSurface {
 }
 
 impl Surface for RectSurface {
-    fn draw(&self, render_pass: &mut wgpu::RenderPass, context: &RenderContext, state: &AppState) {
+    fn draw(&mut self, render_pass: &mut wgpu::RenderPass, context: &RenderContext, state: &AppState) {
         let vertices = self.to_vertices();
 
         let vertex_buffer = state

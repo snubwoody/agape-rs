@@ -10,7 +10,7 @@ use crate::{
 pub struct ImageSurface{
 	position:Position,
 	size:Size,
-	img: image::DynamicImage
+	img: image::DynamicImage,
 }
 
 impl ImageSurface {
@@ -64,7 +64,7 @@ impl ImageSurface {
 
 impl Surface for ImageSurface {
 	fn draw(
-		&self,
+		&mut self,
 		render_pass:&mut wgpu::RenderPass,
 		context: &crate::geometry::RenderContext,
 		state: &AppState
@@ -107,12 +107,11 @@ impl Surface for ImageSurface {
 			}
 		);
 		
-		let img_data = self.img.resize(
+		let img = self.img.resize(
 			self.size.width as u32, 
 			self.size.height as u32, 
-			image::imageops::FilterType::Triangle
+			image::imageops::FilterType::Nearest // This is by far the fastest filter type
 		).to_rgba8();
-
 
 		state.queue.write_texture(
 			wgpu::ImageCopyTextureBase { 
@@ -121,7 +120,7 @@ impl Surface for ImageSurface {
 				origin: wgpu::Origin3d::ZERO, 
 				aspect: wgpu::TextureAspect::All
 			},
-			&img_data, 
+			&img, 
 			wgpu::ImageDataLayout { 
 				offset: 0, 
 				bytes_per_row: Some(4 * self.size.width as u32), // TODO don't even know what this is

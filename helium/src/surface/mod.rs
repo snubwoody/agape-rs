@@ -20,7 +20,7 @@ use crate::{app::AppState, Bounds, Position, Size};
 pub trait Surface:Debug {
 	/// Draw the surface onto the screen
 	fn draw(
-		&self,
+		&mut self,
 		render_pass:&mut wgpu::RenderPass,
 		context: &crate::geometry::RenderContext,
 		state:&AppState
