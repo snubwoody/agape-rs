@@ -110,8 +110,9 @@ impl Surface for ImageSurface {
 		let img_data = self.img.resize(
 			self.size.width as u32, 
 			self.size.height as u32, 
-			image::imageops::FilterType::CatmullRom
+			image::imageops::FilterType::Triangle
 		).to_rgba8();
+
 
 		state.queue.write_texture(
 			wgpu::ImageCopyTextureBase { 
