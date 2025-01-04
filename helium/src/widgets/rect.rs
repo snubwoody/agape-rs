@@ -73,5 +73,9 @@ impl Widget for Rect {
 		(body,Box::new(layout))
     }
 
+	fn update(&mut self) {
+		
+	}
+
 }
 

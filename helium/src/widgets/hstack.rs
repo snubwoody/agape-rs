@@ -96,6 +96,10 @@ impl Widget for HStack {
 
 		(body,Box::new(layout))
     }
+
+	fn update(&mut self) {
+		self.children.iter_mut().for_each(|child|child.update());
+	}
 }
 
 // TODO add array style syntax like the vec! macro

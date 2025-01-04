@@ -31,4 +31,7 @@ impl Widget for Circle {
 
 		(body,Box::new(layout))
 	}
+
+	fn update(&mut self) {
+	}
 }

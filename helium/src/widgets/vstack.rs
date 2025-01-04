@@ -92,6 +92,10 @@ impl Widget for VStack {
 
 		(body,Box::new(layout))
     }
+
+	fn update(&mut self) {
+		self.children.iter_mut().for_each(|child|child.update());
+	}
 }
 
 
@@ -99,11 +103,13 @@ impl Widget for VStack {
 /// 
 /// `vstack!` allows [`VStack`]'s to be declared in a more declarative manner.  
 /// 
-/// ```ignore
+/// ```
+/// use helium::{vstack,widgets::{Button,Text}};
+/// 
 /// vstack!{
 /// 	Button::new("Click me"),
 /// 	Text::new("Hello world")
-/// }
+/// };
 /// ```
 #[macro_export]
 macro_rules! vstack {

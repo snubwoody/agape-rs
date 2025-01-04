@@ -100,6 +100,10 @@ impl Widget for Icon {
 
 		(body,Box::new(self.layout.clone()))
 	}
+
+	fn update(&mut self) {
+		
+	}
 }
 
 

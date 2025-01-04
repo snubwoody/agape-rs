@@ -37,6 +37,9 @@ pub trait Widget{
 	/// Build the [`Widget`] into a primitive [`WidgetBody`] for
 	/// rendering.
 	fn build(&self) -> (WidgetBody,Box<dyn Layout>);
+
+	/// Load data in the background
+	fn update(&mut self){}
 }
 
 /// Primitive structure that holds all the information

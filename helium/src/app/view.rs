@@ -19,6 +19,7 @@ impl View {
 	pub fn new(root_widget:impl Widget + 'static,event_queue:EventQueue) -> Self {
 		
 		let (root_body,root_layout) = root_widget.build();
+
 		Self { 
 			root_body,
 			root_layout,
@@ -35,6 +36,7 @@ impl View {
 	}
 
 	pub fn render(&mut self,state:&AppState) {
+		self.root_widget.update();
 		let now = Instant::now();
 		let output = state.surface.get_current_texture().unwrap(); // TODO maybe handle this error
 		let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());

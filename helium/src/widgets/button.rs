@@ -74,4 +74,8 @@ impl Widget for Button {
 
 		(body,Box::new(layout))
     }
+
+	fn update(&mut self) {
+		
+	}
 }

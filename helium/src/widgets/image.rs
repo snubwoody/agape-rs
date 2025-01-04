@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fs, thread};
 use crystal::{BoxSizing, EmptyLayout};
 use image::{GenericImageView, ImageReader};
 use resvg::tiny_skia::Pixmap;
@@ -122,5 +122,11 @@ impl Widget for Image {
 		}; 
 
 		(body,Box::new(self.layout.clone()))
+	}
+
+	fn update(&mut self) {
+		let _ = thread::spawn(||{
+			println!("Hello");
+		}).join();
 	}
 }

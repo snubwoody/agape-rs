@@ -21,6 +21,7 @@ pub struct App {
 
 impl App {
     pub fn new() -> Self {
+		// FIXME handle the errors
         let event_loop = EventLoop::new().unwrap();
 
         // Set the event loop to always start a new 

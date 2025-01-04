@@ -62,4 +62,8 @@ where W: Widget {
 
 		(body,Box::new(layout))
     }
+
+	fn update(&mut self) {
+		self.child.update();
+	}
 }
