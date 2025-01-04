@@ -17,8 +17,8 @@ pub struct View{
 
 impl View {
 	pub fn new(root_widget:impl Widget + 'static,event_queue:EventQueue) -> Self {
-		let (root_body,root_layout) = root_widget.build();
 		
+		let (root_body,root_layout) = root_widget.build();
 		Self { 
 			root_body,
 			root_layout,
@@ -59,19 +59,13 @@ impl View {
 		});
 		
 		
-		let layout_now = Instant::now();
 		let _ = LayoutSolver::solve(&mut *self.root_layout, state.size);
-		log::debug!("{:?}ms taken to solve layout",layout_now.elapsed());
 		
 		// Has to be in this order otherwise it crashes particularly because of 0 size textures
 		// FIXME above
 		self.root_body.update_sizes(&self.root_layout);
 		self.root_body.render(&mut render_pass,state);
 		
-		// for error in errors{
-		// 	log::warn!("{error}")
-		// }
-
 		// Drop the render pass because it borrows encoder mutably
 		std::mem::drop(render_pass);
 	
