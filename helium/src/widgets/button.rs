@@ -1,10 +1,6 @@
 use super::{text::Text, Widget};
 use crate::app::events::Event;
-use crate::{
-    impl_events,
-    surface::rect::RectSurface,
-    widgets::WidgetBody,
-};
+use crate::{impl_events, surface::rect::RectSurface, widgets::WidgetBody};
 use crystal::{BlockLayout, BoxSizing, Layout};
 use helium_core::color::Color;
 use nanoid::nanoid;
@@ -53,29 +49,26 @@ impl Button {
 }
 
 impl Widget for Button {
-    fn build(&self) -> (WidgetBody,Box<dyn Layout>) {
+    fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
         let mut surface = RectSurface::default();
-		surface.color = self.color.clone();
+        surface.color = self.color.clone();
         surface.corner_radius(self.corner_radius);
-		
-        let (text_body,text_layout) = Text::new(&self.text).build();
-		
-		
-		let body = WidgetBody {
-			id: self.id.clone(),
+
+        let (text_body, text_layout) = Text::new(&self.text).build();
+
+        let body = WidgetBody {
+            id: self.id.clone(),
             surface: Box::new(surface),
             children: vec![Box::new(text_body)],
             ..Default::default()
         };
-		
-		let mut layout = BlockLayout::new(text_layout);
-		layout.id = body.id.clone();
-		layout.padding = self.padding;
 
-		(body,Box::new(layout))
+        let mut layout = BlockLayout::new(text_layout);
+        layout.id = body.id.clone();
+        layout.padding = self.padding;
+
+        (body, Box::new(layout))
     }
 
-	fn update(&mut self) {
-		
-	}
+    fn update(&mut self) {}
 }

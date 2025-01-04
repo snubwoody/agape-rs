@@ -1,6 +1,9 @@
 pub mod events;
 pub mod view;
-use crate::{geometry::{CirclePipeline, RectPipeline, RenderContext, TextPipeline}, Size};
+use crate::{
+    geometry::{CirclePipeline, RectPipeline, RenderContext, TextPipeline},
+    Size,
+};
 use async_std::task;
 use view::View;
 use winit::{
@@ -21,11 +24,11 @@ pub struct App {
 
 impl App {
     pub fn new() -> Self {
-		// FIXME handle the errors
+        // FIXME handle the errors
         let event_loop = EventLoop::new().unwrap();
 
-        // Set the event loop to always start a new 
-		// iteration even if there are no events.
+        // Set the event loop to always start a new
+        // iteration even if there are no events.
         event_loop.set_control_flow(ControlFlow::Poll);
 
         let window = WindowBuilder::new().build(&event_loop).unwrap();
@@ -45,22 +48,24 @@ impl App {
 
     pub fn run(mut self) {
         let mut state = task::block_on(AppState::new(&self.window));
-		// TODO when the window is minimized the size of the widgets are changing to zero which
-		// causing wgpu to panic.
+        // TODO when the window is minimized the size of the widgets are changing to zero which
+        // causing wgpu to panic.
         self.event_loop
-        .run(|event, window_target| match event {
-            winit::event::Event::WindowEvent { event, .. } => match event {
-                WindowEvent::CloseRequested => window_target.exit(),
-                WindowEvent::RedrawRequested => self.views[self.index].render(&state),
-                WindowEvent::Resized(size) => {
-					state.resize(size);
-					self.window.request_redraw();
-				},
-                event => {self.views[self.index].handle_events(event,&self.window);}
-            },
-            _ => {}
-        })
-        .expect("Event loop error occured");
+            .run(|event, window_target| match event {
+                winit::event::Event::WindowEvent { event, .. } => match event {
+                    WindowEvent::CloseRequested => window_target.exit(),
+                    WindowEvent::RedrawRequested => self.views[self.index].render(&state),
+                    WindowEvent::Resized(size) => {
+                        state.resize(size);
+                        self.window.request_redraw();
+                    }
+                    event => {
+                        self.views[self.index].handle_events(event, &self.window);
+                    }
+                },
+                _ => {}
+            })
+            .expect("Event loop error occured");
     }
 }
 
@@ -69,14 +74,13 @@ pub struct AppState<'a> {
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub context: RenderContext,
-	pub config: wgpu::SurfaceConfiguration,
+    pub config: wgpu::SurfaceConfiguration,
     pub size: Size,
 }
 
 impl<'a> AppState<'a> {
     pub async fn new(window: &'a Window) -> Self {
         let size = window.inner_size().into();
-		
 
         // Handle to wpgu for creating a surface and an adapter
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
@@ -137,25 +141,25 @@ impl<'a> AppState<'a> {
         surface.configure(&device, &config);
 
         let context = RenderContext::new(&device, &config, &size);
-		
+
         Self {
             surface,
             device,
             queue,
             context,
-			config,
+            config,
             size,
         }
     }
 
     pub fn resize(&mut self, size: PhysicalSize<u32>) {
         self.size = size.into();
-		self.config.width = size.width as u32;
-		self.config.height = size.height as u32;
-		// Resize the surface with the window to keep the right scale
-		self.surface.configure(&self.device, &self.config);
-		
-		//TODO maybe add a global uniform instead
+        self.config.width = size.width as u32;
+        self.config.height = size.height as u32;
+        // Resize the surface with the window to keep the right scale
+        self.surface.configure(&self.device, &self.config);
+
+        //TODO maybe add a global uniform instead
         self.queue.write_buffer(
             &self.context.rect_pipeline.window_buffer,
             0,
@@ -183,5 +187,3 @@ impl<'a> AppState<'a> {
         );
     }
 }
-
-

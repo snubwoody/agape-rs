@@ -1,11 +1,6 @@
-use crate::{
-    geometry::uniform::UniformBuilder,
-    geometry::vertex::VertexBufferLayoutBuilder,
-};
+use crate::{geometry::uniform::UniformBuilder, geometry::vertex::VertexBufferLayoutBuilder};
 use helium_core::size::Size;
-use wgpu::{
-    ShaderModuleDescriptor, ShaderSource,
-};
+use wgpu::{ShaderModuleDescriptor, ShaderSource};
 
 use super::RenderPipelineBuilder;
 
@@ -20,8 +15,8 @@ pub struct IconPipeline {
 
 impl IconPipeline {
     pub fn new(device: &wgpu::Device, config: &wgpu::SurfaceConfiguration, size: &Size) -> Self {
-		 // Compile the shader
-		let shader = device.create_shader_module(ShaderModuleDescriptor {
+        // Compile the shader
+        let shader = device.create_shader_module(ShaderModuleDescriptor {
             label: Some("Icon Shader Module"),
             source: ShaderSource::Wgsl(include_str!("../../../shaders/icon.wgsl").into()),
         });
@@ -65,12 +60,11 @@ impl IconPipeline {
             .add_bind_group_layout(&texture_bind_group_layout)
             .add_buffer(vertex_buffer_layout)
             .build(device, config);
-	
 
         Self {
             pipeline,
-            window_bind_group:window_uniform.bind_group,
-            window_buffer:window_uniform.buffer,
+            window_bind_group: window_uniform.bind_group,
+            window_buffer: window_uniform.buffer,
             texture_bind_group_layout,
         }
     }
