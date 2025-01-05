@@ -1,15 +1,15 @@
 pub mod events;
 pub mod view;
-use std::{thread, time::Duration};
+use std::{sync::mpsc, thread, time::Duration};
 
 use crate::{
-    geometry::{CirclePipeline, RectPipeline, RenderContext, TextPipeline},
+    geometry::RenderContext,
     Size,
 };
 use view::View;
 use winit::{
     dpi::PhysicalSize,
-    event::{Event, WindowEvent},
+    event::WindowEvent,
     event_loop::{ControlFlow, EventLoop},
     window::{Window, WindowBuilder},
 };
@@ -54,11 +54,13 @@ impl App {
 		let mut state = async_std::task::block_on(AppState::new(&self.window));
 		self.window.set_visible(true);
 
+		let (tx,rx) = std::sync::mpsc::channel();
+
 		// This thread is for data loading
-		let loader = thread::spawn(||{
+		let loader = thread::spawn(move ||{
 			loop {
-				thread::sleep(Duration::from_millis(700));
-				println!("Hello");
+				tx.send("Hi").unwrap();
+				thread::sleep(Duration::from_millis(500));
 			}
 		});
 
@@ -83,7 +85,12 @@ impl App {
                     }
                 },
                 _ => {
-					println!("World");
+					match rx.try_recv() {
+						Ok(val) => {
+							println!("{val}")
+						},
+						Err(_) => {}
+					};
 				}
             })
             .expect("Event loop error occured");

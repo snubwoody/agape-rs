@@ -84,6 +84,6 @@ impl View {
 
         state.queue.submit(std::iter::once(encoder.finish()));
         output.present();
-        //log::debug!("{}ms",now.elapsed().as_millis())
+        log::debug!("{}ms",now.elapsed().as_millis())
     }
 }
