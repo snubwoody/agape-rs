@@ -1,8 +1,8 @@
-use std::time::Instant;
-use crystal::LayoutSolver;
-use winit::window::Window;
 use super::{events::EventQueue, AppState};
 use crate::widgets::{Widget, WidgetBody};
+use crystal::LayoutSolver;
+use std::time::Instant;
+use winit::window::Window;
 
 pub struct View {
     root_layout: Box<dyn crystal::Layout>,
@@ -23,14 +23,14 @@ impl View {
         }
     }
 
-	pub fn mut_widget(&mut self) -> &dyn Widget{
-		&mut *self.root_widget
-	}
+    pub fn mut_widget(&mut self) -> &dyn Widget {
+        &mut *self.root_widget
+    }
 
-	pub async fn update(&mut self) {
-		let (body,layout) = self.root_widget.build();
-		self.root_widget.update();
-	}
+    pub async fn update(&mut self) {
+        let (body, layout) = self.root_widget.build();
+        self.root_widget.update();
+    }
 
     pub fn handle_events(&mut self, event: winit::event::WindowEvent, window: &Window) {
         // Pass the events to the event manager to determine which events have fired
@@ -84,6 +84,6 @@ impl View {
 
         state.queue.submit(std::iter::once(encoder.finish()));
         output.present();
-        log::debug!("{}ms",now.elapsed().as_millis())
+        log::debug!("{}ms", now.elapsed().as_millis())
     }
 }

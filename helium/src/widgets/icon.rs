@@ -1,9 +1,5 @@
 use super::Widget;
-use crate::{
-    impl_widget,
-    surface::icon::IconSurface,
-    widgets::WidgetBody,
-};
+use crate::{impl_widget, surface::icon::IconSurface, widgets::WidgetBody};
 use crystal::{BoxSizing, EmptyLayout};
 use helium_core::color::Color;
 use image::GenericImageView;

@@ -12,23 +12,25 @@ use crate::{
     app::AppState,
     surface::{rect::RectSurface, Surface},
 };
-use nanoid::nanoid;
-use crystal::Layout;
 pub use button::*;
 pub use circle::*;
 pub use container::*;
+use crystal::Layout;
 pub use hstack::*;
 pub use image::*;
+use nanoid::nanoid;
 pub use rect::*;
 pub use spacer::*;
 pub use text::*;
 pub use vstack::*;
 // TODO maybe test widgets with layouts to make sure everything's integrated properly;
 
+/// Data to be loaded for a widget
+pub enum Message {}
 /// The trait that all widgets must implement. Each `widget` must implement the build function
 /// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about
 /// the widget.
-pub trait Widget: Send + Sync {
+pub trait Widget {
     // I've changed this between &self and self, a couple times and my conclusion is
     // just keep it as &self forever, it makes it way easier to compose multiple sub-widgets.
 
@@ -36,8 +38,17 @@ pub trait Widget: Send + Sync {
     /// rendering.
     fn build(&self) -> (WidgetBody, Box<dyn Layout>);
 
+    fn data<F, T>(&self) -> Option<F>
+    where
+        F: FnOnce() -> T,
+        Self: Sized,
+    {
+        None
+    }
+
+    // TODO change to load?
     /// Load data in the background
-    fn update(&mut self){}
+    fn update(&mut self) {}
 }
 
 /// Primitive structure that holds all the information
@@ -72,7 +83,7 @@ impl WidgetBody {
         self
     }
 
-	// TODO change children to generic
+    // TODO change children to generic
     pub fn add_children(mut self, children: Vec<WidgetBody>) -> Self {
         for child in children {
             self.children.push(Box::new(child));

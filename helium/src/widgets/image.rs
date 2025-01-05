@@ -1,20 +1,24 @@
 use super::{icon::feather_icons, Widget};
-use crate::{impl_widget, surface::{image::ImageSurface, rect::RectSurface}, widgets::WidgetBody};
+use crate::{
+    impl_widget,
+    surface::{image::ImageSurface, rect::RectSurface},
+    widgets::WidgetBody,
+};
 use crystal::{BoxSizing, EmptyLayout};
 use helium_core::color::WHITE;
 use image::{GenericImageView, ImageReader};
 use resvg::tiny_skia::Pixmap;
-use std::{fs, thread};
+use std::{fs, process::Output, thread};
 
 /// Represents the state of the [`Image`]
-enum ImageState{
-	Loading(String),
-	Complete(image::DynamicImage)
+enum ImageState {
+    Loading(String),
+    Complete(image::DynamicImage),
 }
 
 pub struct Image {
     id: String,
-    state:ImageState,
+    state: ImageState,
     layout: crystal::EmptyLayout,
 }
 
@@ -29,11 +33,11 @@ impl Image {
         layout.intrinsic_size.height = BoxSizing::Fixed(image.dimensions().1 as f32);
         layout.id = id.clone();
 
-        Self { 
-			id, 
-			state:ImageState::Complete(image), 
-			layout 
-		}
+        Self {
+            id,
+            state: ImageState::Complete(image),
+            layout,
+        }
     }
 
     /// Create an svg image by passing the raw bytes
@@ -59,11 +63,11 @@ impl Image {
         layout.intrinsic_size.height = BoxSizing::Fixed(image.dimensions().1 as f32);
         layout.id = id.clone();
 
-        Self { 
-			id, 
-			state:ImageState::Complete(image), 
-			layout 
-		}
+        Self {
+            id,
+            state: ImageState::Complete(image),
+            layout,
+        }
     }
 
     /// Create an image from an svg, the svg is parsed and rendered into a png.
@@ -90,11 +94,11 @@ impl Image {
         layout.intrinsic_size.height = BoxSizing::Fixed(image.dimensions().1 as f32);
         layout.id = id.clone();
 
-        Self { 
-			id, 
-			state:ImageState::Complete(image), 
-			layout 
-		}
+        Self {
+            id,
+            state: ImageState::Complete(image),
+            layout,
+        }
     }
 
     /// Create an image from a url
@@ -104,11 +108,11 @@ impl Image {
         let mut layout = EmptyLayout::new();
         layout.id = id.clone();
 
-        Self { 
-			id, 
-			state:ImageState::Loading(url.to_string()), 
-			layout 
-		}
+        Self {
+            id,
+            state: ImageState::Loading(url.to_string()),
+            layout,
+        }
     }
 
     pub fn bytes() -> Self {
@@ -120,44 +124,37 @@ impl Image {
 
 impl Widget for Image {
     fn build(&self) -> (WidgetBody, Box<dyn crystal::Layout>) {
-
         let body = match &self.state {
-			ImageState::Complete(image) => {
-				WidgetBody {
-					id: self.id.clone(),
-					surface: Box::new(ImageSurface::new(image.clone())),
-					label: Some("Image".to_owned()),
-					..Default::default()
-				}
-			},
-			ImageState::Loading(_) => {
-				WidgetBody {
-					id: self.id.clone(),
-					surface:Box::new(RectSurface::new(0.0, 0.0, 0.0, 0.0, WHITE)),
-					label: Some("Image".to_owned()),
-					..Default::default()
-				}
-			}
-		};
-
-        
+            ImageState::Complete(image) => WidgetBody {
+                id: self.id.clone(),
+                surface: Box::new(ImageSurface::new(image.clone())),
+                label: Some("Image".to_owned()),
+                ..Default::default()
+            },
+            ImageState::Loading(_) => WidgetBody {
+                id: self.id.clone(),
+                surface: Box::new(RectSurface::new(0.0, 0.0, 0.0, 0.0, WHITE)),
+                label: Some("Image".to_owned()),
+                ..Default::default()
+            },
+        };
 
         (body, Box::new(self.layout.clone()))
     }
 
     fn update(&mut self) {
-		let img;
-		if let ImageState::Loading(url) = &self.state{
-			img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
-		}else {
-			return;
-		}
+        let img;
+        if let ImageState::Loading(url) = &self.state {
+            img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
+        } else {
+            return;
+        }
 
         let image = image::load_from_memory(&img).unwrap();
-		
+
         self.layout.intrinsic_size.width = BoxSizing::Fixed(image.dimensions().0 as f32);
         self.layout.intrinsic_size.height = BoxSizing::Fixed(image.dimensions().1 as f32);
-        
-		self.state = ImageState::Complete(image);
+
+        self.state = ImageState::Complete(image);
     }
 }
