@@ -923,6 +923,7 @@ dependencies = [
  "env_logger",
  "helium",
  "log",
+ "tokio",
 ]
 
 [[package]]

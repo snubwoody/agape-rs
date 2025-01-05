@@ -1,5 +1,7 @@
 pub mod events;
 pub mod view;
+use std::thread;
+
 use crate::{
     geometry::{CirclePipeline, RectPipeline, RenderContext, TextPipeline},
     Size,
@@ -8,11 +10,14 @@ use async_std::task;
 use view::View;
 use winit::{
     dpi::PhysicalSize,
-    event::WindowEvent,
+    event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::{Window, WindowBuilder},
 };
 
+enum AppEvent{
+	Update
+}
 /// This is a singular isolated program. Most projects
 /// will only contain one app.
 pub struct App {
@@ -31,7 +36,10 @@ impl App {
         // iteration even if there are no events.
         event_loop.set_control_flow(ControlFlow::Poll);
 
-        let window = WindowBuilder::new().build(&event_loop).unwrap();
+        let window = WindowBuilder::new()
+			.with_visible(false)
+			.build(&event_loop)
+			.unwrap();
 
         Self {
             event_loop,
@@ -47,19 +55,26 @@ impl App {
     }
 
     pub fn run(mut self) {
-        let mut state = task::block_on(AppState::new(&self.window));
+		let mut state = task::block_on(AppState::new(&self.window));
+		self.window.set_visible(true);
+		
         // TODO when the window is minimized the size of the widgets are changing to zero which
         // causing wgpu to panic.
         self.event_loop
             .run(|event, window_target| match event {
                 winit::event::Event::WindowEvent { event, .. } => match event {
                     WindowEvent::CloseRequested => window_target.exit(),
-                    WindowEvent::RedrawRequested => self.views[self.index].render(&state),
+                    WindowEvent::RedrawRequested => {
+						// TODO maybe split the update and render into seperate functions to
+						// make everything more smooth?
+						self.views[self.index].render(&state)
+					},
                     WindowEvent::Resized(size) => {
                         state.resize(size);
                         self.window.request_redraw();
-                    }
+                    },
                     event => {
+						//self.views[self.index].update();
                         self.views[self.index].handle_events(event, &self.window);
                     }
                 },

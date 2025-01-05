@@ -1,13 +1,9 @@
-use std::{collections::HashMap, time::Instant};
-
-use crystal::{Layout, LayoutSolver};
-use helium_core::{position::Position, size::Size};
+use std::time::Instant;
+use crystal::LayoutSolver;
 use winit::window::Window;
-
 use super::{events::EventQueue, AppState};
 use crate::widgets::{Widget, WidgetBody};
 
-/// A page
 pub struct View {
     root_layout: Box<dyn crystal::Layout>,
     root_widget: Box<dyn Widget>,
@@ -27,6 +23,11 @@ impl View {
         }
     }
 
+	pub fn update(&mut self) {
+		let (body,layout) = self.root_widget.build();
+		self.root_widget.update();
+	}
+
     pub fn handle_events(&mut self, event: winit::event::WindowEvent, window: &Window) {
         // Pass the events to the event manager to determine which events have fired
         // for which widgets.
@@ -35,7 +36,6 @@ impl View {
     }
 
     pub fn render(&mut self, state: &AppState) {
-        self.root_widget.update();
         let now = Instant::now();
         let output = state.surface.get_current_texture().unwrap(); // TODO maybe handle this error
         let view = output
@@ -72,7 +72,7 @@ impl View {
 
         // Has to be in this order otherwise it crashes particularly because of 0 size textures
         // FIXME above
-        self.root_body.update_sizes(&self.root_layout);
+        self.root_body.update_sizes(&*self.root_layout);
         self.root_body.render(&mut render_pass, state);
 
         // Drop the render pass because it borrows encoder mutably

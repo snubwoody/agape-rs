@@ -3,7 +3,7 @@ mod circle;
 mod container;
 mod hstack;
 pub mod icon;
-pub(crate) mod image;
+mod image;
 mod rect;
 mod spacer;
 mod text;
@@ -12,20 +12,20 @@ use crate::{
     app::AppState,
     surface::{rect::RectSurface, Surface},
 };
+use nanoid::nanoid;
+use crystal::Layout;
 pub use button::*;
 pub use circle::*;
 pub use container::*;
-use crystal::Layout;
 pub use hstack::*;
 pub use image::*;
-use nanoid::nanoid;
 pub use rect::*;
 pub use spacer::*;
 pub use text::*;
 pub use vstack::*;
 // TODO maybe test widgets with layouts to make sure everything's integrated properly;
 
-/// The trait that all widgets must implement. Each `widget` must implement build function
+/// The trait that all widgets must implement. Each `widget` must implement the build function
 /// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about
 /// the widget.
 pub trait Widget {
@@ -37,14 +37,14 @@ pub trait Widget {
     fn build(&self) -> (WidgetBody, Box<dyn Layout>);
 
     /// Load data in the background
-    fn update(&mut self) {}
+    fn update(&mut self){}
 }
 
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
 #[derive(Debug)]
 pub struct WidgetBody {
-    // TODO this changes a lot so make these fields private
+    // TODO this changes a lot so maybe make these fields private?
     pub id: String,
     /// A label for debugging purposes
     pub label: Option<String>,
@@ -72,6 +72,7 @@ impl WidgetBody {
         self
     }
 
+	// TODO change children to generic
     pub fn add_children(mut self, children: Vec<WidgetBody>) -> Self {
         for child in children {
             self.children.push(Box::new(child));
@@ -79,22 +80,18 @@ impl WidgetBody {
         self
     }
 
-    fn check_size(&mut self, layout: Box<&dyn Layout>) {
+    fn check_size(&mut self, layout: &dyn Layout) {
         if layout.id() == self.id {
             self.surface.size(layout.size().width, layout.size().height);
             self.surface
                 .position(layout.position().x, layout.position().y);
-            // println!(
-            // 	"\nHit!!!\nSurface: {:?}",
-            // 	self.surface,
-            // );
         }
     }
 
-    pub fn update_sizes(&mut self, root_layout: &Box<dyn Layout>) {
-        // FIXME this probably has disgusting performance
-        for (_, layout) in root_layout.iter().enumerate() {
-            self.check_size(layout);
+    pub fn update_sizes(&mut self, root_layout: &dyn Layout) {
+        // FIXME this affecting performance
+        for layout in root_layout.iter() {
+            self.check_size(*layout);
         }
         for child in &mut self.children {
             child.update_sizes(root_layout);

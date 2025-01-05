@@ -1,7 +1,7 @@
 use super::Widget;
 use crate::{
     impl_widget,
-    surface::{icon::IconSurface, image::ImageSurface},
+    surface::icon::IconSurface,
     widgets::WidgetBody,
 };
 use crystal::{BoxSizing, EmptyLayout};

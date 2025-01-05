@@ -1,13 +1,20 @@
 use super::{icon::feather_icons, Widget};
-use crate::{impl_widget, surface::image::ImageSurface, widgets::WidgetBody};
+use crate::{impl_widget, surface::{image::ImageSurface, rect::RectSurface}, widgets::WidgetBody};
 use crystal::{BoxSizing, EmptyLayout};
+use helium_core::color::WHITE;
 use image::{GenericImageView, ImageReader};
 use resvg::tiny_skia::Pixmap;
 use std::{fs, thread};
 
+/// Represents the state of the [`Image`]
+enum ImageState{
+	Loading(String),
+	Complete(image::DynamicImage)
+}
+
 pub struct Image {
     id: String,
-    image: image::DynamicImage,
+    state:ImageState,
     layout: crystal::EmptyLayout,
 }
 
@@ -22,7 +29,11 @@ impl Image {
         layout.intrinsic_size.height = BoxSizing::Fixed(image.dimensions().1 as f32);
         layout.id = id.clone();
 
-        Self { id, image, layout }
+        Self { 
+			id, 
+			state:ImageState::Complete(image), 
+			layout 
+		}
     }
 
     /// Create an svg image by passing the raw bytes
@@ -48,7 +59,11 @@ impl Image {
         layout.intrinsic_size.height = BoxSizing::Fixed(image.dimensions().1 as f32);
         layout.id = id.clone();
 
-        Self { id, image, layout }
+        Self { 
+			id, 
+			state:ImageState::Complete(image), 
+			layout 
+		}
     }
 
     /// Create an image from an svg, the svg is parsed and rendered into a png.
@@ -75,23 +90,25 @@ impl Image {
         layout.intrinsic_size.height = BoxSizing::Fixed(image.dimensions().1 as f32);
         layout.id = id.clone();
 
-        Self { id, image, layout }
+        Self { 
+			id, 
+			state:ImageState::Complete(image), 
+			layout 
+		}
     }
 
     /// Create an image from a url
     pub fn url(url: &str) -> Self {
         let id = nanoid::nanoid!();
-        let img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
-
-        let image = image::load_from_memory(&img).unwrap();
-        feather_icons::loader().build();
 
         let mut layout = EmptyLayout::new();
-        layout.intrinsic_size.width = BoxSizing::Fixed(image.dimensions().0 as f32);
-        layout.intrinsic_size.height = BoxSizing::Fixed(image.dimensions().1 as f32);
         layout.id = id.clone();
 
-        Self { id, image, layout }
+        Self { 
+			id, 
+			state:ImageState::Loading(url.to_string()), 
+			layout 
+		}
     }
 
     pub fn bytes() -> Self {
@@ -103,22 +120,44 @@ impl Image {
 
 impl Widget for Image {
     fn build(&self) -> (WidgetBody, Box<dyn crystal::Layout>) {
-        let surface = ImageSurface::new(self.image.clone());
 
-        let body = WidgetBody {
-            id: self.id.clone(),
-            surface: Box::new(surface),
-            label: Some("Image".to_owned()),
-            ..Default::default()
-        };
+        let body = match &self.state {
+			ImageState::Complete(image) => {
+				WidgetBody {
+					id: self.id.clone(),
+					surface: Box::new(ImageSurface::new(image.clone())),
+					label: Some("Image".to_owned()),
+					..Default::default()
+				}
+			},
+			ImageState::Loading(_) => {
+				WidgetBody {
+					id: self.id.clone(),
+					surface:Box::new(RectSurface::new(0.0, 0.0, 0.0, 0.0, WHITE)),
+					label: Some("Image".to_owned()),
+					..Default::default()
+				}
+			}
+		};
+
+        
 
         (body, Box::new(self.layout.clone()))
     }
 
     fn update(&mut self) {
-        let _ = thread::spawn(|| {
-            println!("Hello");
-        })
-        .join();
+		let img;
+		if let ImageState::Loading(url) = &self.state{
+			img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
+		}else {
+			return;
+		}
+
+        let image = image::load_from_memory(&img).unwrap();
+		
+        self.layout.intrinsic_size.width = BoxSizing::Fixed(image.dimensions().0 as f32);
+        self.layout.intrinsic_size.height = BoxSizing::Fixed(image.dimensions().1 as f32);
+        
+		self.state = ImageState::Complete(image);
     }
 }

@@ -113,8 +113,6 @@ impl Widget for HStack {
 /// 	Text::new("Hello world")
 /// }
 /// ```
-/// It is more idiomatic to use `{}` when defining widget structures however you can
-/// use any macro syntax you prefer.
 #[macro_export]
 macro_rules! hstack {
 	($($child:expr), + $(,)?) => {

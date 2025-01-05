@@ -18,3 +18,4 @@ path = "spotify/spotify.rs"
 
 [dependencies]
 dotenv = "0.15.0"
+tokio.workspace = true
