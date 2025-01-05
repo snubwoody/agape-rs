@@ -37,7 +37,7 @@ impl LayoutSolver {
     }
 }
 
-pub trait Layout: Debug {
+pub trait Layout: Debug + Send + Sync {
     /// Solve the minimum constraints of each layout node recursively, if
     /// the node has an instrinsic size of `Fixed` then it's minimum size is
     /// set to the fixed values, if it's intrinsic size is set to `Shrink` then

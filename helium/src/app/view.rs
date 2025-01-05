@@ -23,7 +23,11 @@ impl View {
         }
     }
 
-	pub fn update(&mut self) {
+	pub fn mut_widget(&mut self) -> &dyn Widget{
+		&mut *self.root_widget
+	}
+
+	pub async fn update(&mut self) {
 		let (body,layout) = self.root_widget.build();
 		self.root_widget.update();
 	}

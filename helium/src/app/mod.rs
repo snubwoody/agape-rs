@@ -1,12 +1,11 @@
 pub mod events;
 pub mod view;
-use std::thread;
+use std::{thread, time::Duration};
 
 use crate::{
     geometry::{CirclePipeline, RectPipeline, RenderContext, TextPipeline},
     Size,
 };
-use async_std::task;
 use view::View;
 use winit::{
     dpi::PhysicalSize,
@@ -15,9 +14,6 @@ use winit::{
     window::{Window, WindowBuilder},
 };
 
-enum AppEvent{
-	Update
-}
 /// This is a singular isolated program. Most projects
 /// will only contain one app.
 pub struct App {
@@ -55,10 +51,18 @@ impl App {
     }
 
     pub fn run(mut self) {
-		let mut state = task::block_on(AppState::new(&self.window));
+		let mut state = async_std::task::block_on(AppState::new(&self.window));
 		self.window.set_visible(true);
-		
-        // TODO when the window is minimized the size of the widgets are changing to zero which
+
+		// This thread is for data loading
+		let loader = thread::spawn(||{
+			loop {
+				thread::sleep(Duration::from_millis(700));
+				println!("Hello");
+			}
+		});
+
+		// TODO when the window is minimized the size of the widgets are changing to zero which
         // causing wgpu to panic.
         self.event_loop
             .run(|event, window_target| match event {
@@ -78,7 +82,9 @@ impl App {
                         self.views[self.index].handle_events(event, &self.window);
                     }
                 },
-                _ => {}
+                _ => {
+					println!("World");
+				}
             })
             .expect("Event loop error occured");
     }
