@@ -129,7 +129,9 @@ fn main() {
 
 fn DiscoveryPlaylist() -> impl Widget {
     vstack! {
-        Rect::new(200.0, 200.0, BACKGROUND).corner_radius(12),
+		Image::url("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
+        .fixed_width(200.0)
+        .fixed_height(200.0),
         Text::new("Daily mix")
     }
     .spacing(12)
@@ -251,8 +253,8 @@ fn SidebarPlaylist(title: &str) -> impl Widget {
 fn HomePlaylist(name: &str) -> impl Widget {
     hstack! {
         Image::url("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
-        .fixed_width(50.0)
-        .fixed_height(50.0),
+        .fixed_width(100.0)
+        .fixed_height(100.0),
         Text::new(name).color(WHITE)
     }
     .spacing(12)
