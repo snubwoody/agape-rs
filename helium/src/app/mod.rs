@@ -50,14 +50,6 @@ impl App {
         let mut state = async_std::task::block_on(AppState::new(&self.window));
         self.window.set_visible(true);
 
-        //let (tx, rx) = std::sync::mpsc::channel();
-
-        // // This thread is for data loading
-        // let loader = thread::spawn(move || loop {
-        //     tx.send("Hi").unwrap();
-        //     thread::sleep(Duration::from_millis(500));
-        // });
-
 		self.views[0].setup_loop();
 
         // TODO when the window is minimized the size of the widgets are changing to zero which
@@ -81,6 +73,7 @@ impl App {
                     }
                 },
                 _ => {
+					
                 }
             })
             .expect("Event loop error occured");

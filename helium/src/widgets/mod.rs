@@ -8,7 +8,7 @@ mod rect;
 mod spacer;
 mod text;
 mod vstack;
-use std::sync::Arc;
+use std::{any::Any, sync::Arc};
 
 use crate::{
     app::AppState,
@@ -39,25 +39,9 @@ pub trait Widget:Send + Sync {
     /// rendering.
     fn build(&self) -> (WidgetBody, Box<dyn Layout>);
 
-    fn data(&mut self) -> Vec<LoadEvent>{vec![]}
-
     // TODO change to load?
     /// Load data in the background
     fn update(&mut self) {}
-}
-
-pub struct LoadEvent {
-    func: Arc<dyn FnMut()>,
-    id: String,
-}
-
-impl LoadEvent{
-	pub fn new(id:&str, func:impl FnMut() +'static) -> Self{
-		Self{
-			id:id.to_string(),
-			func:Arc::new(func)
-		}
-	}
 }
 
 /// Primitive structure that holds all the information

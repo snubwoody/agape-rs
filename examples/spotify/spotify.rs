@@ -129,7 +129,7 @@ fn main() {
 
 fn DiscoveryPlaylist() -> impl Widget {
     vstack! {
-		Image::url("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
+		Image::url_sync("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
         .fixed_width(200.0)
         .fixed_height(200.0),
         Text::new("Daily mix")
@@ -252,7 +252,7 @@ fn SidebarPlaylist(title: &str) -> impl Widget {
 
 fn HomePlaylist(name: &str) -> impl Widget {
     hstack! {
-        Image::url("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
+        Image::url_sync("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
         .fixed_width(100.0)
         .fixed_height(100.0),
         Text::new(name).color(WHITE)

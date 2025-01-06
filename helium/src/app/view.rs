@@ -86,8 +86,8 @@ impl View {
         // Has to be in this order otherwise it crashes particularly because of 0 size textures
         // FIXME above
 		let update_now = Instant::now();
-		self.update();
-		log::debug!("Spent {:?} updating",update_now.elapsed());
+		//self.update();
+		//log::debug!("Spent {:?} updating",update_now.elapsed());
 		let _ = LayoutSolver::solve(&mut *self.root_layout, state.size);
         
 		self.root_body.update_sizes(&*self.root_layout);

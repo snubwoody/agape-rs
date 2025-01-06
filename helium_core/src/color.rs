@@ -69,6 +69,7 @@ impl Color {
     /// - Strings that don't begin with `#`
     /// - Any string that isn't six characters in length
     /// - Any string that isn't is hexadecimal format
+	// TODO remove this and impl to_string 
     pub fn hex_to_rgba(hex: &str) -> Result<[u8; 4], String> {
         // TODO add custom error
 
