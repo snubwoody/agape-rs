@@ -23,9 +23,10 @@ impl View {
         }
     }
 
+	// TODO spawn a task for each function?
 	pub fn setup_loop(&mut self){
 		let widget = self.root_widget.clone();		
-		async_std::task::spawn(async move {
+		std::thread::spawn(move|| {
 			widget.write().unwrap().update();
 		});
 	}
@@ -84,17 +85,22 @@ impl View {
 		
         // Has to be in this order otherwise it crashes particularly because of 0 size textures
         // FIXME above
+		let update_now = Instant::now();
 		self.update();
+		log::debug!("Spent {:?} updating",update_now.elapsed());
 		let _ = LayoutSolver::solve(&mut *self.root_layout, state.size);
         
 		self.root_body.update_sizes(&*self.root_layout);
+
+		let render_now = Instant::now();
         self.root_body.render(&mut render_pass, state);
+		log::debug!("Spent {:?} rendering",render_now.elapsed());
 
         // Drop the render pass because it borrows encoder mutably
         std::mem::drop(render_pass);
 
         state.queue.submit(std::iter::once(encoder.finish()));
         output.present();
-        log::debug!("{}ms", now.elapsed().as_millis())
+        //log::debug!("{}ms", now.elapsed().as_millis())
     }
 }

@@ -103,6 +103,22 @@ impl Image {
     }
 
     /// Create an image from a url
+    pub fn url_sync(url: &str) -> Self {
+        let id = nanoid::nanoid!();
+
+		let img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
+		let image = image::load_from_memory(&img).unwrap();
+
+        let mut layout = EmptyLayout::new();
+        layout.id = id.clone();
+
+        Self {
+            id,
+            state: ImageState::Complete(image),
+            layout,
+        }
+    }
+
     pub fn url(url: &str) -> Self {
         let id = nanoid::nanoid!();
 
