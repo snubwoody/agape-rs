@@ -1,4 +1,4 @@
-use super::{icon::feather_icons, Widget};
+use super::{icon::feather_icons, LoadEvent, Widget};
 use crate::{
     impl_widget,
     surface::{image::ImageSurface, rect::RectSurface},
@@ -149,6 +149,10 @@ impl Widget for Image {
         } else {
             return;
         }
+
+		async_std::task::spawn(async {
+
+		});
 
         let image = image::load_from_memory(&img).unwrap();
 

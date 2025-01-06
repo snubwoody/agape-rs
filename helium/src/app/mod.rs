@@ -1,6 +1,6 @@
 pub mod events;
 pub mod view;
-use std::{sync::mpsc, thread, time::Duration};
+use std::{thread, time::Duration};
 
 use crate::{geometry::RenderContext, Size};
 use view::View;
@@ -51,13 +51,20 @@ impl App {
         let mut state = async_std::task::block_on(AppState::new(&self.window));
         self.window.set_visible(true);
 
-        let (tx, rx) = std::sync::mpsc::channel();
+        //let (tx, rx) = std::sync::mpsc::channel();
 
-        // This thread is for data loading
-        let loader = thread::spawn(move || loop {
-            tx.send("Hi").unwrap();
-            thread::sleep(Duration::from_millis(500));
-        });
+        // // This thread is for data loading
+        // let loader = thread::spawn(move || loop {
+        //     tx.send("Hi").unwrap();
+        //     thread::sleep(Duration::from_millis(500));
+        // });
+
+		async_std::task::spawn(async {
+			loop {
+				println!("Running");
+				thread::sleep(Duration::from_millis(500));
+			};
+		});
 
         // TODO when the window is minimized the size of the widgets are changing to zero which
         // causing wgpu to panic.
@@ -69,23 +76,18 @@ impl App {
                         // TODO maybe split the update and render into seperate functions to
                         // make everything more smooth?
                         self.views[self.index].render(&state)
-                    }
+                    },
                     WindowEvent::Resized(size) => {
                         state.resize(size);
                         self.window.request_redraw();
-                    }
+                    },
                     event => {
                         //self.views[self.index].update();
                         self.views[self.index].handle_events(event, &self.window);
                     }
                 },
                 _ => {
-                    match rx.try_recv() {
-                        Ok(val) => {
-                            println!("{val}")
-                        }
-                        Err(_) => {}
-                    };
+					//self.views[0].update();
                 }
             })
             .expect("Event loop error occured");

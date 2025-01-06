@@ -23,13 +23,11 @@ impl View {
         }
     }
 
-    pub fn mut_widget(&mut self) -> &dyn Widget {
-        &mut *self.root_widget
-    }
+  
 
-    pub async fn update(&mut self) {
+    pub fn update(&mut self) {
+		self.root_widget.update();
         let (body, layout) = self.root_widget.build();
-        self.root_widget.update();
     }
 
     pub fn handle_events(&mut self, event: winit::event::WindowEvent, window: &Window) {

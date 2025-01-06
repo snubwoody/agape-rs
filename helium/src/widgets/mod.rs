@@ -8,6 +8,8 @@ mod rect;
 mod spacer;
 mod text;
 mod vstack;
+use std::sync::Arc;
+
 use crate::{
     app::AppState,
     surface::{rect::RectSurface, Surface},
@@ -26,11 +28,10 @@ pub use vstack::*;
 // TODO maybe test widgets with layouts to make sure everything's integrated properly;
 
 /// Data to be loaded for a widget
-pub enum Message {}
 /// The trait that all widgets must implement. Each `widget` must implement the build function
 /// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about
 /// the widget.
-pub trait Widget {
+pub trait Widget:Send + Sync {
     // I've changed this between &self and self, a couple times and my conclusion is
     // just keep it as &self forever, it makes it way easier to compose multiple sub-widgets.
 
@@ -38,17 +39,25 @@ pub trait Widget {
     /// rendering.
     fn build(&self) -> (WidgetBody, Box<dyn Layout>);
 
-    fn data<F, T>(&self) -> Option<F>
-    where
-        F: FnOnce() -> T,
-        Self: Sized,
-    {
-        None
-    }
+    fn data(&mut self) -> Vec<LoadEvent>{vec![]}
 
     // TODO change to load?
     /// Load data in the background
     fn update(&mut self) {}
+}
+
+pub struct LoadEvent {
+    func: Arc<dyn FnMut()>,
+    id: String,
+}
+
+impl LoadEvent{
+	pub fn new(id:&str, func:impl FnMut() +'static) -> Self{
+		Self{
+			id:id.to_string(),
+			func:Arc::new(func)
+		}
+	}
 }
 
 /// Primitive structure that holds all the information
