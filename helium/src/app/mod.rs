@@ -81,7 +81,6 @@ impl App {
                     }
                 },
                 _ => {
-					//self.views[0].update();
                 }
             })
             .expect("Event loop error occured");

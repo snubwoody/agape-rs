@@ -153,10 +153,6 @@ impl Widget for Image {
 
         let image = image::load_from_memory(&img).unwrap();
 
-        self.layout.intrinsic_size.width = BoxSizing::Fixed(image.dimensions().0 as f32);
-        self.layout.intrinsic_size.height = BoxSizing::Fixed(image.dimensions().1 as f32);
-
         self.state = ImageState::Complete(image);
-		println!("Loaded image");
     }
 }
