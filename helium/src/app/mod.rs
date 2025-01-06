@@ -1,8 +1,7 @@
 pub mod events;
 pub mod view;
-use std::{thread, time::Duration};
 
-use crate::{geometry::RenderContext, Size};
+use crate::{geometry::RenderContext,Size};
 use view::View;
 use winit::{
     dpi::PhysicalSize,
@@ -59,12 +58,7 @@ impl App {
         //     thread::sleep(Duration::from_millis(500));
         // });
 
-		async_std::task::spawn(async {
-			loop {
-				println!("Running");
-				thread::sleep(Duration::from_millis(500));
-			};
-		});
+		self.views[0].setup_loop();
 
         // TODO when the window is minimized the size of the widgets are changing to zero which
         // causing wgpu to panic.

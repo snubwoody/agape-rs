@@ -1,12 +1,12 @@
 use super::{events::EventQueue, AppState};
-use crate::widgets::{Widget, WidgetBody};
+use crate::widgets::{Text, Widget, WidgetBody};
 use crystal::LayoutSolver;
-use std::time::Instant;
+use std::{sync::{Arc, Mutex, RwLock}, thread, time::{Duration, Instant}};
 use winit::window::Window;
 
 pub struct View {
     root_layout: Box<dyn crystal::Layout>,
-    root_widget: Box<dyn Widget>,
+    root_widget: Arc<RwLock<dyn Widget>>,
     root_body: WidgetBody,
     event_queue: EventQueue,
 }
@@ -18,17 +18,17 @@ impl View {
         Self {
             root_body,
             root_layout,
-            root_widget: Box::new(root_widget),
+            root_widget: Arc::new(RwLock::new(root_widget)),
             event_queue,
         }
     }
 
-  
-
-    pub fn update(&mut self) {
-		self.root_widget.update();
-        let (body, layout) = self.root_widget.build();
-    }
+	pub fn setup_loop(&mut self){
+		let widget = self.root_widget.clone();		
+		async_std::task::spawn(async move {
+			widget.write().unwrap().update();
+		});
+	}
 
     pub fn handle_events(&mut self, event: winit::event::WindowEvent, window: &Window) {
         // Pass the events to the event manager to determine which events have fired
@@ -74,6 +74,18 @@ impl View {
 
         // Has to be in this order otherwise it crashes particularly because of 0 size textures
         // FIXME above
+		// let (body,layout) = self.root_widget.lock().unwrap().build();
+		// self.root_body = body;
+		// self.root_layout = layout;
+
+		match self.root_widget.try_read() {
+			Ok(widget) => {
+				let (body,layout) = widget.build();
+				self.root_body = body;
+				self.root_layout = layout;
+			},
+			Err(_) => {}
+		}
         self.root_body.update_sizes(&*self.root_layout);
         self.root_body.render(&mut render_pass, state);
 

@@ -1,4 +1,4 @@
-use super::{icon::feather_icons, LoadEvent, Widget};
+use super::Widget;
 use crate::{
     impl_widget,
     surface::{image::ImageSurface, rect::RectSurface},
@@ -8,9 +8,10 @@ use crystal::{BoxSizing, EmptyLayout};
 use helium_core::color::WHITE;
 use image::{GenericImageView, ImageReader};
 use resvg::tiny_skia::Pixmap;
-use std::{fs, process::Output, thread};
+use std::fs;
 
 /// Represents the state of the [`Image`]
+#[derive(Debug)]
 enum ImageState {
     Loading(String),
     Complete(image::DynamicImage),
@@ -150,15 +151,12 @@ impl Widget for Image {
             return;
         }
 
-		async_std::task::spawn(async {
-
-		});
-
         let image = image::load_from_memory(&img).unwrap();
 
         self.layout.intrinsic_size.width = BoxSizing::Fixed(image.dimensions().0 as f32);
         self.layout.intrinsic_size.height = BoxSizing::Fixed(image.dimensions().1 as f32);
 
         self.state = ImageState::Complete(image);
+		println!("Loaded image");
     }
 }
