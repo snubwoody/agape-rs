@@ -29,41 +29,6 @@ fn main() {
         .flex_width(1)
         .corner_radius(24);
 
-    let chips = hstack! {
-        Chip("Playlist"),
-        Chip("Album"),
-        Chip("Artist"),
-        Chip("Downloaded")
-    }
-    .spacing(12)
-    .fill_width();
-
-    let sidebar = vstack! {
-        hstack!{
-            feather_icons::menu().color(WHITE),
-            Text::new("Your library").color(WHITE),
-            Spacer(),
-            feather_icons::plus().color(WHITE),
-            feather_icons::arrow_right().color(WHITE)
-        }
-        .cross_axis_alignment(AxisAlignment::Center)
-        .fill_width(),
-        chips,
-        hstack!{
-            feather_icons::search().color(PINK),
-            Spacer(),
-            Text::new("Recents").color(WHITE),
-            feather_icons::list().color(WHITE),
-        }.fill_width(),
-        SidebarPlaylist("Liked songs"),
-        SidebarPlaylist("Channel Orange"),
-        SidebarPlaylist("Wunna"),
-        SidebarPlaylist("2014 Forest Hills Drive")
-    }
-    .spacing(24)
-    .padding(24)
-    .fill_height();
-
     let mainpanel = vstack! {
         announcements,
         hstack!{
@@ -97,7 +62,10 @@ fn main() {
     .spacing(24)
     .fill_width();
 
-    let home_page = hstack! {sidebar,mainpanel}.fill_width().fill_height();
+    let home_page = hstack!{Sidebar(),mainpanel}
+		.fill_width()
+		.fill_height()
+		.padding(12);
 
     let home = vstack! {
         Navbar(),
@@ -127,11 +95,50 @@ fn main() {
     App::new().add_view(home).run();
 }
 
+fn Sidebar() -> impl Widget{
+	let chips = hstack! {
+        Chip("Playlist"),
+        Chip("Album"),
+        Chip("Artist"),
+        Chip("Downloaded")
+    }
+    .spacing(12)
+    .fill_width();
+
+	vstack! {
+        hstack!{
+            feather_icons::menu().color(WHITE),
+            Text::new("Your library").color(WHITE),
+            Spacer(),
+            feather_icons::plus().color(WHITE),
+            feather_icons::arrow_right().color(WHITE)
+        }
+        .cross_axis_alignment(AxisAlignment::Center)
+        .fill_width()
+		.spacing(12),
+        chips,
+        hstack!{
+            feather_icons::search().color(WHITE),
+            Spacer(),
+            Text::new("Recents").color(WHITE),
+            feather_icons::list().color(WHITE),
+        }
+		.fill_width()
+		.cross_axis_alignment(AxisAlignment::Center),
+        SidebarPlaylist("Liked songs"),
+        SidebarPlaylist("Channel Orange"),
+        SidebarPlaylist("Wunna"),
+        SidebarPlaylist("2014 Forest Hills Drive")
+    }
+    .spacing(24)
+    .padding(24)
+    .fill_height()
+	.color(BACKGROUND)
+}
+
 fn DiscoveryPlaylist() -> impl Widget {
     vstack! {
-		Image::url_sync("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
-        .fixed_width(200.0)
-        .fixed_height(200.0),
+		Rect::new(150.0, 150.0, BACKGROUND),
         Text::new("Daily mix")
     }
     .spacing(12)
@@ -203,6 +210,7 @@ fn BottomBar() -> impl Widget {
     }
     .fill_width()
     .padding(16)
+	.color(BLACK)
 }
 
 fn Navbar() -> impl Widget {
@@ -223,6 +231,7 @@ fn Navbar() -> impl Widget {
     .spacing(12)
     .padding(12)
     .cross_axis_alignment(AxisAlignment::Center)
+	.color(BLACK)
 }
 
 fn Chip(text: &str) -> impl Widget {
@@ -238,13 +247,14 @@ fn SidebarPlaylist(title: &str) -> impl Widget {
     hstack! {
         Rect::new(50.0, 50.0, BACKGROUND).corner_radius(12),
         vstack!{
-            Text::new(title).color(WHITE),
+            Text::new(title).color(WHITE).font_size(20),
             hstack!{
                 Text::new("Playlist").color(WHITE),
                 Text::new("Charlemagne").color(WHITE)
             }
             .spacing(12)
         }
+		.spacing(8)
     }
     .spacing(12)
     .cross_axis_alignment(AxisAlignment::Center)
@@ -252,9 +262,7 @@ fn SidebarPlaylist(title: &str) -> impl Widget {
 
 fn HomePlaylist(name: &str) -> impl Widget {
     hstack! {
-        Image::url_sync("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
-        .fixed_width(100.0)
-        .fixed_height(100.0),
+		Rect::new(100.0,100.0,BLACK),
         Text::new(name).color(WHITE)
     }
     .spacing(12)
