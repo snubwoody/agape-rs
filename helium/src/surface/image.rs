@@ -6,7 +6,6 @@ use std::fmt::Debug;
 use wgpu::util::DeviceExt;
 
 /// Draws images to the screen
-#[derive(Clone)]
 pub struct ImageSurface {
     position: Position,
     size: Size,
@@ -102,31 +101,30 @@ impl Surface for ImageSurface {
             ],
         });
 
-        // let img = self
-        //     .img
-        //     .resize(
-        //         self.size.width as u32,
-        //         self.size.height as u32,
-        //         image::imageops::FilterType::Nearest, // This is by far the fastest filter type
-        //     )
-        //     .to_rgba8();
+        let img = self
+            .img
+            .resize(
+                self.size.width as u32,
+                self.size.height as u32,
+                image::imageops::FilterType::Nearest, // This is by far the fastest filter type
+            )
+            .to_rgba8();
 
-		
-		// state.queue.write_texture(
-		// 	wgpu::ImageCopyTextureBase {
-		// 		texture: &texture,
-        //         mip_level: 0,
-        //         origin: wgpu::Origin3d::ZERO,
-        //         aspect: wgpu::TextureAspect::All,
-        //     },
-        //     &img,
-        //     wgpu::ImageDataLayout {
-		// 		offset: 0,
-        //         bytes_per_row: Some(4 * self.size.width as u32), // TODO don't even know what this is
-        //         rows_per_image: None,
-        //     },
-        //     texture_size,
-        // );
+		state.queue.write_texture(
+			wgpu::ImageCopyTextureBase {
+				texture: &texture,
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
+            &img,
+            wgpu::ImageDataLayout {
+				offset: 0,
+                bytes_per_row: Some(4 * self.size.width as u32), // TODO don't even know what this is
+                rows_per_image: None,
+            },
+            texture_size,
+        );
 		
         // Set the render pipeline and vertex buffer
         render_pass.set_pipeline(&context.image_pipeline.pipeline);

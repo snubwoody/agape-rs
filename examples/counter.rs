@@ -1,8 +1,8 @@
 use helium::{
     app::{events::EventQueue, view::View, App},
     hstack,
-    widgets::{icon::feather_icons, Image, Text, Widget},
-    LayoutSolver, Size,
+    widgets::Circle,
+	BLACK,
 };
 
 fn main() {
@@ -14,10 +14,12 @@ fn app() {
     let event_loop = EventQueue::new();
 
     let main = hstack! {
-        feather_icons::airplay(),
-        feather_icons::_box(),
-        feather_icons::facebook()
-    };
+        Circle::new(100, BLACK),
+        Circle::new(100, BLACK),
+        Circle::new(100, BLACK),
+        Circle::new(100, BLACK),
+        Circle::new(100, BLACK),
+    }.spacing(54);
 
     let page = View::new(main, event_loop);
 

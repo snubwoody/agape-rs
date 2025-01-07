@@ -2,7 +2,7 @@ use crate::{
     app::AppState, geometry::vertex::Vertex, geometry::RenderContext, impl_surface,
     surface::Surface, Bounds, Color, Position, Size,
 };
-use wgpu::util::DeviceExt;
+use wgpu::{util::DeviceExt, BufferUsages};
 
 /// This is a primitive that draws to the screen. This holds
 /// essential information about the [`Widget`], ie.
@@ -61,7 +61,8 @@ impl Surface for CircleSurface {
                 contents: bytemuck::cast_slice(&vertices),
                 usage: wgpu::BufferUsages::VERTEX,
             });
-
+		
+		// FIXME broken
         state.queue.write_buffer(
             &state.context.circle_pipeline.position_buffer,
             0,

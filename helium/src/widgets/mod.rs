@@ -46,7 +46,6 @@ pub trait Widget:Send + Sync {
 
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
-#[derive(Debug)]
 pub struct WidgetBody {
     // TODO this changes a lot so maybe make these fields private?
     pub id: String,

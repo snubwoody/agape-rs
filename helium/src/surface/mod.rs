@@ -13,11 +13,10 @@ pub mod image;
 pub mod rect;
 pub mod text;
 use crate::{app::AppState, Bounds, Position, Size};
-use std::fmt::Debug;
 
 /// Holds infomation about different types of widgets that can be
 /// drawn to the screen i.e. Shapes and Text.
-pub trait Surface: Debug {
+pub trait Surface{
     /// Draw the surface onto the screen
     fn draw(
         &mut self,
