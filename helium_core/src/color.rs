@@ -93,14 +93,14 @@ impl Color {
         Ok([r, g, b, 100])
     }
 
-    /// Normalize the colors to a 0 - 1 scale.
+    /// Normalize the colors and convert them from `srgb` to linear `rgb`.
     pub fn normalize(&self) -> [f32; 4] {
-        let rgba = self.to_rgba();
+		let [r,g,b,a] = self.to_rgba();
 
-        let r = map(rgba[0] as f32, [0.0, 255.0], [0.0, 1.0]);
-        let g = map(rgba[1] as f32, [0.0, 255.0], [0.0, 1.0]);
-        let b = map(rgba[2] as f32, [0.0, 255.0], [0.0, 1.0]);
-        let a = map(rgba[3] as f32, [0.0, 100.0], [0.0, 1.0]);
+		let r = ((r as f32 / 255.0 + 0.055) / 1.055).powf(2.4);
+		let g = ((g as f32 / 255.0 + 0.055) / 1.055).powf(2.4);
+		let b = ((b as f32 / 255.0 + 0.055) / 1.055).powf(2.4);
+        let a = map(a as f32, [0.0, 100.0], [0.0, 1.0]);
 
         [r, g, b, a]
     }
