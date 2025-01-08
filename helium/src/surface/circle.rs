@@ -61,8 +61,8 @@ impl Surface for CircleSurface {
                 contents: bytemuck::cast_slice(&vertices),
                 usage: wgpu::BufferUsages::VERTEX,
             });
-		
-		// FIXME broken
+
+        // FIXME broken
         state.queue.write_buffer(
             &state.context.circle_pipeline.position_buffer,
             0,

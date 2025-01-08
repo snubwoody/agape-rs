@@ -62,10 +62,10 @@ fn main() {
     .spacing(24)
     .fill_width();
 
-    let home_page = hstack!{Sidebar(),mainpanel}
-		.fill_width()
-		.fill_height()
-		.padding(12);
+    let home_page = hstack! {Sidebar(),mainpanel}
+        .fill_width()
+        .fill_height()
+        .padding(12);
 
     let home = vstack! {
         Navbar(),
@@ -95,8 +95,8 @@ fn main() {
     App::new().add_view(home).run();
 }
 
-fn Sidebar() -> impl Widget{
-	let chips = hstack! {
+fn Sidebar() -> impl Widget {
+    let chips = hstack! {
         Chip("Playlist"),
         Chip("Album"),
         Chip("Artist"),
@@ -105,7 +105,7 @@ fn Sidebar() -> impl Widget{
     .spacing(12)
     .fill_width();
 
-	vstack! {
+    vstack! {
         hstack!{
             feather_icons::menu().color(WHITE),
             Text::new("Your library").color(WHITE),
@@ -115,7 +115,7 @@ fn Sidebar() -> impl Widget{
         }
         .cross_axis_alignment(AxisAlignment::Center)
         .fill_width()
-		.spacing(12),
+        .spacing(12),
         chips,
         hstack!{
             feather_icons::search().color(WHITE),
@@ -123,8 +123,8 @@ fn Sidebar() -> impl Widget{
             Text::new("Recents").color(WHITE),
             feather_icons::list().color(WHITE),
         }
-		.fill_width()
-		.cross_axis_alignment(AxisAlignment::Center),
+        .fill_width()
+        .cross_axis_alignment(AxisAlignment::Center),
         SidebarPlaylist("Liked songs"),
         SidebarPlaylist("Channel Orange"),
         SidebarPlaylist("Wunna"),
@@ -133,12 +133,12 @@ fn Sidebar() -> impl Widget{
     .spacing(24)
     .padding(24)
     .fill_height()
-	.color(BACKGROUND)
+    .color(BACKGROUND)
 }
 
 fn DiscoveryPlaylist() -> impl Widget {
     vstack! {
-		Image::url("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
+        Image::url("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
         .fixed_width(150.0)
         .fixed_height(150.0),
         Text::new("Daily mix")
@@ -173,9 +173,9 @@ fn HomeSection() -> impl Widget {
 fn BottomBar() -> impl Widget {
     hstack! {
         hstack!{
-			Image::url("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
-        	.fixed_width(50.0)
-        	.fixed_height(50.0),
+            Image::url("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
+            .fixed_width(50.0)
+            .fixed_height(50.0),
             vstack!{
                 Text::new("You've been missed")
                 .color(WHITE),
@@ -213,7 +213,7 @@ fn BottomBar() -> impl Widget {
     }
     .fill_width()
     .padding(16)
-	.color(BLACK)
+    .color(BLACK)
 }
 
 fn Navbar() -> impl Widget {
@@ -234,7 +234,7 @@ fn Navbar() -> impl Widget {
     .spacing(12)
     .padding(12)
     .cross_axis_alignment(AxisAlignment::Center)
-	.color(BLACK)
+    .color(BLACK)
 }
 
 fn Chip(text: &str) -> impl Widget {
@@ -248,7 +248,7 @@ fn Chip(text: &str) -> impl Widget {
 
 fn SidebarPlaylist(title: &str) -> impl Widget {
     hstack! {
-		Image::url("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
+        Image::url("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
         .fixed_width(50.0)
         .fixed_height(50.0),
         vstack!{
@@ -259,7 +259,7 @@ fn SidebarPlaylist(title: &str) -> impl Widget {
             }
             .spacing(12)
         }
-		.spacing(8)
+        .spacing(8)
     }
     .spacing(12)
     .cross_axis_alignment(AxisAlignment::Center)
@@ -267,7 +267,7 @@ fn SidebarPlaylist(title: &str) -> impl Widget {
 
 fn HomePlaylist(name: &str) -> impl Widget {
     hstack! {
-		Image::url("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
+        Image::url("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
         .fixed_width(50.0)
         .fixed_height(50.0),
         Text::new(name).color(WHITE)

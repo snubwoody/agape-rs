@@ -16,7 +16,7 @@ use crate::{app::AppState, Bounds, Position, Size};
 
 /// Holds infomation about different types of widgets that can be
 /// drawn to the screen i.e. Shapes and Text.
-pub trait Surface{
+pub trait Surface {
     /// Draw the surface onto the screen
     fn draw(
         &mut self,

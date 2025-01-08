@@ -69,7 +69,7 @@ impl Color {
     /// - Strings that don't begin with `#`
     /// - Any string that isn't six characters in length
     /// - Any string that isn't is hexadecimal format
-	// TODO remove this and impl to_string 
+    // TODO remove this and impl to_string
     pub fn hex_to_rgba(hex: &str) -> Result<[u8; 4], String> {
         // TODO add custom error
 
@@ -95,11 +95,11 @@ impl Color {
 
     /// Normalize the colors and convert them from `srgb` to linear `rgb`.
     pub fn normalize(&self) -> [f32; 4] {
-		let [r,g,b,a] = self.to_rgba();
+        let [r, g, b, a] = self.to_rgba();
 
-		let r = ((r as f32 / 255.0 + 0.055) / 1.055).powf(2.4);
-		let g = ((g as f32 / 255.0 + 0.055) / 1.055).powf(2.4);
-		let b = ((b as f32 / 255.0 + 0.055) / 1.055).powf(2.4);
+        let r = ((r as f32 / 255.0 + 0.055) / 1.055).powf(2.4);
+        let g = ((g as f32 / 255.0 + 0.055) / 1.055).powf(2.4);
+        let b = ((b as f32 / 255.0 + 0.055) / 1.055).powf(2.4);
         let a = map(a as f32, [0.0, 100.0], [0.0, 1.0]);
 
         [r, g, b, a]

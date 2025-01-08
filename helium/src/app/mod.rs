@@ -1,7 +1,7 @@
 pub mod events;
 pub mod view;
 
-use crate::{geometry::RenderContext,Size};
+use crate::{geometry::RenderContext, Size};
 use view::View;
 use winit::{
     dpi::PhysicalSize,
@@ -50,7 +50,7 @@ impl App {
         let mut state = async_std::task::block_on(AppState::new(&self.window));
         self.window.set_visible(true);
 
-		self.views[0].setup_loop();
+        self.views[0].setup_loop();
 
         // TODO when the window is minimized the size of the widgets are changing to zero which
         // causing wgpu to panic.
@@ -62,19 +62,17 @@ impl App {
                         // TODO maybe split the update and render into seperate functions to
                         // make everything more smooth?
                         self.views[self.index].render(&state)
-                    },
+                    }
                     WindowEvent::Resized(size) => {
                         state.resize(size);
                         self.window.request_redraw();
-                    },
+                    }
                     event => {
                         //self.views[self.index].update();
                         self.views[self.index].handle_events(event, &self.window);
                     }
                 },
-                _ => {
-					
-                }
+                _ => {}
             })
             .expect("Event loop error occured");
     }

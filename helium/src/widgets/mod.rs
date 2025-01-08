@@ -31,7 +31,7 @@ pub use vstack::*;
 /// The trait that all widgets must implement. Each `widget` must implement the build function
 /// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about
 /// the widget.
-pub trait Widget:Send + Sync {
+pub trait Widget: Send + Sync {
     // I've changed this between &self and self, a couple times and my conclusion is
     // just keep it as &self forever, it makes it way easier to compose multiple sub-widgets.
 

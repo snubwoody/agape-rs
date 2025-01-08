@@ -106,8 +106,8 @@ impl Image {
     pub fn url_sync(url: &str) -> Self {
         let id = nanoid::nanoid!();
 
-		let img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
-		let image = image::load_from_memory(&img).unwrap();
+        let img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
+        let image = image::load_from_memory(&img).unwrap();
 
         let mut layout = EmptyLayout::new();
         layout.id = id.clone();
@@ -161,9 +161,9 @@ impl Widget for Image {
 
     fn update(&mut self) {
         if let ImageState::Loading(url) = &self.state {
-			let img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
-			let image = image::load_from_memory(&img).unwrap();
-			self.state = ImageState::Complete(image);
-        } 
+            let img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
+            let image = image::load_from_memory(&img).unwrap();
+            self.state = ImageState::Complete(image);
+        }
     }
 }

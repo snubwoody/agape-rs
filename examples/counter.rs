@@ -2,7 +2,7 @@ use helium::{
     app::{events::EventQueue, view::View, App},
     hstack,
     widgets::Circle,
-	BLACK,
+    BLACK,
 };
 
 fn main() {
@@ -19,7 +19,8 @@ fn app() {
         Circle::new(100, BLACK),
         Circle::new(100, BLACK),
         Circle::new(100, BLACK),
-    }.spacing(54);
+    }
+    .spacing(54);
 
     let page = View::new(main, event_loop);
 

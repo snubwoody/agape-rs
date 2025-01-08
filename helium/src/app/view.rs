@@ -1,7 +1,10 @@
 use super::{events::EventQueue, AppState};
 use crate::widgets::{Widget, WidgetBody};
 use crystal::LayoutSolver;
-use std::{sync::{Arc, RwLock}, time::Instant};
+use std::{
+    sync::{Arc, RwLock},
+    time::Instant,
+};
 use winit::window::Window;
 
 pub struct View {
@@ -23,24 +26,24 @@ impl View {
         }
     }
 
-	// TODO spawn a task for each function?
-	pub fn setup_loop(&mut self){
-		let widget = self.root_widget.clone();		
-		std::thread::spawn(move|| {
-			widget.write().unwrap().update();
-		});
-	}
+    // TODO spawn a task for each function?
+    pub fn setup_loop(&mut self) {
+        let widget = self.root_widget.clone();
+        std::thread::spawn(move || {
+            widget.write().unwrap().update();
+        });
+    }
 
-	pub fn update(&mut self){
-		match self.root_widget.try_read() {
-			Ok(widget) => {
-				let (body,layout) = widget.build();
-				self.root_body = body;
-				self.root_layout = layout;
-			},
-			Err(_) => {}
-		}
-	}
+    pub fn update(&mut self) {
+        match self.root_widget.try_read() {
+            Ok(widget) => {
+                let (body, layout) = widget.build();
+                self.root_body = body;
+                self.root_layout = layout;
+            }
+            Err(_) => {}
+        }
+    }
 
     pub fn handle_events(&mut self, event: winit::event::WindowEvent, window: &Window) {
         // Pass the events to the event manager to determine which events have fired
@@ -82,19 +85,18 @@ impl View {
             timestamp_writes: None,
         });
 
-		
         // Has to be in this order otherwise it crashes particularly because of 0 size textures
         // FIXME above
-		let update_now = Instant::now();
-		self.update();
-		//log::debug!("Spent {:?} updating",update_now.elapsed());
-		let _ = LayoutSolver::solve(&mut *self.root_layout, state.size);
-        
-		self.root_body.update_sizes(&*self.root_layout);
+        let update_now = Instant::now();
+        self.update();
+        //log::debug!("Spent {:?} updating",update_now.elapsed());
+        let _ = LayoutSolver::solve(&mut *self.root_layout, state.size);
 
-		let render_now = Instant::now();
+        self.root_body.update_sizes(&*self.root_layout);
+
+        let render_now = Instant::now();
         self.root_body.render(&mut render_pass, state);
-		log::debug!("Spent {:?} rendering",render_now.elapsed());
+        log::debug!("Spent {:?} rendering", render_now.elapsed());
 
         // Drop the render pass because it borrows encoder mutably
         std::mem::drop(render_pass);

@@ -60,13 +60,13 @@ impl ImageSurface {
 }
 
 impl Surface for ImageSurface {
-	fn draw(
-		&mut self,
+    fn draw(
+        &mut self,
         render_pass: &mut wgpu::RenderPass,
         context: &crate::geometry::RenderContext,
         state: &AppState,
     ) {
-		// FIXME issue with fill sizing causing overflow
+        // FIXME issue with fill sizing causing overflow
         // FIXME wgpu panics if size is 0
         let (texture, texture_size) = self.build(&state.device);
 
@@ -110,28 +110,28 @@ impl Surface for ImageSurface {
             )
             .to_rgba8();
 
-		state.queue.write_texture(
-			wgpu::ImageCopyTextureBase {
-				texture: &texture,
+        state.queue.write_texture(
+            wgpu::ImageCopyTextureBase {
+                texture: &texture,
                 mip_level: 0,
                 origin: wgpu::Origin3d::ZERO,
                 aspect: wgpu::TextureAspect::All,
             },
             &img,
             wgpu::ImageDataLayout {
-				offset: 0,
+                offset: 0,
                 bytes_per_row: Some(4 * self.size.width as u32), // TODO don't even know what this is
                 rows_per_image: None,
             },
             texture_size,
         );
-		
+
         // Set the render pipeline and vertex buffer
         render_pass.set_pipeline(&context.image_pipeline.pipeline);
         render_pass.set_bind_group(0, &context.image_pipeline.window_bind_group, &[]);
         render_pass.set_bind_group(1, &texture_bind_group, &[]);
         render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
-		
+
         render_pass.draw(0..vertices.len() as u32, 0..1);
     }
 

@@ -111,7 +111,7 @@ impl Bounds {
     /// 	assert!(bounds.within(&Position::new(50.0,45.5)));
     /// ```
     pub fn within(&self, position: &Position) -> bool {
-		// TODO change the name of this to has and move within to position
+        // TODO change the name of this to has and move within to position
         if position.x > self.x[0]
             && position.x < self.x[1]
             && position.y > self.y[0]
