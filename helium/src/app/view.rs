@@ -1,5 +1,5 @@
 use super::{events::EventQueue, AppState};
-use crate::widgets::{Widget, WidgetBody};
+use crate::{surface::Surface, widgets::{Widget, WidgetBody}};
 use crystal::LayoutSolver;
 use std::{
     sync::{Arc, RwLock},
@@ -11,6 +11,7 @@ pub struct View {
     root_layout: Box<dyn crystal::Layout>,
     root_widget: Arc<RwLock<dyn Widget>>,
     root_body: WidgetBody,
+	surfaces:Vec<Box<dyn Surface>>,
     event_queue: EventQueue,
 }
 
@@ -21,6 +22,7 @@ impl View {
         Self {
             root_body,
             root_layout,
+			surfaces:root_widget.surface(),
             root_widget: Arc::new(RwLock::new(root_widget)),
             event_queue,
         }
@@ -43,6 +45,16 @@ impl View {
             }
             Err(_) => {}
         }
+
+		for layout in self.root_layout.iter(){
+			for surface in &mut self.surfaces{
+				dbg(&surface);
+				if layout.id() == surface.id(){
+					surface.size(layout.size().width, layout.size().height);
+					surface.position(layout.position().x, layout.position().y);
+				}
+			}
+		}
     }
 
     pub fn handle_events(&mut self, event: winit::event::WindowEvent, window: &Window) {
@@ -87,15 +99,15 @@ impl View {
 
         // Has to be in this order otherwise it crashes particularly because of 0 size textures
         // FIXME above
-        let update_now = Instant::now();
         self.update();
-        //log::debug!("Spent {:?} updating",update_now.elapsed());
         let _ = LayoutSolver::solve(&mut *self.root_layout, state.size);
 
         self.root_body.update_sizes(&*self.root_layout);
 
         let render_now = Instant::now();
-        self.root_body.render(&mut render_pass, state);
+        //self.root_body.render(&mut render_pass, state);
+		
+		self.surfaces.iter_mut().for_each(|s|s.draw(&mut render_pass, &state.context, state));
         log::debug!("Spent {:?} rendering", render_now.elapsed());
 
         // Drop the render pass because it borrows encoder mutably

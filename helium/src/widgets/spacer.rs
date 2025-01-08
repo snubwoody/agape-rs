@@ -1,25 +1,41 @@
 use crystal::{BoxSizing, EmptyLayout};
 
+use crate::surface::rect::RectSurface;
+
 use super::{Widget, WidgetBody};
 
 /// A [`Widget`] that fills up all the available space.  
 /// Note that `Spacer`'s have no effect when the parent `widget` has
 /// an intrinsic size of `Shrink`, because the parent will try to be
 /// as small as possible, hence the spacer will have 0 size.
-pub struct Spacer();
+pub struct Spacer{
+	id:String
+}
+
+impl Spacer {
+	pub fn new() -> Self{
+		Self { id: nanoid::nanoid!() }
+	}
+}
 
 impl Widget for Spacer {
     fn build(&self) -> (super::WidgetBody, Box<dyn crystal::Layout>) {
-        let body = WidgetBody::default();
+        let body = WidgetBody::new().id(&self.id);
+
 
         let mut layout = EmptyLayout::new();
-        layout.id = body.id.clone();
-        // TODO this might not work as intended if i make both sizes flex
+        layout.id = self.id.clone();
         layout.intrinsic_size.width = BoxSizing::Flex(1);
         layout.intrinsic_size.height = BoxSizing::Flex(1);
 
-        return (body, Box::new(layout));
+        (body, Box::new(layout))
     }
+
+	fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
+		vec![
+			Box::new(RectSurface::new(&self.id))
+		]
+	}
 }
 
 #[cfg(test)]
@@ -34,7 +50,7 @@ mod test {
         let window = Size::new(500.0, 500.0);
         let widget = hstack! {
             Rect::new(20.0, 20.0, BLACK),
-            Spacer(),
+            Spacer::new(),
             Rect::new(20.0, 20.0, BLACK)
         }
         .fit_width();
@@ -52,7 +68,7 @@ mod test {
         let window = Size::new(500.0, 500.0);
         let widget = hstack! {
             Rect::new(20.0, 20.0, BLACK),
-            Spacer(),
+            Spacer::new(),
             Rect::new(20.0, 20.0, BLACK)
         }
         .fill_width();

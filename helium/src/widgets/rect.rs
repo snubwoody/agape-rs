@@ -1,8 +1,7 @@
 use super::{Widget, WidgetBody};
 use crate::surface::rect::RectSurface;
 use crate::Color;
-use crate::Size;
-use crystal::{BlockLayout, BoxSizing, EmptyLayout, IntrinsicSize, Layout};
+use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use nanoid::nanoid;
 
 // TODO change size to u32
@@ -69,6 +68,16 @@ impl Widget for Rect {
 
         (body, Box::new(layout))
     }
+
+	fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
+		let mut surface = RectSurface::new(&self.id);
+        surface.corner_radius(self.corner_radius);
+		surface.color(self.color);
+
+		vec![
+			Box::new(surface)
+		]
+	}
 
     fn update(&mut self) {}
 }

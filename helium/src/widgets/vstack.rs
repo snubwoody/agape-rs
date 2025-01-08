@@ -8,19 +8,26 @@ use crystal::{AxisAlignment, Layout, VerticalLayout};
 use helium_core::color::TRANSPARENT;
 
 pub struct VStack {
-    pub children: Vec<Box<dyn Widget>>,
-    pub color: Color,
-    pub layout: VerticalLayout,
+	id:String,
+    children: Vec<Box<dyn Widget>>,
+    color: Color,
+    layout: VerticalLayout,
 }
 
 impl VStack {
     pub fn new() -> Self {
         VStack {
+			id:nanoid::nanoid!(),
             color: TRANSPARENT,
             children: vec![],
             layout: VerticalLayout::new(),
         }
     }
+
+	pub fn add_child(mut self,widget:impl Widget + 'static) -> Self{
+		self.children.push(Box::new(widget));
+		self
+	}
 
     pub fn padding(mut self, padding: u32) -> Self {
         self.layout.padding = padding;
@@ -48,21 +55,20 @@ impl VStack {
 
 impl Widget for VStack {
     fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
-		let id = nanoid::nanoid!();
-        let mut surface = RectSurface::new(&id);
-        surface.color(self.color.clone());
+        let mut surface = RectSurface::new(&self.id);
+        surface.color(self.color);
 
         let (children_body, children_layout): (Vec<Box<WidgetBody>>, Vec<Box<dyn Layout>>) = self
             .children
             .iter()
             .map(|widget| {
                 let (body, layout) = widget.build();
-                return (Box::new(body), layout);
+                (Box::new(body), layout)
             })
             .collect();
 
         let body = WidgetBody {
-            id: id.clone(),
+            id: self.id.clone(),
             children: children_body,
             surface: Box::new(surface),
             ..Default::default()
@@ -79,7 +85,7 @@ impl Widget for VStack {
         } = self.layout;
 
         let layout = VerticalLayout {
-            id: id.clone(),
+            id: self.id.clone(),
             spacing,
             padding,
             intrinsic_size,
@@ -92,6 +98,23 @@ impl Widget for VStack {
 
         (body, Box::new(layout))
     }
+
+	fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
+		let mut surfaces = self
+			.children
+			.iter()
+            .flat_map(|widget| {
+				widget.surface()
+            })
+            .collect::<Vec<_>>();
+
+		let mut surface = RectSurface::new(&self.id);
+		surface.color(self.color.clone());
+	
+		surfaces.push(Box::new(surface));
+
+		surfaces
+	}
 
     fn update(&mut self) {
         self.children.iter_mut().for_each(|child| child.update());
@@ -114,15 +137,8 @@ impl Widget for VStack {
 macro_rules! vstack {
 	($($child:expr), + $(,)?) => {
 		{
-			$crate::widgets::VStack{
-				color:$crate::TRANSPARENT,
-				layout:$crate::VerticalLayout::new(),
-				children:vec![
-					$(
-						Box::new($child),
-					)*
-				]
-			}
+			$crate::widgets::VStack::new()
+			$(.add_child($child))*
 		}
 
 	};

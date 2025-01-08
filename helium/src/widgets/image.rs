@@ -1,14 +1,12 @@
 use super::Widget;
 use crate::{
     impl_widget,
-    surface::{image::ImageSurface, rect::RectSurface},
+    surface::{image::ImageSurface, rect::RectSurface, Surface},
     widgets::WidgetBody,
 };
 use crystal::{BoxSizing, EmptyLayout};
-use helium_core::color::WHITE;
 use image::{GenericImageView, ImageReader};
 use resvg::tiny_skia::Pixmap;
-use std::fs;
 
 /// Represents the state of the [`Image`]
 #[derive(Debug)]
@@ -74,7 +72,7 @@ impl Image {
     /// Create an image from an svg, the svg is parsed and rendered into a png.
     pub fn svg(path: &str) -> Self {
         let id = nanoid::nanoid!();
-        let svg_data = fs::read(path).unwrap();
+        let svg_data = std::fs::read(path).unwrap();
 
         let options = usvg::Options::default();
         let tree = usvg::Tree::from_data(&svg_data, &options).unwrap();
@@ -158,6 +156,15 @@ impl Widget for Image {
 
         (body, Box::new(self.layout.clone()))
     }
+
+	fn surface(&self) -> Vec<Box<dyn Surface>> {
+		let surface:Box<dyn Surface> = match &self.state {
+            ImageState::Complete(image) => Box::new(ImageSurface::new(&self.id,image.clone())),
+            ImageState::Loading(_) => Box::new(RectSurface::new(&self.id)),
+        };
+
+		vec![surface]
+	}
 
     fn update(&mut self) {
         if let ImageState::Loading(url) = &self.state {

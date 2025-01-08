@@ -2,11 +2,11 @@ use super::{Widget, WidgetBody};
 use crate::surface::{text::TextSurface, Surface};
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::color::Color;
-use helium_macros::hex;
 
 // TODO add background, foreground color,padding and border radius
 // TODO probably crate a rich text then make text a tuple struct or a function
 pub struct Text {
+	id:String,
     text: String,
     font_size: u8,
     color: Color,
@@ -15,6 +15,7 @@ pub struct Text {
 impl Text {
     pub fn new(text: &str) -> Self {
         Self {
+			id:nanoid::nanoid!(),
             text: text.into(),
             font_size: 16,
             color: Color::Hex("#000000"),
@@ -35,15 +36,14 @@ impl Text {
 
 impl Widget for Text {
     fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
-		let id = nanoid::nanoid!();
         // Create the text surface to be rendered
-        let textsurface = TextSurface::new(&id,self.text.as_str(), self.font_size, &self.color);
+        let textsurface = TextSurface::new(&self.id,self.text.as_str(), self.font_size, &self.color);
 
         let size = textsurface.get_size();
         let surface = Box::new(textsurface);
 
         let body = WidgetBody {
-			id:id.clone(),
+			id:self.id.clone(),
             surface,
             ..Default::default()
         };
@@ -51,8 +51,14 @@ impl Widget for Text {
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size.width = BoxSizing::Fixed(size.width);
         layout.intrinsic_size.height = BoxSizing::Fixed(size.height);
-        layout.id = id.clone();
+        layout.id = self.id.clone();
 
         (body, Box::new(layout))
     }
+
+	fn surface(&self) -> Vec<Box<dyn Surface>> {
+		vec![
+			Box::new(TextSurface::new(&self.id,self.text.as_str(), self.font_size, &self.color))
+		]
+	}
 }

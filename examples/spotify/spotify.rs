@@ -3,7 +3,7 @@ use helium::{
     app::{events::EventQueue, view::View, App},
     hstack, vstack,
     widgets::{icon::feather_icons, Container, Image, Rect, Spacer, Text, Widget},
-    AxisAlignment, Color, LayoutSolver, Size, BLACK, PINK, WHITE,
+    AxisAlignment, Color, LayoutSolver, Size, BLACK, WHITE,
 };
 use std::{
     env,
@@ -109,7 +109,7 @@ fn Sidebar() -> impl Widget {
         hstack!{
             feather_icons::menu().color(WHITE),
             Text::new("Your library").color(WHITE),
-            Spacer(),
+            Spacer::new(),
             feather_icons::plus().color(WHITE),
             feather_icons::arrow_right().color(WHITE)
         }
@@ -119,7 +119,7 @@ fn Sidebar() -> impl Widget {
         chips,
         hstack!{
             feather_icons::search().color(WHITE),
-            Spacer(),
+            Spacer::new(),
             Text::new("Recents").color(WHITE),
             feather_icons::list().color(WHITE),
         }
@@ -152,7 +152,7 @@ fn HomeSection() -> impl Widget {
             Text::new("Made for charlemagne")
             .font_size(24)
             .color(WHITE),
-            Spacer(),
+            Spacer::new(),
             Text::new("Show all").color(WHITE),
         }
         .fill_width(),
@@ -186,7 +186,7 @@ fn BottomBar() -> impl Widget {
         }
         .spacing(12)
         .cross_axis_alignment(AxisAlignment::Center),
-        Spacer(),
+        Spacer::new(),
         vstack!{
             hstack!{
                 feather_icons::shuffle().color(WHITE),
@@ -209,7 +209,7 @@ fn BottomBar() -> impl Widget {
         .spacing(12)
         .fit_height()
         .cross_axis_alignment(AxisAlignment::Center),
-        Spacer(),
+        Spacer::new(),
     }
     .fill_width()
     .padding(16)
@@ -221,12 +221,12 @@ fn Navbar() -> impl Widget {
         feather_icons::more_horizontal().color(WHITE),
         feather_icons::chevron_left().color(WHITE),
         feather_icons::chevron_right().color(WHITE),
-        Spacer(),
+        Spacer::new(),
         feather_icons::home().color(WHITE),
         feather_icons::search().color(WHITE),
         Text::new("What do you want to play?")
         .color(WHITE),
-        Spacer(),
+        Spacer::new(),
         feather_icons::bell().color(WHITE),
         feather_icons::users().color(WHITE)
     }

@@ -65,6 +65,14 @@ where
         (body, Box::new(layout))
     }
 
+	fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
+		let mut surface = RectSurface::new(&self.id);
+		surface.color(self.color);
+		surface.corner_radius(self.corner_radius);
+
+		vec![Box::new(surface)]
+	}
+
     fn update(&mut self) {
         self.child.update();
     }

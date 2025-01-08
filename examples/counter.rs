@@ -1,7 +1,7 @@
 use helium::{
     app::{events::EventQueue, view::View, App},
     hstack,
-    widgets::Circle,
+    widgets::{Circle,Rect},
     BLACK,
 };
 
@@ -13,12 +13,9 @@ fn main() {
 fn app() {
     let event_loop = EventQueue::new();
 
+	
     let main = hstack! {
-        Circle::new(100, BLACK),
-        Circle::new(100, BLACK),
-        Circle::new(100, BLACK),
-        Circle::new(100, BLACK),
-        Circle::new(100, BLACK),
+       Rect::new(150.0,150.0,BLACK)
     }
     .spacing(54);
 

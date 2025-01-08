@@ -110,5 +110,9 @@ impl Widget for Icon {
         (body, Box::new(self.layout.clone()))
     }
 
+	fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
+		vec![Box::new(IconSurface::new(&self.id,self.image.clone()))]
+	}
+
     fn update(&mut self) {}
 }

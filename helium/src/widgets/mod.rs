@@ -8,8 +8,6 @@ mod rect;
 mod spacer;
 mod text;
 mod vstack;
-use std::{any::Any, sync::Arc};
-
 use crate::{
     app::AppState,
     surface::{rect::RectSurface, Surface},
@@ -27,17 +25,16 @@ pub use text::*;
 pub use vstack::*;
 // TODO maybe test widgets with layouts to make sure everything's integrated properly;
 
-/// Data to be loaded for a widget
 /// The trait that all widgets must implement. Each `widget` must implement the build function
 /// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about
 /// the widget.
 pub trait Widget: Send + Sync {
-    // I've changed this between &self and self, a couple times and my conclusion is
-    // just keep it as &self forever, it makes it way easier to compose multiple sub-widgets.
-
     /// Build the [`Widget`] into a primitive [`WidgetBody`] for
     /// rendering.
     fn build(&self) -> (WidgetBody, Box<dyn Layout>);
+
+	/// Build the [`Surface`]
+	fn surface(&self) -> Vec<Box<dyn Surface>>;
 
     // TODO change to load?
     /// Load data in the background
@@ -47,7 +44,7 @@ pub trait Widget: Send + Sync {
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
 pub struct WidgetBody {
-    // TODO make these fields private?
+    // TODO this make these fields private?
     pub id: String,
     /// A label for debugging purposes
     pub label: Option<String>,
@@ -59,6 +56,11 @@ impl WidgetBody {
     pub fn new() -> Self {
         Self::default()
     }
+
+	pub fn id(mut self, id:&str) -> Self{
+		self.id = id.to_string();
+		self
+	}
 
     pub fn label(mut self, label: &str) -> Self {
         self.label = Some(label.to_owned());
