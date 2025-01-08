@@ -12,6 +12,7 @@ pub struct VStack {
     children: Vec<Box<dyn Widget>>,
     color: Color,
     layout: VerticalLayout,
+	corner_radius:u8
 }
 
 impl VStack {
@@ -21,8 +22,14 @@ impl VStack {
             color: TRANSPARENT,
             children: vec![],
             layout: VerticalLayout::new(),
+			corner_radius:0
         }
     }
+
+	pub fn corner_radius(mut self,corner_radius:u32) -> Self{
+		self.corner_radius = corner_radius;
+		self
+	}
 
 	pub fn add_child(mut self,widget:impl Widget + 'static) -> Self{
 		self.children.push(Box::new(widget));
@@ -110,6 +117,7 @@ impl Widget for VStack {
 
 		let mut surface = RectSurface::new(&self.id);
 		surface.color(self.color.clone());
+		surface.corner_radius(self.corner_radius);
 	
 		surfaces.push(Box::new(surface));
 

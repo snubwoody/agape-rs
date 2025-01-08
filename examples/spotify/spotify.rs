@@ -132,6 +132,7 @@ fn Sidebar() -> impl Widget {
     }
     .spacing(24)
     .padding(24)
+	.corner_radius(24)
     .fill_height()
     .color(BACKGROUND)
 }

@@ -111,7 +111,10 @@ impl Widget for Icon {
     }
 
 	fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
-		vec![Box::new(IconSurface::new(&self.id,self.image.clone()))]
+		let mut surface = IconSurface::new(&self.id,self.image.clone());
+		surface.color(self.color);
+		
+		vec![Box::new(surface)]
 	}
 
     fn update(&mut self) {}

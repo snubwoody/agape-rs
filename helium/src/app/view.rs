@@ -106,7 +106,7 @@ impl View {
         let render_now = Instant::now();
         //self.root_body.render(&mut render_pass, state);
 		
-		self.surfaces.iter_mut().for_each(|s|s.draw(&mut render_pass, &state.context, state));
+		self.surfaces.iter_mut().rev().for_each(|s|s.draw(&mut render_pass, &state.context, state));
         log::debug!("Spent {:?} rendering", render_now.elapsed());
 
         // Drop the render pass because it borrows encoder mutably
