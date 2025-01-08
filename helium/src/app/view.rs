@@ -1,7 +1,7 @@
 use super::{events::EventQueue, AppState};
-use crate::widgets::{Text, Widget, WidgetBody};
+use crate::widgets::{Widget, WidgetBody};
 use crystal::LayoutSolver;
-use std::{sync::{Arc, Mutex, RwLock}, thread, time::{Duration, Instant}};
+use std::{sync::{Arc, RwLock}, time::Instant};
 use winit::window::Window;
 
 pub struct View {
@@ -86,7 +86,7 @@ impl View {
         // Has to be in this order otherwise it crashes particularly because of 0 size textures
         // FIXME above
 		let update_now = Instant::now();
-		//self.update();
+		self.update();
 		//log::debug!("Spent {:?} updating",update_now.elapsed());
 		let _ = LayoutSolver::solve(&mut *self.root_layout, state.size);
         
@@ -101,6 +101,6 @@ impl View {
 
         state.queue.submit(std::iter::once(encoder.finish()));
         output.present();
-        //log::debug!("{}ms", now.elapsed().as_millis())
+        log::debug!("{}ms", now.elapsed().as_millis())
     }
 }

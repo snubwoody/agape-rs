@@ -160,15 +160,10 @@ impl Widget for Image {
     }
 
     fn update(&mut self) {
-        let img;
         if let ImageState::Loading(url) = &self.state {
-            img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
-        } else {
-            return;
-        }
-
-        let image = image::load_from_memory(&img).unwrap();
-
-        self.state = ImageState::Complete(image);
+			let img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
+			let image = image::load_from_memory(&img).unwrap();
+			self.state = ImageState::Complete(image);
+        } 
     }
 }
