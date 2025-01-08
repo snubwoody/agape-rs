@@ -44,7 +44,7 @@ impl TextSurface {
     }
 
     /// Rasterize the text and return the texture
-    pub fn build(&self, device: &wgpu::Device) -> (wgpu::Texture, wgpu::Extent3d) {
+    pub fn prepare(&self, device: &wgpu::Device) -> (wgpu::Texture, wgpu::Extent3d) {
         let texture_size = wgpu::Extent3d {
             width: self.size.width as u32,
             height: self.size.height as u32,
@@ -88,7 +88,7 @@ impl Surface for TextSurface {
         context: &crate::geometry::RenderContext,
         state: &AppState,
     ) {
-        let (texture, texture_size) = self.build(&state.device);
+        let (texture, texture_size) = self.prepare(&state.device);
 
         let vertices = self.to_vertices(texture_size.width as f32, texture_size.height as f32);
 

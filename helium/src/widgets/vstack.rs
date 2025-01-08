@@ -12,7 +12,7 @@ pub struct VStack {
     children: Vec<Box<dyn Widget>>,
     color: Color,
     layout: VerticalLayout,
-	corner_radius:u8
+	corner_radius:u32
 }
 
 impl VStack {

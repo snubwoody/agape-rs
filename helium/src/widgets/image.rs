@@ -123,9 +123,12 @@ impl Image {
         let mut layout = EmptyLayout::new();
         layout.id = id.clone();
 
+		let img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
+        let image = image::load_from_memory(&img).unwrap();
+
         Self {
             id,
-            state: ImageState::Loading(url.to_string()),
+            state: ImageState::Complete(image),
             layout,
         }
     }

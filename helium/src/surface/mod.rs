@@ -3,7 +3,7 @@ pub mod icon;
 pub mod image;
 pub mod rect;
 pub mod text;
-use crate::{app::AppState, Bounds, Position, Size};
+use crate::{app::AppState, geometry::RenderContext, Bounds, Position, Size};
 use std::fmt::Debug;
 
 /// The surfaces are the items that are actually responsible for drawing the pixels to the
@@ -23,6 +23,8 @@ pub trait Surface:Debug {
         context: &crate::geometry::RenderContext,
         state: &AppState,
     );
+
+	fn build(&mut self, state: &AppState,context:&RenderContext){}
 
     /// Set the [`Position`] of the [`Surface`]
     fn position(&mut self, x: f32, y: f32);

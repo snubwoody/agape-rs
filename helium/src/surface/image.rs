@@ -1,9 +1,9 @@
 use crate::{
-    app::AppState, geometry::vertex::Vertex, impl_surface, surface::Surface, Bounds, Color,
+    app::AppState, geometry::{vertex::Vertex, RenderContext}, impl_surface, surface::Surface, Bounds, Color,
     Position, Size,
 };
 use std::fmt::Debug;
-use wgpu::util::DeviceExt;
+use wgpu::{hal::auxil::db, util::DeviceExt};
 
 /// Draws images to the screen
 pub struct ImageSurface {
@@ -11,6 +11,11 @@ pub struct ImageSurface {
     position: Position,
     size: Size,
     img: image::DynamicImage,
+	texture:Option<wgpu::Texture>,
+	texture_size:Option<wgpu::Extent3d>,
+	sampler:Option<wgpu::Sampler>,
+	view:Option<wgpu::TextureView>,
+	bind_group:Option<wgpu::BindGroup>
 }
 
 impl ImageSurface {
@@ -20,32 +25,18 @@ impl ImageSurface {
             position: Position::new(0.0, 0.0),
             size: Size::default(),
             img,
+			texture:None,
+			texture_size:None,
+			sampler:None,
+			view:None,
+			bind_group:None
         }
     }
 
-    pub fn build(&self, device: &wgpu::Device) -> (wgpu::Texture, wgpu::Extent3d) {
-        // TODO maybe move this to the pipeline
-        let texture_size = wgpu::Extent3d {
-            width: self.size.width as u32,
-            height: self.size.height as u32,
-            depth_or_array_layers: 1,
-        };
-
-        let texture = device.create_texture(&wgpu::TextureDescriptor {
-            size: texture_size,
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: wgpu::TextureDimension::D2,
-            format: wgpu::TextureFormat::Rgba8UnormSrgb,
-            usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
-            label: Some("Image Texture"),
-            view_formats: &[],
-        });
-
-        (texture, texture_size)
-    }
-
-    fn to_vertices(&self, width: f32, height: f32) -> Vec<Vertex> {
+    
+    fn to_vertices(&self) -> Vec<Vertex> {
+		let width = self.size.width;
+		let height = self.size.height;
         let color = Color::default().normalize();
         let x = self.position.x;
         let y = self.position.y;
@@ -70,9 +61,7 @@ impl Surface for ImageSurface {
     ) {
         // FIXME issue with fill sizing causing overflow
         // FIXME wgpu panics if size is 0
-        let (texture, texture_size) = self.build(&state.device);
-
-        let vertices = self.to_vertices(texture_size.width as f32, texture_size.height as f32);
+        let vertices = self.to_vertices();
 
         let vertex_buffer = state
             .device
@@ -82,7 +71,35 @@ impl Surface for ImageSurface {
                 usage: wgpu::BufferUsages::VERTEX,
             });
 
-        let texture_view = texture.create_view(&Default::default());
+        // Set the render pipeline and vertex buffer
+        render_pass.set_pipeline(&context.image_pipeline.pipeline);
+        render_pass.set_bind_group(0, &context.image_pipeline.window_bind_group, &[]);
+        render_pass.set_bind_group(1, self.bind_group.as_ref().unwrap(), &[]);
+        render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
+
+        render_pass.draw(0..vertices.len() as u32, 0..1);
+    }
+
+	fn build(&mut self, state: &AppState,context:&RenderContext){
+        // TODO maybe move this to the pipeline
+        let texture_size = wgpu::Extent3d {
+            width: self.size.width as u32,
+            height: self.size.height as u32,
+            depth_or_array_layers: 1,
+        };
+
+        let texture = state.device.create_texture(&wgpu::TextureDescriptor {
+            size: texture_size,
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: wgpu::TextureFormat::Rgba8UnormSrgb,
+            usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+            label: Some("Image Texture"),
+            view_formats: &[],
+        });
+
+		let texture_view = texture.create_view(&Default::default());
         let texture_sampler = state.device.create_sampler(&wgpu::SamplerDescriptor {
             label: Some("Image Texture sampler"),
             ..Default::default()
@@ -90,7 +107,7 @@ impl Surface for ImageSurface {
 
         let texture_bind_group = state.device.create_bind_group(&wgpu::BindGroupDescriptor {
             label: Some("Image Texture bind group"),
-            layout: &context.text_pipeline.texture_bind_group_layout,
+            layout: &context.image_pipeline.texture_bind_group_layout,
             entries: &[
                 wgpu::BindGroupEntry {
                     binding: 0,
@@ -103,7 +120,12 @@ impl Surface for ImageSurface {
             ],
         });
 
-        let img = self
+		self.texture = Some(texture);
+		self.view = Some(texture_view);
+		self.sampler = Some(texture_sampler);
+		self.bind_group = Some(texture_bind_group);
+
+		let img = self
             .img
             .resize(
                 self.size.width as u32,
@@ -112,9 +134,9 @@ impl Surface for ImageSurface {
             )
             .to_rgba8();
 
-        state.queue.write_texture(
-            wgpu::ImageCopyTextureBase {
-                texture: &texture,
+		state.queue.write_texture(
+			wgpu::ImageCopyTextureBase {
+				texture: self.texture.as_ref().unwrap(),
                 mip_level: 0,
                 origin: wgpu::Origin3d::ZERO,
                 aspect: wgpu::TextureAspect::All,
@@ -127,15 +149,8 @@ impl Surface for ImageSurface {
             },
             texture_size,
         );
-
-        // Set the render pipeline and vertex buffer
-        render_pass.set_pipeline(&context.image_pipeline.pipeline);
-        render_pass.set_bind_group(0, &context.image_pipeline.window_bind_group, &[]);
-        render_pass.set_bind_group(1, &texture_bind_group, &[]);
-        render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
-
-        render_pass.draw(0..vertices.len() as u32, 0..1);
     }
+
 
     impl_surface!();
 }

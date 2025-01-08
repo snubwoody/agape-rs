@@ -32,11 +32,11 @@ impl IconSurface {
 	}
 
     // FIXME Creating the texture every frame is not a good idea
-    pub fn build(&self, device: &wgpu::Device) -> (wgpu::Texture, wgpu::Extent3d) {
+    pub fn prepare(&self, device: &wgpu::Device) -> (wgpu::Texture, wgpu::Extent3d) {
         // TODO maybe move this to the pipeline
         let texture_size = wgpu::Extent3d {
-            width: self.size.width as u32,
-            height: self.size.height as u32,
+            width: self.size.width.max(1.0) as u32, // TEMP to make sure it doesn't crash
+            height: self.size.height.max(1.0) as u32,
             depth_or_array_layers: 1,
         };
 
@@ -78,7 +78,7 @@ impl Surface for IconSurface {
         state: &AppState,
     ) {
         // FIXME wgpu panics if size is 0
-        let (texture, texture_size) = self.build(&state.device);
+        let (texture, texture_size) = self.prepare(&state.device);
 
         let vertices = self.to_vertices(texture_size.width as f32, texture_size.height as f32);
 
@@ -120,8 +120,9 @@ impl Surface for IconSurface {
             )
             .to_rgba8();
 
+		dbg!("Icon Point 1");
         state.queue.write_texture(
-            wgpu::ImageCopyTextureBase {
+			wgpu::ImageCopyTextureBase {
                 texture: &texture,
                 mip_level: 0,
                 origin: wgpu::Origin3d::ZERO,
@@ -135,7 +136,8 @@ impl Surface for IconSurface {
             },
             texture_size,
         );
-
+		dbg!("Icon Point 2");
+		
         // Set the render pipeline and vertex buffer
         render_pass.set_pipeline(&context.icon_pipeline.pipeline);
         render_pass.set_bind_group(0, &context.icon_pipeline.window_bind_group, &[]);

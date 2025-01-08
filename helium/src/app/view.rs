@@ -37,6 +37,19 @@ impl View {
     }
 
     pub fn update(&mut self) {
+        match self.root_widget.try_read() {
+            Ok(widget) => {
+                let (body, layout) = widget.build();
+				self.surfaces = widget.surface();
+                self.root_body = body;
+                self.root_layout = layout;
+            }
+            Err(_) => {}
+        }
+    }
+
+	pub fn build(&mut self,state: &AppState) {
+		LayoutSolver::solve(&mut *self.root_layout, state.size);
 		for layout in self.root_layout.iter(){
 			for surface in &mut self.surfaces{
 				if layout.id() == surface.id(){
@@ -46,19 +59,10 @@ impl View {
 			}
 		}
 
-        match self.root_widget.try_read() {
-            Ok(widget) => {
-                let (body, layout) = widget.build();
-                self.root_body = body;
-                self.root_layout = layout;
-            }
-            Err(_) => {}
-        }
-    }
+		self.surfaces.iter_mut().for_each(|s|s.build(&state,&state.context));
+	}
 
     pub fn handle_events(&mut self, event: winit::event::WindowEvent, window: &Window) {
-        // Pass the events to the event manager to determine which events have fired
-        // for which widgets.
         self.event_queue.handle_events(&event, &self.root_body);
         window.request_redraw();
     }
@@ -98,8 +102,8 @@ impl View {
 
         // Has to be in this order otherwise it crashes particularly because of 0 size textures
         // FIXME above
+        //self.update();
         let _ = LayoutSolver::solve(&mut *self.root_layout, state.size);
-        self.update();
 
         self.root_body.update_sizes(&*self.root_layout);
 

@@ -52,6 +52,8 @@ impl App {
 
         self.views[0].setup_loop();
 
+		self.views[0].build(&state);
+		
         // TODO when the window is minimized the size of the widgets are changing to zero which
         // causing wgpu to panic.
         self.event_loop

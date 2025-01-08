@@ -28,7 +28,7 @@ pub use vstack::*;
 /// The trait that all widgets must implement. Each `widget` must implement the build function
 /// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about
 /// the widget.
-pub trait Widget: Send + Sync {
+pub trait Widget: Send + Sync { // TODO add an iter please
     /// Build the [`Widget`] into a primitive [`WidgetBody`] for
     /// rendering.
     fn build(&self) -> (WidgetBody, Box<dyn Layout>);

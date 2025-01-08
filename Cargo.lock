@@ -1342,6 +1342,7 @@ dependencies = [
  "image",
  "log",
  "nanoid",
+ "rayon",
  "reqwest",
  "resvg 0.44.0",
  "text-to-png",
