@@ -9,7 +9,6 @@ use crystal::{AxisAlignment, HorizontalLayout, Layout};
 use helium_core::color::TRANSPARENT;
 
 pub struct HStack {
-    pub id: String,
     pub children: Vec<Box<dyn Widget>>,
     pub color: Color,
     pub layout: HorizontalLayout,
@@ -18,7 +17,6 @@ pub struct HStack {
 impl HStack {
     pub fn new() -> Self {
         HStack {
-            id: String::default(),
             color: TRANSPARENT,
             children: vec![],
             layout: HorizontalLayout::new(),
@@ -53,7 +51,8 @@ impl HStack {
 // TODO test this
 impl Widget for HStack {
     fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
-        let mut surface = RectSurface::default();
+		let id = nanoid::nanoid!();
+        let mut surface = RectSurface::new(&id);
         surface.color(self.color.clone());
 
         let (children_body, children_layout): (Vec<Box<WidgetBody>>, Vec<Box<dyn Layout>>) = self
@@ -66,7 +65,7 @@ impl Widget for HStack {
             .collect();
 
         let body = WidgetBody {
-            id: self.id.clone(),
+            id: id.clone(),
             surface: Box::new(surface),
             children: children_body,
             ..Default::default()
@@ -84,7 +83,7 @@ impl Widget for HStack {
 
         // TODO maybe impl into?
         let layout = HorizontalLayout {
-            id: body.id.clone(),
+            id: id.clone(),
             spacing,
             padding,
             intrinsic_size,
@@ -118,7 +117,6 @@ macro_rules! hstack {
 	($($child:expr), + $(,)?) => {
 		{
 			$crate::widgets::HStack{
-				id:$crate::nanoid!(),
 				color:$crate::TRANSPARENT,
 				layout:$crate::HorizontalLayout::new(),
 				children:vec![

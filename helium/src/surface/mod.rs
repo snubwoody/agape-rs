@@ -28,6 +28,9 @@ pub trait Surface {
     /// Set the [`Position`] of the [`Surface`]
     fn position(&mut self, x: f32, y: f32);
 
+	/// Get the id of the [`Surface`]
+	fn id(&self) -> &str;
+
     /// Get the [`Surface`] position.
     fn get_position(&self) -> Position;
 
@@ -57,6 +60,10 @@ macro_rules! impl_surface {
         fn get_position(&self) -> Position {
             self.position
         }
+
+		fn id(&self) -> &str{
+			&self.id
+		}
 
         fn size(&mut self, width: f32, height: f32) {
             self.size.width = width;

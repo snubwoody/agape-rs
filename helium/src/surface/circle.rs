@@ -2,26 +2,29 @@ use crate::{
     app::AppState, geometry::vertex::Vertex, geometry::RenderContext, impl_surface,
     surface::Surface, Bounds, Color, Position, Size,
 };
-use wgpu::{util::DeviceExt, BufferUsages};
+use helium_core::color::WHITE;
+use wgpu::util::DeviceExt;
 
 /// This is a primitive that draws to the screen. This holds
 /// essential information about the [`Widget`], ie.
 /// the color, coordinates and size.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct CircleSurface {
-    pub position: Position,
-    pub size: Size,
-    pub color: Color,
+	id:String,
+    position: Position,
+    size: Size,
+    color: Color,
 }
 
 impl CircleSurface {
-    pub fn new(radius: u32, color: Color) -> Self {
+    pub fn new(id: &str, radius: u32) -> Self {
         let size = Size::new(radius as f32, radius as f32);
         let position = Position::default();
         Self {
+			id:id.to_string(),
             position,
             size,
-            color,
+            color:WHITE,
         }
     }
 

@@ -4,6 +4,7 @@ pub mod app;
 pub mod error;
 mod geometry;
 pub mod signal;
+pub mod primitive;
 pub(crate) mod surface;
 pub mod widgets;
 

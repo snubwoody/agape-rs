@@ -35,13 +35,15 @@ impl Text {
 
 impl Widget for Text {
     fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
+		let id = nanoid::nanoid!();
         // Create the text surface to be rendered
-        let textsurface = TextSurface::new(self.text.as_str(), self.font_size, &self.color);
+        let textsurface = TextSurface::new(&id,self.text.as_str(), self.font_size, &self.color);
 
         let size = textsurface.get_size();
         let surface = Box::new(textsurface);
 
         let body = WidgetBody {
+			id:id.clone(),
             surface,
             ..Default::default()
         };
@@ -49,7 +51,7 @@ impl Widget for Text {
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size.width = BoxSizing::Fixed(size.width);
         layout.intrinsic_size.height = BoxSizing::Fixed(size.height);
-        layout.id = body.id.clone();
+        layout.id = id.clone();
 
         (body, Box::new(layout))
     }

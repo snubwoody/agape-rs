@@ -17,8 +17,11 @@ impl Circle {
 
 impl Widget for Circle {
     fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
-        let surface = CircleSurface::new(self.diameter, self.color.clone());
-        let body = WidgetBody {
+		let id = nanoid::nanoid!();
+        let mut surface = CircleSurface::new(&id,self.diameter);
+		surface.color(self.color);
+        
+		let body = WidgetBody {
             surface: Box::new(surface),
             ..Default::default()
         };
@@ -26,7 +29,7 @@ impl Widget for Circle {
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size.width = BoxSizing::Fixed(self.diameter as f32);
         layout.intrinsic_size.height = BoxSizing::Fixed(self.diameter as f32);
-        layout.id = body.id.clone();
+        layout.id = id.clone();
 
         (body, Box::new(layout))
     }

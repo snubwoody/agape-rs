@@ -13,7 +13,7 @@ pub struct Rect {
     height: f32,
     intrinsic_size: crystal::IntrinsicSize,
     color: Color,
-    radius: u32,
+    corner_radius: u32,
 }
 
 impl Rect {
@@ -29,13 +29,13 @@ impl Rect {
             height,
             color,
             intrinsic_size,
-            radius: 0,
+            corner_radius: 0,
         }
     }
 
-    /// Set th border radius
-    pub fn corner_radius(mut self, radius: u32) -> Self {
-        self.radius = radius;
+    /// Set th corner radius
+    pub fn corner_radius(mut self, corner_radius: u32) -> Self {
+        self.corner_radius = corner_radius;
         self
     }
 
@@ -52,23 +52,20 @@ impl Rect {
 
 impl Widget for Rect {
     fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
-        let surface = Box::new(RectSurface {
-            size: Size::new(self.width as f32, self.height as f32),
-            color: self.color.clone(),
-            corner_radius: self.radius,
-            ..Default::default()
-        });
+		let mut surface = RectSurface::new(&self.id);
+        surface.corner_radius(self.corner_radius);
+		surface.color(self.color);
 
         let body = WidgetBody {
             id: self.id.clone(),
-            surface,
+            surface:Box::new(surface),
             children: vec![],
             ..Default::default()
         };
 
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size = self.intrinsic_size;
-        layout.id = body.id.clone();
+        layout.id = self.id.clone();
 
         (body, Box::new(layout))
     }

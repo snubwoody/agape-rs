@@ -10,6 +10,7 @@ use wgpu::util::DeviceExt;
 // FIXME change the color to Color enum
 #[derive(Clone)]
 pub struct TextSurface {
+	id:String,
     position: Position,
     size: Size,
     text: String,
@@ -19,7 +20,7 @@ pub struct TextSurface {
 }
 
 impl TextSurface {
-    pub fn new(text: &str, font_size: u8, color: &Color) -> Self {
+    pub fn new(id: &str, text: &str, font_size: u8, color: &Color) -> Self {
         let text_pipeline = text_to_png::TextRenderer::default();
 
         // Render the text as a png
@@ -32,6 +33,7 @@ impl TextSurface {
             .to_rgba8();
 
         Self {
+			id: id.to_string(),
             position: Position::new(0.0, 0.0),
             size: Size::new(text_image.size.width as f32, text_image.size.height as f32),
             text: String::from(text),

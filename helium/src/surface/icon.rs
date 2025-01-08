@@ -3,11 +3,13 @@ use crate::{
     Position, Size,
 };
 use std::fmt::Debug;
+use helium_core::color::BLACK;
 use wgpu::util::DeviceExt;
 
 /// Draws images to the screen
 #[derive(Clone)]
 pub struct IconSurface {
+	id:String,
     position: Position,
     size: Size,
     img: image::DynamicImage,
@@ -15,14 +17,19 @@ pub struct IconSurface {
 }
 
 impl IconSurface {
-    pub fn new(img: image::DynamicImage, color: Color) -> Self {
+    pub fn new(id:&str,img: image::DynamicImage) -> Self {
         Self {
+			id:id.to_string(),
             position: Position::new(0.0, 0.0),
             size: Size::default(),
             img,
-            color,
+            color:BLACK,
         }
     }
+
+	pub fn color(&mut self,color:Color){
+		self.color = color
+	}
 
     // FIXME Creating the texture every frame is not a good idea
     pub fn build(&self, device: &wgpu::Device) -> (wgpu::Texture, wgpu::Extent3d) {

@@ -7,14 +7,16 @@ use wgpu::util::DeviceExt;
 
 /// Draws images to the screen
 pub struct ImageSurface {
+	id:String,
     position: Position,
     size: Size,
     img: image::DynamicImage,
 }
 
 impl ImageSurface {
-    pub fn new(img: image::DynamicImage) -> Self {
+    pub fn new(id:&str,img: image::DynamicImage) -> Self {
         Self {
+			id:id.to_string(),
             position: Position::new(0.0, 0.0),
             size: Size::default(),
             img,

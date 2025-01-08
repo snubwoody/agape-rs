@@ -144,13 +144,13 @@ impl Widget for Image {
         let body = match &self.state {
             ImageState::Complete(image) => WidgetBody {
                 id: self.id.clone(),
-                surface: Box::new(ImageSurface::new(image.clone())),
+                surface: Box::new(ImageSurface::new(&self.id,image.clone())),
                 label: Some("Image".to_owned()),
                 ..Default::default()
             },
             ImageState::Loading(_) => WidgetBody {
                 id: self.id.clone(),
-                surface: Box::new(RectSurface::new(0.0, 0.0, 0.0, 0.0, WHITE)),
+                surface: Box::new(RectSurface::new(&self.id)),
                 label: Some("Image".to_owned()),
                 ..Default::default()
             },

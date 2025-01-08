@@ -101,7 +101,7 @@ macro_rules! impl_events {
             f: impl FnMut() + 'static,
         ) -> Self {
             event_loop.push($crate::app::events::UserEvent::new(
-                self.id.clone(),
+                "".to_string(),// FIXME self.id.clone(), ""
                 Event::OnClick(Box::new(f)),
             ));
             self

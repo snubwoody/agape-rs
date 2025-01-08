@@ -1,6 +1,5 @@
 use crate::{
-    app::events::Event,
-    impl_events, impl_style, impl_widget,
+    impl_style, impl_widget,
     surface::rect::RectSurface,
     widgets::{Widget, WidgetBody},
     Color,
@@ -9,7 +8,6 @@ use crystal::{AxisAlignment, Layout, VerticalLayout};
 use helium_core::color::TRANSPARENT;
 
 pub struct VStack {
-    pub id: String,
     pub children: Vec<Box<dyn Widget>>,
     pub color: Color,
     pub layout: VerticalLayout,
@@ -18,7 +16,6 @@ pub struct VStack {
 impl VStack {
     pub fn new() -> Self {
         VStack {
-            id: String::default(),
             color: TRANSPARENT,
             children: vec![],
             layout: VerticalLayout::new(),
@@ -47,12 +44,12 @@ impl VStack {
 
     impl_widget!();
     impl_style!();
-    impl_events!();
 }
 
 impl Widget for VStack {
     fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
-        let mut surface = RectSurface::default();
+		let id = nanoid::nanoid!();
+        let mut surface = RectSurface::new(&id);
         surface.color(self.color.clone());
 
         let (children_body, children_layout): (Vec<Box<WidgetBody>>, Vec<Box<dyn Layout>>) = self
@@ -65,7 +62,7 @@ impl Widget for VStack {
             .collect();
 
         let body = WidgetBody {
-            id: self.id.clone(),
+            id: id.clone(),
             children: children_body,
             surface: Box::new(surface),
             ..Default::default()
@@ -82,7 +79,7 @@ impl Widget for VStack {
         } = self.layout;
 
         let layout = VerticalLayout {
-            id: body.id.clone(),
+            id: id.clone(),
             spacing,
             padding,
             intrinsic_size,
@@ -118,7 +115,6 @@ macro_rules! vstack {
 	($($child:expr), + $(,)?) => {
 		{
 			$crate::widgets::VStack{
-				id:helium::nanoid!(),
 				color:$crate::TRANSPARENT,
 				layout:$crate::VerticalLayout::new(),
 				children:vec![

@@ -1,14 +1,11 @@
 use super::{text::Text, Widget};
 use crate::app::events::Event;
 use crate::{impl_events, surface::rect::RectSurface, widgets::WidgetBody};
-use crystal::{BlockLayout, BoxSizing, Layout};
+use crystal::{BlockLayout,Layout};
 use helium_core::color::Color;
-use nanoid::nanoid;
-use winit::keyboard;
 
 /// A simple button.
 pub struct Button {
-    id: String,
     text: String,
     color: Color,
     padding: u32,
@@ -18,16 +15,11 @@ pub struct Button {
 impl Button {
     pub fn new(text: &str) -> Self {
         Self {
-            id: nanoid!(),
             text: text.into(),
             color: Color::Hex("#615fff"),
             padding: 12,
             corner_radius: 0,
         }
-    }
-
-    pub fn get_id(&self) -> String {
-        self.id.clone()
     }
 
     pub fn color(mut self, color: Color) -> Self {
@@ -44,27 +36,26 @@ impl Button {
         self.corner_radius = corner_radius;
         self
     }
-
-    impl_events!();
 }
 
 impl Widget for Button {
     fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
-        let mut surface = RectSurface::default();
-        surface.color = self.color.clone();
+		let id = nanoid::nanoid!();
+        let mut surface = RectSurface::new(&id);
+        surface.color(self.color);
         surface.corner_radius(self.corner_radius);
 
         let (text_body, text_layout) = Text::new(&self.text).build();
 
         let body = WidgetBody {
-            id: self.id.clone(),
+            id: id.clone(),
             surface: Box::new(surface),
             children: vec![Box::new(text_body)],
             ..Default::default()
         };
 
         let mut layout = BlockLayout::new(text_layout);
-        layout.id = body.id.clone();
+        layout.id = id.clone();
         layout.padding = self.padding;
 
         (body, Box::new(layout))
