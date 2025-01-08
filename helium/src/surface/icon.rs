@@ -20,7 +20,7 @@ impl IconSurface {
     pub fn new(id:&str,img: image::DynamicImage) -> Self {
         Self {
 			id:id.to_string(),
-            position: Position::new(0.0, 0.0),
+            position: Position::default(),
             size: Size::default(),
             img,
             color:BLACK,

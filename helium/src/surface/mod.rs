@@ -1,21 +1,20 @@
-//! The surfaces are the items that are actually responsible for drawing the pixels to the
-//! screen. It is the final stage in the pipeline, each [`Surface`] surface holds the data
-//! responsible for it's rendering needs, all surfaces, however, hold their [`Position`] and
-//! [`Size`] which is calculated during the layout stage. There are currently five surfaces
-//! - [`RectSurface`]: drawing rectangular primitives to the screen
-//! - [`TextSurface`]: drawing text to the screen
-//! - [`CircleSurface`]: drawing circle primitives to the screen
-//! - [`ImageSurface`]: drawing images to the screen
-//! - [`IconSurface`]: drawing icons to the screen
 pub mod circle;
 pub mod icon;
 pub mod image;
 pub mod rect;
 pub mod text;
 use crate::{app::AppState, Bounds, Position, Size};
+use std::fmt::Debug;
 
-/// Holds infomation about different types of widgets that can be
-/// drawn to the screen i.e. Shapes and Text.
+/// The surfaces are the items that are actually responsible for drawing the pixels to the
+/// screen. It is the final stage in the pipeline, each [`Surface`] holds the data
+/// responsible for it's rendering needs, all surfaces, however, hold their [`Position`] and
+/// [`Size`] which is calculated during the layout stage. There are currently five surfaces
+/// - [`RectSurface`]: drawing rectangular primitives to the screen
+/// - [`TextSurface`]: drawing text to the screen
+/// - [`CircleSurface`]: drawing circle primitives to the screen
+/// - [`ImageSurface`]: drawing images to the screen
+/// - [`IconSurface`]: drawing icons to the screen
 pub trait Surface:Debug {
     /// Draw the surface onto the screen
     fn draw(

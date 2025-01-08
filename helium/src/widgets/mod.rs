@@ -94,7 +94,6 @@ impl WidgetBody {
     }
 
     pub fn update_sizes(&mut self, root_layout: &dyn Layout) {
-        // FIXME this affecting performance
         for layout in root_layout.iter() {
             self.check_size(*layout);
         }
@@ -107,7 +106,6 @@ impl WidgetBody {
     pub fn render(&mut self, render_pass: &mut wgpu::RenderPass, state: &AppState) {
         let context = &state.context;
 
-        // Draw the parent then the children to the screen
         self.surface.draw(render_pass, context, state);
         self.children.iter_mut().for_each(|child| {
             child.render(render_pass, state);
