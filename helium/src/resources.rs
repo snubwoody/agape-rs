@@ -1,8 +1,14 @@
+use crystal::Size;
+use wgpu::naga::proc::index;
+
+use crate::error::Error;
+
 /// Manages resources
-#[derive(Default,Debug)]
+#[derive(Default, Debug)]
 pub struct ResourceManager {
     buffers: Vec<wgpu::Buffer>,
     textures: Vec<wgpu::Texture>,
+	texture_views: Vec<wgpu::TextureView>,
     samplers: Vec<wgpu::Sampler>,
     bind_groups: Vec<wgpu::BindGroup>,
 }
@@ -28,20 +34,14 @@ impl ResourceManager {
         });
 
         self.buffers.push(buffer);
-
         self.buffers.len() - 1
     }
 
     /// Creates a buffer returns the index of that resource
-    pub fn add_vertex_buffer(
-        &mut self,
-        label: &str,
-        size: u64,
-        device: &wgpu::Device,
-    ) -> usize {
+    pub fn add_vertex_buffer(&mut self, label: &str, size: u64, device: &wgpu::Device) -> usize {
         let buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some(label),
-            usage:wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
+            usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
             size,
             mapped_at_creation: false,
         });
@@ -51,15 +51,10 @@ impl ResourceManager {
         self.buffers.len() - 1
     }
 
-    pub fn add_uniform(
-        &mut self,
-        label: &str,
-        size: u64,
-        device: &wgpu::Device,
-    ) -> usize {
+    pub fn add_uniform(&mut self, label: &str, size: u64, device: &wgpu::Device) -> usize {
         let buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some(label),
-            usage:wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
             size,
             mapped_at_creation: false,
         });
@@ -69,10 +64,60 @@ impl ResourceManager {
         self.buffers.len() - 1
     }
 
-	/// Get a buffer 
-	pub fn buffer(&self,index:usize) -> Option<&wgpu::Buffer>{
-		self.buffers.get(index)
+	pub fn add_texture(&mut self, label: &str, size: Size, device: &wgpu::Device) -> usize{
+		let texture = device.create_texture(&wgpu::TextureDescriptor {
+            label: Some(label),
+            size: wgpu::Extent3d { 
+				width: size.width as u32, 
+				height: size.height as u32, 
+				depth_or_array_layers: 1
+			},
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: wgpu::TextureFormat::Rgba8UnormSrgb,
+            usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+            view_formats: &[],
+        });
+
+		self.textures.push(texture);
+
+		self.textures.len() - 1
 	}
+
+	/// Add a texture view of the texture at a specific index
+	/// 
+	/// # Errors 
+	/// This function returns an error if the texture is not found
+	pub fn add_texture_view(
+		&mut self,
+		index: usize,
+	) -> Result<usize,crate::error::Error>{
+		let texture = self
+			.texture(index)
+			.ok_or_else(||{Error::NotFound(format!("Texture at {index}"))})?;
+
+		let view = texture.create_view(&Default::default());
+
+		self.texture_views.push(view);
+
+		Ok(self.texture_views.len() - 1)
+	}
+
+    /// Get a `wgpu::Buffer`
+    pub fn buffer(&self, index: usize) -> Option<&wgpu::Buffer> {
+        self.buffers.get(index)
+    }
+
+    /// Get a `wgpu::Texture`
+    pub fn texture(&self, index: usize) -> Option<&wgpu::Texture> {
+        self.textures.get(index)
+    }
+
+    /// Overwrite a buffer at a specific index, by replacing it.
+    pub fn overwrite_buffer(&self, index: usize) {
+        todo!()
+    }
 
     pub fn write_buffer(&self) {
         todo!()
@@ -86,10 +131,7 @@ impl ResourceManager {
 #[cfg(test)]
 mod test {
     use super::*;
-    use winit::{
-		event_loop::EventLoopBuilder, 
-		platform::windows::EventLoopBuilderExtWindows
-	};
+    use winit::{event_loop::EventLoopBuilder, platform::windows::EventLoopBuilderExtWindows};
 
     async fn setup() -> wgpu::Device {
         let event_loop = EventLoopBuilder::new()
@@ -98,7 +140,7 @@ mod test {
             .unwrap();
 
         let window = winit::window::WindowBuilder::new()
-			.with_visible(false)
+            .with_visible(false)
             .build(&event_loop)
             .unwrap();
 
@@ -134,16 +176,18 @@ mod test {
     }
 
     #[async_std::test]
-    async fn buffer_creation(){
-		let device = setup().await;
+    async fn resource_creation() {
+        let device = setup().await;
 
-		let mut resources = ResourceManager::new();
-		let a = resources.add_buffer("Buffer",12,wgpu::BufferUsages::VERTEX,&device);
-		let b = resources.add_vertex_buffer("Vertex Buffer",102,&device);
-		let c = resources.add_uniform("Uniform Buffer",12,&device);
+        let mut resources = ResourceManager::new();
+        let a = resources.add_buffer("Buffer", 12, wgpu::BufferUsages::VERTEX, &device);
+        let b = resources.add_vertex_buffer("Vertex Buffer", 102, &device);
+        let c = resources.add_uniform("Uniform Buffer", 12, &device);
+        let d = resources.add_texture("Texture",Size::default(), &device);
 
-		resources.buffer(a).unwrap();
-		resources.buffer(b).unwrap();
-		resources.buffer(c).unwrap();
-	}
+        resources.buffer(a).unwrap();
+        resources.buffer(b).unwrap();
+        resources.buffer(c).unwrap();
+        resources.buffer(d).unwrap();
+    }
 }

@@ -4,8 +4,14 @@ pub mod image;
 pub mod rect;
 pub mod text;
 use crystal::Layout;
-
-use crate::{app::AppState, geometry::RenderContext, resources::ResourceManager, Bounds, Position, Size};
+use crate::{
+    app::AppState, 
+	resources::ResourceManager, 
+	widgets::Widget, 
+	Bounds, 
+	Position, 
+	Size
+};
 use std::fmt::Debug;
 
 /// The surfaces are the items that are actually responsible for drawing the pixels to the
@@ -53,22 +59,32 @@ pub trait Surface: Debug {
     fn get_bounds(&self) -> Bounds;
 }
 
-#[derive(Debug,Default)]
-pub struct SurfaceManager{
-	resources:ResourceManager,
-	surfaces:Vec<Box<dyn Surface>>
+/// Manages all [`Surface`]'s and their respective resources including
+/// - `Buffers`
+/// - `Textures`
+/// - `Samplers`
+/// - `Bind groups`
+#[derive(Debug, Default)]
+pub struct SurfaceManager {
+    resources: ResourceManager,
+    surfaces: Vec<Box<dyn Surface>>,
 }
 
 impl SurfaceManager {
-	/// Create a new [`SurfaceManager`]
-	pub fn create(surfaces:Vec<Box<dyn Surface>>) -> Self{
-		Self{
-			surfaces,
-			..Default::default()
-		}
+    /// Create a new [`SurfaceManager`].
+    pub fn new(surfaces: Vec<Box<dyn Surface>>) -> Self {
+        Self {
+            surfaces,
+            ..Default::default()
+        }
+    }
+
+	/// Build the surface manager from the primitives.
+	pub fn build(&mut self,widgets:&[Box<dyn Widget>]){
+
 	}
 
-	pub fn resize(&mut self,layout:&dyn Layout, state: &AppState) {
+    pub fn resize(&mut self, layout: &dyn Layout, state: &AppState) {
         for layout in layout.iter() {
             for surface in &mut self.surfaces {
                 if layout.id() == surface.id() {
@@ -79,26 +95,24 @@ impl SurfaceManager {
         }
     }
 
-	// FIXME horrible function btw
-	/// Rebuild the surfaces
-	pub fn rebuild(&mut self,surfaces:Vec<Box<dyn Surface>>){
-		self.surfaces = surfaces;
-	}
 
-	pub fn prepare(&mut self,state: &AppState){
-		self.surfaces
+    // FIXME horrible function btw
+    /// Rebuild the surfaces
+    pub fn rebuild(&mut self, surfaces: Vec<Box<dyn Surface>>) {
+        self.surfaces = surfaces;
+    }
+
+    pub fn prepare(&mut self, state: &AppState) {
+        self.surfaces.iter_mut().for_each(|s| s.build(&state));
+    }
+
+    /// Draw the surfaces to the screen
+    pub fn draw(&mut self, pass: &mut wgpu::RenderPass, state: &AppState) {
+        self.surfaces
             .iter_mut()
-            .for_each(|s| s.build(&state));
-	}
-
-	/// Draw the surfaces to the screen
-	pub fn draw(&mut self,pass:&mut wgpu::RenderPass,state:&AppState){
-		self.surfaces
-		.iter_mut()
-		.rev()
-		.for_each(|s| s.draw(pass, &state.context, state));
-	}
-
+            .rev()
+            .for_each(|s| s.draw(pass, &state.context, state));
+    }
 }
 
 #[macro_export]

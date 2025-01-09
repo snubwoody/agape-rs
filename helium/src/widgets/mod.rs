@@ -23,7 +23,6 @@ pub use rect::*;
 pub use spacer::*;
 pub use text::*;
 pub use vstack::*;
-// TODO maybe test widgets with layouts to make sure everything's integrated properly;
 
 /// The trait that all widgets must implement. Each `widget` must implement the build function
 /// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about
@@ -37,7 +36,6 @@ pub trait Widget: Send + Sync {
     /// Build the [`Surface`]
     fn surface(&self) -> Vec<Box<dyn Surface>>;
 
-    // TODO change to load?
     /// Load data in the background
     fn update(&mut self) {}
 }

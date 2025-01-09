@@ -23,7 +23,7 @@ impl View {
     pub fn new(root_widget: impl Widget + 'static, event_queue: EventQueue) -> Self {
         let (root_body, root_layout) = root_widget.build();
 
-		let surfaces = SurfaceManager::create(root_widget.surface());
+        let surfaces = SurfaceManager::new(root_widget.surface());
         Self {
             root_body,
             root_layout,
@@ -50,7 +50,7 @@ impl View {
         match self.root_widget.try_read() {
             Ok(widget) => {
                 let (body, layout) = widget.build();
-				self.surfaces.rebuild(widget.surface());
+                self.surfaces.rebuild(widget.surface());
                 self.root_body = body;
                 self.root_layout = layout;
             }
@@ -60,8 +60,8 @@ impl View {
 
     pub fn build(&mut self, state: &AppState) {
         LayoutSolver::solve(&mut *self.root_layout, state.size);
-		self.surfaces.resize(&*self.root_layout, state);
-       	self.surfaces.prepare(state);
+        self.surfaces.resize(&*self.root_layout, state);
+        self.surfaces.prepare(state);
     }
 
     pub fn handle_events(&mut self, event: winit::event::WindowEvent, window: &Window) {
@@ -112,7 +112,7 @@ impl View {
         let render_now = Instant::now();
         //self.root_body.render(&mut render_pass, state);
 
-       	self.surfaces.draw(&mut render_pass, state);
+        self.surfaces.draw(&mut render_pass, state);
         log::debug!("Spent {:?} rendering", render_now.elapsed());
 
         // Drop the render pass because it borrows encoder mutably

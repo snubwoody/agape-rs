@@ -1,6 +1,6 @@
 use crate::{
     app::AppState,
-    geometry::{vertex::Vertex, RenderContext},
+    geometry::vertex::Vertex,
     impl_surface,
     surface::Surface,
     Bounds, Color, Position, Size,
@@ -14,10 +14,14 @@ pub struct ImageSurface {
     position: Position,
     size: Size,
     img: image::DynamicImage,
-    texture: Option<wgpu::Texture>,
-    sampler: Option<wgpu::Sampler>,
-    view: Option<wgpu::TextureView>,
-    bind_group: Option<wgpu::BindGroup>,
+	/// The index of the texture in the [`ResourceManager`].
+    texture: usize,
+	/// The index of the sampler in the [`ResourceManager`].
+    sampler: usize,
+	/// The index of the texture view in the [`ResourceManager`].
+    view: usize,
+	/// The index of the bind group in the [`ResourceManager`].
+    bind_group: usize,
 }
 
 impl ImageSurface {
@@ -27,10 +31,10 @@ impl ImageSurface {
             position: Position::new(0.0, 0.0),
             size: Size::default(),
             img,
-            texture: None,
-            sampler: None,
-            view: None,
-            bind_group: None,
+            texture: 0,
+            sampler: 0,
+            view: 0,
+            bind_group: 0,
         }
     }
 
@@ -74,7 +78,7 @@ impl Surface for ImageSurface {
         // Set the render pipeline and vertex buffer
         render_pass.set_pipeline(&context.image_pipeline.pipeline);
         render_pass.set_bind_group(0, &context.image_pipeline.window_bind_group, &[]);
-        render_pass.set_bind_group(1, self.bind_group.as_ref().unwrap(), &[]);
+        //render_pass.set_bind_group(1, self.bind_group.as_ref().unwrap(), &[]);
         render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 
         render_pass.draw(0..vertices.len() as u32, 0..1);
@@ -120,10 +124,10 @@ impl Surface for ImageSurface {
             ],
         });
 
-        self.texture = Some(texture);
-        self.view = Some(texture_view);
-        self.sampler = Some(texture_sampler);
-        self.bind_group = Some(texture_bind_group);
+        // self.texture = Some(texture);
+        // self.view = Some(texture_view);
+        // self.sampler = Some(texture_sampler);
+        // self.bind_group = Some(texture_bind_group);
 
         let img = self
             .img
@@ -134,21 +138,21 @@ impl Surface for ImageSurface {
             )
             .to_rgba8();
 
-        state.queue.write_texture(
-            wgpu::ImageCopyTextureBase {
-                texture: self.texture.as_ref().unwrap(),
-                mip_level: 0,
-                origin: wgpu::Origin3d::ZERO,
-                aspect: wgpu::TextureAspect::All,
-            },
-            &img,
-            wgpu::ImageDataLayout {
-                offset: 0,
-                bytes_per_row: Some(4 * self.size.width as u32), // TODO don't even know what this is
-                rows_per_image: None,
-            },
-            texture_size,
-        );
+        // state.queue.write_texture(
+        //     wgpu::ImageCopyTextureBase {
+        //         texture: self.texture.as_ref().unwrap(),
+        //         mip_level: 0,
+        //         origin: wgpu::Origin3d::ZERO,
+        //         aspect: wgpu::TextureAspect::All,
+        //     },
+        //     &img,
+        //     wgpu::ImageDataLayout {
+        //         offset: 0,
+        //         bytes_per_row: Some(4 * self.size.width as u32), // TODO don't even know what this is
+        //         rows_per_image: None,
+        //     },
+        //     texture_size,
+        // );
     }
 
     impl_surface!();

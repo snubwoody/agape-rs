@@ -1357,6 +1357,7 @@ dependencies = [
  "reqwest",
  "resvg 0.44.0",
  "text-to-png",
+ "thiserror 2.0.9",
  "tokio",
  "usvg 0.44.0",
  "wgpu",
