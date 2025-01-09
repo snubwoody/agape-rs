@@ -1,6 +1,6 @@
-use crystal::Size;
-use wgpu::naga::proc::index;
+use std::fmt::format;
 
+use crystal::Size;
 use crate::error::Error;
 
 /// Manages resources
@@ -92,7 +92,7 @@ impl ResourceManager {
     pub fn add_texture_view(&mut self, index: usize) -> Result<usize, crate::error::Error> {
         let texture = self
             .texture(index)
-            .ok_or_else(|| Error::NotFound(format!("Texture at {index}")))?;
+            .ok_or_else(|| Error::NotFound(format!("Texture at index {index}")))?;
 
         let view = texture.create_view(&Default::default());
 
@@ -100,6 +100,76 @@ impl ResourceManager {
 
         Ok(self.texture_views.len() - 1)
     }
+
+	/// Add a texture sampler
+	pub fn add_sampler(&mut self,label: &str,device: &wgpu::Device) -> usize{
+		let texture_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+            label: Some(label),
+            ..Default::default()
+        });
+
+		self.samplers.push(texture_sampler);
+
+		self.samplers.len() - 1
+	}
+
+	pub fn add_bind_group(
+		&mut self, 
+		label: &str, 
+		layout:&wgpu::BindGroupLayout, 
+		device: &wgpu::Device,
+		buffers: &[usize],
+		texture_views: &[usize],
+		samplers: &[usize]
+	) -> Result<usize,Error> {
+		let mut entries = vec![]; 
+
+		for i in buffers{
+			let buffer = self.buffer(*i)
+				.ok_or(Error::NotFound(format!("Buffer at index {i}")))?;
+
+			entries.push(
+				wgpu::BindGroupEntry {
+                    binding: entries.len() as u32,
+                    resource: buffer.as_entire_binding(),
+                }	
+			);
+		}
+
+		for i in texture_views{
+			let texture_view = self.texture_view(*i)
+				.ok_or(Error::NotFound(format!("Texture view at index {i}")))?;
+
+			entries.push(
+				wgpu::BindGroupEntry {
+                    binding: entries.len() as u32,
+                    resource: wgpu::BindingResource::TextureView(&texture_view),
+                }	
+			);
+		}
+
+		for i in samplers{
+			let sampler = self.sampler(*i)
+				.ok_or(Error::NotFound(format!("Sampler at index {i}")))?;
+
+			entries.push(
+				wgpu::BindGroupEntry {
+                    binding: entries.len() as u32,
+                    resource: wgpu::BindingResource::Sampler(&sampler),
+                }	
+			);
+		}
+
+		let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some(label),
+            layout: &layout,
+            entries: &entries,
+        });
+
+		self.bind_groups.push(bind_group);
+
+		Ok(self.bind_groups.len() - 1)
+	}
 
     /// Get a `wgpu::Buffer`
     pub fn buffer(&self, index: usize) -> Option<&wgpu::Buffer> {
@@ -109,6 +179,21 @@ impl ResourceManager {
     /// Get a `wgpu::Texture`
     pub fn texture(&self, index: usize) -> Option<&wgpu::Texture> {
         self.textures.get(index)
+    }
+
+    /// Get a `wgpu::Sampler`
+    pub fn sampler(&self, index: usize) -> Option<&wgpu::Sampler> {
+        self.samplers.get(index)
+    }
+
+    /// Get a `wgpu::TextureView`
+    pub fn texture_view(&self, index: usize) -> Option<&wgpu::TextureView> {
+        self.texture_views.get(index)
+    }
+
+    /// Get a `wgpu::BindGroup`
+    pub fn bind_group(&self, index: usize) -> Option<&wgpu::BindGroup> {
+        self.bind_groups.get(index)
     }
 
     /// Overwrite a buffer at a specific index, by replacing it.
@@ -187,4 +272,12 @@ mod test {
         resources.buffer(c).unwrap();
         resources.buffer(d).unwrap();
     }
+
+	#[test]
+	fn missing_texture_when_creating_texture_view(){
+		let mut resources = ResourceManager::new();
+		let res = resources.add_texture_view(0);
+
+		assert!(matches!(res,Err(Error::NotFound(_))));
+	}
 }

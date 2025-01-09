@@ -1,6 +1,5 @@
 use crate::{
-    app::AppState, geometry::vertex::Vertex, impl_surface, surface::Surface, Bounds, Color,
-    Position, Size,
+    app::AppState, error::Error, geometry::{vertex::Vertex, RenderContext}, impl_surface, resources::ResourceManager, surface::Surface, widgets::icon::feather_icons::rss, Bounds, Color, Position, Size
 };
 use std::fmt::Debug;
 use wgpu::util::DeviceExt;
@@ -22,17 +21,39 @@ pub struct ImageSurface {
 }
 
 impl ImageSurface {
-    pub fn new(id: &str, img: image::DynamicImage) -> Self {
-        Self {
-            id: id.to_string(),
-            position: Position::new(0.0, 0.0),
-            size: Size::default(),
-            img,
-            texture: 0,
-            sampler: 0,
-            view: 0,
-            bind_group: 0,
-        }
+    pub fn new(
+		id: &str, 
+		img: image::DynamicImage, 
+		context: &RenderContext,
+		resources: &mut ResourceManager,
+		device: &wgpu::Device
+	) -> Result<Self,Error> {
+		let texture = resources.add_texture("Image texture", Size::default(), device);
+		let view = resources.add_texture_view(texture)?;
+		let sampler = resources.add_sampler("Image texture sampler", device);
+
+		let bind_group = resources
+			.add_bind_group(
+				"Image texture bind group", 
+				&context.image_pipeline.texture_bind_group_layout, 
+				device, 
+				&[], 
+				&[view], 
+				&[sampler]
+			)?;
+		
+        Ok(
+			Self {
+				id: id.to_string(),
+				position: Position::new(0.0, 0.0),
+				size: Size::default(),
+				img,
+				texture,
+				sampler,
+				view,
+				bind_group,
+			}
+		)
     }
 
     fn to_vertices(&self) -> Vec<Vertex> {
