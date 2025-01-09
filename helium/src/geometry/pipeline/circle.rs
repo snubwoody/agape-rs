@@ -3,13 +3,9 @@ use crate::{
     geometry::vertex::VertexBufferLayoutBuilder,
 };
 use helium_core::size::Size;
-use std::str;
 use wgpu::{
-    util::{BufferInitDescriptor, DeviceExt},
-    BindGroupDescriptor, PipelineLayoutDescriptor, ShaderModuleDescriptor, ShaderSource,
-    ShaderStages, VertexAttribute, VertexBufferLayout, VertexState,
+    BindGroupDescriptor,ShaderSource,
 };
-
 use super::RenderPipelineBuilder;
 
 /// Holds the render pipeline

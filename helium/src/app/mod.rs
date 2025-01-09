@@ -67,6 +67,7 @@ impl App {
                     }
                     WindowEvent::Resized(size) => {
                         state.resize(size);
+						self.views[0].resize(&state);
                         self.window.request_redraw();
                     }
                     event => {

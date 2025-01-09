@@ -1,5 +1,5 @@
 use super::{events::EventQueue, AppState};
-use crate::{surface::Surface, widgets::{Widget, WidgetBody}};
+use crate::{resources::ResourceManager, surface::Surface, widgets::{Widget, WidgetBody}};
 use crystal::LayoutSolver;
 use std::{
     sync::{Arc, RwLock},
@@ -35,6 +35,22 @@ impl View {
             widget.write().unwrap().update();
         });
     }
+
+	pub fn resize(&mut self,state: &AppState){
+		LayoutSolver::solve(&mut *self.root_layout, state.size);
+		for layout in self.root_layout.iter(){
+			for surface in &mut self.surfaces{
+				if layout.id() == surface.id(){
+					surface.size(layout.size().width, layout.size().height);
+					surface.position(layout.position().x, layout.position().y);
+				}
+			}
+		}
+
+		self.surfaces.iter_mut().for_each(|s|s.build(&state,&state.context));
+		let mut resources = ResourceManager::new();
+		resources.add_buffer("", 0, wgpu::BufferUsages::VERTEX, &state.device);
+	}
 
     pub fn update(&mut self) {
         match self.root_widget.try_read() {
@@ -105,7 +121,7 @@ impl View {
         //self.update();
         let _ = LayoutSolver::solve(&mut *self.root_layout, state.size);
 
-        self.root_body.update_sizes(&*self.root_layout);
+        //self.root_body.update_sizes(&*self.root_layout);
 
         let render_now = Instant::now();
         //self.root_body.render(&mut render_pass, state);

@@ -1,9 +1,10 @@
 use crate::{
-    app::AppState, geometry::{vertex::Vertex, RenderContext}, impl_surface, surface::Surface, Bounds, Color,
+    app::AppState, geometry::{vertex::Vertex, RenderContext}, 
+	impl_surface, surface::Surface, Bounds, Color,
     Position, Size,
 };
 use std::fmt::Debug;
-use wgpu::{hal::auxil::db, util::DeviceExt};
+use wgpu::util::DeviceExt;
 
 /// Draws images to the screen
 pub struct ImageSurface {
@@ -12,7 +13,6 @@ pub struct ImageSurface {
     size: Size,
     img: image::DynamicImage,
 	texture:Option<wgpu::Texture>,
-	texture_size:Option<wgpu::Extent3d>,
 	sampler:Option<wgpu::Sampler>,
 	view:Option<wgpu::TextureView>,
 	bind_group:Option<wgpu::BindGroup>
@@ -26,14 +26,12 @@ impl ImageSurface {
             size: Size::default(),
             img,
 			texture:None,
-			texture_size:None,
 			sampler:None,
 			view:None,
 			bind_group:None
         }
     }
 
-    
     fn to_vertices(&self) -> Vec<Vertex> {
 		let width = self.size.width;
 		let height = self.size.height;
