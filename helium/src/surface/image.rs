@@ -1,9 +1,6 @@
 use crate::{
-    app::AppState,
-    geometry::vertex::Vertex,
-    impl_surface,
-    surface::Surface,
-    Bounds, Color, Position, Size,
+    app::AppState, geometry::vertex::Vertex, impl_surface, surface::Surface, Bounds, Color,
+    Position, Size,
 };
 use std::fmt::Debug;
 use wgpu::util::DeviceExt;
@@ -14,13 +11,13 @@ pub struct ImageSurface {
     position: Position,
     size: Size,
     img: image::DynamicImage,
-	/// The index of the texture in the [`ResourceManager`].
+    /// The index of the texture in the [`ResourceManager`].
     texture: usize,
-	/// The index of the sampler in the [`ResourceManager`].
+    /// The index of the sampler in the [`ResourceManager`].
     sampler: usize,
-	/// The index of the texture view in the [`ResourceManager`].
+    /// The index of the texture view in the [`ResourceManager`].
     view: usize,
-	/// The index of the bind group in the [`ResourceManager`].
+    /// The index of the bind group in the [`ResourceManager`].
     bind_group: usize,
 }
 

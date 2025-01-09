@@ -3,15 +3,8 @@ pub mod icon;
 pub mod image;
 pub mod rect;
 pub mod text;
+use crate::{app::AppState, resources::ResourceManager, widgets::Widget, Bounds, Position, Size};
 use crystal::Layout;
-use crate::{
-    app::AppState, 
-	resources::ResourceManager, 
-	widgets::Widget, 
-	Bounds, 
-	Position, 
-	Size
-};
 use std::fmt::Debug;
 
 /// The surfaces are the items that are actually responsible for drawing the pixels to the
@@ -79,10 +72,8 @@ impl SurfaceManager {
         }
     }
 
-	/// Build the surface manager from the primitives.
-	pub fn build(&mut self,widgets:&[Box<dyn Widget>]){
-
-	}
+    /// Build the surface manager from the primitives.
+    pub fn build(&mut self, widgets: &[Box<dyn Widget>]) {}
 
     pub fn resize(&mut self, layout: &dyn Layout, state: &AppState) {
         for layout in layout.iter() {
@@ -94,7 +85,6 @@ impl SurfaceManager {
             }
         }
     }
-
 
     // FIXME horrible function btw
     /// Rebuild the surfaces

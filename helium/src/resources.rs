@@ -8,7 +8,7 @@ use crate::error::Error;
 pub struct ResourceManager {
     buffers: Vec<wgpu::Buffer>,
     textures: Vec<wgpu::Texture>,
-	texture_views: Vec<wgpu::TextureView>,
+    texture_views: Vec<wgpu::TextureView>,
     samplers: Vec<wgpu::Sampler>,
     bind_groups: Vec<wgpu::BindGroup>,
 }
@@ -64,14 +64,14 @@ impl ResourceManager {
         self.buffers.len() - 1
     }
 
-	pub fn add_texture(&mut self, label: &str, size: Size, device: &wgpu::Device) -> usize{
-		let texture = device.create_texture(&wgpu::TextureDescriptor {
+    pub fn add_texture(&mut self, label: &str, size: Size, device: &wgpu::Device) -> usize {
+        let texture = device.create_texture(&wgpu::TextureDescriptor {
             label: Some(label),
-            size: wgpu::Extent3d { 
-				width: size.width as u32, 
-				height: size.height as u32, 
-				depth_or_array_layers: 1
-			},
+            size: wgpu::Extent3d {
+                width: size.width as u32,
+                height: size.height as u32,
+                depth_or_array_layers: 1,
+            },
             mip_level_count: 1,
             sample_count: 1,
             dimension: wgpu::TextureDimension::D2,
@@ -80,29 +80,26 @@ impl ResourceManager {
             view_formats: &[],
         });
 
-		self.textures.push(texture);
+        self.textures.push(texture);
 
-		self.textures.len() - 1
-	}
+        self.textures.len() - 1
+    }
 
-	/// Add a texture view of the texture at a specific index
-	/// 
-	/// # Errors 
-	/// This function returns an error if the texture is not found
-	pub fn add_texture_view(
-		&mut self,
-		index: usize,
-	) -> Result<usize,crate::error::Error>{
-		let texture = self
-			.texture(index)
-			.ok_or_else(||{Error::NotFound(format!("Texture at {index}"))})?;
+    /// Add a texture view of the texture at a specific index
+    ///
+    /// # Errors
+    /// This function returns an error if the texture is not found
+    pub fn add_texture_view(&mut self, index: usize) -> Result<usize, crate::error::Error> {
+        let texture = self
+            .texture(index)
+            .ok_or_else(|| Error::NotFound(format!("Texture at {index}")))?;
 
-		let view = texture.create_view(&Default::default());
+        let view = texture.create_view(&Default::default());
 
-		self.texture_views.push(view);
+        self.texture_views.push(view);
 
-		Ok(self.texture_views.len() - 1)
-	}
+        Ok(self.texture_views.len() - 1)
+    }
 
     /// Get a `wgpu::Buffer`
     pub fn buffer(&self, index: usize) -> Option<&wgpu::Buffer> {
@@ -183,7 +180,7 @@ mod test {
         let a = resources.add_buffer("Buffer", 12, wgpu::BufferUsages::VERTEX, &device);
         let b = resources.add_vertex_buffer("Vertex Buffer", 102, &device);
         let c = resources.add_uniform("Uniform Buffer", 12, &device);
-        let d = resources.add_texture("Texture",Size::default(), &device);
+        let d = resources.add_texture("Texture", Size::default(), &device);
 
         resources.buffer(a).unwrap();
         resources.buffer(b).unwrap();
