@@ -3,7 +3,9 @@ pub mod icon;
 pub mod image;
 pub mod rect;
 pub mod text;
-use crate::{app::AppState, geometry::RenderContext, Bounds, Position, Size};
+use crystal::Layout;
+
+use crate::{app::AppState, geometry::RenderContext, resources::ResourceManager, Bounds, Position, Size};
 use std::fmt::Debug;
 
 /// The surfaces are the items that are actually responsible for drawing the pixels to the
@@ -24,7 +26,7 @@ pub trait Surface: Debug {
         state: &AppState,
     );
 
-    fn build(&mut self, state: &AppState, context: &RenderContext) {}
+    fn build(&mut self, state: &AppState) {}
 
     /// Set the [`Position`] of the [`Surface`]
     fn position(&mut self, x: f32, y: f32);
@@ -49,6 +51,54 @@ pub trait Surface: Debug {
 
     /// Get the [`Bounds`] of the [`Surface`]
     fn get_bounds(&self) -> Bounds;
+}
+
+#[derive(Debug,Default)]
+pub struct SurfaceManager{
+	resources:ResourceManager,
+	surfaces:Vec<Box<dyn Surface>>
+}
+
+impl SurfaceManager {
+	/// Create a new [`SurfaceManager`]
+	pub fn create(surfaces:Vec<Box<dyn Surface>>) -> Self{
+		Self{
+			surfaces,
+			..Default::default()
+		}
+	}
+
+	pub fn resize(&mut self,layout:&dyn Layout, state: &AppState) {
+        for layout in layout.iter() {
+            for surface in &mut self.surfaces {
+                if layout.id() == surface.id() {
+                    surface.size(layout.size().width, layout.size().height);
+                    surface.position(layout.position().x, layout.position().y);
+                }
+            }
+        }
+    }
+
+	// FIXME horrible function btw
+	/// Rebuild the surfaces
+	pub fn rebuild(&mut self,surfaces:Vec<Box<dyn Surface>>){
+		self.surfaces = surfaces;
+	}
+
+	pub fn prepare(&mut self,state: &AppState){
+		self.surfaces
+            .iter_mut()
+            .for_each(|s| s.build(&state));
+	}
+
+	/// Draw the surfaces to the screen
+	pub fn draw(&mut self,pass:&mut wgpu::RenderPass,state:&AppState){
+		self.surfaces
+		.iter_mut()
+		.rev()
+		.for_each(|s| s.draw(pass, &state.context, state));
+	}
+
 }
 
 #[macro_export]

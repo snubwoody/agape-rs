@@ -80,7 +80,7 @@ impl Surface for ImageSurface {
         render_pass.draw(0..vertices.len() as u32, 0..1);
     }
 
-    fn build(&mut self, state: &AppState, context: &RenderContext) {
+    fn build(&mut self, state: &AppState) {
         // TODO maybe move this to the pipeline
         let texture_size = wgpu::Extent3d {
             width: self.size.width as u32,
@@ -107,7 +107,7 @@ impl Surface for ImageSurface {
 
         let texture_bind_group = state.device.create_bind_group(&wgpu::BindGroupDescriptor {
             label: Some("Image Texture bind group"),
-            layout: &context.image_pipeline.texture_bind_group_layout,
+            layout: &state.context.image_pipeline.texture_bind_group_layout,
             entries: &[
                 wgpu::BindGroupEntry {
                     binding: 0,
