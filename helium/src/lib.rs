@@ -2,12 +2,12 @@
 //! the ui and uses the `crystal` crate for layout.
 pub mod app;
 pub mod error;
-pub mod signal;
-pub mod primitive;
-pub mod widgets;
-pub(crate) mod surface;
 mod geometry;
+pub mod primitive;
 mod resources;
+pub mod signal;
+pub(crate) mod surface;
+pub mod widgets;
 
 pub use crystal::*;
 pub use helium_core::color::*;

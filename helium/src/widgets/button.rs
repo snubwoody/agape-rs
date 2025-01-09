@@ -1,11 +1,11 @@
 use super::{text::Text, Widget};
 use crate::{surface::rect::RectSurface, widgets::WidgetBody};
-use crystal::{BlockLayout,Layout};
+use crystal::{BlockLayout, Layout};
 use helium_core::color::Color;
 
 /// A simple button.
 pub struct Button {
-	id:String,
+    id: String,
     text: String,
     color: Color,
     padding: u32,
@@ -15,7 +15,7 @@ pub struct Button {
 impl Button {
     pub fn new(text: &str) -> Self {
         Self {
-			id:nanoid::nanoid!(),
+            id: nanoid::nanoid!(),
             text: text.into(),
             color: Color::Hex("#615fff"),
             padding: 12,
@@ -61,12 +61,12 @@ impl Widget for Button {
         (body, Box::new(layout))
     }
 
-	fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
-		let mut surfaces = Text::new(&self.text).surface();
-		surfaces.push(Box::new(RectSurface::new(&self.id)));
+    fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
+        let mut surfaces = Text::new(&self.text).surface();
+        surfaces.push(Box::new(RectSurface::new(&self.id)));
 
-		surfaces
-	}
+        surfaces
+    }
 
     fn update(&mut self) {}
 }

@@ -8,20 +8,21 @@ use super::{Widget, WidgetBody};
 /// Note that `Spacer`'s have no effect when the parent `widget` has
 /// an intrinsic size of `Shrink`, because the parent will try to be
 /// as small as possible, hence the spacer will have 0 size.
-pub struct Spacer{
-	id:String
+pub struct Spacer {
+    id: String,
 }
 
 impl Spacer {
-	pub fn new() -> Self{
-		Self { id: nanoid::nanoid!() }
-	}
+    pub fn new() -> Self {
+        Self {
+            id: nanoid::nanoid!(),
+        }
+    }
 }
 
 impl Widget for Spacer {
     fn build(&self) -> (super::WidgetBody, Box<dyn crystal::Layout>) {
         let body = WidgetBody::new().id(&self.id);
-
 
         let mut layout = EmptyLayout::new();
         layout.id = self.id.clone();
@@ -31,11 +32,9 @@ impl Widget for Spacer {
         (body, Box::new(layout))
     }
 
-	fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
-		vec![
-			Box::new(RectSurface::new(&self.id))
-		]
-	}
+    fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
+        vec![Box::new(RectSurface::new(&self.id))]
+    }
 }
 
 #[cfg(test)]

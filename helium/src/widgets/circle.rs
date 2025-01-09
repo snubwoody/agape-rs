@@ -5,28 +5,28 @@ use helium_core::color::Color;
 
 #[derive(Debug, Clone)]
 pub struct Circle {
-	id:String,
+    id: String,
     diameter: u32,
     color: Color,
 }
 
 impl Circle {
     pub fn new(diameter: u32, color: Color) -> Self {
-        Self{ 
-			id:nanoid::nanoid!(),
-			diameter, 
-			color 
-		}
+        Self {
+            id: nanoid::nanoid!(),
+            diameter,
+            color,
+        }
     }
 }
 
 impl Widget for Circle {
     fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
-        let mut surface = CircleSurface::new(&self.id,self.diameter);
-		surface.color(self.color);
-        
-		let body = WidgetBody {
-			id:self.id.clone(),
+        let mut surface = CircleSurface::new(&self.id, self.diameter);
+        surface.color(self.color);
+
+        let body = WidgetBody {
+            id: self.id.clone(),
             surface: Box::new(surface),
             ..Default::default()
         };
@@ -39,12 +39,12 @@ impl Widget for Circle {
         (body, Box::new(layout))
     }
 
-	fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
-		let mut surface = CircleSurface::new(&self.id,self.diameter);
-		surface.color(self.color);
+    fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
+        let mut surface = CircleSurface::new(&self.id, self.diameter);
+        surface.color(self.color);
 
-		vec![Box::new(surface)]
-	}
+        vec![Box::new(surface)]
+    }
 
     fn update(&mut self) {}
 }

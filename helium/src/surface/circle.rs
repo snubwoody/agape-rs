@@ -10,7 +10,7 @@ use wgpu::util::DeviceExt;
 /// the color, coordinates and size.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct CircleSurface {
-	id:String,
+    id: String,
     position: Position,
     size: Size,
     color: Color,
@@ -21,10 +21,10 @@ impl CircleSurface {
         let size = Size::new(radius as f32, radius as f32);
         let position = Position::default();
         Self {
-			id:id.to_string(),
+            id: id.to_string(),
             position,
             size,
-            color:WHITE,
+            color: WHITE,
         }
     }
 

@@ -1,12 +1,10 @@
+use super::RenderPipelineBuilder;
 use crate::{
     geometry::uniform::{Uniform, UniformBuilder},
     geometry::vertex::VertexBufferLayoutBuilder,
 };
 use helium_core::size::Size;
-use wgpu::{
-    BindGroupDescriptor,ShaderSource,
-};
-use super::RenderPipelineBuilder;
+use wgpu::{BindGroupDescriptor, ShaderSource};
 
 /// Holds the render pipeline
 pub struct CirclePipeline {

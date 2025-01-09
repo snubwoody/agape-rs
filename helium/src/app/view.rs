@@ -1,5 +1,9 @@
 use super::{events::EventQueue, AppState};
-use crate::{resources::ResourceManager, surface::Surface, widgets::{Widget, WidgetBody}};
+use crate::{
+    resources::ResourceManager,
+    surface::Surface,
+    widgets::{Widget, WidgetBody},
+};
 use crystal::LayoutSolver;
 use std::{
     sync::{Arc, RwLock},
@@ -11,7 +15,7 @@ pub struct View {
     root_layout: Box<dyn crystal::Layout>,
     root_widget: Arc<RwLock<dyn Widget>>,
     root_body: WidgetBody,
-	surfaces:Vec<Box<dyn Surface>>,
+    surfaces: Vec<Box<dyn Surface>>,
     event_queue: EventQueue,
 }
 
@@ -22,7 +26,7 @@ impl View {
         Self {
             root_body,
             root_layout,
-			surfaces:root_widget.surface(),
+            surfaces: root_widget.surface(),
             root_widget: Arc::new(RwLock::new(root_widget)),
             event_queue,
         }
@@ -36,27 +40,29 @@ impl View {
         });
     }
 
-	pub fn resize(&mut self,state: &AppState){
-		LayoutSolver::solve(&mut *self.root_layout, state.size);
-		for layout in self.root_layout.iter(){
-			for surface in &mut self.surfaces{
-				if layout.id() == surface.id(){
-					surface.size(layout.size().width, layout.size().height);
-					surface.position(layout.position().x, layout.position().y);
-				}
-			}
-		}
+    pub fn resize(&mut self, state: &AppState) {
+        LayoutSolver::solve(&mut *self.root_layout, state.size);
+        for layout in self.root_layout.iter() {
+            for surface in &mut self.surfaces {
+                if layout.id() == surface.id() {
+                    surface.size(layout.size().width, layout.size().height);
+                    surface.position(layout.position().x, layout.position().y);
+                }
+            }
+        }
 
-		self.surfaces.iter_mut().for_each(|s|s.build(&state,&state.context));
-		let mut resources = ResourceManager::new();
-		resources.add_buffer("", 0, wgpu::BufferUsages::VERTEX, &state.device);
-	}
+        self.surfaces
+            .iter_mut()
+            .for_each(|s| s.build(&state, &state.context));
+        let mut resources = ResourceManager::new();
+        resources.add_buffer("", 0, wgpu::BufferUsages::VERTEX, &state.device);
+    }
 
     pub fn update(&mut self) {
         match self.root_widget.try_read() {
             Ok(widget) => {
                 let (body, layout) = widget.build();
-				self.surfaces = widget.surface();
+                self.surfaces = widget.surface();
                 self.root_body = body;
                 self.root_layout = layout;
             }
@@ -64,19 +70,21 @@ impl View {
         }
     }
 
-	pub fn build(&mut self,state: &AppState) {
-		LayoutSolver::solve(&mut *self.root_layout, state.size);
-		for layout in self.root_layout.iter(){
-			for surface in &mut self.surfaces{
-				if layout.id() == surface.id(){
-					surface.size(layout.size().width, layout.size().height);
-					surface.position(layout.position().x, layout.position().y);
-				}
-			}
-		}
+    pub fn build(&mut self, state: &AppState) {
+        LayoutSolver::solve(&mut *self.root_layout, state.size);
+        for layout in self.root_layout.iter() {
+            for surface in &mut self.surfaces {
+                if layout.id() == surface.id() {
+                    surface.size(layout.size().width, layout.size().height);
+                    surface.position(layout.position().x, layout.position().y);
+                }
+            }
+        }
 
-		self.surfaces.iter_mut().for_each(|s|s.build(&state,&state.context));
-	}
+        self.surfaces
+            .iter_mut()
+            .for_each(|s| s.build(&state, &state.context));
+    }
 
     pub fn handle_events(&mut self, event: winit::event::WindowEvent, window: &Window) {
         self.event_queue.handle_events(&event, &self.root_body);
@@ -125,8 +133,11 @@ impl View {
 
         let render_now = Instant::now();
         //self.root_body.render(&mut render_pass, state);
-		
-		self.surfaces.iter_mut().rev().for_each(|s|s.draw(&mut render_pass, &state.context, state));
+
+        self.surfaces
+            .iter_mut()
+            .rev()
+            .for_each(|s| s.draw(&mut render_pass, &state.context, state));
         log::debug!("Spent {:?} rendering", render_now.elapsed());
 
         // Drop the render pass because it borrows encoder mutably

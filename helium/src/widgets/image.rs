@@ -123,7 +123,7 @@ impl Image {
         let mut layout = EmptyLayout::new();
         layout.id = id.clone();
 
-		let img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
+        let img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
         let image = image::load_from_memory(&img).unwrap();
 
         Self {
@@ -145,7 +145,7 @@ impl Widget for Image {
         let body = match &self.state {
             ImageState::Complete(image) => WidgetBody {
                 id: self.id.clone(),
-                surface: Box::new(ImageSurface::new(&self.id,image.clone())),
+                surface: Box::new(ImageSurface::new(&self.id, image.clone())),
                 label: Some("Image".to_owned()),
                 ..Default::default()
             },
@@ -160,14 +160,14 @@ impl Widget for Image {
         (body, Box::new(self.layout.clone()))
     }
 
-	fn surface(&self) -> Vec<Box<dyn Surface>> {
-		let surface:Box<dyn Surface> = match &self.state {
-            ImageState::Complete(image) => Box::new(ImageSurface::new(&self.id,image.clone())),
+    fn surface(&self) -> Vec<Box<dyn Surface>> {
+        let surface: Box<dyn Surface> = match &self.state {
+            ImageState::Complete(image) => Box::new(ImageSurface::new(&self.id, image.clone())),
             ImageState::Loading(_) => Box::new(RectSurface::new(&self.id)),
         };
 
-		vec![surface]
-	}
+        vec![surface]
+    }
 
     fn update(&mut self) {
         if let ImageState::Loading(url) = &self.state {

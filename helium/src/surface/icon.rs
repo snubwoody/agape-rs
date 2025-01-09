@@ -2,14 +2,14 @@ use crate::{
     app::AppState, geometry::vertex::Vertex, impl_surface, surface::Surface, Bounds, Color,
     Position, Size,
 };
-use std::fmt::Debug;
 use helium_core::color::BLACK;
+use std::fmt::Debug;
 use wgpu::util::DeviceExt;
 
 /// Draws images to the screen
 #[derive(Clone)]
 pub struct IconSurface {
-	id:String,
+    id: String,
     position: Position,
     size: Size,
     img: image::DynamicImage,
@@ -17,19 +17,19 @@ pub struct IconSurface {
 }
 
 impl IconSurface {
-    pub fn new(id:&str,img: image::DynamicImage) -> Self {
+    pub fn new(id: &str, img: image::DynamicImage) -> Self {
         Self {
-			id:id.to_string(),
+            id: id.to_string(),
             position: Position::default(),
             size: Size::default(),
             img,
-            color:BLACK,
+            color: BLACK,
         }
     }
 
-	pub fn color(&mut self,color:Color){
-		self.color = color
-	}
+    pub fn color(&mut self, color: Color) {
+        self.color = color
+    }
 
     // FIXME Creating the texture every frame is not a good idea
     pub fn prepare(&self, device: &wgpu::Device) -> (wgpu::Texture, wgpu::Extent3d) {
@@ -120,9 +120,9 @@ impl Surface for IconSurface {
             )
             .to_rgba8();
 
-		dbg!("Icon Point 1");
+        dbg!("Icon Point 1");
         state.queue.write_texture(
-			wgpu::ImageCopyTextureBase {
+            wgpu::ImageCopyTextureBase {
                 texture: &texture,
                 mip_level: 0,
                 origin: wgpu::Origin3d::ZERO,
@@ -136,8 +136,8 @@ impl Surface for IconSurface {
             },
             texture_size,
         );
-		dbg!("Icon Point 2");
-		
+        dbg!("Icon Point 2");
+
         // Set the render pipeline and vertex buffer
         render_pass.set_pipeline(&context.icon_pipeline.pipeline);
         render_pass.set_bind_group(0, &context.icon_pipeline.window_bind_group, &[]);

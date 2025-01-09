@@ -41,7 +41,7 @@ impl Color {
     /// **`Note`** than this does not do any color conversion
     /// so invalid hex codes will returned as is.
     pub fn into_hex_string(&self) -> String {
-		// TODO replace this with to string
+        // TODO replace this with to string
         match self {
             Self::Hex(hex) => hex.to_string(),
             Self::Rgb(r, g, b) | Self::Rgba(r, g, b, _) => {
@@ -83,8 +83,8 @@ impl Color {
 
         let (red, green, blue) = (&hex_code[0..2], &hex_code[2..4], &hex_code[4..6]);
 
-        let r = u8::from_str_radix(red, 16)
-			.map_err(|err| format!("Failed to parse hex code:{err}"))?;
+        let r =
+            u8::from_str_radix(red, 16).map_err(|err| format!("Failed to parse hex code:{err}"))?;
         let g = u8::from_str_radix(green, 16)
             .map_err(|err| format!("Failed to parse hex code:{err}"))?;
         let b = u8::from_str_radix(blue, 16)

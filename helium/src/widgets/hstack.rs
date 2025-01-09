@@ -9,7 +9,7 @@ use crystal::{AxisAlignment, HorizontalLayout, Layout};
 use helium_core::color::TRANSPARENT;
 
 pub struct HStack {
-	id:String,
+    id: String,
     children: Vec<Box<dyn Widget>>,
     color: Color,
     layout: HorizontalLayout,
@@ -18,17 +18,17 @@ pub struct HStack {
 impl HStack {
     pub fn new() -> Self {
         HStack {
-			id:nanoid::nanoid!(),
+            id: nanoid::nanoid!(),
             color: TRANSPARENT,
             children: vec![],
             layout: HorizontalLayout::new(),
         }
     }
 
-	pub fn add_child(mut self,widget:impl Widget + 'static) -> Self{
-		self.children.push(Box::new(widget));
-		self
-	}
+    pub fn add_child(mut self, widget: impl Widget + 'static) -> Self {
+        self.children.push(Box::new(widget));
+        self
+    }
 
     pub fn padding(mut self, padding: u32) -> Self {
         self.layout.padding = padding;
@@ -103,22 +103,20 @@ impl Widget for HStack {
         (body, Box::new(layout))
     }
 
-	fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
-		let mut surfaces = self
-			.children
-			.iter()
-            .flat_map(|widget| {
-				widget.surface()
-            })
+    fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
+        let mut surfaces = self
+            .children
+            .iter()
+            .flat_map(|widget| widget.surface())
             .collect::<Vec<_>>();
 
-		let mut surface = RectSurface::new(&self.id);
-		surface.color(self.color.clone());
-	
-		surfaces.push(Box::new(surface));
+        let mut surface = RectSurface::new(&self.id);
+        surface.color(self.color.clone());
 
-		surfaces
-	}
+        surfaces.push(Box::new(surface));
+
+        surfaces
+    }
 
     fn update(&mut self) {
         self.children.iter_mut().for_each(|child| child.update());
@@ -134,7 +132,7 @@ impl Widget for HStack {
 /// 	Button::new("Click me"),
 /// 	Text::new("Hello world")
 /// };
-/// 
+///
 /// ```
 #[macro_export] // TODO add vec-like syntax hstack[widget;10]
 macro_rules! hstack {

@@ -51,13 +51,13 @@ impl Rect {
 
 impl Widget for Rect {
     fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
-		let mut surface = RectSurface::new(&self.id);
+        let mut surface = RectSurface::new(&self.id);
         surface.corner_radius(self.corner_radius);
-		surface.color(self.color);
+        surface.color(self.color);
 
         let body = WidgetBody {
             id: self.id.clone(),
-            surface:Box::new(surface),
+            surface: Box::new(surface),
             children: vec![],
             ..Default::default()
         };
@@ -69,15 +69,13 @@ impl Widget for Rect {
         (body, Box::new(layout))
     }
 
-	fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
-		let mut surface = RectSurface::new(&self.id);
+    fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
+        let mut surface = RectSurface::new(&self.id);
         surface.corner_radius(self.corner_radius);
-		surface.color(self.color);
+        surface.color(self.color);
 
-		vec![
-			Box::new(surface)
-		]
-	}
+        vec![Box::new(surface)]
+    }
 
     fn update(&mut self) {}
 }

@@ -45,15 +45,15 @@ where
     W: Widget,
 {
     fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
-		let mut surface = RectSurface::new(&self.id);
-		surface.color(self.color);
-		surface.corner_radius(self.corner_radius);
+        let mut surface = RectSurface::new(&self.id);
+        surface.color(self.color);
+        surface.corner_radius(self.corner_radius);
 
-		let (child_body, child_layout) = self.child.build();
+        let (child_body, child_layout) = self.child.build();
 
         let body = WidgetBody {
             id: self.id.clone(),
-            surface:Box::new(surface),
+            surface: Box::new(surface),
             children: vec![Box::new(child_body)],
             ..Default::default()
         };
@@ -65,13 +65,13 @@ where
         (body, Box::new(layout))
     }
 
-	fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
-		let mut surface = RectSurface::new(&self.id);
-		surface.color(self.color);
-		surface.corner_radius(self.corner_radius);
+    fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
+        let mut surface = RectSurface::new(&self.id);
+        surface.color(self.color);
+        surface.corner_radius(self.corner_radius);
 
-		vec![Box::new(surface)]
-	}
+        vec![Box::new(surface)]
+    }
 
     fn update(&mut self) {
         self.child.update();

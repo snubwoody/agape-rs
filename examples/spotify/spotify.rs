@@ -132,7 +132,7 @@ fn Sidebar() -> impl Widget {
     }
     .spacing(24)
     .padding(24)
-	.corner_radius(24)
+    .corner_radius(24)
     .fill_height()
     .color(BACKGROUND)
 }
@@ -195,7 +195,7 @@ fn BottomBar() -> impl Widget {
                 // feather_icons::play().color(WHITE),
                 // feather_icons::skip_forward().color(WHITE),
                 // feather_icons::repeat().color(WHITE)
-				Text::new("Placeholder")
+                Text::new("Placeholder")
             }
             .spacing(16),
             hstack!{

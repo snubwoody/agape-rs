@@ -15,7 +15,7 @@ use std::fmt::Debug;
 /// - [`CircleSurface`]: drawing circle primitives to the screen
 /// - [`ImageSurface`]: drawing images to the screen
 /// - [`IconSurface`]: drawing icons to the screen
-pub trait Surface:Debug {
+pub trait Surface: Debug {
     /// Draw the surface onto the screen
     fn draw(
         &mut self,
@@ -24,13 +24,13 @@ pub trait Surface:Debug {
         state: &AppState,
     );
 
-	fn build(&mut self, state: &AppState,context:&RenderContext){}
+    fn build(&mut self, state: &AppState, context: &RenderContext) {}
 
     /// Set the [`Position`] of the [`Surface`]
     fn position(&mut self, x: f32, y: f32);
 
-	/// Get the id of the [`Surface`]
-	fn id(&self) -> &str;
+    /// Get the id of the [`Surface`]
+    fn id(&self) -> &str;
 
     /// Get the [`Surface`] position.
     fn get_position(&self) -> Position;
@@ -62,9 +62,9 @@ macro_rules! impl_surface {
             self.position
         }
 
-		fn id(&self) -> &str{
-			&self.id
-		}
+        fn id(&self) -> &str {
+            &self.id
+        }
 
         fn size(&mut self, width: f32, height: f32) {
             self.size.width = width;

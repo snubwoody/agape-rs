@@ -1,7 +1,7 @@
 use helium::{
     app::{events::EventQueue, view::View, App},
     hstack,
-    widgets::{Circle,Rect},
+    widgets::{Circle, Rect},
     BLACK,
 };
 

@@ -1,40 +1,42 @@
 use crate::{
-    app::AppState, geometry::{vertex::Vertex, RenderContext}, 
-	impl_surface, surface::Surface, Bounds, Color,
-    Position, Size,
+    app::AppState,
+    geometry::{vertex::Vertex, RenderContext},
+    impl_surface,
+    surface::Surface,
+    Bounds, Color, Position, Size,
 };
 use std::fmt::Debug;
 use wgpu::util::DeviceExt;
 
 /// Draws images to the screen
 pub struct ImageSurface {
-	id:String,
+    id: String,
     position: Position,
     size: Size,
     img: image::DynamicImage,
-	texture:Option<wgpu::Texture>,
-	sampler:Option<wgpu::Sampler>,
-	view:Option<wgpu::TextureView>,
-	bind_group:Option<wgpu::BindGroup>
+    texture: Option<wgpu::Texture>,
+    sampler: Option<wgpu::Sampler>,
+    view: Option<wgpu::TextureView>,
+    bind_group: Option<wgpu::BindGroup>,
 }
 
 impl ImageSurface {
-    pub fn new(id:&str,img: image::DynamicImage) -> Self {
+    pub fn new(id: &str, img: image::DynamicImage) -> Self {
         Self {
-			id:id.to_string(),
+            id: id.to_string(),
             position: Position::new(0.0, 0.0),
             size: Size::default(),
             img,
-			texture:None,
-			sampler:None,
-			view:None,
-			bind_group:None
+            texture: None,
+            sampler: None,
+            view: None,
+            bind_group: None,
         }
     }
 
     fn to_vertices(&self) -> Vec<Vertex> {
-		let width = self.size.width;
-		let height = self.size.height;
+        let width = self.size.width;
+        let height = self.size.height;
         let color = Color::default().normalize();
         let x = self.position.x;
         let y = self.position.y;
@@ -78,7 +80,7 @@ impl Surface for ImageSurface {
         render_pass.draw(0..vertices.len() as u32, 0..1);
     }
 
-	fn build(&mut self, state: &AppState,context:&RenderContext){
+    fn build(&mut self, state: &AppState, context: &RenderContext) {
         // TODO maybe move this to the pipeline
         let texture_size = wgpu::Extent3d {
             width: self.size.width as u32,
@@ -97,7 +99,7 @@ impl Surface for ImageSurface {
             view_formats: &[],
         });
 
-		let texture_view = texture.create_view(&Default::default());
+        let texture_view = texture.create_view(&Default::default());
         let texture_sampler = state.device.create_sampler(&wgpu::SamplerDescriptor {
             label: Some("Image Texture sampler"),
             ..Default::default()
@@ -118,12 +120,12 @@ impl Surface for ImageSurface {
             ],
         });
 
-		self.texture = Some(texture);
-		self.view = Some(texture_view);
-		self.sampler = Some(texture_sampler);
-		self.bind_group = Some(texture_bind_group);
+        self.texture = Some(texture);
+        self.view = Some(texture_view);
+        self.sampler = Some(texture_sampler);
+        self.bind_group = Some(texture_bind_group);
 
-		let img = self
+        let img = self
             .img
             .resize(
                 self.size.width as u32,
@@ -132,9 +134,9 @@ impl Surface for ImageSurface {
             )
             .to_rgba8();
 
-		state.queue.write_texture(
-			wgpu::ImageCopyTextureBase {
-				texture: self.texture.as_ref().unwrap(),
+        state.queue.write_texture(
+            wgpu::ImageCopyTextureBase {
+                texture: self.texture.as_ref().unwrap(),
                 mip_level: 0,
                 origin: wgpu::Origin3d::ZERO,
                 aspect: wgpu::TextureAspect::All,
@@ -148,7 +150,6 @@ impl Surface for ImageSurface {
             texture_size,
         );
     }
-
 
     impl_surface!();
 }

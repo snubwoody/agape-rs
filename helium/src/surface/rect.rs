@@ -12,7 +12,7 @@ use wgpu::{
 /// the color, coordinates and size.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct RectSurface {
-	id:String,
+    id: String,
     position: Position,
     size: Size,
     color: Color,
@@ -20,9 +20,9 @@ pub struct RectSurface {
 }
 
 impl RectSurface {
-    pub fn new(id:&str) -> Self {
+    pub fn new(id: &str) -> Self {
         Self {
-			id:id.to_string(),
+            id: id.to_string(),
             ..Default::default()
         }
     }

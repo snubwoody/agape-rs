@@ -10,7 +10,7 @@ use wgpu::util::DeviceExt;
 // FIXME change the color to Color enum
 #[derive(Clone)]
 pub struct TextSurface {
-	id:String,
+    id: String,
     position: Position,
     size: Size,
     text: String,
@@ -33,7 +33,7 @@ impl TextSurface {
             .to_rgba8();
 
         Self {
-			id: id.to_string(),
+            id: id.to_string(),
             position: Position::new(0.0, 0.0),
             size: Size::new(text_image.size.width as f32, text_image.size.height as f32),
             text: String::from(text),
