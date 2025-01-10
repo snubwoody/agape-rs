@@ -124,7 +124,7 @@ impl Widget for VStack {
 
 	fn primitive(&self) -> crate::surface::Primitive {
 		Primitive::Rect { 
-			id: &self.id, 
+			id: self.id.clone(), 
 			corner_radius: self.corner_radius, 
 			color: self.color 
 		}

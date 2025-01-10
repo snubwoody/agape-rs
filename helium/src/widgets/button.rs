@@ -70,7 +70,7 @@ impl Widget for Button {
 
 	fn primitive(&self) -> Primitive {
 		Primitive::Rect { 
-			id: &self.id, 
+			id: self.id.clone(), 
 			corner_radius: self.corner_radius, 
 			color: self.color 
 		}

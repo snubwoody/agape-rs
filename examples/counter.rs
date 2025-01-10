@@ -18,7 +18,7 @@ fn app() {
     }
     .spacing(54);
 
-    let page = View::new(main, event_loop);
+    let page = View::new(main);
 
     App::new().add_view(page).run();
 }

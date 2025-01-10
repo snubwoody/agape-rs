@@ -68,7 +68,7 @@ impl Widget for Text {
 
 	fn primitive(&self) -> Primitive {
 		Primitive::Text { 
-			id: &self.id, 
+			id: self.id.clone(), 
 			text: self.text.clone(), 
 			font_size: self.font_size, 
 			color: self.color 

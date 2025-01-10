@@ -16,7 +16,7 @@ pub struct App {
     event_loop: EventLoop<()>,
     window: Window,
     views: Vec<View>,
-    index: usize,
+    index: usize
 }
 
 impl App {

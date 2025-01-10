@@ -54,33 +54,33 @@ pub trait Surface: Debug {
 }
 
 #[derive(Debug,Clone,PartialEq)]
-pub enum Primitive<'a> {
+pub enum Primitive {
     Text{
-		id:&'a str,
+		id:String,
 		text:String,
 		font_size:u8,
 		color:Color,
 	},
     Image{
-		id:&'a str,
+		id:String,
 		image: ::image::DynamicImage
 	},
     Icon{
-		id:&'a str,
+		id:String,
 		image: ::image::DynamicImage
 	},
     Rect{
-		id:&'a str,
+		id:String,
 		corner_radius:u32,
 		color:Color
 	},
     Circle{
-		id:&'a str,
+		id:String,
 		color:Color
 	},
 }
 
-impl<'a> Primitive<'a> {
+impl Primitive {
 	fn build(&self,resources: &mut ResourceManager,device: &wgpu::Device) -> Box<dyn Surface>{
 		todo!()
 	}
@@ -95,6 +95,7 @@ impl<'a> Primitive<'a> {
 #[derive(Debug)]
 pub struct SurfaceManager {
     resources: ResourceManager,
+	primitives:Vec<Primitive>,
     surfaces: Vec<Box<dyn Surface>>,
 	/// A cache of all the sizes of the surfaces.  
 	/// 
@@ -107,7 +108,7 @@ pub struct SurfaceManager {
 
 impl SurfaceManager {
     /// Create a new [`SurfaceManager`].
-    pub fn new(widget: &impl Widget,device: &wgpu::Device) -> Self {
+    pub fn new(widget: &impl Widget) -> Self {
 		let primitives:Vec<Primitive> = widget.iter()
 			.map(|w|{
 				println!("Widget");
@@ -115,21 +116,21 @@ impl SurfaceManager {
 			})
 			.collect();
 
-		let mut resources = ResourceManager::new();
-        let surfaces:Vec<Box<dyn Surface>> = 
-			primitives
-			.iter()
-			.map(|primitive|primitive.build(&mut resources, device)).collect();
-
 		Self {
-            surfaces,
-            resources,
+			primitives,
+            resources:ResourceManager::new(),
+            surfaces:vec![],
 			size_cache:HashMap::new()
         }
     }
 
     /// Build the surface manager from the primitives.
-    pub fn build(&mut self, widgets: &[Box<dyn Widget>]) {}
+    pub fn build(&mut self,device: &wgpu::Device) {
+		self.surfaces = 
+			self.primitives
+			.iter()
+			.map(|primitive|primitive.build(&mut self.resources, device)).collect();
+	}
 
     pub fn resize(&mut self, layout: &dyn Layout, state: &AppState) {
         for layout in layout.iter() {
@@ -148,7 +149,7 @@ impl SurfaceManager {
         self.surfaces = surfaces;
     }
 
-    pub fn prepare(&mut self, state: &AppState) {
+    pub fn prepare(&mut self, state: &AppState) { // TODO collapse this into the build method
         self.surfaces.iter_mut().for_each(|s| s.build(&state));
     }
 

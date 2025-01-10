@@ -1,6 +1,6 @@
 use super::{events::EventQueue, AppState};
 use crate::{
-    surface::{SurfaceManager},
+    surface::SurfaceManager,
     widgets::{Widget, WidgetBody},
 };
 use crystal::LayoutSolver;
@@ -11,55 +11,57 @@ use std::{
 use winit::window::Window;
 
 pub struct View {
-    root_layout: Box<dyn crystal::Layout>,
-    root_widget: Arc<RwLock<dyn Widget>>,
+    layout: Box<dyn crystal::Layout>,
+    widget: Arc<RwLock<dyn Widget>>,
     root_body: WidgetBody,
     surfaces: SurfaceManager,
     event_queue: EventQueue,
 }
 
 impl View {
-    pub fn new(root_widget: impl Widget + 'static, event_queue: EventQueue) -> Self {
-        let (root_body, root_layout) = root_widget.build();
+    pub fn new(widget: impl Widget + 'static) -> Self {
+        let (root_body, layout) = widget.build();
 
-        let surfaces = SurfaceManager::new(&root_widget);
+        let surfaces = SurfaceManager::new(&widget);
+
         Self {
             root_body,
-            root_layout,
+            layout,
             surfaces,
-            root_widget: Arc::new(RwLock::new(root_widget)),
-            event_queue,
+            widget: Arc::new(RwLock::new(widget)),
+            event_queue:EventQueue::new(),
         }
     }
 
     // TODO spawn a task for each function?
     pub fn setup_loop(&mut self) {
-        let widget = self.root_widget.clone();
+        let widget = self.widget.clone();
         std::thread::spawn(move || {
             widget.write().unwrap().update();
         });
     }
 
     pub fn resize(&mut self, state: &AppState) {
-        LayoutSolver::solve(&mut *self.root_layout, state.size);
-        self.surfaces.resize(&*self.root_layout, state);
+        LayoutSolver::solve(&mut *self.layout, state.size);
+        self.surfaces.resize(&*self.layout, state);
     }
 
     pub fn update(&mut self) {
-        match self.root_widget.try_read() {
+        match self.widget.try_read() {
             Ok(widget) => {
                 let (body, layout) = widget.build();
                 self.surfaces.rebuild(widget.surface());
                 self.root_body = body;
-                self.root_layout = layout;
+                self.layout = layout;
             }
             Err(_) => {}
         }
     }
 
     pub fn build(&mut self, state: &AppState) {
-        LayoutSolver::solve(&mut *self.root_layout, state.size);
-        self.surfaces.resize(&*self.root_layout, state);
+		LayoutSolver::solve(&mut *self.layout, state.size);
+		self.surfaces.build(&state.device); // TODO One function here is not neccessary
+        self.surfaces.resize(&*self.layout, state);
         self.surfaces.prepare(state);
     }
 
@@ -104,9 +106,9 @@ impl View {
         // Has to be in this order otherwise it crashes particularly because of 0 size textures
         // FIXME above
         //self.update();
-        let _ = LayoutSolver::solve(&mut *self.root_layout, state.size);
+        let _ = LayoutSolver::solve(&mut *self.layout, state.size);
 
-        //self.root_body.update_sizes(&*self.root_layout);
+        //self.root_body.update_sizes(&*self.layout);
 
         let render_now = Instant::now();
         //self.root_body.render(&mut render_pass, state);

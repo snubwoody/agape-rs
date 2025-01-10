@@ -119,7 +119,7 @@ impl Widget for Icon {
 
 	fn primitive(&self) -> crate::surface::Primitive {
 		Primitive::Icon { 
-			id: &self.id, 
+			id: self.id.clone(), 
 			image: self.image.clone() 
 		}		
 	}

@@ -27,7 +27,7 @@ pub use vstack::*;
 /// The trait that all widgets must implement. Each `widget` must implement the build function
 /// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about
 /// the widget.
-pub trait Widget: Send + Sync {
+pub trait Widget: WidgetIterator + Send + Sync {
     // TODO add an iter please
     /// Build the [`Widget`] into a primitive [`WidgetBody`] for
     /// rendering.
@@ -42,9 +42,9 @@ pub trait Widget: Send + Sync {
     fn update(&mut self) {}
 
 	/// Iterate over the [`Widget`] tree.
-	fn iter(&self) -> WidgetIter<'_>{
-		WidgetIter{stack:vec![self]}
-	}
+	// fn iter(&self) -> WidgetIter<'_>{
+	// 	WidgetIter{stack:vec![self]}
+	// }
 
 	fn children(&self) -> &[&dyn Widget]{
 		&[]
@@ -67,6 +67,16 @@ impl<'a> Iterator for WidgetIter<'a> {
 		}
 		None
 	}
+}
+
+pub trait WidgetIterator {
+    fn iter(&self) -> WidgetIter<'_>;
+}
+
+impl<T: Widget> WidgetIterator for T {
+    fn iter(&self) -> WidgetIter<'_> {
+        WidgetIter{stack:vec![self]}
+    }
 }
 
 /// Primitive structure that holds all the information

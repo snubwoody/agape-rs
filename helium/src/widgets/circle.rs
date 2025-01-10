@@ -47,6 +47,6 @@ impl Widget for Circle {
     }
 
 	fn primitive(&self) -> Primitive {
-		Primitive::Circle{ id: &self.id, color: self.color }	
+		Primitive::Circle{ id: self.id.clone(), color: self.color }	
 	}
 }

@@ -23,8 +23,6 @@ fn main() {
     );
     env_logger::init();
 
-    let event_queue = EventQueue::new();
-
     let announcements = Rect::new(0.0, 400.0, BACKGROUND)
         .flex_width(1)
         .corner_radius(24);
@@ -91,7 +89,7 @@ fn main() {
     writer.write(format!("{:#?}", layout).as_bytes()).unwrap();
     writer.flush().unwrap();
 
-    let home = View::new(home, event_queue);
+    let home = View::new(home);
     App::new().add_view(home).run();
 }
 

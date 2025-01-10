@@ -176,8 +176,8 @@ impl Widget for Image {
 
 	fn primitive(&self) -> Primitive {
 		match &self.state {
-            ImageState::Complete(image) => Primitive::Image { id: &self.id, image: image.clone()},
-            ImageState::Loading(_) => Primitive::Rect { id: &self.id, corner_radius: 12, color: BLACK},
+            ImageState::Complete(image) => Primitive::Image { id: self.id.clone(), image: image.clone()},
+            ImageState::Loading(_) => Primitive::Rect { id: self.id.clone(), corner_radius: 12, color: BLACK},
         }
 	}
 

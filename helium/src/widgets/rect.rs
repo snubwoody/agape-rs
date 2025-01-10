@@ -79,7 +79,7 @@ impl Widget for Rect {
 
 	fn primitive(&self) -> Primitive {
 		Primitive::Rect { 
-			id: &self.id, 
+			id: self.id.clone(), 
 			corner_radius: self.corner_radius, // TODO add corner radius 
 			color: self.color 
 		}	

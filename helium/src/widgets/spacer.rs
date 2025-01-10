@@ -39,7 +39,7 @@ impl Widget for Spacer {
 
 	fn primitive(&self) -> Primitive {
 		Primitive::Rect { 
-			id: &self.id, 
+			id: self.id.clone(), 
 			corner_radius: 0, // TODO add corner radius 
 			color:Color::default()
 		}	
