@@ -1,8 +1,5 @@
 use super::AppState;
-use crate::{
-    surface::SurfaceManager,
-    widgets::Widget,
-};
+use crate::{surface::SurfaceManager, widgets::Widget};
 use crystal::LayoutSolver;
 use std::{
     sync::{Arc, RwLock},
@@ -18,8 +15,8 @@ pub struct View {
 impl View {
     pub fn new(widget: impl Widget + 'static) -> Self {
         Self {
-            layout:widget.layout(),
-            surfaces:SurfaceManager::new(&widget),
+            layout: widget.layout(),
+            surfaces: SurfaceManager::new(&widget),
             widget: Arc::new(RwLock::new(widget)),
         }
     }
@@ -37,11 +34,11 @@ impl View {
         self.surfaces.resize(&*self.layout, state);
     }
 
-    pub fn update(&mut self,state: &AppState) {
+    pub fn update(&mut self, state: &AppState) {
         match self.widget.try_read() {
             Ok(widget) => {
                 let layout = widget.layout();
-                self.surfaces.rebuild(&widget,state);
+                self.surfaces.rebuild(&widget, state);
                 self.layout = layout;
             }
             Err(_) => {}
@@ -49,8 +46,8 @@ impl View {
     }
 
     pub fn build(&mut self, state: &AppState) {
-		LayoutSolver::solve(&mut *self.layout, state.size);
-		self.surfaces.build(&state);
+        LayoutSolver::solve(&mut *self.layout, state.size);
+        self.surfaces.build(&state);
         self.surfaces.resize(&*self.layout, state);
     }
 
@@ -110,6 +107,6 @@ impl View {
 }
 
 #[cfg(test)]
-mod test{
-	// TODO test that all the layouts and surfaces have the same id's
+mod test {
+    // TODO test that all the layouts and surfaces have the same id's
 }

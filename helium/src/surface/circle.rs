@@ -1,5 +1,10 @@
 use crate::{
-    app::AppState, geometry::{vertex::Vertex, RenderContext}, impl_surface, resources::ResourceManager, surface::Surface, Bounds, Color, Position, Size
+    app::AppState,
+    geometry::{vertex::Vertex, RenderContext},
+    impl_surface,
+    resources::ResourceManager,
+    surface::Surface,
+    Bounds, Color, Position, Size,
 };
 use helium_core::color::WHITE;
 use wgpu::util::DeviceExt;
@@ -51,7 +56,7 @@ impl Surface for CircleSurface {
     fn draw(
         &mut self,
         render_pass: &mut wgpu::RenderPass,
-		resources:&ResourceManager,
+        resources: &ResourceManager,
         context: &RenderContext,
         state: &AppState,
     ) {

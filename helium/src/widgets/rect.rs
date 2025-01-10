@@ -58,11 +58,11 @@ impl Widget for Rect {
         Box::new(layout)
     }
 
-	fn primitive(&self) -> Primitive {
-		Primitive::Rect { 
-			id: self.id.clone(), 
-			corner_radius: self.corner_radius, // TODO add corner radius 
-			color: self.color 
-		}	
-	}
+    fn primitive(&self) -> Primitive {
+        Primitive::Rect {
+            id: self.id.clone(),
+            corner_radius: self.corner_radius, // TODO add corner radius
+            color: self.color,
+        }
+    }
 }

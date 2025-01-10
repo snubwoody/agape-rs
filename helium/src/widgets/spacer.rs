@@ -1,7 +1,7 @@
+use super::Widget;
+use crate::surface::Primitive;
 use crystal::{BoxSizing, EmptyLayout};
 use helium_core::color::Color;
-use crate::surface::Primitive;
-use super::Widget;
 
 /// A [`Widget`] that fills up all the available space.  
 /// Note that `Spacer`'s have no effect when the parent `widget` has
@@ -20,20 +20,20 @@ impl Spacer {
 }
 
 impl Widget for Spacer {
-	fn layout(&self) -> Box<dyn crystal::Layout> {
-		let mut layout = EmptyLayout::new();
+    fn layout(&self) -> Box<dyn crystal::Layout> {
+        let mut layout = EmptyLayout::new();
         layout.id = self.id.clone();
         layout.intrinsic_size.width = BoxSizing::Flex(1);
         layout.intrinsic_size.height = BoxSizing::Flex(1);
-		
-		Box::new(layout)
-	}
 
-	fn primitive(&self) -> Primitive {
-		Primitive::Rect { 
-			id: self.id.clone(), 
-			corner_radius: 0, // TODO add corner radius 
-			color:Color::default()
-		}	
-	}
+        Box::new(layout)
+    }
+
+    fn primitive(&self) -> Primitive {
+        Primitive::Rect {
+            id: self.id.clone(),
+            corner_radius: 0, // TODO add corner radius
+            color: Color::default(),
+        }
+    }
 }

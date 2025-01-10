@@ -1,9 +1,4 @@
-use crate::{
-    impl_style, impl_widget,
-    surface::Primitive,
-    widgets::Widget,
-    Color,
-};
+use crate::{impl_style, impl_widget, surface::Primitive, widgets::Widget, Color};
 use crystal::{AxisAlignment, Layout, VerticalLayout};
 use helium_core::color::TRANSPARENT;
 
@@ -61,50 +56,50 @@ impl VStack {
 }
 
 impl Widget for VStack {
-	fn layout(&self) -> Box<dyn Layout> {
-		let children_layout:Vec<Box<dyn Layout>> = self
-            .children
+    fn layout(&self) -> Box<dyn Layout> {
+        let children_layout: Vec<Box<dyn Layout>> =
+            self.children.iter().map(|widget| widget.layout()).collect();
+
+        let VerticalLayout {
+            spacing,
+            padding,
+            intrinsic_size,
+            main_axis_alignment,
+            cross_axis_alignment,
+            constraints,
+            ..
+        } = self.layout;
+
+        // TODO use builder pattern?
+        let layout = VerticalLayout {
+            id: self.id.clone(),
+            spacing,
+            padding,
+            intrinsic_size,
+            cross_axis_alignment,
+            main_axis_alignment,
+            constraints,
+            children: children_layout,
+            ..Default::default()
+        };
+
+        Box::new(layout)
+    }
+
+    fn primitive(&self) -> crate::surface::Primitive {
+        Primitive::Rect {
+            id: self.id.clone(),
+            corner_radius: self.corner_radius,
+            color: self.color,
+        }
+    }
+
+    fn children(&self) -> Vec<&dyn Widget> {
+        self.children
             .iter()
-            .map(|widget| {widget.layout()})
-            .collect();
-
-		let VerticalLayout {
-			spacing,
-			padding,
-			intrinsic_size,
-			main_axis_alignment,
-			cross_axis_alignment,
-			constraints,
-			..
-		} = self.layout;
-
-		// TODO use builder pattern?
-		let layout = VerticalLayout {
-			id: self.id.clone(),
-			spacing,
-			padding,
-			intrinsic_size,
-			cross_axis_alignment,
-			main_axis_alignment,
-			constraints,
-			children: children_layout,
-			..Default::default()
-		};
-		
-		Box::new(layout)
-	}
-
-	fn primitive(&self) -> crate::surface::Primitive {
-		Primitive::Rect { 
-			id: self.id.clone(), 
-			corner_radius: self.corner_radius, 
-			color: self.color 
-		}
-	}
-
-	fn children(&self) -> Vec<&dyn Widget> {
-		self.children.iter().map(|child| child.as_ref()).collect::<Vec<_>>()
-	}
+            .map(|child| child.as_ref())
+            .collect::<Vec<_>>()
+    }
 
     fn update(&mut self) {
         self.children.iter_mut().for_each(|child| child.update());

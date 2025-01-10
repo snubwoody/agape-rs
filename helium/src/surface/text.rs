@@ -1,5 +1,6 @@
 use crate::{
-    app::AppState, geometry::vertex::Vertex, impl_surface, resources::ResourceManager, surface::Surface, Bounds, Color, Position, Size
+    app::AppState, geometry::vertex::Vertex, impl_surface, resources::ResourceManager,
+    surface::Surface, Bounds, Color, Position, Size,
 };
 use helium_core::color::BLACK;
 use image::RgbaImage;
@@ -83,7 +84,7 @@ impl Surface for TextSurface {
     fn draw(
         &mut self,
         render_pass: &mut wgpu::RenderPass,
-		resources:&ResourceManager,
+        resources: &ResourceManager,
         context: &crate::geometry::RenderContext,
         state: &AppState,
     ) {

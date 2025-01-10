@@ -4,23 +4,23 @@ use crystal::{BlockLayout, Layout};
 use helium_core::color::Color;
 
 /// A simple button.
-#[derive(Debug,Default,Clone,PartialEq,Eq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Button<W> {
     id: String,
     color: Color,
     padding: u32,
     corner_radius: u32,
-	child:W
+    child: W,
 }
 
-impl<W:Widget> Button<W> {
+impl<W: Widget> Button<W> {
     pub fn new(child: W) -> Self {
         Self {
             id: nanoid::nanoid!(),
             color: Color::Hex("#615fff"),
             padding: 12,
             corner_radius: 0,
-			child
+            child,
         }
     }
 
@@ -40,24 +40,24 @@ impl<W:Widget> Button<W> {
     }
 }
 
-impl<W:Widget> Widget for Button<W> {
-	fn layout(&self) -> Box<dyn Layout> {
-		let child_layout = self.child.layout();
-		let mut layout = BlockLayout::new(child_layout);
+impl<W: Widget> Widget for Button<W> {
+    fn layout(&self) -> Box<dyn Layout> {
+        let child_layout = self.child.layout();
+        let mut layout = BlockLayout::new(child_layout);
         layout.id = self.id.clone();
         layout.padding = self.padding;
-		Box::new(layout)
-	}
+        Box::new(layout)
+    }
 
-	fn children(&self) -> Vec<&dyn Widget> {
-		vec![&self.child]
-	}
+    fn children(&self) -> Vec<&dyn Widget> {
+        vec![&self.child]
+    }
 
-	fn primitive(&self) -> Primitive {
-		Primitive::Rect { 
-			id: self.id.clone(), 
-			corner_radius: self.corner_radius, 
-			color: self.color 
-		}
-	}
+    fn primitive(&self) -> Primitive {
+        Primitive::Rect {
+            id: self.id.clone(),
+            corner_radius: self.corner_radius,
+            color: self.color,
+        }
+    }
 }

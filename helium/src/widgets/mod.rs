@@ -32,32 +32,32 @@ pub trait Widget: WidgetIterator + Send + Sync {
     /// rendering.
     fn layout(&self) -> Box<dyn Layout>;
 
-	fn primitive(&self) -> Primitive;
+    fn primitive(&self) -> Primitive;
 
     /// Load data in the background
     fn update(&mut self) {}
 
-	fn children(&self) -> Vec<&dyn Widget>{
-		vec![]
-	}
+    fn children(&self) -> Vec<&dyn Widget> {
+        vec![]
+    }
 }
 
-pub struct WidgetIter<'a>{
-	stack: Vec<&'a dyn Widget>
+pub struct WidgetIter<'a> {
+    stack: Vec<&'a dyn Widget>,
 }
 
 impl<'a> Iterator for WidgetIter<'a> {
-	type Item = &'a dyn Widget;
+    type Item = &'a dyn Widget;
 
-	fn next(&mut self) -> Option<Self::Item>{
-		// The order of the iterator doesn't really matter in this
-		// case, we just want to iterate over all the widgets
-		if let Some(widget) = self.stack.pop(){
-			self.stack.extend(widget.children());
-			return Some(widget);
-		}
-		None
-	}
+    fn next(&mut self) -> Option<Self::Item> {
+        // The order of the iterator doesn't really matter in this
+        // case, we just want to iterate over all the widgets
+        if let Some(widget) = self.stack.pop() {
+            self.stack.extend(widget.children());
+            return Some(widget);
+        }
+        None
+    }
 }
 
 pub trait WidgetIterator {
@@ -66,10 +66,9 @@ pub trait WidgetIterator {
 
 impl<T: Widget> WidgetIterator for T {
     fn iter(&self) -> WidgetIter<'_> {
-        WidgetIter{stack:vec![self]}
+        WidgetIter { stack: vec![self] }
     }
 }
-
 
 // TODO remove this and replace with modifiers
 /// Implement common styling attributes

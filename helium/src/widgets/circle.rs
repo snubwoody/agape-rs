@@ -21,16 +21,19 @@ impl Circle {
 }
 
 impl Widget for Circle {
-	fn layout(&self) -> Box<dyn Layout> {
-		let mut layout = EmptyLayout::new();
+    fn layout(&self) -> Box<dyn Layout> {
+        let mut layout = EmptyLayout::new();
         layout.intrinsic_size.width = BoxSizing::Fixed(self.diameter as f32);
         layout.intrinsic_size.height = BoxSizing::Fixed(self.diameter as f32);
         layout.id = self.id.clone();
-		
-		Box::new(layout)
-	}
 
-	fn primitive(&self) -> Primitive {
-		Primitive::Circle{ id: self.id.clone(), color: self.color }	
-	}
+        Box::new(layout)
+    }
+
+    fn primitive(&self) -> Primitive {
+        Primitive::Circle {
+            id: self.id.clone(),
+            color: self.color,
+        }
+    }
 }

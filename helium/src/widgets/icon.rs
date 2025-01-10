@@ -96,14 +96,14 @@ impl Icon {
 }
 
 impl Widget for Icon {
-	fn layout(&self) -> Box<dyn crystal::Layout> {
-		Box::new(EmptyLayout::default())
-	}
+    fn layout(&self) -> Box<dyn crystal::Layout> {
+        Box::new(EmptyLayout::default())
+    }
 
-	fn primitive(&self) -> crate::surface::Primitive {
-		Primitive::Icon { 
-			id: self.id.clone(), 
-			image: self.image.clone() 
-		}		
-	}
+    fn primitive(&self) -> crate::surface::Primitive {
+        Primitive::Icon {
+            id: self.id.clone(),
+            image: self.image.clone(),
+        }
+    }
 }

@@ -1,9 +1,4 @@
-use crate::{
-    impl_style, impl_widget,
-    surface::Primitive,
-    widgets::Widget,
-    Color,
-};
+use crate::{impl_style, impl_widget, surface::Primitive, widgets::Widget, Color};
 use crystal::{AxisAlignment, HorizontalLayout, Layout};
 use helium_core::color::TRANSPARENT;
 
@@ -55,54 +50,54 @@ impl HStack {
 
 // TODO test this
 impl Widget for HStack {
-	fn layout(&self) -> Box<dyn Layout> {
-		let children_layout:Vec<Box<dyn Layout>> = self
-            .children
-            .iter()
-            .map(|widget| {widget.layout()})
-            .collect();
+    fn layout(&self) -> Box<dyn Layout> {
+        let children_layout: Vec<Box<dyn Layout>> =
+            self.children.iter().map(|widget| widget.layout()).collect();
 
-		let HorizontalLayout {
-			spacing,
-			padding,
-			intrinsic_size,
-			main_axis_alignment,
-			cross_axis_alignment,
-			constraints,
-			..
-		} = self.layout;
+        let HorizontalLayout {
+            spacing,
+            padding,
+            intrinsic_size,
+            main_axis_alignment,
+            cross_axis_alignment,
+            constraints,
+            ..
+        } = self.layout;
 
-		// TODO use builder pattern?
-		let layout = HorizontalLayout {
-			id: self.id.clone(),
-			spacing,
-			padding,
-			intrinsic_size,
-			cross_axis_alignment,
-			main_axis_alignment,
-			constraints,
-			children: children_layout,
-			..Default::default()
-		};
+        // TODO use builder pattern?
+        let layout = HorizontalLayout {
+            id: self.id.clone(),
+            spacing,
+            padding,
+            intrinsic_size,
+            cross_axis_alignment,
+            main_axis_alignment,
+            constraints,
+            children: children_layout,
+            ..Default::default()
+        };
 
-		Box::new(layout)
-	}
+        Box::new(layout)
+    }
 
-	fn primitive(&self) -> Primitive {
-		Primitive::Rect { 
-			id: self.id.clone(), 
-			corner_radius: 0, // TODO add corner radius 
-			color: self.color 
-		}	
-	}
+    fn primitive(&self) -> Primitive {
+        Primitive::Rect {
+            id: self.id.clone(),
+            corner_radius: 0, // TODO add corner radius
+            color: self.color,
+        }
+    }
 
     fn update(&mut self) {
         self.children.iter_mut().for_each(|child| child.update());
     }
 
-	fn children(&self) -> Vec<&dyn Widget> {
-		self.children.iter().map(|child| child.as_ref()).collect::<Vec<_>>()
-	}
+    fn children(&self) -> Vec<&dyn Widget> {
+        self.children
+            .iter()
+            .map(|child| child.as_ref())
+            .collect::<Vec<_>>()
+    }
 }
 
 /// Creates an [`HStack`].  

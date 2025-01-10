@@ -43,25 +43,25 @@ impl<W> Widget for Container<W>
 where
     W: Widget,
 {
-	fn layout(&self) -> Box<dyn Layout> {
-		let child_layout = self.child.layout();
-		let mut layout = BlockLayout::new(child_layout);
+    fn layout(&self) -> Box<dyn Layout> {
+        let child_layout = self.child.layout();
+        let mut layout = BlockLayout::new(child_layout);
         layout.id = self.id.clone();
         layout.padding = self.padding;
-		Box::new(layout)
-	}
+        Box::new(layout)
+    }
 
-	fn primitive(&self) -> Primitive {
-		Primitive::Rect { 
-			id: self.id.clone(), 
-			corner_radius: self.corner_radius, 
-			color: self.color 
-		}
-	}
+    fn primitive(&self) -> Primitive {
+        Primitive::Rect {
+            id: self.id.clone(),
+            corner_radius: self.corner_radius,
+            color: self.color,
+        }
+    }
 
-	fn children(&self) -> Vec<&dyn Widget> {
-		vec![&self.child]
-	}
+    fn children(&self) -> Vec<&dyn Widget> {
+        vec![&self.child]
+    }
 
     fn update(&mut self) {
         self.child.update();

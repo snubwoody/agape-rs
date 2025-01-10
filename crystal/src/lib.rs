@@ -59,7 +59,7 @@ pub trait Layout: Debug + Send + Sync {
     /// Sort the children based on their intrinsic sizing, [`HorizontalLayout`]'s are ordered
     /// based on the children's `intrinsic width` and [`VerticalLayout`]'s are ordered based on their
     /// children's `intrinsic height`.
-	#[deprecated]
+    #[deprecated]
     fn sort_children(&mut self); // FIXME remove this
 
     fn id(&self) -> &str;

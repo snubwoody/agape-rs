@@ -1,8 +1,5 @@
 use super::Widget;
-use crate::{
-    impl_widget,
-	surface::Primitive
-};
+use crate::{impl_widget, surface::Primitive};
 use crystal::{BoxSizing, EmptyLayout};
 use helium_core::color::BLACK;
 use image::{GenericImageView, ImageReader};
@@ -141,19 +138,23 @@ impl Image {
 }
 
 impl Widget for Image {
+    fn layout(&self) -> Box<dyn crystal::Layout> {
+        Box::new(self.layout.clone())
+    }
 
-	fn layout(&self) -> Box<dyn crystal::Layout> {
-		Box::new(self.layout.clone())
-	}
-
-	fn primitive(&self) -> Primitive {
-		match &self.state {
-            ImageState::Complete(image) => 
-				Primitive::Image { id: self.id.clone(), image: image.clone()},
-            ImageState::Loading(_) => 
-				Primitive::Rect { id: self.id.clone(), corner_radius: 12, color: BLACK},
+    fn primitive(&self) -> Primitive {
+        match &self.state {
+            ImageState::Complete(image) => Primitive::Image {
+                id: self.id.clone(),
+                image: image.clone(),
+            },
+            ImageState::Loading(_) => Primitive::Rect {
+                id: self.id.clone(),
+                corner_radius: 12,
+                color: BLACK,
+            },
         }
-	}
+    }
 
     fn update(&mut self) {
         if let ImageState::Loading(url) = &self.state {

@@ -1,7 +1,7 @@
 use std::fmt::format;
 
-use crystal::Size;
 use crate::error::Error;
+use crystal::Size;
 
 /// Manages resources
 #[derive(Default, Debug)]
@@ -64,10 +64,10 @@ impl ResourceManager {
         self.buffers.len() - 1
     }
 
-	/// Add a `wgpu::Texture`
-	/// 
-	/// # Panics
-	/// `wgpu` panics if either of the texture dimenstions are 0.
+    /// Add a `wgpu::Texture`
+    ///
+    /// # Panics
+    /// `wgpu` panics if either of the texture dimenstions are 0.
     pub fn add_texture(&mut self, label: &str, size: Size, device: &wgpu::Device) -> usize {
         let texture = device.create_texture(&wgpu::TextureDescriptor {
             label: Some(label),
@@ -105,75 +105,72 @@ impl ResourceManager {
         Ok(self.texture_views.len() - 1)
     }
 
-	/// Add a texture sampler
-	pub fn add_sampler(&mut self,label: &str,device: &wgpu::Device) -> usize{
-		let texture_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+    /// Add a texture sampler
+    pub fn add_sampler(&mut self, label: &str, device: &wgpu::Device) -> usize {
+        let texture_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
             label: Some(label),
             ..Default::default()
         });
 
-		self.samplers.push(texture_sampler);
+        self.samplers.push(texture_sampler);
 
-		self.samplers.len() - 1
-	}
+        self.samplers.len() - 1
+    }
 
-	pub fn add_bind_group(
-		&mut self, 
-		label: &str, 
-		layout:&wgpu::BindGroupLayout, 
-		device: &wgpu::Device,
-		buffers: &[usize],
-		texture_views: &[usize],
-		samplers: &[usize]
-	) -> Result<usize,Error> {
-		let mut entries = vec![]; 
+    pub fn add_bind_group(
+        &mut self,
+        label: &str,
+        layout: &wgpu::BindGroupLayout,
+        device: &wgpu::Device,
+        buffers: &[usize],
+        texture_views: &[usize],
+        samplers: &[usize],
+    ) -> Result<usize, Error> {
+        let mut entries = vec![];
 
-		for i in buffers{
-			let buffer = self.buffer(*i)
-				.ok_or(Error::NotFound(format!("Buffer at index {i}")))?;
+        for i in buffers {
+            let buffer = self
+                .buffer(*i)
+                .ok_or(Error::NotFound(format!("Buffer at index {i}")))?;
 
-			entries.push(
-				wgpu::BindGroupEntry {
-                    binding: entries.len() as u32,
-                    resource: buffer.as_entire_binding(),
-                }	
-			);
-		}
+            entries.push(wgpu::BindGroupEntry {
+                binding: entries.len() as u32,
+                resource: buffer.as_entire_binding(),
+            });
+        }
 
-		for i in texture_views{
-			let texture_view = self.texture_view(*i)
-				.ok_or(Error::NotFound(format!("Texture view at index {i}")))?;
+        for i in texture_views {
+            let texture_view = self
+                .texture_view(*i)
+                .ok_or(Error::NotFound(format!("Texture view at index {i}")))?;
 
-			entries.push(
-				wgpu::BindGroupEntry {
-                    binding: entries.len() as u32,
-                    resource: wgpu::BindingResource::TextureView(&texture_view),
-                }	
-			);
-		}
+            entries.push(wgpu::BindGroupEntry {
+                binding: entries.len() as u32,
+                resource: wgpu::BindingResource::TextureView(&texture_view),
+            });
+        }
 
-		for i in samplers{
-			let sampler = self.sampler(*i)
-				.ok_or(Error::NotFound(format!("Sampler at index {i}")))?;
+        for i in samplers {
+            let sampler = self
+                .sampler(*i)
+                .ok_or(Error::NotFound(format!("Sampler at index {i}")))?;
 
-			entries.push(
-				wgpu::BindGroupEntry {
-                    binding: entries.len() as u32,
-                    resource: wgpu::BindingResource::Sampler(&sampler),
-                }	
-			);
-		}
+            entries.push(wgpu::BindGroupEntry {
+                binding: entries.len() as u32,
+                resource: wgpu::BindingResource::Sampler(&sampler),
+            });
+        }
 
-		let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             label: Some(label),
             layout: &layout,
             entries: &entries,
         });
 
-		self.bind_groups.push(bind_group);
+        self.bind_groups.push(bind_group);
 
-		Ok(self.bind_groups.len() - 1)
-	}
+        Ok(self.bind_groups.len() - 1)
+    }
 
     /// Get a `wgpu::Buffer`
     pub fn buffer(&self, index: usize) -> Option<&wgpu::Buffer> {
@@ -277,11 +274,11 @@ mod test {
         resources.buffer(d).unwrap();
     }
 
-	#[test]
-	fn missing_texture_when_creating_texture_view(){
-		let mut resources = ResourceManager::new();
-		let res = resources.add_texture_view(0);
+    #[test]
+    fn missing_texture_when_creating_texture_view() {
+        let mut resources = ResourceManager::new();
+        let res = resources.add_texture_view(0);
 
-		assert!(matches!(res,Err(Error::NotFound(_))));
-	}
+        assert!(matches!(res, Err(Error::NotFound(_))));
+    }
 }

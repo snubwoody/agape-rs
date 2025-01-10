@@ -3,15 +3,18 @@ pub mod icon;
 pub mod image;
 pub mod rect;
 pub mod text;
-use crate::{app::AppState, geometry::RenderContext, resources::ResourceManager, widgets::Widget, Bounds, Position, Size};
+use crate::{
+    app::AppState, geometry::RenderContext, resources::ResourceManager, widgets::Widget, Bounds,
+    Position, Size,
+};
 use circle::CircleSurface;
 use crystal::Layout;
 use helium_core::color::Color;
 use icon::IconSurface;
 use image::ImageSurface;
 use rect::RectSurface;
-use text::TextSurface;
 use std::{collections::HashMap, fmt::Debug};
+use text::TextSurface;
 
 /// The surfaces are the items that are actually responsible for drawing the pixels to the
 /// screen. It is the final stage in the pipeline, each [`Surface`] holds the data
@@ -27,7 +30,7 @@ pub trait Surface: Debug {
     fn draw(
         &mut self,
         render_pass: &mut wgpu::RenderPass,
-		resources:&ResourceManager,
+        resources: &ResourceManager,
         context: &crate::geometry::RenderContext,
         state: &AppState,
     );
@@ -59,58 +62,66 @@ pub trait Surface: Debug {
     fn get_bounds(&self) -> Bounds;
 }
 
-#[derive(Debug,Clone,PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Primitive {
-    Text{
-		id:String,
-		text:String,
-		font_size:u8,
-		color:Color,
-	},
-    Image{
-		id:String,
-		image: ::image::DynamicImage
-	},
-    Icon{
-		id:String,
-		image: ::image::DynamicImage
-	},
-    Rect{
-		id:String,
-		corner_radius:u32,
-		color:Color
-	},
-    Circle{
-		id:String,
-		color:Color
-	},
+    Text {
+        id: String,
+        text: String,
+        font_size: u8,
+        color: Color,
+    },
+    Image {
+        id: String,
+        image: ::image::DynamicImage,
+    },
+    Icon {
+        id: String,
+        image: ::image::DynamicImage,
+    },
+    Rect {
+        id: String,
+        corner_radius: u32,
+        color: Color,
+    },
+    Circle {
+        id: String,
+        color: Color,
+    },
 }
 
 impl Primitive {
-	fn build(
-		&self,
-		resources: &mut ResourceManager,
-		device: &wgpu::Device,
-		context: &RenderContext
-	) -> Box<dyn Surface>{
-		match self {
-			// TODO unnecessary image allocations
-			Self::Circle { id, color } => Box::new(CircleSurface::new(&id, 30)),
-			Self::Icon { id, image } => Box::new(IconSurface::new(&id, image.clone())),
-			Self::Image { id, image } => 
-				Box::new(ImageSurface::new(&id, image.clone(), context, resources, device).unwrap()),
-			Self::Rect { id, corner_radius, color } => {
-				let mut surface = RectSurface::new(&id);
-				surface.color(*color);
-				surface.corner_radius(*corner_radius);
-				Box::new(surface)
-			},
-			Self::Text { id, text, font_size, color } => 
-				Box::new(TextSurface::new(&id, &text, *font_size, &color))
-		}
-	}
+    fn build(
+        &self,
+        resources: &mut ResourceManager,
+        device: &wgpu::Device,
+        context: &RenderContext,
+    ) -> Box<dyn Surface> {
+        match self {
+            // TODO unnecessary image allocations
+            Self::Circle { id, color } => Box::new(CircleSurface::new(&id, 30)),
+            Self::Icon { id, image } => Box::new(IconSurface::new(&id, image.clone())),
+            Self::Image { id, image } => {
+                Box::new(ImageSurface::new(&id, image.clone(), context, resources, device).unwrap())
+            }
+            Self::Rect {
+                id,
+                corner_radius,
+                color,
+            } => {
+                let mut surface = RectSurface::new(&id);
+                surface.color(*color);
+                surface.corner_radius(*corner_radius);
+                Box::new(surface)
+            }
+            Self::Text {
+                id,
+                text,
+                font_size,
+                color,
+            } => Box::new(TextSurface::new(&id, &text, *font_size, &color)),
+        }
+    }
 }
-
 
 /// Manages all [`Surface`]'s and their respective resources including
 /// - `Buffers`
@@ -120,45 +131,44 @@ impl Primitive {
 #[derive(Debug)]
 pub struct SurfaceManager {
     resources: ResourceManager,
-	primitives:Vec<Primitive>,
+    primitives: Vec<Primitive>,
     surfaces: Vec<Box<dyn Surface>>,
-	/// A cache of all the sizes of the surfaces.  
-	/// 
-	/// Resizing some surfaces is expensive, particularly the 
-	/// [`ImageSurface`], because an entirely new `Texture` will
-	/// have to be created and written to. So only [`Surfaces`]'s 
-	/// whose size has actually changed will be resized.
-	size_cache: HashMap<String,Size>
+    /// A cache of all the sizes of the surfaces.  
+    ///
+    /// Resizing some surfaces is expensive, particularly the
+    /// [`ImageSurface`], because an entirely new `Texture` will
+    /// have to be created and written to. So only [`Surfaces`]'s
+    /// whose size has actually changed will be resized.
+    size_cache: HashMap<String, Size>,
 }
 
 impl SurfaceManager {
     /// Create a new [`SurfaceManager`].
     pub fn new(widget: &impl Widget) -> Self {
-		let primitives:Vec<Primitive> = widget.iter()
-			.map(|w|{w.primitive()})
-			.collect();
+        let primitives: Vec<Primitive> = widget.iter().map(|w| w.primitive()).collect();
 
-		Self {
-			primitives,
-            resources:ResourceManager::new(),
-            surfaces:vec![],
-			size_cache:HashMap::new()
+        Self {
+            primitives,
+            resources: ResourceManager::new(),
+            surfaces: vec![],
+            size_cache: HashMap::new(),
         }
     }
 
     /// Build the surface manager from the primitives.
-    pub fn build(&mut self,state: &AppState) {
-		self.surfaces = 
-			self.primitives
-			.iter()
-			.map(|primitive|primitive.build(&mut self.resources, &state.device,&state.context)).collect();
-	}
+    pub fn build(&mut self, state: &AppState) {
+        self.surfaces = self
+            .primitives
+            .iter()
+            .map(|primitive| primitive.build(&mut self.resources, &state.device, &state.context))
+            .collect();
+    }
 
     pub fn resize(&mut self, layout: &dyn Layout, state: &AppState) {
         for layout in layout.iter() {
             for surface in &mut self.surfaces {
                 if layout.id() == surface.id() {
-					surface.size(layout.size().width, layout.size().height);
+                    surface.size(layout.size().width, layout.size().height);
                     surface.position(layout.position().x, layout.position().y);
                 }
             }
@@ -167,23 +177,21 @@ impl SurfaceManager {
 
     // FIXME horrible function btw
     /// Rebuild the surfaces
-    pub fn rebuild(&mut self, widget: &dyn Widget,state: &AppState) {
-		self.primitives = widget.iter()
-			.map(|w|{w.primitive()})
-			.collect();
+    pub fn rebuild(&mut self, widget: &dyn Widget, state: &AppState) {
+        self.primitives = widget.iter().map(|w| w.primitive()).collect();
 
-		self.surfaces = 
-			self.primitives
-			.iter()
-			.map(|primitive|primitive.build(&mut self.resources, &state.device,&state.context)).collect();
-	
+        self.surfaces = self
+            .primitives
+            .iter()
+            .map(|primitive| primitive.build(&mut self.resources, &state.device, &state.context))
+            .collect();
     }
 
     /// Draw the surfaces to the screen
     pub fn draw(&mut self, pass: &mut wgpu::RenderPass, state: &AppState) {
         self.surfaces
             .iter_mut()
-            .for_each(|s| s.draw(pass,&self.resources, &state.context, state));
+            .for_each(|s| s.draw(pass, &self.resources, &state.context, state));
     }
 }
 
