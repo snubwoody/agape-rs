@@ -175,7 +175,6 @@ impl SurfaceManager {
     pub fn draw(&mut self, pass: &mut wgpu::RenderPass, state: &AppState) {
         self.surfaces
             .iter_mut()
-            .rev()
             .for_each(|s| s.draw(pass,&self.resources, &state.context, state));
     }
 }

@@ -18,7 +18,6 @@ pub use container::*;
 use crystal::Layout;
 pub use hstack::*;
 pub use image::*;
-use nanoid::nanoid;
 pub use rect::*;
 pub use spacer::*;
 pub use text::*;
@@ -31,10 +30,7 @@ pub trait Widget: WidgetIterator + Send + Sync {
     // TODO add an iter please
     /// Build the [`Widget`] into a primitive [`WidgetBody`] for
     /// rendering.
-    fn build(&self) -> (WidgetBody, Box<dyn Layout>);
-
-    /// Build the [`Surface`]
-    fn surface(&self) -> Vec<Box<dyn Surface>>;
+    fn layout(&self) -> Box<dyn Layout>;
 
 	fn primitive(&self) -> Primitive;
 
@@ -74,91 +70,6 @@ impl<T: Widget> WidgetIterator for T {
     }
 }
 
-/// Primitive structure that holds all the information
-/// about a [`Widget`] required for rendering.
-#[deprecated = "Surfaces are now managed by the SurfaceManager"]
-pub struct WidgetBody {
-    // TODO this make these fields private?
-    pub id: String,
-    /// A label for debugging purposes
-    pub label: Option<String>,
-    pub surface: Box<dyn Surface>,
-    pub children: Vec<Box<WidgetBody>>,
-}
-
-impl WidgetBody {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn id(mut self, id: &str) -> Self {
-        self.id = id.to_string();
-        self
-    }
-
-    pub fn label(mut self, label: &str) -> Self {
-        self.label = Some(label.to_owned());
-        self
-    }
-
-    pub fn surface(mut self, surface: Box<dyn Surface>) -> Self {
-        self.surface = surface;
-        self
-    }
-
-    pub fn add_child(mut self, child: WidgetBody) -> Self {
-        self.children.push(Box::new(child));
-        self
-    }
-
-    // TODO change children to generic
-    pub fn add_children(mut self, children: Vec<WidgetBody>) -> Self {
-        for child in children {
-            self.children.push(Box::new(child));
-        }
-        self
-    }
-
-    fn check_size(&mut self, layout: &dyn Layout) {
-        if layout.id() == self.id {
-            self.surface.size(layout.size().width, layout.size().height);
-            self.surface
-                .position(layout.position().x, layout.position().y);
-        }
-    }
-
-    pub fn update_sizes(&mut self, root_layout: &dyn Layout) {
-        for layout in root_layout.iter() {
-            self.check_size(*layout);
-        }
-        for child in &mut self.children {
-            child.update_sizes(root_layout);
-        }
-    }
-
-    /// Draw the [`WidgetBody`] to the screen.
-    pub fn render(&mut self, render_pass: &mut wgpu::RenderPass, state: &AppState) {
-        let context = &state.context;
-
-        //self.surface.draw(render_pass, context, state);
-        self.children.iter_mut().for_each(|child| {
-            child.render(render_pass, state);
-        });
-    }
-}
-
-impl Default for WidgetBody {
-    fn default() -> Self {
-        let surface = Box::new(RectSurface::default());
-
-        Self {
-            id: nanoid!(),
-            surface,
-            label: None,
-            children: vec![],
-        }
-    }
-}
 
 // TODO remove this and replace with modifiers
 /// Implement common styling attributes

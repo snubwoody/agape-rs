@@ -1,5 +1,4 @@
-use super::WidgetBody;
-use crate::{impl_style, surface::{rect::RectSurface, Primitive}, widgets::Widget};
+use crate::{impl_style, surface::Primitive, widgets::Widget};
 use crystal::{BlockLayout, Layout};
 use helium_core::color::Color;
 use nanoid::nanoid;
@@ -44,34 +43,13 @@ impl<W> Widget for Container<W>
 where
     W: Widget,
 {
-    fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
-        let mut surface = RectSurface::new(&self.id);
-        surface.color(self.color);
-        surface.corner_radius(self.corner_radius);
-
-        let (child_body, child_layout) = self.child.build();
-
-        let body = WidgetBody {
-            id: self.id.clone(),
-            surface: Box::new(surface),
-            children: vec![Box::new(child_body)],
-            ..Default::default()
-        };
-
-        let mut layout = BlockLayout::new(child_layout);
+	fn layout(&self) -> Box<dyn Layout> {
+		let child_layout = self.child.layout();
+		let mut layout = BlockLayout::new(child_layout);
         layout.id = self.id.clone();
         layout.padding = self.padding;
-
-        (body, Box::new(layout))
-    }
-
-    fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
-        let mut surface = RectSurface::new(&self.id);
-        surface.color(self.color);
-        surface.corner_radius(self.corner_radius);
-
-        vec![Box::new(surface)]
-    }
+		Box::new(layout)
+	}
 
 	fn primitive(&self) -> Primitive {
 		Primitive::Rect { 

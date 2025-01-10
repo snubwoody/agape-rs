@@ -1,8 +1,7 @@
 use super::Widget;
 use crate::{
     impl_widget,
-    surface::{image::ImageSurface, rect::RectSurface, Primitive, Surface},
-    widgets::WidgetBody,
+	surface::Primitive
 };
 use crystal::{BoxSizing, EmptyLayout};
 use helium_core::color::BLACK;
@@ -142,42 +141,17 @@ impl Image {
 }
 
 impl Widget for Image {
-    fn build(&self) -> (WidgetBody, Box<dyn crystal::Layout>) {
-        let body = match &self.state {
-            ImageState::Complete(image) => WidgetBody {
-                id: self.id.clone(),
-                surface: Box::new(RectSurface::new(&self.id)), // TEMP
-                label: Some("Image".to_owned()),
-                ..Default::default()
-            },
-            ImageState::Loading(_) => WidgetBody {
-                id: self.id.clone(),
-                surface: Box::new(RectSurface::new(&self.id)),
-                label: Some("Image".to_owned()),
-                ..Default::default()
-            },
-        };
 
-        (body, Box::new(self.layout.clone()))
-    }
-
-    fn surface(&self) -> Vec<Box<dyn Surface>> {
-        // let surface: Box<dyn Surface> = match &self.state {
-        //     ImageState::Complete(image) => Box::new(ImageSurface::new(&self.id, image.clone())),
-        //     ImageState::Loading(_) => Box::new(RectSurface::new(&self.id)),
-        // };
-        let surface: Box<dyn Surface> = match &self.state {
-            ImageState::Complete(image) => Box::new(RectSurface::new(&self.id)),
-            ImageState::Loading(_) => Box::new(RectSurface::new(&self.id)),
-        };
-
-        vec![surface]
-    }
+	fn layout(&self) -> Box<dyn crystal::Layout> {
+		Box::new(self.layout.clone())
+	}
 
 	fn primitive(&self) -> Primitive {
 		match &self.state {
-            ImageState::Complete(image) => Primitive::Image { id: self.id.clone(), image: image.clone()},
-            ImageState::Loading(_) => Primitive::Rect { id: self.id.clone(), corner_radius: 12, color: BLACK},
+            ImageState::Complete(image) => 
+				Primitive::Image { id: self.id.clone(), image: image.clone()},
+            ImageState::Loading(_) => 
+				Primitive::Rect { id: self.id.clone(), corner_radius: 12, color: BLACK},
         }
 	}
 

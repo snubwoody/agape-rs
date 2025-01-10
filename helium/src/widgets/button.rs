@@ -1,25 +1,26 @@
-use super::{text::Text, Widget};
-use crate::{surface::{rect::RectSurface, Primitive}, widgets::WidgetBody};
+use super::Widget;
+use crate::surface::Primitive;
 use crystal::{BlockLayout, Layout};
 use helium_core::color::Color;
 
 /// A simple button.
-pub struct Button {
+#[derive(Debug,Default,Clone,PartialEq,Eq)]
+pub struct Button<W> {
     id: String,
-    text: String,
     color: Color,
     padding: u32,
     corner_radius: u32,
+	child:W
 }
 
-impl Button {
-    pub fn new(text: &str) -> Self {
+impl<W:Widget> Button<W> {
+    pub fn new(child: W) -> Self {
         Self {
             id: nanoid::nanoid!(),
-            text: text.into(),
             color: Color::Hex("#615fff"),
             padding: 12,
             corner_radius: 0,
+			child
         }
     }
 
@@ -39,34 +40,18 @@ impl Button {
     }
 }
 
-impl Widget for Button {
-    fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
-        let mut surface = RectSurface::new(&self.id);
-        surface.color(self.color);
-        surface.corner_radius(self.corner_radius);
-
-        let (text_body, text_layout) = Text::new(&self.text).build();
-
-        let body = WidgetBody {
-            id: self.id.clone(),
-            surface: Box::new(surface),
-            children: vec![Box::new(text_body)],
-            ..Default::default()
-        };
-
-        let mut layout = BlockLayout::new(text_layout);
+impl<W:Widget> Widget for Button<W> {
+	fn layout(&self) -> Box<dyn Layout> {
+		let child_layout = self.child.layout();
+		let mut layout = BlockLayout::new(child_layout);
         layout.id = self.id.clone();
         layout.padding = self.padding;
+		Box::new(layout)
+	}
 
-        (body, Box::new(layout))
-    }
-
-    fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
-        let mut surfaces = Text::new(&self.text).surface();
-        surfaces.push(Box::new(RectSurface::new(&self.id)));
-
-        surfaces
-    }
+	fn children(&self) -> Vec<&dyn Widget> {
+		vec![&self.child]
+	}
 
 	fn primitive(&self) -> Primitive {
 		Primitive::Rect { 

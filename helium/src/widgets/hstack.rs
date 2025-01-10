@@ -1,10 +1,8 @@
-use std::ops::Deref;
-
 use crate::{
     app::events::Event,
     impl_events, impl_style, impl_widget,
-    surface::{rect::RectSurface,Primitive},
-    widgets::{Widget, WidgetBody},
+    surface::Primitive,
+    widgets::Widget,
     Color,
 };
 use crystal::{AxisAlignment, HorizontalLayout, Layout};
@@ -59,66 +57,38 @@ impl HStack {
 
 // TODO test this
 impl Widget for HStack {
-    fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
-        let mut surface = RectSurface::new(&self.id);
-        surface.color(self.color.clone());
-
-        let (children_body, children_layout): (Vec<Box<WidgetBody>>, Vec<Box<dyn Layout>>) = self
+	fn layout(&self) -> Box<dyn Layout> {
+		let children_layout:Vec<Box<dyn Layout>> = self
             .children
             .iter()
-            .map(|widget| {
-                let (body, layout) = widget.build();
-                return (Box::new(body), layout);
-            })
+            .map(|widget| {widget.layout()})
             .collect();
 
-        let body = WidgetBody {
-            id: self.id.clone(),
-            surface: Box::new(surface),
-            children: children_body,
-            ..Default::default()
-        };
+		let HorizontalLayout {
+			spacing,
+			padding,
+			intrinsic_size,
+			main_axis_alignment,
+			cross_axis_alignment,
+			constraints,
+			..
+		} = self.layout;
 
-        let HorizontalLayout {
-            spacing,
-            padding,
-            intrinsic_size,
-            main_axis_alignment,
-            cross_axis_alignment,
-            constraints,
-            ..
-        } = self.layout;
+		// TODO use builder pattern?
+		let layout = HorizontalLayout {
+			id: self.id.clone(),
+			spacing,
+			padding,
+			intrinsic_size,
+			cross_axis_alignment,
+			main_axis_alignment,
+			constraints,
+			children: children_layout,
+			..Default::default()
+		};
 
-        // TODO maybe impl into?
-        let layout = HorizontalLayout {
-            id: self.id.clone(),
-            spacing,
-            padding,
-            intrinsic_size,
-            cross_axis_alignment,
-            main_axis_alignment,
-            constraints,
-            children: children_layout,
-            ..Default::default()
-        };
-
-        (body, Box::new(layout))
-    }
-
-    fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
-        let mut surfaces = self
-            .children
-            .iter()
-            .flat_map(|widget| widget.surface())
-            .collect::<Vec<_>>();
-
-        let mut surface = RectSurface::new(&self.id);
-        surface.color(self.color.clone());
-
-        surfaces.push(Box::new(surface));
-
-        surfaces
-    }
+		Box::new(layout)
+	}
 
 	fn primitive(&self) -> Primitive {
 		Primitive::Rect { 

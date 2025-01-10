@@ -6,7 +6,6 @@ use image::RgbaImage;
 use std::{fmt::Debug, io::Cursor};
 use wgpu::util::DeviceExt;
 
-// FIXME change the color to Color enum
 #[derive(Clone)]
 pub struct TextSurface {
     id: String,
@@ -20,10 +19,10 @@ pub struct TextSurface {
 
 impl TextSurface {
     pub fn new(id: &str, text: &str, font_size: u8, color: &Color) -> Self {
-        let text_pipeline = text_to_png::TextRenderer::default();
+        let text_renderer = text_to_png::TextRenderer::default();
 
         // Render the text as a png
-        let text_image = text_pipeline
+        let text_image = text_renderer
             .render_text_to_png_data(text, font_size, color.into_hex_string().as_str())
             .unwrap(); // TODO Hangle the errors pls
 

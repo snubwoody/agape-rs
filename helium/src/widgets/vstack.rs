@@ -1,7 +1,7 @@
 use crate::{
     impl_style, impl_widget,
-    surface::{rect::RectSurface, Primitive},
-    widgets::{Widget, WidgetBody},
+    surface::Primitive,
+    widgets::Widget,
     Color,
 };
 use crystal::{AxisAlignment, Layout, VerticalLayout};
@@ -61,66 +61,38 @@ impl VStack {
 }
 
 impl Widget for VStack {
-    fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
-        let mut surface = RectSurface::new(&self.id);
-        surface.color(self.color);
-
-        let (children_body, children_layout): (Vec<Box<WidgetBody>>, Vec<Box<dyn Layout>>) = self
+	fn layout(&self) -> Box<dyn Layout> {
+		let children_layout:Vec<Box<dyn Layout>> = self
             .children
             .iter()
-            .map(|widget| {
-                let (body, layout) = widget.build();
-                (Box::new(body), layout)
-            })
+            .map(|widget| {widget.layout()})
             .collect();
 
-        let body = WidgetBody {
-            id: self.id.clone(),
-            children: children_body,
-            surface: Box::new(surface),
-            ..Default::default()
-        };
+		let VerticalLayout {
+			spacing,
+			padding,
+			intrinsic_size,
+			main_axis_alignment,
+			cross_axis_alignment,
+			constraints,
+			..
+		} = self.layout;
 
-        let VerticalLayout {
-            spacing,
-            padding,
-            intrinsic_size,
-            main_axis_alignment,
-            cross_axis_alignment,
-            constraints,
-            ..
-        } = self.layout;
-
-        let layout = VerticalLayout {
-            id: self.id.clone(),
-            spacing,
-            padding,
-            intrinsic_size,
-            constraints,
-            main_axis_alignment,
-            cross_axis_alignment,
-            children: children_layout,
-            ..Default::default()
-        };
-
-        (body, Box::new(layout))
-    }
-
-    fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
-        let mut surfaces = self
-            .children
-            .iter()
-            .flat_map(|widget| widget.surface())
-            .collect::<Vec<_>>();
-
-        let mut surface = RectSurface::new(&self.id);
-        surface.color(self.color.clone());
-        surface.corner_radius(self.corner_radius);
-
-        surfaces.push(Box::new(surface));
-
-        surfaces
-    }
+		// TODO use builder pattern?
+		let layout = VerticalLayout {
+			id: self.id.clone(),
+			spacing,
+			padding,
+			intrinsic_size,
+			cross_axis_alignment,
+			main_axis_alignment,
+			constraints,
+			children: children_layout,
+			..Default::default()
+		};
+		
+		Box::new(layout)
+	}
 
 	fn primitive(&self) -> crate::surface::Primitive {
 		Primitive::Rect { 

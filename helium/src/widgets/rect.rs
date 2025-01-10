@@ -1,5 +1,5 @@
-use super::{Widget, WidgetBody, WidgetIter};
-use crate::surface::{rect::RectSurface, Primitive};
+use super::Widget;
+use crate::surface::Primitive;
 use crate::Color;
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use nanoid::nanoid;
@@ -50,31 +50,12 @@ impl Rect {
 }
 
 impl Widget for Rect {
-    fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
-        let mut surface = RectSurface::new(&self.id);
-        surface.corner_radius(self.corner_radius);
-        surface.color(self.color);
-
-        let body = WidgetBody {
-            id: self.id.clone(),
-            surface: Box::new(surface),
-            children: vec![],
-            ..Default::default()
-        };
-
+    fn layout(&self) -> Box<dyn Layout> {
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size = self.intrinsic_size;
         layout.id = self.id.clone();
 
-        (body, Box::new(layout))
-    }
-
-    fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
-        let mut surface = RectSurface::new(&self.id);
-        surface.corner_radius(self.corner_radius);
-        surface.color(self.color);
-
-        vec![Box::new(surface)]
+        Box::new(layout)
     }
 
 	fn primitive(&self) -> Primitive {

@@ -1,4 +1,3 @@
-pub mod events;
 pub mod view;
 
 use crate::{geometry::RenderContext, Size};
@@ -72,7 +71,6 @@ impl App {
                     }
                     event => {
                         //self.views[self.index].update();
-                        self.views[self.index].handle_events(event, &self.window);
                     }
                 },
                 _ => {}

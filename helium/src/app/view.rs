@@ -1,7 +1,7 @@
-use super::{events::EventQueue, AppState};
+use super::AppState;
 use crate::{
     surface::SurfaceManager,
-    widgets::{Widget, WidgetBody},
+    widgets::Widget,
 };
 use crystal::LayoutSolver;
 use std::{
@@ -13,23 +13,15 @@ use winit::window::Window;
 pub struct View {
     layout: Box<dyn crystal::Layout>,
     widget: Arc<RwLock<dyn Widget>>,
-    root_body: WidgetBody,
     surfaces: SurfaceManager,
-    event_queue: EventQueue,
 }
 
 impl View {
     pub fn new(widget: impl Widget + 'static) -> Self {
-        let (root_body, layout) = widget.build();
-
-        let surfaces = SurfaceManager::new(&widget);
-
         Self {
-            root_body,
-            layout,
-            surfaces,
+            layout:widget.layout(),
+            surfaces:SurfaceManager::new(&widget),
             widget: Arc::new(RwLock::new(widget)),
-            event_queue:EventQueue::new(),
         }
     }
 
@@ -49,9 +41,8 @@ impl View {
     pub fn update(&mut self) {
         match self.widget.try_read() {
             Ok(widget) => {
-                let (body, layout) = widget.build();
+                let layout = widget.layout();
                 self.surfaces.rebuild(widget.surface());
-                self.root_body = body;
                 self.layout = layout;
             }
             Err(_) => {}
@@ -62,11 +53,6 @@ impl View {
 		LayoutSolver::solve(&mut *self.layout, state.size);
 		self.surfaces.build(&state);
         self.surfaces.resize(&*self.layout, state);
-    }
-
-    pub fn handle_events(&mut self, event: winit::event::WindowEvent, window: &Window) {
-        self.event_queue.handle_events(&event, &self.root_body);
-        window.request_redraw();
     }
 
     pub fn render(&mut self, state: &AppState) {
@@ -122,4 +108,9 @@ impl View {
         output.present();
         log::debug!("{}ms", now.elapsed().as_millis())
     }
+}
+
+#[cfg(test)]
+mod test{
+	// TODO test that all the layouts and surfaces have the same id's
 }

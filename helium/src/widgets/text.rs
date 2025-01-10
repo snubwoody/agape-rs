@@ -1,5 +1,5 @@
-use super::{Widget, WidgetBody};
-use crate::surface::{text::TextSurface, Primitive, Surface};
+use super::Widget;
+use crate::surface::Primitive;
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::color::Color;
 
@@ -35,36 +35,24 @@ impl Text {
 }
 
 impl Widget for Text {
-    fn build(&self) -> (WidgetBody, Box<dyn Layout>) {
-        // Create the text surface to be rendered
-        let textsurface =
-            TextSurface::new(&self.id, self.text.as_str(), self.font_size, &self.color);
+	fn layout(&self) -> Box<dyn Layout> {
+		// FIXME hopefully a temp fix because i don't know how to calculate the size before hand
+		let text_renderer = text_to_png::TextRenderer::default();
 
-        let size = textsurface.get_size();
-        let surface = Box::new(textsurface);
+        // Render the text as a png to get the size
+        let text_image = text_renderer
+            .render_text_to_png_data(self.text.clone(), self.font_size, "#000000")
+            .unwrap();
 
-        let body = WidgetBody {
-            id: self.id.clone(),
-            surface,
-            ..Default::default()
-        };
+		
 
-        let mut layout = EmptyLayout::new();
-        layout.intrinsic_size.width = BoxSizing::Fixed(size.width);
-        layout.intrinsic_size.height = BoxSizing::Fixed(size.height);
+		let mut layout = EmptyLayout::new();
+        layout.intrinsic_size.width = BoxSizing::Fixed(text_image.size.width as f32);
+        layout.intrinsic_size.height = BoxSizing::Fixed(text_image.size.height as f32);
         layout.id = self.id.clone();
 
-        (body, Box::new(layout))
-    }
-
-    fn surface(&self) -> Vec<Box<dyn Surface>> {
-        vec![Box::new(TextSurface::new(
-            &self.id,
-            self.text.as_str(),
-            self.font_size,
-            &self.color,
-        ))]
-    }
+		Box::new(layout)
+	}
 
 	fn primitive(&self) -> Primitive {
 		Primitive::Text { 
