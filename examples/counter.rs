@@ -1,7 +1,7 @@
 use helium::{
-    app::{events::EventQueue, view::View, App},
+    app::{view::View, App},
     hstack,
-    widgets::{Circle, Rect},
+    widgets::Rect,
     BLACK,
 };
 
@@ -11,8 +11,6 @@ fn main() {
 }
 
 fn app() {
-    let event_loop = EventQueue::new();
-
     let main = hstack! {
        Rect::new(150.0,150.0,BLACK),
        Rect::new(150.0,150.0,BLACK),

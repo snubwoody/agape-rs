@@ -8,7 +8,6 @@ use std::{
     sync::{Arc, RwLock},
     time::Instant,
 };
-use winit::window::Window;
 
 pub struct View {
     layout: Box<dyn crystal::Layout>,
@@ -38,11 +37,11 @@ impl View {
         self.surfaces.resize(&*self.layout, state);
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self,state: &AppState) {
         match self.widget.try_read() {
             Ok(widget) => {
                 let layout = widget.layout();
-                self.surfaces.rebuild(widget.surface());
+                self.surfaces.rebuild(&widget,state);
                 self.layout = layout;
             }
             Err(_) => {}

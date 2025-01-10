@@ -167,8 +167,16 @@ impl SurfaceManager {
 
     // FIXME horrible function btw
     /// Rebuild the surfaces
-    pub fn rebuild(&mut self, surfaces: Vec<Box<dyn Surface>>) {
-        self.surfaces = surfaces;
+    pub fn rebuild(&mut self, widget: &dyn Widget,state: &AppState) {
+		self.primitives = widget.iter()
+			.map(|w|{w.primitive()})
+			.collect();
+
+		self.surfaces = 
+			self.primitives
+			.iter()
+			.map(|primitive|primitive.build(&mut self.resources, &state.device,&state.context)).collect();
+	
     }
 
     /// Draw the surfaces to the screen

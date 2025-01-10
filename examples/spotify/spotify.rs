@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use helium::{
-    app::{events::EventQueue, view::View, App},
+    app::{view::View, App},
     hstack, vstack,
     widgets::{icon::feather_icons, Container, Image, Rect, Spacer, Text, Widget},
     AxisAlignment, Color, LayoutSolver, Size, BLACK, WHITE,
@@ -74,7 +74,7 @@ fn main() {
     .fill_height()
     .fill_width();
 
-    let (_, mut layout) = home.build();
+    let mut layout = home.layout();
     LayoutSolver::solve(&mut *layout, Size::new(500.0, 500.0));
 
     // TODO im probably going to be using this a lot so probs just make it a function

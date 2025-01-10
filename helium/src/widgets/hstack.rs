@@ -1,6 +1,5 @@
 use crate::{
-    app::events::Event,
-    impl_events, impl_style, impl_widget,
+    impl_style, impl_widget,
     surface::Primitive,
     widgets::Widget,
     Color,
@@ -52,7 +51,6 @@ impl HStack {
 
     impl_widget!();
     impl_style!();
-    impl_events!();
 }
 
 // TODO test this
