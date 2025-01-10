@@ -81,6 +81,7 @@ impl<T: Widget> WidgetIterator for T {
 
 /// Primitive structure that holds all the information
 /// about a [`Widget`] required for rendering.
+#[deprecated = "Surfaces are now managed by the SurfaceManager"]
 pub struct WidgetBody {
     // TODO this make these fields private?
     pub id: String,
@@ -144,7 +145,7 @@ impl WidgetBody {
     pub fn render(&mut self, render_pass: &mut wgpu::RenderPass, state: &AppState) {
         let context = &state.context;
 
-        self.surface.draw(render_pass, context, state);
+        //self.surface.draw(render_pass, context, state);
         self.children.iter_mut().for_each(|child| {
             child.render(render_pass, state);
         });

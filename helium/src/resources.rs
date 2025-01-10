@@ -64,6 +64,10 @@ impl ResourceManager {
         self.buffers.len() - 1
     }
 
+	/// Add a `wgpu::Texture`
+	/// 
+	/// # Panics
+	/// `wgpu` panics if either of the texture dimenstions are 0.
     pub fn add_texture(&mut self, label: &str, size: Size, device: &wgpu::Device) -> usize {
         let texture = device.create_texture(&wgpu::TextureDescriptor {
             label: Some(label),

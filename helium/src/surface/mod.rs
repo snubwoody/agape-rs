@@ -27,6 +27,7 @@ pub trait Surface: Debug {
     fn draw(
         &mut self,
         render_pass: &mut wgpu::RenderPass,
+		resources:&ResourceManager,
         context: &crate::geometry::RenderContext,
         state: &AppState,
     );
@@ -98,7 +99,12 @@ impl Primitive {
 			Self::Icon { id, image } => Box::new(IconSurface::new(&id, image.clone())),
 			Self::Image { id, image } => 
 				Box::new(ImageSurface::new(&id, image.clone(), context, resources, device).unwrap()),
-			Self::Rect { id, corner_radius, color } => Box::new(RectSurface::new(&id)),
+			Self::Rect { id, corner_radius, color } => {
+				let mut surface = RectSurface::new(&id);
+				surface.color(*color);
+				surface.corner_radius(*corner_radius);
+				Box::new(surface)
+			},
 			Self::Text { id, text, font_size, color } => 
 				Box::new(TextSurface::new(&id, &text, *font_size, &color))
 		}
@@ -129,10 +135,7 @@ impl SurfaceManager {
     /// Create a new [`SurfaceManager`].
     pub fn new(widget: &impl Widget) -> Self {
 		let primitives:Vec<Primitive> = widget.iter()
-			.map(|w|{
-				println!("Widget");
-				w.primitive()
-			})
+			.map(|w|{w.primitive()})
 			.collect();
 
 		Self {
@@ -155,8 +158,7 @@ impl SurfaceManager {
         for layout in layout.iter() {
             for surface in &mut self.surfaces {
                 if layout.id() == surface.id() {
-					println!("{:?}",surface);
-                    surface.size(layout.size().width, layout.size().height);
+					surface.size(layout.size().width, layout.size().height);
                     surface.position(layout.position().x, layout.position().y);
                 }
             }
@@ -167,10 +169,6 @@ impl SurfaceManager {
     /// Rebuild the surfaces
     pub fn rebuild(&mut self, surfaces: Vec<Box<dyn Surface>>) {
         self.surfaces = surfaces;
-    }
-
-    pub fn prepare(&mut self, state: &AppState) { // TODO collapse this into the build method
-        self.surfaces.iter_mut().for_each(|s| s.build(&state));
     }
 
     /// Draw the surfaces to the screen
