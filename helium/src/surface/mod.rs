@@ -176,7 +176,7 @@ impl SurfaceManager {
         self.surfaces
             .iter_mut()
             .rev()
-            .for_each(|s| s.draw(pass, &state.context, state));
+            .for_each(|s| s.draw(pass,&self.resources, &state.context, state));
     }
 }
 

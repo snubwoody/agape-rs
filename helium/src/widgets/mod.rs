@@ -41,11 +41,6 @@ pub trait Widget: WidgetIterator + Send + Sync {
     /// Load data in the background
     fn update(&mut self) {}
 
-	/// Iterate over the [`Widget`] tree.
-	// fn iter(&self) -> WidgetIter<'_>{
-	// 	WidgetIter{stack:vec![self]}
-	// }
-
 	fn children(&self) -> Vec<&dyn Widget>{
 		vec![]
 	}

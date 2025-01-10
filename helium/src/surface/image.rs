@@ -82,6 +82,7 @@ impl Surface for ImageSurface {
     fn draw(
         &mut self,
         render_pass: &mut wgpu::RenderPass,
+		resources:&ResourceManager,
         context: &crate::geometry::RenderContext,
         state: &AppState,
     ) {
@@ -98,7 +99,7 @@ impl Surface for ImageSurface {
         // Set the render pipeline and vertex buffer
         render_pass.set_pipeline(&context.image_pipeline.pipeline);
         render_pass.set_bind_group(0, &context.image_pipeline.window_bind_group, &[]);
-        //render_pass.set_bind_group(1, self.bind_group.as_ref().unwrap(), &[]);
+        render_pass.set_bind_group(1, resources.bind_group(self.bind_group).unwrap(), &[]);
         render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 
         render_pass.draw(0..vertices.len() as u32, 0..1);
