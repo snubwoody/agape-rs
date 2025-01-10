@@ -1,5 +1,5 @@
 use super::{Widget, WidgetBody};
-use crate::surface::circle::CircleSurface;
+use crate::surface::{circle::CircleSurface, Primitive};
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::color::Color;
 
@@ -46,5 +46,7 @@ impl Widget for Circle {
         vec![Box::new(surface)]
     }
 
-    fn update(&mut self) {}
+	fn primitive(&self) -> Primitive {
+		Primitive::Circle{ id: &self.id, color: self.color }	
+	}
 }

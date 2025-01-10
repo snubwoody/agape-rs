@@ -40,6 +40,33 @@ pub trait Widget: Send + Sync {
 
     /// Load data in the background
     fn update(&mut self) {}
+
+	/// Iterate over the [`Widget`] tree.
+	fn iter(&self) -> WidgetIter<'_>{
+		WidgetIter{stack:vec![self]}
+	}
+
+	fn children(&self) -> &[&dyn Widget]{
+		&[]
+	}
+}
+
+pub struct WidgetIter<'a>{
+	stack: Vec<&'a dyn Widget>
+}
+
+impl<'a> Iterator for WidgetIter<'a> {
+	type Item = &'a dyn Widget;
+
+	fn next(&mut self) -> Option<Self::Item>{
+		// The order of the iterator doesn't really matter in this
+		// case, we just want to iterate over all the widgets
+		if let Some(widget) = self.stack.pop(){
+			self.stack.extend(widget.children());
+			return Some(widget);
+		}
+		None
+	}
 }
 
 /// Primitive structure that holds all the information

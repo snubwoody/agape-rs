@@ -146,7 +146,7 @@ impl Widget for Image {
         let body = match &self.state {
             ImageState::Complete(image) => WidgetBody {
                 id: self.id.clone(),
-                surface: Box::new(ImageSurface::new(&self.id, image.clone())),
+                surface: Box::new(RectSurface::new(&self.id)), // TEMP
                 label: Some("Image".to_owned()),
                 ..Default::default()
             },
@@ -162,8 +162,12 @@ impl Widget for Image {
     }
 
     fn surface(&self) -> Vec<Box<dyn Surface>> {
+        // let surface: Box<dyn Surface> = match &self.state {
+        //     ImageState::Complete(image) => Box::new(ImageSurface::new(&self.id, image.clone())),
+        //     ImageState::Loading(_) => Box::new(RectSurface::new(&self.id)),
+        // };
         let surface: Box<dyn Surface> = match &self.state {
-            ImageState::Complete(image) => Box::new(ImageSurface::new(&self.id, image.clone())),
+            ImageState::Complete(image) => Box::new(RectSurface::new(&self.id)),
             ImageState::Loading(_) => Box::new(RectSurface::new(&self.id)),
         };
 

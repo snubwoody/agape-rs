@@ -1,5 +1,5 @@
 use super::{text::Text, Widget};
-use crate::{surface::rect::RectSurface, widgets::WidgetBody};
+use crate::{surface::{rect::RectSurface, Primitive}, widgets::WidgetBody};
 use crystal::{BlockLayout, Layout};
 use helium_core::color::Color;
 
@@ -68,5 +68,11 @@ impl Widget for Button {
         surfaces
     }
 
-    fn update(&mut self) {}
+	fn primitive(&self) -> Primitive {
+		Primitive::Rect { 
+			id: &self.id, 
+			corner_radius: self.corner_radius, 
+			color: self.color 
+		}
+	}
 }

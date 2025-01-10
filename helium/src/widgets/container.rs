@@ -1,5 +1,5 @@
 use super::WidgetBody;
-use crate::{impl_style, surface::rect::RectSurface, widgets::Widget};
+use crate::{impl_style, surface::{rect::RectSurface, Primitive}, widgets::Widget};
 use crystal::{BlockLayout, Layout};
 use helium_core::color::Color;
 use nanoid::nanoid;
@@ -72,6 +72,14 @@ where
 
         vec![Box::new(surface)]
     }
+
+	fn primitive(&self) -> Primitive {
+		Primitive::Rect { 
+			id: &self.id, 
+			corner_radius: self.corner_radius, 
+			color: self.color 
+		}
+	}
 
     fn update(&mut self) {
         self.child.update();

@@ -1,7 +1,6 @@
 use super::{events::EventQueue, AppState};
 use crate::{
-    resources::ResourceManager,
-    surface::{Surface, SurfaceManager},
+    surface::{SurfaceManager},
     widgets::{Widget, WidgetBody},
 };
 use crystal::LayoutSolver;
@@ -23,7 +22,7 @@ impl View {
     pub fn new(root_widget: impl Widget + 'static, event_queue: EventQueue) -> Self {
         let (root_body, root_layout) = root_widget.build();
 
-        let surfaces = SurfaceManager::new(root_widget.surface());
+        let surfaces = SurfaceManager::new(&root_widget);
         Self {
             root_body,
             root_layout,

@@ -1,5 +1,5 @@
 use super::Widget;
-use crate::{impl_widget, surface::icon::IconSurface, widgets::WidgetBody};
+use crate::{impl_widget, surface::{icon::IconSurface, Primitive}, widgets::WidgetBody};
 use crystal::{BoxSizing, EmptyLayout};
 use helium_core::color::Color;
 use image::GenericImageView;
@@ -117,5 +117,10 @@ impl Widget for Icon {
         vec![Box::new(surface)]
     }
 
-    fn update(&mut self) {}
+	fn primitive(&self) -> crate::surface::Primitive {
+		Primitive::Icon { 
+			id: &self.id, 
+			image: self.image.clone() 
+		}		
+	}
 }

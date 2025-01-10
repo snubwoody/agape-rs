@@ -53,20 +53,37 @@ pub trait Surface: Debug {
     fn get_bounds(&self) -> Bounds;
 }
 
-#[derive(Debug)]
+#[derive(Debug,Clone,PartialEq)]
 pub enum Primitive<'a> {
-    Text(&'a str),
+    Text{
+		id:&'a str,
+		text:String,
+		font_size:u8,
+		color:Color,
+	},
     Image{
 		id:&'a str,
 		image: ::image::DynamicImage
 	},
-    Icon(::image::DynamicImage),
+    Icon{
+		id:&'a str,
+		image: ::image::DynamicImage
+	},
     Rect{
 		id:&'a str,
 		corner_radius:u32,
 		color:Color
 	},
-    Circle(&'a str,u8),
+    Circle{
+		id:&'a str,
+		color:Color
+	},
+}
+
+impl<'a> Primitive<'a> {
+	fn build(&self,resources: &mut ResourceManager,device: &wgpu::Device) -> Box<dyn Surface>{
+		todo!()
+	}
 }
 
 
@@ -75,7 +92,7 @@ pub enum Primitive<'a> {
 /// - `Textures`
 /// - `Samplers`
 /// - `Bind groups`
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct SurfaceManager {
     resources: ResourceManager,
     surfaces: Vec<Box<dyn Surface>>,
@@ -90,10 +107,24 @@ pub struct SurfaceManager {
 
 impl SurfaceManager {
     /// Create a new [`SurfaceManager`].
-    pub fn new(surfaces: Vec<Box<dyn Surface>>) -> Self {
-        Self {
+    pub fn new(widget: &impl Widget,device: &wgpu::Device) -> Self {
+		let primitives:Vec<Primitive> = widget.iter()
+			.map(|w|{
+				println!("Widget");
+				w.primitive()
+			})
+			.collect();
+
+		let mut resources = ResourceManager::new();
+        let surfaces:Vec<Box<dyn Surface>> = 
+			primitives
+			.iter()
+			.map(|primitive|primitive.build(&mut resources, device)).collect();
+
+		Self {
             surfaces,
-            ..Default::default()
+            resources,
+			size_cache:HashMap::new()
         }
     }
 

@@ -1,7 +1,7 @@
 use crate::{
     app::events::Event,
     impl_events, impl_style, impl_widget,
-    surface::rect::RectSurface,
+    surface::{rect::RectSurface,Primitive},
     widgets::{Widget, WidgetBody},
     Color,
 };
@@ -117,6 +117,14 @@ impl Widget for HStack {
 
         surfaces
     }
+
+	fn primitive(&self) -> Primitive {
+		Primitive::Rect { 
+			id: &self.id, 
+			corner_radius: 0, // TODO add corner radius 
+			color: self.color 
+		}	
+	}
 
     fn update(&mut self) {
         self.children.iter_mut().for_each(|child| child.update());

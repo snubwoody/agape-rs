@@ -1,5 +1,5 @@
 use super::{Widget, WidgetBody};
-use crate::surface::{text::TextSurface, Surface};
+use crate::surface::{text::TextSurface, Primitive, Surface};
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::color::Color;
 
@@ -65,4 +65,13 @@ impl Widget for Text {
             &self.color,
         ))]
     }
+
+	fn primitive(&self) -> Primitive {
+		Primitive::Text { 
+			id: &self.id, 
+			text: self.text.clone(), 
+			font_size: self.font_size, 
+			color: self.color 
+		}
+	}
 }

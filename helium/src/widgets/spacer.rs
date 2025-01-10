@@ -1,6 +1,7 @@
 use crystal::{BoxSizing, EmptyLayout};
+use helium_core::color::Color;
 
-use crate::surface::rect::RectSurface;
+use crate::surface::{rect::RectSurface, Primitive};
 
 use super::{Widget, WidgetBody};
 
@@ -35,6 +36,14 @@ impl Widget for Spacer {
     fn surface(&self) -> Vec<Box<dyn crate::surface::Surface>> {
         vec![Box::new(RectSurface::new(&self.id))]
     }
+
+	fn primitive(&self) -> Primitive {
+		Primitive::Rect { 
+			id: &self.id, 
+			corner_radius: 0, // TODO add corner radius 
+			color:Color::default()
+		}	
+	}
 }
 
 #[cfg(test)]

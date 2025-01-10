@@ -1,6 +1,6 @@
 use crate::{
     impl_style, impl_widget,
-    surface::rect::RectSurface,
+    surface::{rect::RectSurface, Primitive},
     widgets::{Widget, WidgetBody},
     Color,
 };
@@ -121,6 +121,14 @@ impl Widget for VStack {
 
         surfaces
     }
+
+	fn primitive(&self) -> crate::surface::Primitive {
+		Primitive::Rect { 
+			id: &self.id, 
+			corner_radius: self.corner_radius, 
+			color: self.color 
+		}
+	}
 
     fn update(&mut self) {
         self.children.iter_mut().for_each(|child| child.update());

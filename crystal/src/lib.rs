@@ -59,7 +59,8 @@ pub trait Layout: Debug + Send + Sync {
     /// Sort the children based on their intrinsic sizing, [`HorizontalLayout`]'s are ordered
     /// based on the children's `intrinsic width` and [`VerticalLayout`]'s are ordered based on their
     /// children's `intrinsic height`.
-    fn sort_children(&mut self);
+	#[deprecated]
+    fn sort_children(&mut self); // FIXME remove this
 
     fn id(&self) -> &str;
     fn constraints(&self) -> BoxContraints;
@@ -80,7 +81,7 @@ pub trait Layout: Debug + Send + Sync {
 }
 
 pub struct LayoutIter<'a> {
-    stack: Vec<Box<&'a dyn Layout>>,
+    stack: Vec<Box<&'a dyn Layout>>, // TODO unnecessary box and maybe make it a provided trait
 }
 
 impl<'a> Iterator for LayoutIter<'a> {
