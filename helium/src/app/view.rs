@@ -60,7 +60,7 @@ impl View {
 
     pub fn build(&mut self, state: &AppState) {
 		LayoutSolver::solve(&mut *self.layout, state.size);
-		self.surfaces.build(&state.device); // TODO One function here is not neccessary
+		self.surfaces.build(&state); // TODO One function here is not neccessary
         self.surfaces.resize(&*self.layout, state);
         self.surfaces.prepare(state);
     }

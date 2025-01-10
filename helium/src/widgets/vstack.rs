@@ -130,6 +130,10 @@ impl Widget for VStack {
 		}
 	}
 
+	fn children(&self) -> Vec<&dyn Widget> {
+		self.children.iter().map(|child| child.as_ref()).collect::<Vec<_>>()
+	}
+
     fn update(&mut self) {
         self.children.iter_mut().for_each(|child| child.update());
     }

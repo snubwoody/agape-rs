@@ -3,9 +3,14 @@ pub mod icon;
 pub mod image;
 pub mod rect;
 pub mod text;
-use crate::{app::AppState, resources::ResourceManager, widgets::Widget, Bounds, Position, Size};
+use crate::{app::AppState, geometry::RenderContext, resources::ResourceManager, widgets::Widget, Bounds, Position, Size};
+use circle::CircleSurface;
 use crystal::Layout;
 use helium_core::color::Color;
+use icon::IconSurface;
+use image::ImageSurface;
+use rect::RectSurface;
+use text::TextSurface;
 use std::{collections::HashMap, fmt::Debug};
 
 /// The surfaces are the items that are actually responsible for drawing the pixels to the
@@ -81,8 +86,22 @@ pub enum Primitive {
 }
 
 impl Primitive {
-	fn build(&self,resources: &mut ResourceManager,device: &wgpu::Device) -> Box<dyn Surface>{
-		todo!()
+	fn build(
+		&self,
+		resources: &mut ResourceManager,
+		device: &wgpu::Device,
+		context: &RenderContext
+	) -> Box<dyn Surface>{
+		match self {
+			// TODO unnecessary image allocations
+			Self::Circle { id, color } => Box::new(CircleSurface::new(&id, 30)),
+			Self::Icon { id, image } => Box::new(IconSurface::new(&id, image.clone())),
+			Self::Image { id, image } => 
+				Box::new(ImageSurface::new(&id, image.clone(), context, resources, device).unwrap()),
+			Self::Rect { id, corner_radius, color } => Box::new(RectSurface::new(&id)),
+			Self::Text { id, text, font_size, color } => 
+				Box::new(TextSurface::new(&id, &text, *font_size, &color))
+		}
 	}
 }
 
@@ -125,17 +144,18 @@ impl SurfaceManager {
     }
 
     /// Build the surface manager from the primitives.
-    pub fn build(&mut self,device: &wgpu::Device) {
+    pub fn build(&mut self,state: &AppState) {
 		self.surfaces = 
 			self.primitives
 			.iter()
-			.map(|primitive|primitive.build(&mut self.resources, device)).collect();
+			.map(|primitive|primitive.build(&mut self.resources, &state.device,&state.context)).collect();
 	}
 
     pub fn resize(&mut self, layout: &dyn Layout, state: &AppState) {
         for layout in layout.iter() {
             for surface in &mut self.surfaces {
                 if layout.id() == surface.id() {
+					println!("{:?}",surface);
                     surface.size(layout.size().width, layout.size().height);
                     surface.position(layout.position().x, layout.position().y);
                 }

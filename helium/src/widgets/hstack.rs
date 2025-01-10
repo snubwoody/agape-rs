@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use crate::{
     app::events::Event,
     impl_events, impl_style, impl_widget,
@@ -129,6 +131,10 @@ impl Widget for HStack {
     fn update(&mut self) {
         self.children.iter_mut().for_each(|child| child.update());
     }
+
+	fn children(&self) -> Vec<&dyn Widget> {
+		self.children.iter().map(|child| child.as_ref()).collect::<Vec<_>>()
+	}
 }
 
 /// Creates an [`HStack`].  

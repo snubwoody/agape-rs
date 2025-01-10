@@ -46,8 +46,8 @@ pub trait Widget: WidgetIterator + Send + Sync {
 	// 	WidgetIter{stack:vec![self]}
 	// }
 
-	fn children(&self) -> &[&dyn Widget]{
-		&[]
+	fn children(&self) -> Vec<&dyn Widget>{
+		vec![]
 	}
 }
 

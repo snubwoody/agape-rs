@@ -14,7 +14,10 @@ fn app() {
     let event_loop = EventQueue::new();
 
     let main = hstack! {
-       Rect::new(150.0,150.0,BLACK)
+       Rect::new(150.0,150.0,BLACK),
+       Rect::new(150.0,150.0,BLACK),
+       Rect::new(150.0,150.0,BLACK),
+       Rect::new(150.0,150.0,BLACK),
     }
     .spacing(54);
 
