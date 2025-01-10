@@ -5,7 +5,8 @@ pub mod rect;
 pub mod text;
 use crate::{app::AppState, resources::ResourceManager, widgets::Widget, Bounds, Position, Size};
 use crystal::Layout;
-use std::fmt::Debug;
+use helium_core::color::Color;
+use std::{collections::HashMap, fmt::Debug};
 
 /// The surfaces are the items that are actually responsible for drawing the pixels to the
 /// screen. It is the final stage in the pipeline, each [`Surface`] holds the data
@@ -52,6 +53,23 @@ pub trait Surface: Debug {
     fn get_bounds(&self) -> Bounds;
 }
 
+#[derive(Debug)]
+pub enum Primitive<'a> {
+    Text(&'a str),
+    Image{
+		id:&'a str,
+		image: ::image::DynamicImage
+	},
+    Icon(::image::DynamicImage),
+    Rect{
+		id:&'a str,
+		corner_radius:u32,
+		color:Color
+	},
+    Circle(&'a str,u8),
+}
+
+
 /// Manages all [`Surface`]'s and their respective resources including
 /// - `Buffers`
 /// - `Textures`
@@ -61,6 +79,13 @@ pub trait Surface: Debug {
 pub struct SurfaceManager {
     resources: ResourceManager,
     surfaces: Vec<Box<dyn Surface>>,
+	/// A cache of all the sizes of the surfaces.  
+	/// 
+	/// Resizing some surfaces is expensive, particularly the 
+	/// [`ImageSurface`], because an entirely new `Texture` will
+	/// have to be created and written to. So only [`Surfaces`]'s 
+	/// whose size has actually changed will be resized.
+	size_cache: HashMap<String,Size>
 }
 
 impl SurfaceManager {

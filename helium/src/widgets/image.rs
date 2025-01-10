@@ -1,10 +1,11 @@
 use super::Widget;
 use crate::{
     impl_widget,
-    surface::{image::ImageSurface, rect::RectSurface, Surface},
+    surface::{image::ImageSurface, rect::RectSurface, Primitive, Surface},
     widgets::WidgetBody,
 };
 use crystal::{BoxSizing, EmptyLayout};
+use helium_core::color::BLACK;
 use image::{GenericImageView, ImageReader};
 use resvg::tiny_skia::Pixmap;
 
@@ -168,6 +169,13 @@ impl Widget for Image {
 
         vec![surface]
     }
+
+	fn primitive(&self) -> Primitive {
+		match &self.state {
+            ImageState::Complete(image) => Primitive::Image { id: &self.id, image: image.clone()},
+            ImageState::Loading(_) => Primitive::Rect { id: &self.id, corner_radius: 12, color: BLACK},
+        }
+	}
 
     fn update(&mut self) {
         if let ImageState::Loading(url) = &self.state {

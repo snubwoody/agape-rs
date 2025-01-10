@@ -10,7 +10,7 @@ mod text;
 mod vstack;
 use crate::{
     app::AppState,
-    surface::{rect::RectSurface, Surface},
+    surface::{rect::RectSurface, Primitive, Surface},
 };
 pub use button::*;
 pub use circle::*;
@@ -35,6 +35,8 @@ pub trait Widget: Send + Sync {
 
     /// Build the [`Surface`]
     fn surface(&self) -> Vec<Box<dyn Surface>>;
+
+	fn primitive(&self) -> Primitive;
 
     /// Load data in the background
     fn update(&mut self) {}
