@@ -148,3 +148,9 @@ where
         }
     }
 }
+
+impl From<(u32,u32)> for Size{
+	fn from(value: (u32,u32)) -> Self {
+		Self { width: value.0 as f32, height: value.1 as f32}
+	}
+}

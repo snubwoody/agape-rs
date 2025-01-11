@@ -1,0 +1,45 @@
+lang_version: 0.1.0
+schema_version: 0.1.0
+
+/* Not part of schema
+types:
+	enum
+	struct,
+	string,
+	float,
+	int,
+	uint,
+	bool
+*/
+
+struct SignInData{
+	email:string
+	password_hash:string
+}
+
+struct User{
+	email:string,
+	user_name:string,
+	avatar_url:string,
+	last_signed_in:string
+}
+
+enum SignInResponse{
+	Success{
+		code:uint
+		user:User
+	},
+	Error{
+		code:uint,
+		message:string
+	}
+}
+
+struct LikePostData{
+	uid:string,
+	post_id:string
+}
+
+proc sign_in(SignInData) -> SignInResponse
+proc like_post(LikePostData) -> uint
+proc sign_out()

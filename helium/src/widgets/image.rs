@@ -12,6 +12,7 @@ enum ImageState {
     Complete(image::DynamicImage),
 }
 
+/// An Image.  
 pub struct Image {
     id: String,
     state: ImageState,

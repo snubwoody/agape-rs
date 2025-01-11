@@ -8,6 +8,7 @@ use crate::{
     Bounds, Color, Position, Size,
 };
 use std::fmt::Debug;
+use image::GenericImageView;
 use wgpu::util::DeviceExt;
 
 /// Draws images to the screen
@@ -36,7 +37,7 @@ impl ImageSurface {
     ) -> Result<Self, Error> {
         let texture = resources.add_texture(
             "Image texture",
-            Size::new(1.0, 1.0), // Textures cannot have dimensions of 0
+            img.dimensions().into(), // Textures cannot have dimensions of 0
             device,
         );
         let view = resources.add_texture_view(texture)?;

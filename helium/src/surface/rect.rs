@@ -94,7 +94,6 @@ impl RectSurface {
 
 impl Surface for RectSurface {
 	fn build(&mut self, state: &AppState, resources: &ResourceManager) {
-		dbg!(&self);
 		resources.write_buffer(
 			self.radius_buffer, 
 			0, 

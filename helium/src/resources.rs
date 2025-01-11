@@ -1,5 +1,3 @@
-use std::fmt::format;
-
 use crate::error::Error;
 use crystal::Size;
 
@@ -92,7 +90,7 @@ impl ResourceManager {
     /// Add a texture view of the texture at a specific index
     ///
     /// # Errors
-    /// This function returns an error if the texture is not found
+    /// This function returns an [`Error::NotFound`] if the texture is not found
     pub fn add_texture_view(&mut self, index: usize) -> Result<usize, crate::error::Error> {
         let texture = self
             .texture(index)

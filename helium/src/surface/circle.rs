@@ -85,7 +85,6 @@ impl CircleSurface {
 
 impl Surface for CircleSurface {
     fn build(&mut self, state: &AppState, resources: &ResourceManager) {
-		dbg!(&self);
 		resources.write_buffer(
 			self.position_buffer, 
 			0, 
@@ -107,6 +106,7 @@ impl Surface for CircleSurface {
         context: &RenderContext,
         state: &AppState,
     ) {
+		// FIXME still broken
         let vertices = self.to_vertices();
 
         let vertex_buffer = state
