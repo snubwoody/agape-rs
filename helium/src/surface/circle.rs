@@ -85,6 +85,7 @@ impl CircleSurface {
 
 impl Surface for CircleSurface {
     fn build(&mut self, state: &AppState, resources: &ResourceManager) {
+		dbg!(&self);
 		resources.write_buffer(
 			self.position_buffer, 
 			0, 
