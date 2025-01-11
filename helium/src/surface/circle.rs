@@ -107,7 +107,6 @@ impl Surface for CircleSurface {
         state: &AppState,
     ) {
         let vertices = self.to_vertices();
-		dbg!(&self);
 
         let vertex_buffer = state
             .device

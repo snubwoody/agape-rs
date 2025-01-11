@@ -94,6 +94,7 @@ impl RectSurface {
 
 impl Surface for RectSurface {
 	fn build(&mut self, state: &AppState, resources: &ResourceManager) {
+		dbg!(&self);
 		resources.write_buffer(
 			self.radius_buffer, 
 			0, 
@@ -113,15 +114,17 @@ impl Surface for RectSurface {
 			&state.queue
 		).unwrap();
 	}
+	
     fn draw(
-        &mut self,
+		&mut self,
         render_pass: &mut wgpu::RenderPass,
         resources: &ResourceManager,
         context: &RenderContext,
         state: &AppState,
     ) {
-        let vertices = self.to_vertices();
-
+		dbg!(&self);
+		let vertices = self.to_vertices();
+		
         let vertex_buffer = state
             .device
             .create_buffer_init(&wgpu::util::BufferInitDescriptor {

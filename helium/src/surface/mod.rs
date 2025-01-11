@@ -108,7 +108,7 @@ impl Primitive {
                 corner_radius,
                 color,
             } => {
-                let mut surface = RectSurface::new(&id);
+                let mut surface = RectSurface::new(&id,resources,state);
                 surface.color(*color);
                 surface.corner_radius(*corner_radius);
                 Box::new(surface)
@@ -156,12 +156,14 @@ impl SurfaceManager {
     }
 
     /// Build the [`Surface`]'s from the [`Primitive`]'s.
-    pub fn build(&mut self, state: &AppState) {
+    pub fn build(&mut self,layout: &dyn Layout, state: &AppState) {
         self.surfaces = self
             .primitives
             .iter()
             .map(|primitive| primitive.build(&mut self.resources, &state))
             .collect();
+
+		self.resize(layout, state);
 
         self.surfaces
             .iter_mut()

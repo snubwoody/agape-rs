@@ -26,8 +26,9 @@ impl View {
     /// This is a set up function, that calls `SurfaceManager::build()`, which currently
     /// just set's up the textures.
     pub fn build(&mut self, state: &AppState) {
-        self.resize(state);
-        self.surfaces.build(state);
+		// FIXME the order of these functions isn't so great
+		LayoutSolver::solve(&mut *self.layout, state.size);
+        self.surfaces.build(&*self.layout,state);
     }
 
     pub fn render(&mut self, state: &AppState) {

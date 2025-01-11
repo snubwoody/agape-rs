@@ -66,6 +66,7 @@ fn fs_main(in:VertexOutput) -> @location(0) vec4<f32> {
 		vec4(corner_radius)
 	);// Might need to clamp radius
 	
+	//return vec4(position,position.x,1.0);
 	return vec4(in.color.xyz,-d * in.color.w);
 }
 
