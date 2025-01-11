@@ -46,6 +46,6 @@ fn fs_main(in:VertexOutput) -> @location(0) vec4<f32> {
 	// Widget coordinates start at the top left, so center them
 	var p = (in.position.xy - center);
 	var d = sd_circle(p,diameter/2);
-    //return vec4(d,d,d,1.0);
+
     return vec4(in.color.xyz,-d * in.color.w);
 }

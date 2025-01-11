@@ -202,11 +202,20 @@ impl ResourceManager {
         todo!()
     }
 
-    pub fn write_buffer(&self) {
-        todo!()
+    pub fn write_buffer(
+		&self,
+		index: usize,
+		offset:u64,
+		data:&[u8],
+		queue:&wgpu::Queue
+	) -> Result<(),Error> {
+		let buffer = self.buffer(index).ok_or(Error::NotFound(format!("Buffer at {index}")))?;
+        queue.write_buffer(buffer, offset, data);
+
+		Ok(())
     }
 
-    pub fn write_texture(&self) {
+    pub fn write_texture(&self,queue:&wgpu::Queue) {
         todo!()
     }
 }
@@ -216,7 +225,7 @@ mod test {
     use super::*;
     use winit::{event_loop::EventLoopBuilder, platform::windows::EventLoopBuilderExtWindows};
 
-    async fn setup() -> wgpu::Device {
+    async fn setup() -> (wgpu::Device,wgpu::Queue) {
         let event_loop = EventLoopBuilder::new()
             .with_any_thread(true)
             .build()
@@ -243,7 +252,7 @@ mod test {
             .await
             .unwrap();
 
-        let (device, _) = adapter
+        let (device, queue) = adapter
             .request_device(
                 &wgpu::DeviceDescriptor {
                     label: Some("Device/Queue"),
@@ -255,12 +264,12 @@ mod test {
             .await
             .unwrap();
 
-        device
+        (device,queue)
     }
 
     #[async_std::test]
     async fn resource_creation() {
-        let device = setup().await;
+        let (device,_) = setup().await;
 
         let mut resources = ResourceManager::new();
         let a = resources.add_buffer("Buffer", 12, wgpu::BufferUsages::VERTEX, &device);
@@ -281,4 +290,12 @@ mod test {
 
         assert!(matches!(res, Err(Error::NotFound(_))));
     }
+
+	#[async_std::test]
+	async fn writing_buffer(){
+		let (device,queue) = setup().await;
+		let mut resources = ResourceManager::new();
+		let uniform = resources.add_uniform("Buffer", size_of::<[f64;2]>().try_into().unwrap(),&device);
+		resources.write_buffer(uniform,0, bytemuck::cast_slice(&[0.0,100.0]), &queue).unwrap();
+	}
 }

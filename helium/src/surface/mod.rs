@@ -93,7 +93,11 @@ impl Primitive {
     fn build(&self, resources: &mut ResourceManager, state: &AppState) -> Box<dyn Surface> {
         match self {
             // TODO unnecessary image allocations
-            Self::Circle { id, color } => Box::new(CircleSurface::new(&id, 30, resources,state)),
+            Self::Circle { id, color } => {
+				let mut circle = CircleSurface::new(&id, 30, resources,state); 
+				circle.color(*color);
+				Box::new(circle)
+			},
             Self::Icon { id, image } => Box::new(IconSurface::new(&id, image.clone())),
             Self::Image { id, image } => Box::new(
                 ImageSurface::new(&id, image.clone(), &state.context, resources, &state.device)

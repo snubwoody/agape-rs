@@ -27,13 +27,13 @@ impl CircleSurface {
     pub fn new(id: &str, radius: u32, resources: &mut ResourceManager, state: &AppState) -> Self {
         let position_buffer = resources.add_uniform(
             "Circle Position Buffer",
-            size_of::<[f32; 2]>().try_into().unwrap(),
+            size_of::<[f64; 2]>().try_into().unwrap(),
             &state.device,
         );
 
         let diameter_buffer = resources.add_uniform(
             "Circle Diamter Buffer",
-            size_of::<f32>().try_into().unwrap(),
+            size_of::<f64>().try_into().unwrap(),
             &state.device,
         );
 
@@ -42,7 +42,7 @@ impl CircleSurface {
                 "Circle Dimensions Bind Group",
                 &state.context.circle_pipeline.bounds_layout,
                 &state.device,
-                &[position_buffer, diameter_buffer],
+                &[diameter_buffer,position_buffer],
                 &[],
                 &[],
             )
@@ -68,6 +68,7 @@ impl CircleSurface {
 
     pub fn to_vertices(&self) -> Vec<Vertex> {
         let color = self.color.normalize();
+		dbg!(color);
         let x = self.position.x;
         let y = self.position.y;
 
@@ -83,7 +84,20 @@ impl CircleSurface {
 }
 
 impl Surface for CircleSurface {
-    fn build(&mut self, state: &AppState, resources: &ResourceManager) {}
+    fn build(&mut self, state: &AppState, resources: &ResourceManager) {
+		resources.write_buffer(
+			self.position_buffer, 
+			0, 
+			bytemuck::cast_slice(&[self.position.x,self.position.y]), 
+			&state.queue
+		).unwrap();
+		resources.write_buffer(
+			self.diameter_buffer, 
+			0, 
+			bytemuck::cast_slice(&[self.diameter_buffer]), 
+			&state.queue
+		).unwrap();
+	}
 
     fn draw(
         &mut self,
@@ -93,6 +107,7 @@ impl Surface for CircleSurface {
         state: &AppState,
     ) {
         let vertices = self.to_vertices();
+		dbg!(&self);
 
         let vertex_buffer = state
             .device
@@ -105,7 +120,7 @@ impl Surface for CircleSurface {
         // Set the render pipeline and vertex buffer
         render_pass.set_pipeline(&context.circle_pipeline.pipeline);
         render_pass.set_bind_group(0, &context.circle_pipeline.window_uniform.bind_group(), &[]);
-        render_pass.set_bind_group(1, &context.circle_pipeline.bounds_bind_group, &[]);
+        render_pass.set_bind_group(1, resources.bind_group(self.bind_group).unwrap(), &[]);
         render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
         render_pass.draw(0..vertices.len() as u32, 0..1);
     }
