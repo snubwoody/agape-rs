@@ -21,12 +21,48 @@ pub struct RectSurface {
     size: Size,
     color: Color,
     corner_radius: u32,
+	size_buffer:usize,
+	radius_buffer:usize,
+	position_buffer:usize,
+	bind_group:usize
 }
 
 impl RectSurface {
-    pub fn new(id: &str) -> Self {
+    pub fn new(id: &str,resources: &mut ResourceManager, state: &AppState) -> Self {
+		let size_buffer = resources.add_uniform(
+			"Size Buffer", 
+			size_of::<[f64;2]>().try_into().unwrap(), 
+			&state.device
+		);
+
+		let position_buffer = resources.add_uniform(
+			"Position Buffer", 
+			size_of::<[f64;2]>().try_into().unwrap(), 
+			&state.device
+		);
+
+		let radius_buffer = resources.add_uniform(
+			"Position Buffer", 
+			size_of::<[f64;2]>().try_into().unwrap(), 
+			&state.device
+		);
+
+		let bind_group = resources.add_bind_group(
+			"Rect Bind Group",
+			&state.context.rect_pipeline.bounds_layout, 
+			&state.device, 
+			&[radius_buffer,size_buffer,position_buffer], 
+			&[],
+			&[]
+		).unwrap();
+
+
         Self {
             id: id.to_string(),
+			size_buffer,
+			radius_buffer,
+			position_buffer,
+			bind_group,
             ..Default::default()
         }
     }
@@ -57,6 +93,26 @@ impl RectSurface {
 }
 
 impl Surface for RectSurface {
+	fn build(&mut self, state: &AppState, resources: &ResourceManager) {
+		resources.write_buffer(
+			self.radius_buffer, 
+			0, 
+			bytemuck::cast_slice(&[self.corner_radius]), 
+			&state.queue
+		).unwrap();
+		resources.write_buffer(
+			self.size_buffer, 
+			0, 
+			bytemuck::cast_slice(&[self.size.width,self.size.height]), 
+			&state.queue
+		).unwrap();
+		resources.write_buffer(
+			self.position_buffer, 
+			0, 
+			bytemuck::cast_slice(&[self.position.x,self.position.y]), 
+			&state.queue
+		).unwrap();
+	}
     fn draw(
         &mut self,
         render_pass: &mut wgpu::RenderPass,
@@ -115,7 +171,7 @@ impl Surface for RectSurface {
         // Set the render pipeline and vertex buffer
         render_pass.set_pipeline(&context.rect_pipeline.pipeline);
         render_pass.set_bind_group(0, &context.rect_pipeline.window_bind_group, &[]);
-        render_pass.set_bind_group(1, &bound_bind_group, &[]);
+        render_pass.set_bind_group(1, resources.bind_group(self.bind_group).unwrap(), &[]);
         render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 
         // TODO could maybe use some kind of batch drawing later?

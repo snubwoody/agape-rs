@@ -202,6 +202,13 @@ impl ResourceManager {
         todo!()
     }
 
+	/// Write the `Buffer` at the index.
+	/// 
+	/// # Errors
+	/// This function returns an error if the `Buffer` is not found.
+	/// 
+	/// # Panics
+	/// `wgpu` panics if the data overflows the size of the `Buffer`.
     pub fn write_buffer(
 		&self,
 		index: usize,
