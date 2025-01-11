@@ -105,21 +105,21 @@ fn Sidebar() -> impl Widget {
 
     vstack! {
         hstack!{
-            // feather_icons::menu().color(WHITE),
+            feather_icons::menu().color(WHITE),
             Text::new("Your library").color(WHITE),
             Spacer::new(),
-            // feather_icons::plus().color(WHITE),
-            // feather_icons::arrow_right().color(WHITE)
+            feather_icons::plus().color(WHITE),
+            feather_icons::arrow_right().color(WHITE)
         }
         .cross_axis_alignment(AxisAlignment::Center)
         .fill_width()
         .spacing(12),
         chips,
         hstack!{
-            // feather_icons::search().color(WHITE),
+            feather_icons::search().color(WHITE),
             Spacer::new(),
             Text::new("Recents").color(WHITE),
-            // feather_icons::list().color(WHITE),
+            feather_icons::list().color(WHITE),
         }
         .fill_width()
         .cross_axis_alignment(AxisAlignment::Center),
@@ -188,11 +188,11 @@ fn BottomBar() -> impl Widget {
         Spacer::new(),
         vstack!{
             hstack!{
-                // feather_icons::shuffle().color(WHITE),
-                // feather_icons::skip_back().color(WHITE),
-                // feather_icons::play().color(WHITE),
-                // feather_icons::skip_forward().color(WHITE),
-                // feather_icons::repeat().color(WHITE)
+                feather_icons::shuffle().color(WHITE),
+                feather_icons::skip_back().color(WHITE),
+                feather_icons::play().color(WHITE),
+                feather_icons::skip_forward().color(WHITE),
+                feather_icons::repeat().color(WHITE),
                 Text::new("Placeholder")
             }
             .spacing(16),
@@ -218,17 +218,17 @@ fn BottomBar() -> impl Widget {
 
 fn Navbar() -> impl Widget {
     hstack! {
-        // feather_icons::more_horizontal().color(WHITE),
-        // feather_icons::chevron_left().color(WHITE),
-        // feather_icons::chevron_right().color(WHITE),
+        feather_icons::more_horizontal().color(WHITE),
+        feather_icons::chevron_left().color(WHITE),
+        feather_icons::chevron_right().color(WHITE),
         Spacer::new(),
-        // feather_icons::home().color(WHITE),
-        // feather_icons::search().color(WHITE),
+        feather_icons::home().color(WHITE),
+        feather_icons::search().color(WHITE),
         Text::new("What do you want to play?")
         .color(WHITE),
         Spacer::new(),
-        // feather_icons::bell().color(WHITE),
-        // feather_icons::users().color(WHITE)
+        feather_icons::bell().color(WHITE),
+        feather_icons::users().color(WHITE)
     }
     .fill_width()
     .spacing(12)

@@ -35,7 +35,7 @@ pub trait Surface: Debug {
         state: &AppState,
     );
 
-    fn build(&mut self, state: &AppState) {}
+    fn build(&mut self, state: &AppState, resources: &ResourceManager) {}
 
     /// Set the [`Position`] of the [`Surface`]
     fn position(&mut self, x: f32, y: f32);
@@ -162,6 +162,8 @@ impl SurfaceManager {
             .iter()
             .map(|primitive| primitive.build(&mut self.resources, &state.device, &state.context))
             .collect();
+
+		self.surfaces.iter_mut().for_each(|s|s.build(state, &self.resources));
     }
 
     pub fn resize(&mut self, layout: &dyn Layout, state: &AppState) {

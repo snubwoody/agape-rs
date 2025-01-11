@@ -146,7 +146,7 @@ impl ResourceManager {
 
             entries.push(wgpu::BindGroupEntry {
                 binding: entries.len() as u32,
-                resource: wgpu::BindingResource::TextureView(&texture_view),
+                resource: wgpu::BindingResource::TextureView(texture_view),
             });
         }
 
@@ -157,14 +157,14 @@ impl ResourceManager {
 
             entries.push(wgpu::BindGroupEntry {
                 binding: entries.len() as u32,
-                resource: wgpu::BindingResource::Sampler(&sampler),
+                resource: wgpu::BindingResource::Sampler(sampler),
             });
         }
 
         let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             label: Some(label),
-            layout: &layout,
             entries: &entries,
+            layout,
         });
 
         self.bind_groups.push(bind_group);

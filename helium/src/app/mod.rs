@@ -48,9 +48,6 @@ impl App {
     pub fn run(mut self) {
         let mut state = async_std::task::block_on(AppState::new(&self.window));
         self.window.set_visible(true);
-
-        self.views[0].setup_loop();
-
         self.views[0].build(&state);
 
         // TODO when the window is minimized the size of the widgets are changing to zero which
@@ -70,7 +67,7 @@ impl App {
                         self.window.request_redraw();
                     }
                     event => {
-                        //self.views[self.index].update();
+                        self.views[self.index].update(&state);
                     }
                 },
                 _ => {}
@@ -164,8 +161,8 @@ impl<'a> AppState<'a> {
 
     pub fn resize(&mut self, size: PhysicalSize<u32>) {
         self.size = size.into();
-        self.config.width = size.width as u32;
-        self.config.height = size.height as u32;
+        self.config.width = size.width;
+        self.config.height = size.height;
         // Resize the surface with the window to keep the right scale
         self.surface.configure(&self.device, &self.config);
 

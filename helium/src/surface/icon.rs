@@ -121,7 +121,6 @@ impl Surface for IconSurface {
             )
             .to_rgba8();
 
-        dbg!("Icon Point 1");
         state.queue.write_texture(
             wgpu::ImageCopyTextureBase {
                 texture: &texture,
@@ -137,7 +136,6 @@ impl Surface for IconSurface {
             },
             texture_size,
         );
-        dbg!("Icon Point 2");
 
         // Set the render pipeline and vertex buffer
         render_pass.set_pipeline(&context.icon_pipeline.pipeline);

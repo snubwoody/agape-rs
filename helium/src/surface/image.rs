@@ -109,51 +109,12 @@ impl Surface for ImageSurface {
         render_pass.draw(0..vertices.len() as u32, 0..1);
     }
 
-    fn build(&mut self, state: &AppState) {
-        // TODO maybe move this to the pipeline
-        let texture_size = wgpu::Extent3d {
-            width: self.size.width as u32,
-            height: self.size.height as u32,
-            depth_or_array_layers: 1,
-        };
-
-        let texture = state.device.create_texture(&wgpu::TextureDescriptor {
-            size: texture_size,
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: wgpu::TextureDimension::D2,
-            format: wgpu::TextureFormat::Rgba8UnormSrgb,
-            usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
-            label: Some("Image Texture"),
-            view_formats: &[],
-        });
-
-        let texture_view = texture.create_view(&Default::default());
-        let texture_sampler = state.device.create_sampler(&wgpu::SamplerDescriptor {
-            label: Some("Image Texture sampler"),
-            ..Default::default()
-        });
-
-        let texture_bind_group = state.device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("Image Texture bind group"),
-            layout: &state.context.image_pipeline.texture_bind_group_layout,
-            entries: &[
-                wgpu::BindGroupEntry {
-                    binding: 0,
-                    resource: wgpu::BindingResource::TextureView(&texture_view),
-                },
-                wgpu::BindGroupEntry {
-                    binding: 1,
-                    resource: wgpu::BindingResource::Sampler(&texture_sampler),
-                },
-            ],
-        });
-
-        // self.texture = Some(texture);
-        // self.view = Some(texture_view);
-        // self.sampler = Some(texture_sampler);
-        // self.bind_group = Some(texture_bind_group);
-
+    fn build(&mut self, state: &AppState, resources: &ResourceManager) {
+		let texture_size = wgpu::Extent3d { 
+			width: self.size.width as u32, 
+			height: self.size.height as u32, 
+			depth_or_array_layers: 1
+		};
         let img = self
             .img
             .resize(
@@ -163,21 +124,22 @@ impl Surface for ImageSurface {
             )
             .to_rgba8();
 
-        // state.queue.write_texture(
-        //     wgpu::ImageCopyTextureBase {
-        //         texture: self.texture.as_ref().unwrap(),
-        //         mip_level: 0,
-        //         origin: wgpu::Origin3d::ZERO,
-        //         aspect: wgpu::TextureAspect::All,
-        //     },
-        //     &img,
-        //     wgpu::ImageDataLayout {
-        //         offset: 0,
-        //         bytes_per_row: Some(4 * self.size.width as u32), // TODO don't even know what this is
-        //         rows_per_image: None,
-        //     },
-        //     texture_size,
-        // );
+		log::trace!("writing texture");
+        state.queue.write_texture(
+            wgpu::ImageCopyTextureBase {
+                texture: resources.texture(self.texture).unwrap(),
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
+            &img,
+            wgpu::ImageDataLayout {
+                offset: 0,
+                bytes_per_row: Some(4 * self.size.width as u32), // TODO don't even know what this is
+                rows_per_image: None,
+            },
+            texture_size,
+        );
     }
 
     impl_surface!();
