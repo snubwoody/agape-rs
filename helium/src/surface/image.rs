@@ -5,7 +5,6 @@ use crate::{
     impl_surface,
     resources::ResourceManager,
     surface::Surface,
-    widgets::icon::feather_icons::rss,
     Bounds, Color, Position, Size,
 };
 use std::fmt::Debug;
@@ -110,11 +109,11 @@ impl Surface for ImageSurface {
     }
 
     fn build(&mut self, state: &AppState, resources: &ResourceManager) {
-		let texture_size = wgpu::Extent3d { 
-			width: self.size.width as u32, 
-			height: self.size.height as u32, 
-			depth_or_array_layers: 1
-		};
+        let texture_size = wgpu::Extent3d {
+            width: self.size.width as u32,
+            height: self.size.height as u32,
+            depth_or_array_layers: 1,
+        };
         let img = self
             .img
             .resize(
@@ -124,7 +123,6 @@ impl Surface for ImageSurface {
             )
             .to_rgba8();
 
-		log::trace!("writing texture");
         state.queue.write_texture(
             wgpu::ImageCopyTextureBase {
                 texture: resources.texture(self.texture).unwrap(),

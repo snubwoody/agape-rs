@@ -130,10 +130,6 @@ impl Image {
         }
     }
 
-    pub fn bytes() -> Self {
-        todo!()
-    }
-
     impl_widget!();
 }
 

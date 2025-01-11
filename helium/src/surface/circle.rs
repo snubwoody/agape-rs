@@ -17,17 +17,47 @@ pub struct CircleSurface {
     id: String,
     position: Position,
     size: Size,
+    position_buffer: usize,
+    diameter_buffer: usize,
+    bind_group: usize,
     color: Color,
 }
 
 impl CircleSurface {
-    pub fn new(id: &str, radius: u32) -> Self {
+    pub fn new(id: &str, radius: u32, resources: &mut ResourceManager, state: &AppState) -> Self {
+        let position_buffer = resources.add_uniform(
+            "Circle Position Buffer",
+            size_of::<[f32; 2]>().try_into().unwrap(),
+            &state.device,
+        );
+
+        let diameter_buffer = resources.add_uniform(
+            "Circle Diamter Buffer",
+            size_of::<f32>().try_into().unwrap(),
+            &state.device,
+        );
+
+        let bind_group = resources
+            .add_bind_group(
+                "Circle Dimensions Bind Group",
+                &state.context.circle_pipeline.bounds_layout,
+                &state.device,
+                &[position_buffer, diameter_buffer],
+                &[],
+                &[],
+            )
+            .unwrap();
+
         let size = Size::new(radius as f32, radius as f32);
         let position = Position::default();
+
         Self {
             id: id.to_string(),
             position,
             size,
+            position_buffer,
+            diameter_buffer,
+            bind_group,
             color: WHITE,
         }
     }
@@ -53,6 +83,8 @@ impl CircleSurface {
 }
 
 impl Surface for CircleSurface {
+    fn build(&mut self, state: &AppState, resources: &ResourceManager) {}
+
     fn draw(
         &mut self,
         render_pass: &mut wgpu::RenderPass,
@@ -69,18 +101,6 @@ impl Surface for CircleSurface {
                 contents: bytemuck::cast_slice(&vertices),
                 usage: wgpu::BufferUsages::VERTEX,
             });
-
-        // FIXME broken
-        state.queue.write_buffer(
-            &state.context.circle_pipeline.position_buffer,
-            0,
-            bytemuck::cast_slice(&[self.position.x, self.position.y]),
-        );
-        state.queue.write_buffer(
-            &state.context.circle_pipeline.diameter_buffer,
-            0,
-            bytemuck::cast_slice(&[self.size.width]),
-        );
 
         // Set the render pipeline and vertex buffer
         render_pass.set_pipeline(&context.circle_pipeline.pipeline);

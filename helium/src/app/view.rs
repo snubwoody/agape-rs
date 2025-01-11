@@ -1,8 +1,8 @@
 use super::AppState;
 use crate::{surface::SurfaceManager, widgets::Widget};
 use crystal::LayoutSolver;
-use std::time::Instant;
 
+// TODO maybe change to page?
 pub struct View {
     layout: Box<dyn crystal::Layout>,
     widget: Box<dyn Widget>,
@@ -18,22 +18,16 @@ impl View {
         }
     }
 
-    // TODO spawn a task for each function?
-
     pub fn resize(&mut self, state: &AppState) {
         LayoutSolver::solve(&mut *self.layout, state.size);
         self.surfaces.resize(&*self.layout, state);
     }
 
-    pub fn update(&mut self, state: &AppState) {
-        self.layout = self.widget.layout();
-        //self.surfaces.rebuild(&*self.widget, state);
-    }
-
+    /// This is a set up function, that calls `SurfaceManager::build()`, which currently
+    /// just set's up the textures.
     pub fn build(&mut self, state: &AppState) {
-        LayoutSolver::solve(&mut *self.layout, state.size);
+        self.resize(state);
         self.surfaces.build(state);
-        self.surfaces.resize(&*self.layout, state);
     }
 
     pub fn render(&mut self, state: &AppState) {
@@ -68,11 +62,7 @@ impl View {
             timestamp_writes: None,
         });
 
-        let _ = LayoutSolver::solve(&mut *self.layout, state.size);
-
-        let render_now = Instant::now();
         self.surfaces.draw(&mut render_pass, state);
-        //log::debug!("Spent {:?} rendering", render_now.elapsed());
 
         // Drop the render pass because it borrows encoder mutably
         std::mem::drop(render_pass);

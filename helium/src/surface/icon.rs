@@ -35,8 +35,8 @@ impl IconSurface {
     pub fn prepare(&self, device: &wgpu::Device) -> (wgpu::Texture, wgpu::Extent3d) {
         // TODO maybe move this to the pipeline
         let texture_size = wgpu::Extent3d {
-            width: self.size.width.max(1.0) as u32, // TEMP to make sure it doesn't crash
-            height: self.size.height.max(1.0) as u32,
+            width: self.size.width as u32, // TEMP to make sure it doesn't crash
+            height: self.size.height as u32,
             depth_or_array_layers: 1,
         };
 
@@ -121,6 +121,7 @@ impl Surface for IconSurface {
             )
             .to_rgba8();
 
+        log::trace!("Writing Icon Texture");
         state.queue.write_texture(
             wgpu::ImageCopyTextureBase {
                 texture: &texture,

@@ -1,7 +1,7 @@
 use helium::{
     app::{view::View, App},
     hstack,
-    widgets::Rect,
+    widgets::{icon::feather_icons, Circle, Rect},
     BLACK,
 };
 
@@ -13,9 +13,8 @@ fn main() {
 fn app() {
     let main = hstack! {
        Rect::new(150.0,150.0,BLACK),
-       Rect::new(150.0,150.0,BLACK),
-       Rect::new(150.0,150.0,BLACK),
-       Rect::new(150.0,150.0,BLACK),
+       Circle::new(100,BLACK),
+       //feather_icons::search()
     }
     .spacing(54);
 

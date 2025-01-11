@@ -90,19 +90,15 @@ pub enum Primitive {
 }
 
 impl Primitive {
-    fn build(
-        &self,
-        resources: &mut ResourceManager,
-        device: &wgpu::Device,
-        context: &RenderContext,
-    ) -> Box<dyn Surface> {
+    fn build(&self, resources: &mut ResourceManager, state: &AppState) -> Box<dyn Surface> {
         match self {
             // TODO unnecessary image allocations
-            Self::Circle { id, color } => Box::new(CircleSurface::new(&id, 30)),
+            Self::Circle { id, color } => Box::new(CircleSurface::new(&id, 30, resources,state)),
             Self::Icon { id, image } => Box::new(IconSurface::new(&id, image.clone())),
-            Self::Image { id, image } => {
-                Box::new(ImageSurface::new(&id, image.clone(), context, resources, device).unwrap())
-            }
+            Self::Image { id, image } => Box::new(
+                ImageSurface::new(&id, image.clone(), &state.context, resources, &state.device)
+                    .unwrap(),
+            ),
             Self::Rect {
                 id,
                 corner_radius,
@@ -155,15 +151,17 @@ impl SurfaceManager {
         }
     }
 
-    /// Build the surface manager from the primitives.
+    /// Build the [`Surface`]'s from the [`Primitive`]'s.
     pub fn build(&mut self, state: &AppState) {
         self.surfaces = self
             .primitives
             .iter()
-            .map(|primitive| primitive.build(&mut self.resources, &state.device, &state.context))
+            .map(|primitive| primitive.build(&mut self.resources, &state))
             .collect();
 
-		self.surfaces.iter_mut().for_each(|s|s.build(state, &self.resources));
+        self.surfaces
+            .iter_mut()
+            .for_each(|s| s.build(state, &self.resources));
     }
 
     pub fn resize(&mut self, layout: &dyn Layout, state: &AppState) {
@@ -175,18 +173,6 @@ impl SurfaceManager {
                 }
             }
         }
-    }
-
-    // FIXME horrible function btw
-    /// Rebuild the surfaces
-    pub fn rebuild(&mut self, widget: &dyn Widget, state: &AppState) {
-        self.primitives = widget.iter().map(|w| w.primitive()).collect();
-
-        self.surfaces = self
-            .primitives
-            .iter()
-            .map(|primitive| primitive.build(&mut self.resources, &state.device, &state.context))
-            .collect();
     }
 
     /// Draw the surfaces to the screen

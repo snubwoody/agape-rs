@@ -56,19 +56,13 @@ impl App {
             .run(|event, window_target| match event {
                 winit::event::Event::WindowEvent { event, .. } => match event {
                     WindowEvent::CloseRequested => window_target.exit(),
-                    WindowEvent::RedrawRequested => {
-                        // TODO maybe split the update and render into seperate functions to
-                        // make everything more smooth?
-                        self.views[self.index].render(&state)
-                    }
+                    WindowEvent::RedrawRequested => self.views[self.index].render(&state),
                     WindowEvent::Resized(size) => {
                         state.resize(size);
                         self.views[0].resize(&state);
                         self.window.request_redraw();
                     }
-                    event => {
-                        self.views[self.index].update(&state);
-                    }
+                    _ => {}
                 },
                 _ => {}
             })
