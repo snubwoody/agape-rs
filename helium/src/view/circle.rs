@@ -10,11 +10,23 @@ use crate::{
 use helium_core::color::WHITE;
 use wgpu::util::DeviceExt;
 
+/// Draws a circle to the screen
+/// 
+/// # Example
+/// ```
+/// use helium::view::CircleView;
+/// use helium::Color;
+/// 
+/// CircleView::new("")
+/// 	.color(Color::default());
+/// 
+/// ```
 #[derive(Debug, Clone, PartialEq)]
 pub struct CircleView {
     id: String,
     color: Color,
     resources: HashMap<String, usize>,
+	vertices:Vec<Vertex>
 }
 
 impl CircleView {
@@ -23,6 +35,7 @@ impl CircleView {
             id: id.to_string(),
             color: Color::default(),
             resources: HashMap::new(),
+			vertices:vec![]
         }
     }
 
@@ -30,6 +43,22 @@ impl CircleView {
         self.color = color;
         self
     }
+
+	pub fn to_vertices(&self,size:Size,position:Position) -> Vec<Vertex> {
+        let color = self.color.normalize();
+        let x = position.x;
+        let y = position.y;
+
+        let vertex1 = Vertex::new(x, y, color); //Top left
+        let vertex2 = Vertex::new(x + size.width, y, color); // Top right
+        let vertex3 = Vertex::new(x, y + size.height, color); //Bottom left
+        let vertex4 = Vertex::new(x + size.width, y, color); //Top right
+        let vertex5 = Vertex::new(x, y + size.height, color); // Bottom left
+        let vertex6 = Vertex::new(x + size.width, y + size.height, color); //Bottom right
+
+        return vec![vertex1, vertex2, vertex3, vertex4, vertex5, vertex6];
+    }
+
 }
 
 impl View for CircleView {
@@ -43,6 +72,45 @@ impl View for CircleView {
         resources: &mut ResourceManager,
         state: &AppState,
     ) -> Result<(), crate::Error> {
+		let diameter = layout.size().width;
+		let position = layout.position();
+
+		let vertices = self.to_vertices(layout.size(),position);
+
+		let position_buffer = resources.add_uniform_init(
+            "Circle Position Buffer",
+            bytemuck::cast_slice(&[position.x,position.y]),
+            &state.device,
+        );
+
+        let diameter_buffer = resources.add_uniform_init(
+            "Circle Diamter Buffer",
+            bytemuck::cast_slice(&[diameter]),
+            &state.device,
+        );
+
+		let vertex_buffer = resources.add_vertex_buffer_init(
+			"Vertex Buffer", 
+			bytemuck::cast_slice(&vertices), 
+			&state.device
+		);
+
+        let bind_group = resources
+            .add_bind_group(
+                "Circle Dimensions Bind Group",
+                &state.context.circle_pipeline.bounds_layout,
+                &state.device,
+                &[diameter_buffer, position_buffer],
+                &[],
+                &[],
+            )?;
+
+		self.vertices = vertices;
+		self.resources.insert("Bind group".to_string(), bind_group);
+		self.resources.insert("Position".to_string(), position_buffer);
+		self.resources.insert("Diameter".to_string(), diameter_buffer);
+		self.resources.insert("Vertex buffer".to_string(), vertex_buffer);
+
         Ok(())
     }
 
@@ -53,6 +121,20 @@ impl View for CircleView {
         context: &crate::geometry::RenderContext,
         state: &AppState,
     ) {
+		let vertex_buffer = resources.buffer(
+			*self.resources.get("Vertex buffer").unwrap()
+		).unwrap();
+
+		let bind_group = resources.bind_group(
+			*self.resources.get("Bind group").unwrap()
+		).unwrap();
+
+        pass.set_pipeline(&context.circle_pipeline.pipeline);
+        pass.set_bind_group(0, &context.circle_pipeline.window_uniform.bind_group, &[]);
+        pass.set_bind_group(1, bind_group, &[]);
+        pass.set_vertex_buffer(0, vertex_buffer.slice(..));
+
+        pass.draw(0..self.vertices.len() as u32, 0..1);
     }
 }
 

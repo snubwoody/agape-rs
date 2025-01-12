@@ -128,15 +128,12 @@ impl View for RectView {
 			*self.resources.get("Bind group").unwrap()
 		).unwrap();
 
-        // Set the render pipeline and vertex buffer
         pass.set_pipeline(&context.rect_pipeline.pipeline);
         pass.set_bind_group(0, &context.rect_pipeline.window_bind_group, &[]);
         pass.set_bind_group(1, bind_group, &[]);
         pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 
-        // TODO could maybe use some kind of batch drawing later?
         pass.draw(0..self.vertices.len() as u32, 0..1);
-
     }
 }
 
