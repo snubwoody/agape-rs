@@ -1,5 +1,8 @@
 use super::Widget;
-use crate::{impl_widget, view::{IconView, View}};
+use crate::{
+    impl_widget,
+    view::{IconView, View},
+};
 use crystal::{BoxSizing, EmptyLayout};
 use helium_core::color::Color;
 use image::GenericImageView;
@@ -100,10 +103,7 @@ impl Widget for Icon {
         Box::new(EmptyLayout::default())
     }
 
-	fn view(&self) -> Box<dyn crate::view::View> {
-		Box::new(
-			IconView::new(&self.id, self.image.clone())
-				.color(self.color)
-		)		
-	}
+    fn view(&self) -> Box<dyn crate::view::View> {
+        Box::new(IconView::new(&self.id, self.image.clone()).color(self.color))
+    }
 }

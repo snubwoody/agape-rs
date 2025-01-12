@@ -37,6 +37,25 @@ impl ResourceManager {
         self.buffers.len() - 1
     }
 
+	/// Add a `Vertex Buffer` to the [`ResourceManager`] with data to initialize it.
+    pub fn add_buffer_init(
+        &mut self,
+        label: &str,
+        contents: &[u8],
+		usage: wgpu::BufferUsages,
+        device: &wgpu::Device,
+    ) -> usize {
+        let buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some(label),
+            usage,
+            contents,
+        });
+
+        self.buffers.push(buffer);
+
+        self.buffers.len() - 1
+    }
+
     /// Creates a buffer returns the index of that resource
     pub fn add_vertex_buffer(&mut self, label: &str, size: u64, device: &wgpu::Device) -> usize {
         let buffer = device.create_buffer(&wgpu::BufferDescriptor {
@@ -51,7 +70,25 @@ impl ResourceManager {
         self.buffers.len() - 1
     }
 
-	/// Add a `wgpu::Buffer` to the [`ResourceManager`]
+	/// Add a `Vertex Buffer` to the [`ResourceManager`] with data to initialize it.
+    pub fn add_vertex_buffer_init(
+        &mut self,
+        label: &str,
+        contents: &[u8],
+        device: &wgpu::Device,
+    ) -> usize {
+        let buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some(label),
+            usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
+            contents,
+        });
+
+        self.buffers.push(buffer);
+
+        self.buffers.len() - 1
+    }
+
+    /// Add a `wgpu::Buffer` to the [`ResourceManager`]
     pub fn add_uniform(&mut self, label: &str, size: u64, device: &wgpu::Device) -> usize {
         let buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some(label),
@@ -65,12 +102,17 @@ impl ResourceManager {
         self.buffers.len() - 1
     }
 
-	/// Add a `wgpu::Buffer` to the [`ResourceManager`] with data to initialize it.
-    pub fn add_uniform_init(&mut self, label: &str, contents: &[u8], device: &wgpu::Device) -> usize {
+    /// Add a `wgpu::Buffer` to the [`ResourceManager`] with data to initialize it.
+    pub fn add_uniform_init(
+        &mut self,
+        label: &str,
+        contents: &[u8],
+        device: &wgpu::Device,
+    ) -> usize {
         let buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some(label),
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-			contents
+            contents,
         });
 
         self.buffers.push(buffer);
@@ -211,32 +253,29 @@ impl ResourceManager {
         self.bind_groups.get(index)
     }
 
-    /// Overwrite a buffer at a specific index, by replacing it.
-    pub fn overwrite_buffer(&self, index: usize) {
-        todo!()
-    }
-
-	/// Write the `Buffer` at the index.
-	/// 
-	/// # Errors
-	/// This function returns an error if the `Buffer` is not found.
-	/// 
-	/// # Panics
-	/// `wgpu` panics if the data overflows the size of the `Buffer`.
+    /// Write the `Buffer` at the index.
+    ///
+    /// # Errors
+    /// This function returns an error if the `Buffer` is not found.
+    ///
+    /// # Panics
+    /// `wgpu` panics if the data overflows the size of the `Buffer`.
     pub fn write_buffer(
-		&self,
-		index: usize,
-		offset:u64,
-		data:&[u8],
-		queue:&wgpu::Queue
-	) -> Result<(),Error> {
-		let buffer = self.buffer(index).ok_or(Error::NotFound(format!("Buffer at {index}")))?;
+        &self,
+        index: usize,
+        offset: u64,
+        data: &[u8],
+        queue: &wgpu::Queue,
+    ) -> Result<(), Error> {
+        let buffer = self
+            .buffer(index)
+            .ok_or(Error::NotFound(format!("Buffer at {index}")))?;
         queue.write_buffer(buffer, offset, data);
 
-		Ok(())
+        Ok(())
     }
 
-    pub fn write_texture(&self,queue:&wgpu::Queue) {
+    pub fn write_texture(&self, queue: &wgpu::Queue) {
         todo!()
     }
 }
@@ -246,7 +285,7 @@ mod test {
     use super::*;
     use winit::{event_loop::EventLoopBuilder, platform::windows::EventLoopBuilderExtWindows};
 
-    async fn setup() -> (wgpu::Device,wgpu::Queue) {
+    async fn setup() -> (wgpu::Device, wgpu::Queue) {
         let event_loop = EventLoopBuilder::new()
             .with_any_thread(true)
             .build()
@@ -285,23 +324,23 @@ mod test {
             .await
             .unwrap();
 
-        (device,queue)
+        (device, queue)
     }
 
     #[async_std::test]
     async fn resource_creation() {
-        let (device,_) = setup().await;
+        let (device, _) = setup().await;
 
         let mut resources = ResourceManager::new();
         let a = resources.add_buffer("Buffer", 12, wgpu::BufferUsages::VERTEX, &device);
         let b = resources.add_vertex_buffer("Vertex Buffer", 102, &device);
         let c = resources.add_uniform("Uniform Buffer", 12, &device);
-        let d = resources.add_texture("Texture", Size::default(), &device);
+        let d = resources.add_texture("Texture", Size::new(500.0, 500.0), &device);
 
         resources.buffer(a).unwrap();
         resources.buffer(b).unwrap();
         resources.buffer(c).unwrap();
-        resources.buffer(d).unwrap();
+        resources.texture(d).unwrap();
     }
 
     #[test]
@@ -312,11 +351,14 @@ mod test {
         assert!(matches!(res, Err(Error::NotFound(_))));
     }
 
-	#[async_std::test]
-	async fn writing_buffer(){
-		let (device,queue) = setup().await;
-		let mut resources = ResourceManager::new();
-		let uniform = resources.add_uniform("Buffer", size_of::<[f64;2]>().try_into().unwrap(),&device);
-		resources.write_buffer(uniform,0, bytemuck::cast_slice(&[0.0,100.0]), &queue).unwrap();
-	}
+    #[async_std::test]
+    async fn writing_buffer() {
+        let (device, queue) = setup().await;
+        let mut resources = ResourceManager::new();
+        let uniform =
+            resources.add_uniform("Buffer", size_of::<[f64; 2]>().try_into().unwrap(), &device);
+        resources
+            .write_buffer(uniform, 0, bytemuck::cast_slice(&[0.0, 100.0]), &queue)
+            .unwrap();
+    }
 }

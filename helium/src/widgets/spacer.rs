@@ -1,5 +1,5 @@
 use super::Widget;
-use crate::view::{RectView};
+use crate::view::RectView;
 use crystal::{BoxSizing, EmptyLayout};
 
 /// A [`Widget`] that fills up all the available space.  
@@ -28,9 +28,7 @@ impl Widget for Spacer {
         Box::new(layout)
     }
 
-	fn view(&self) -> Box<dyn crate::view::View> {
-		Box::new(
-			RectView::new(&self.id)
-		)		
-	}
+    fn view(&self) -> Box<dyn crate::view::View> {
+        Box::new(RectView::new(&self.id))
+    }
 }

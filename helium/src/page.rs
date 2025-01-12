@@ -2,7 +2,6 @@ use crate::app::AppState;
 use crate::{view::ViewManager, widgets::Widget};
 use crystal::LayoutSolver;
 
-
 pub struct Page {
     layout: Box<dyn crystal::Layout>,
     widget: Box<dyn Widget>,
@@ -18,10 +17,10 @@ impl Page {
         }
     }
 
-    pub fn build(&mut self, state: &AppState) -> Result<(),crate::Error> {
-		// FIXME the order of these functions isn't so great
-		LayoutSolver::solve(&mut *self.layout, state.size);
-        self.views.build(&*self.layout,state)
+    pub fn build(&mut self, state: &AppState) -> Result<(), crate::Error> {
+        // FIXME the order of these functions isn't so great
+        LayoutSolver::solve(&mut *self.layout, state.size);
+        self.views.build(&*self.layout, state)
     }
 
     pub fn render(&mut self, state: &AppState) {

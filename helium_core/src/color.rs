@@ -12,7 +12,7 @@ pub const PINK: Color = Color::Rgb(236, 72, 153);
 pub const TRANSPARENT: Color = Color::Rgba(0, 0, 0, 0);
 
 /// Represents a color.
-#[derive(Debug, Clone, Copy, PartialEq, Eq,PartialOrd, Ord,Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Color {
     Rgb(u8, u8, u8),
     Rgba(u8, u8, u8, u8),

@@ -86,13 +86,13 @@ impl Widget for VStack {
         Box::new(layout)
     }
 
-	fn view(&self) -> Box<dyn crate::view::View> {
-		Box::new(
-			RectView::new(&self.id)
-				.color(self.color)
-				.corner_radius(self.corner_radius)
-		)		
-	}
+    fn view(&self) -> Box<dyn crate::view::View> {
+        Box::new(
+            RectView::new(&self.id)
+                .color(self.color)
+                .corner_radius(self.corner_radius),
+        )
+    }
 
     fn children(&self) -> Vec<&dyn Widget> {
         self.children

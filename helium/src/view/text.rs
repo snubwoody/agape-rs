@@ -1,67 +1,65 @@
+use super::View;
 use crate::{
-    app::AppState, geometry::vertex::Vertex, resources::ResourceManager,
-    Color, Position, Size,
+    app::AppState, geometry::vertex::Vertex, resources::ResourceManager, Color, Position, Size,
 };
 use helium_core::color::BLACK;
 use image::RgbaImage;
 use std::{fmt::Debug, io::Cursor};
 use wgpu::util::DeviceExt;
-use super::View;
 
-#[derive(Debug,Clone,PartialEq, Hash)]
-pub struct TextView{
-	id: String,
+#[derive(Debug, Clone, PartialEq, Hash)]
+pub struct TextView {
+    id: String,
     text: String,
     font_size: u8,
     color: Color,
 }
 
 impl TextView {
-	pub fn new(id:&str, text:&str) -> Self{
-		Self {
-			id:id.to_string(),
-			text:text.to_string(),
-			font_size:16,
-			color:BLACK
-		}
-	}
+    pub fn new(id: &str, text: &str) -> Self {
+        Self {
+            id: id.to_string(),
+            text: text.to_string(),
+            font_size: 16,
+            color: BLACK,
+        }
+    }
 
-	/// Set the `font_size` of the [`TextView`]
-	pub fn font_size(mut self,font_size:u8) -> Self{
-		self.font_size = font_size;
-		self
-	}
+    /// Set the `font_size` of the [`TextView`]
+    pub fn font_size(mut self, font_size: u8) -> Self {
+        self.font_size = font_size;
+        self
+    }
 
-	/// Set the `font_size` of the [`TextView`]
-	pub fn color(mut self,color:Color) -> Self{
-		self.color = color;
-		self
-	}
+    /// Set the `font_size` of the [`TextView`]
+    pub fn color(mut self, color: Color) -> Self {
+        self.color = color;
+        self
+    }
 }
 
 impl View for TextView {
-	fn id(&self) -> &str {
-		&self.id
-	}
+    fn id(&self) -> &str {
+        &self.id
+    }
 
-	fn init(
-			&mut self,
-			layout:&dyn crystal::Layout,
-			resources:&mut ResourceManager,
-			state: &AppState
-		) -> Result<(),crate::Error> {
-		Ok(())
-	}
+    fn init(
+        &mut self,
+        layout: &dyn crystal::Layout,
+        resources: &mut ResourceManager,
+        state: &AppState,
+    ) -> Result<(), crate::Error> {
+        Ok(())
+    }
 
-	fn draw(
-			&mut self,
-			render_pass: &mut wgpu::RenderPass,
-			resources: &ResourceManager,
-			context: &crate::geometry::RenderContext,
-			state: &AppState,
-		) {
-		
-	}
+    fn draw(
+        &mut self,
+        pass: &mut wgpu::RenderPass,
+        resources: &ResourceManager,
+        context: &crate::geometry::RenderContext,
+        state: &AppState,
+    ) {
+    }
 }
 #[derive(Clone)]
 pub struct TextSurface {
@@ -139,7 +137,7 @@ impl TextSurface {
 impl TextSurface {
     fn draw(
         &mut self,
-        render_pass: &mut wgpu::RenderPass,
+        pass: &mut wgpu::RenderPass,
         resources: &ResourceManager,
         context: &crate::geometry::RenderContext,
         state: &AppState,
@@ -200,12 +198,12 @@ impl TextSurface {
         );
 
         // Set the render pipeline and vertex buffer
-        render_pass.set_pipeline(&context.text_pipeline.pipeline);
-        render_pass.set_bind_group(0, &context.text_pipeline.window_bind_group, &[]);
-        render_pass.set_bind_group(1, &texture_bind_group, &[]);
-        render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
+        pass.set_pipeline(&context.text_pipeline.pipeline);
+        pass.set_bind_group(0, &context.text_pipeline.window_bind_group, &[]);
+        pass.set_bind_group(1, &texture_bind_group, &[]);
+        pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 
-        render_pass.draw(0..vertices.len() as u32, 0..1);
+        pass.draw(0..vertices.len() as u32, 0..1);
     }
 }
 

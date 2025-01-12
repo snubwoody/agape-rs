@@ -1,5 +1,8 @@
 use super::Widget;
-use crate::{impl_widget, view::{ImageView, RectView}};
+use crate::{
+    impl_widget,
+    view::{ImageView, RectView},
+};
 use crystal::{BoxSizing, EmptyLayout};
 use helium_core::color::{BLACK, BLUE};
 use image::{GenericImageView, ImageReader};
@@ -141,13 +144,10 @@ impl Widget for Image {
 
     fn view(&self) -> Box<dyn crate::view::View> {
         match &self.state {
-            ImageState::Complete(image) => 
-				Box::new(
-					ImageView::new(&self.id, image.clone())
-				),
-            ImageState::Loading(_) => Box::new(
-				RectView::new(&self.id).color(BLUE).corner_radius(12)
-			),
+            ImageState::Complete(image) => Box::new(ImageView::new(&self.id, image.clone())),
+            ImageState::Loading(_) => {
+                Box::new(RectView::new(&self.id).color(BLUE).corner_radius(12))
+            }
         }
     }
 

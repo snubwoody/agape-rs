@@ -1,7 +1,7 @@
 use helium::{
     app::App,
-	page::Page,
     hstack,
+    page::Page,
     widgets::{icon::feather_icons, Circle, Rect},
     BLACK,
 };

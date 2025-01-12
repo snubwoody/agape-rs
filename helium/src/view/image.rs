@@ -6,65 +6,63 @@ use crate::{
     view::View,
     Color, Position, Size,
 };
-use std::{collections::HashMap, fmt::Debug};
 use crystal::Layout;
 use image::GenericImageView;
+use std::{collections::HashMap, fmt::Debug};
 use wgpu::util::DeviceExt;
 
-#[derive(Debug,Clone,PartialEq)]
-pub struct ImageView{
-	id:String,
-	image: ::image::DynamicImage,
-	/// A map of all the resources needed by this view
-	resources:HashMap<String,usize>
+#[derive(Debug, Clone, PartialEq)]
+pub struct ImageView {
+    id: String,
+    image: ::image::DynamicImage,
+    /// A map of all the resources needed by this view
+    resources: HashMap<String, usize>,
 }
 
 impl ImageView {
-	pub fn new(id:&str,image: ::image::DynamicImage) -> Self{
-		Self{
-			id:id.to_string(),
-			image,
-			resources:HashMap::new()
-		}
-	}
+    pub fn new(id: &str, image: ::image::DynamicImage) -> Self {
+        Self {
+            id: id.to_string(),
+            image,
+            resources: HashMap::new(),
+        }
+    }
 }
 
 impl View for ImageView {
-	fn id(&self) -> &str {
-		&self.id
-	}
+    fn id(&self) -> &str {
+        &self.id
+    }
 
-	fn init(
-		&mut self,
-		layout:&dyn Layout,
-		resources:&mut ResourceManager,
-		state: &AppState
-	) -> Result<(),Error>{
-		let size = layout.size();
-		let position = layout.position();
+    fn init(
+        &mut self,
+        layout: &dyn Layout,
+        resources: &mut ResourceManager,
+        state: &AppState,
+    ) -> Result<(), Error> {
+        let size = layout.size();
+        let position = layout.position();
 
-		let texture = resources.add_texture(
+        let texture = resources.add_texture(
             "Image texture",
             size, // Textures cannot have dimensions of 0
             &state.device,
         );
-        
-		let view = resources.add_texture_view(texture)?;
+
+        let view = resources.add_texture_view(texture)?;
         let sampler = resources.add_sampler("Image texture sampler", &state.device);
 
-
-		let texture_size = wgpu::Extent3d {
+        let texture_size = wgpu::Extent3d {
             width: size.width as u32,
             height: size.height as u32,
             depth_or_array_layers: 1,
         };
 
-        self.image
-            .resize(
-                size.width as u32,
-                size.height as u32,
-                image::imageops::FilterType::Nearest, // This is by far the fastest filter type
-            );
+        self.image.resize(
+            size.width as u32,
+            size.height as u32,
+            image::imageops::FilterType::Nearest, // This is by far the fastest filter type
+        );
 
         state.queue.write_texture(
             wgpu::ImageCopyTextureBase {
@@ -82,7 +80,7 @@ impl View for ImageView {
             texture_size,
         );
 
-		let bind_group = resources.add_bind_group(
+        let bind_group = resources.add_bind_group(
             "Image texture bind group",
             &state.context.image_pipeline.texture_bind_group_layout,
             &state.device,
@@ -91,18 +89,17 @@ impl View for ImageView {
             &[sampler],
         )?;
 
-		Ok(())
-	}
+        Ok(())
+    }
 
-	fn draw(
-			&mut self,
-			render_pass: &mut wgpu::RenderPass,
-			resources: &ResourceManager,
-			context: &crate::geometry::RenderContext,
-			state: &AppState,
-		) {
-		
-	}
+    fn draw(
+        &mut self,
+        pass: &mut wgpu::RenderPass,
+        resources: &ResourceManager,
+        context: &crate::geometry::RenderContext,
+        state: &AppState,
+    ) {
+    }
 }
 
 /// Draws images to the screen
@@ -179,7 +176,7 @@ impl ImageSurface {
 impl ImageSurface {
     fn draw(
         &mut self,
-        render_pass: &mut wgpu::RenderPass,
+        pass: &mut wgpu::RenderPass,
         resources: &ResourceManager,
         context: &crate::geometry::RenderContext,
         state: &AppState,
@@ -195,12 +192,12 @@ impl ImageSurface {
             });
 
         // Set the render pipeline and vertex buffer
-        render_pass.set_pipeline(&context.image_pipeline.pipeline);
-        render_pass.set_bind_group(0, &context.image_pipeline.window_bind_group, &[]);
-        render_pass.set_bind_group(1, resources.bind_group(self.bind_group).unwrap(), &[]);
-        render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
+        pass.set_pipeline(&context.image_pipeline.pipeline);
+        pass.set_bind_group(0, &context.image_pipeline.window_bind_group, &[]);
+        pass.set_bind_group(1, resources.bind_group(self.bind_group).unwrap(), &[]);
+        pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 
-        render_pass.draw(0..vertices.len() as u32, 0..1);
+        pass.draw(0..vertices.len() as u32, 0..1);
     }
 
     fn build(&mut self, state: &AppState, resources: &ResourceManager) {

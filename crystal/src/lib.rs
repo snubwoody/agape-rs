@@ -33,7 +33,7 @@ impl LayoutSolver {
         root.update_size();
         root.position_children();
         // TODO add a push error function that checks for equality so that we don't have duplicate errors
-		// or maybe just clear the error stack every frame
+        // or maybe just clear the error stack every frame
         root.collect_errors()
     }
 }
@@ -80,15 +80,15 @@ pub trait Layout: Debug + Send + Sync {
 
     fn iter(&self) -> LayoutIter;
 
-	/// Get a [`Layout`] by it's `id`.
-	fn get(&self,id:&str) -> Option<&dyn Layout>{
-		for layout in self.iter(){
-			if layout.id() == id{
-				return Some(*layout);
-			}
-		}
-		None
-	}
+    /// Get a [`Layout`] by it's `id`.
+    fn get(&self, id: &str) -> Option<&dyn Layout> {
+        for layout in self.iter() {
+            if layout.id() == id {
+                return Some(*layout);
+            }
+        }
+        None
+    }
 }
 
 pub struct LayoutIter<'a> {

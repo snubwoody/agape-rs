@@ -3,16 +3,17 @@ mod icon;
 mod image;
 mod rect;
 mod text;
+use crate::{app::AppState, resources::ResourceManager, widgets::Widget, Size};
 pub use circle::CircleView;
+use crystal::Layout;
+pub use icon::IconView;
 pub use image::ImageView;
 pub use rect::RectView;
-pub use text::TextView;
-pub use icon::IconView;
-use crate::{
-    app::AppState, resources::ResourceManager, widgets::Widget, Size
+use std::{
+    collections::HashMap,
+    fmt::{format, Debug},
 };
-use crystal::Layout;
-use std::{collections::HashMap, fmt::{format, Debug}};
+pub use text::TextView;
 
 // TODO update docs
 /// The surfaces are the items that are actually responsible for drawing the pixels to the
@@ -28,20 +29,20 @@ pub trait View: Debug {
     /// Draw the surface onto the screen
     fn draw(
         &mut self,
-        render_pass: &mut wgpu::RenderPass,
+        pass: &mut wgpu::RenderPass,
         resources: &ResourceManager,
         context: &crate::geometry::RenderContext,
         state: &AppState,
     );
-	
-	/// Initialize the [`View`], this usually involves creating buffers, textures
-	/// and bind groups.
-	fn init(
-		&mut self,
-		layout:&dyn Layout,
-		resources:&mut ResourceManager,
-		state: &AppState
-	) -> Result<(),crate::Error>;
+
+    /// Initialize the [`View`], this usually involves creating buffers, textures
+    /// and bind groups.
+    fn init(
+        &mut self,
+        layout: &dyn Layout,
+        resources: &mut ResourceManager,
+        state: &AppState,
+    ) -> Result<(), crate::Error>;
 
     /// Get the id of the [`View`]
     fn id(&self) -> &str;
@@ -56,7 +57,6 @@ pub trait View: Debug {
 //     pipeline: PipelineState,
 //     bind_group_layout: BindGroupLayout,
 // }
-
 
 /// Manages all [`View`]'s and their respective resources including
 /// - `Buffers`
@@ -88,16 +88,16 @@ impl ViewManager {
         }
     }
 
-    pub fn build(&mut self,layout: &dyn Layout, state: &AppState) -> Result<(),crate::Error> {
-        for view in &mut self.views{
-			let layout = layout.get(view.id())
-				.ok_or_else(||crate::Error::NotFound(format!("Layout not found")))?;
-			view.init(layout, &mut self.resources, state)?;
-		}
+    pub fn build(&mut self, layout: &dyn Layout, state: &AppState) -> Result<(), crate::Error> {
+        for view in &mut self.views {
+            let layout = layout
+                .get(view.id())
+                .ok_or_else(|| crate::Error::NotFound(format!("Layout not found")))?;
+            view.init(layout, &mut self.resources, state)?;
+        }
 
-		Ok(())
+        Ok(())
     }
-
 
     /// Draw the surfaces to the screen
     pub fn draw(&mut self, pass: &mut wgpu::RenderPass, state: &AppState) {

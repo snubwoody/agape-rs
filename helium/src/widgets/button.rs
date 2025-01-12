@@ -1,5 +1,5 @@
 use super::Widget;
-use crate::{view::{RectView, View}};
+use crate::view::{RectView, View};
 use crystal::{BlockLayout, Layout};
 use helium_core::color::Color;
 
@@ -53,11 +53,11 @@ impl<W: Widget> Widget for Button<W> {
         vec![&self.child]
     }
 
-	fn view(&self) -> Box<dyn View> {
-		Box::new(
-			RectView::new(&self.id)
-			.color(self.color)
-			.corner_radius(self.corner_radius)
-		)
-	}
+    fn view(&self) -> Box<dyn View> {
+        Box::new(
+            RectView::new(&self.id)
+                .color(self.color)
+                .corner_radius(self.corner_radius),
+        )
+    }
 }

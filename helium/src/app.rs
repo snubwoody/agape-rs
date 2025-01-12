@@ -1,5 +1,5 @@
-use crate::{geometry::RenderContext, Size};
 use crate::page::Page;
+use crate::{geometry::RenderContext, Size};
 use winit::{
     dpi::PhysicalSize,
     event::WindowEvent,
@@ -43,7 +43,7 @@ impl App {
         self
     }
 
-    pub fn run(mut self) -> Result<(),crate::Error> {
+    pub fn run(mut self) -> Result<(), crate::Error> {
         let mut state = async_std::task::block_on(AppState::new(&self.window));
         self.window.set_visible(true);
         self.views[0].build(&state)?;
@@ -64,9 +64,9 @@ impl App {
                 _ => {}
             })
             .expect("Event loop error occured");
-		// TODO return this error 
+        // TODO return this error
 
-		Ok(())
+        Ok(())
     }
 }
 

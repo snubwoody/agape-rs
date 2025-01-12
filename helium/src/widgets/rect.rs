@@ -32,7 +32,7 @@ impl Rect {
         self
     }
 
-	// TODO replace with impl_widget!()
+    // TODO replace with impl_widget!()
     pub fn flex_width(mut self, factor: u8) -> Self {
         self.intrinsic_size.width = BoxSizing::Flex(factor);
         self
@@ -53,11 +53,11 @@ impl Widget for Rect {
         Box::new(layout)
     }
 
-	fn view(&self) -> Box<dyn crate::view::View> {
-		Box::new(
-			RectView::new(&self.id)
-				.color(self.color)
-				.corner_radius(self.corner_radius)
-		)
-	}
+    fn view(&self) -> Box<dyn crate::view::View> {
+        Box::new(
+            RectView::new(&self.id)
+                .color(self.color)
+                .corner_radius(self.corner_radius),
+        )
+    }
 }

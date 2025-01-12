@@ -53,11 +53,11 @@ impl Widget for Text {
         Box::new(layout)
     }
 
-	fn view(&self) -> Box<dyn crate::view::View> {
-		Box::new(
-			TextView::new(&self.id, &self.text)
-				.font_size(self.font_size)
-				.color(self.color)	
-		)
-	}
+    fn view(&self) -> Box<dyn crate::view::View> {
+        Box::new(
+            TextView::new(&self.id, &self.text)
+                .font_size(self.font_size)
+                .color(self.color),
+        )
+    }
 }

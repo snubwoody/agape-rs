@@ -30,9 +30,7 @@ impl Widget for Circle {
         Box::new(layout)
     }
 
-	fn view(&self) -> Box<dyn crate::view::View> {
-		Box::new(
-			CircleView::new(&self.id).color(self.color)
-		)
-	}
+    fn view(&self) -> Box<dyn crate::view::View> {
+        Box::new(CircleView::new(&self.id).color(self.color))
+    }
 }

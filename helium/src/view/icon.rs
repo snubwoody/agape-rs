@@ -1,19 +1,19 @@
 use crate::{
-    app::AppState, geometry::vertex::Vertex, resources::ResourceManager,
-    view::View, Color, Position, Size,
+    app::AppState, geometry::vertex::Vertex, resources::ResourceManager, view::View, Color,
+    Position, Size,
 };
 use helium_core::color::BLACK;
 use std::fmt::Debug;
 use wgpu::util::DeviceExt;
 
-pub struct IconView{
-	id: String,
+pub struct IconView {
+    id: String,
     img: image::DynamicImage,
     color: Color,
 }
 
 impl IconView {
-	pub fn new(id: &str, img: image::DynamicImage) -> Self {
+    pub fn new(id: &str, img: image::DynamicImage) -> Self {
         Self {
             id: id.to_string(),
             img,
@@ -23,33 +23,32 @@ impl IconView {
 
     pub fn color(mut self, color: Color) -> Self {
         self.color = color;
-		self
+        self
     }
 }
 
 impl View for IconView {
-	fn id(&self) -> &str {
-		&self.id
-	}
+    fn id(&self) -> &str {
+        &self.id
+    }
 
-	fn init(
-		&mut self,
-		layout:&dyn crystal::Layout,
-		resources:&mut ResourceManager,
-		state: &AppState
-	) -> Result<(),crate::Error> {
-		Ok(())
-	}
+    fn init(
+        &mut self,
+        layout: &dyn crystal::Layout,
+        resources: &mut ResourceManager,
+        state: &AppState,
+    ) -> Result<(), crate::Error> {
+        Ok(())
+    }
 
-	fn draw(
-		&mut self,
-		render_pass: &mut wgpu::RenderPass,
-		resources: &ResourceManager,
-		context: &crate::geometry::RenderContext,
-		state: &AppState,
-	) {
-		
-	}
+    fn draw(
+        &mut self,
+        pass: &mut wgpu::RenderPass,
+        resources: &ResourceManager,
+        context: &crate::geometry::RenderContext,
+        state: &AppState,
+    ) {
+    }
 }
 
 impl Debug for IconView {
@@ -128,7 +127,7 @@ impl IconSurface {
 impl IconSurface {
     fn draw(
         &mut self,
-        render_pass: &mut wgpu::RenderPass,
+        pass: &mut wgpu::RenderPass,
         resources: &ResourceManager,
         context: &crate::geometry::RenderContext,
         state: &AppState,
@@ -194,12 +193,12 @@ impl IconSurface {
         );
 
         // Set the render pipeline and vertex buffer
-        render_pass.set_pipeline(&context.icon_pipeline.pipeline);
-        render_pass.set_bind_group(0, &context.icon_pipeline.window_bind_group, &[]);
-        render_pass.set_bind_group(1, &texture_bind_group, &[]);
-        render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
+        pass.set_pipeline(&context.icon_pipeline.pipeline);
+        pass.set_bind_group(0, &context.icon_pipeline.window_bind_group, &[]);
+        pass.set_bind_group(1, &texture_bind_group, &[]);
+        pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 
-        render_pass.draw(0..vertices.len() as u32, 0..1);
+        pass.draw(0..vertices.len() as u32, 0..1);
     }
 }
 

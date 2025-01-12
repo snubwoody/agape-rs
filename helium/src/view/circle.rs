@@ -10,51 +10,50 @@ use crate::{
 use helium_core::color::WHITE;
 use wgpu::util::DeviceExt;
 
-#[derive(Debug,Clone,PartialEq)]
-pub struct CircleView{
-	id:String,
-	color:Color,
-	resources:HashMap<String,usize>
+#[derive(Debug, Clone, PartialEq)]
+pub struct CircleView {
+    id: String,
+    color: Color,
+    resources: HashMap<String, usize>,
 }
 
 impl CircleView {
-	pub fn new(id:&str) -> Self{
-		Self { 
-			id: id.to_string(), 
-			color:Color::default(), 
-			resources: HashMap::new() 
-		}
-	}	
+    pub fn new(id: &str) -> Self {
+        Self {
+            id: id.to_string(),
+            color: Color::default(),
+            resources: HashMap::new(),
+        }
+    }
 
-	pub fn color(mut self,color:Color) -> Self{
-		self.color = color;
-		self
-	}
+    pub fn color(mut self, color: Color) -> Self {
+        self.color = color;
+        self
+    }
 }
 
 impl View for CircleView {
-	fn id(&self) -> &str {
-		&self.id
-	}
+    fn id(&self) -> &str {
+        &self.id
+    }
 
-	fn init(
-		&mut self,
-		layout:&dyn crystal::Layout,
-		resources:&mut ResourceManager,
-		state: &AppState
-	) -> Result<(),crate::Error> {
-		Ok(())
-	}
+    fn init(
+        &mut self,
+        layout: &dyn crystal::Layout,
+        resources: &mut ResourceManager,
+        state: &AppState,
+    ) -> Result<(), crate::Error> {
+        Ok(())
+    }
 
-	fn draw(
-		&mut self,
-		render_pass: &mut wgpu::RenderPass,
-		resources: &ResourceManager,
-		context: &crate::geometry::RenderContext,
-		state: &AppState,
-	) {
-		
-	}
+    fn draw(
+        &mut self,
+        pass: &mut wgpu::RenderPass,
+        resources: &ResourceManager,
+        context: &crate::geometry::RenderContext,
+        state: &AppState,
+    ) {
+    }
 }
 
 /// This is a primitive that draws to the screen. This holds
@@ -90,7 +89,7 @@ impl CircleSurface {
                 "Circle Dimensions Bind Group",
                 &state.context.circle_pipeline.bounds_layout,
                 &state.device,
-                &[diameter_buffer,position_buffer],
+                &[diameter_buffer, position_buffer],
                 &[],
                 &[],
             )
@@ -117,7 +116,7 @@ impl CircleSurface {
     pub fn to_vertices(&self) -> Vec<Vertex> {
         let color = self.color.normalize();
 
-		let x = self.position.x;
+        let x = self.position.x;
         let y = self.position.y;
 
         let vertex1 = Vertex::new(x, y, color); //Top left
@@ -133,19 +132,23 @@ impl CircleSurface {
 
 impl CircleSurface {
     fn build(&mut self, state: &AppState, resources: &ResourceManager) {
-		resources.write_buffer(
-			self.position_buffer, 
-			0, 
-			bytemuck::cast_slice(&[self.position.x,self.position.y]), 
-			&state.queue
-		).unwrap();
-		resources.write_buffer(
-			self.diameter_buffer, 
-			0, 
-			bytemuck::cast_slice(&[self.diameter_buffer]), 
-			&state.queue
-		).unwrap();
-	}
+        resources
+            .write_buffer(
+                self.position_buffer,
+                0,
+                bytemuck::cast_slice(&[self.position.x, self.position.y]),
+                &state.queue,
+            )
+            .unwrap();
+        resources
+            .write_buffer(
+                self.diameter_buffer,
+                0,
+                bytemuck::cast_slice(&[self.diameter_buffer]),
+                &state.queue,
+            )
+            .unwrap();
+    }
 
     fn draw(
         &mut self,
@@ -154,7 +157,7 @@ impl CircleSurface {
         context: &RenderContext,
         state: &AppState,
     ) {
-		// FIXME still broken
+        // FIXME still broken
         let vertices = self.to_vertices();
 
         let vertex_buffer = state
@@ -172,5 +175,4 @@ impl CircleSurface {
         render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
         render_pass.draw(0..vertices.len() as u32, 0..1);
     }
-
 }
