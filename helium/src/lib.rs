@@ -5,7 +5,7 @@ pub mod error;
 mod geometry;
 mod resources;
 pub mod signal;
-pub(crate) mod surface;
+pub mod surface;
 pub mod widgets;
 
 pub use crystal::*;

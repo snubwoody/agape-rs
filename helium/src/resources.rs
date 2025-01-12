@@ -1,5 +1,6 @@
 use crate::error::Error;
 use crystal::Size;
+use wgpu::util::DeviceExt;
 
 /// Manages resources
 #[derive(Default, Debug)]
@@ -11,6 +12,7 @@ pub struct ResourceManager {
     bind_groups: Vec<wgpu::BindGroup>,
 }
 
+// TODO add_buffer_init
 impl ResourceManager {
     pub fn new() -> Self {
         Self::default()
@@ -49,12 +51,26 @@ impl ResourceManager {
         self.buffers.len() - 1
     }
 
+	/// Add a `wgpu::Buffer` to the [`ResourceManager`]
     pub fn add_uniform(&mut self, label: &str, size: u64, device: &wgpu::Device) -> usize {
         let buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some(label),
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
             size,
             mapped_at_creation: false,
+        });
+
+        self.buffers.push(buffer);
+
+        self.buffers.len() - 1
+    }
+
+	/// Add a `wgpu::Buffer` to the [`ResourceManager`] with data to initialize it.
+    pub fn add_uniform_init(&mut self, label: &str, contents: &[u8], device: &wgpu::Device) -> usize {
+        let buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some(label),
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+			contents
         });
 
         self.buffers.push(buffer);

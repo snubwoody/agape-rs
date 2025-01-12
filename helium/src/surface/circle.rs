@@ -68,8 +68,8 @@ impl CircleSurface {
 
     pub fn to_vertices(&self) -> Vec<Vertex> {
         let color = self.color.normalize();
-		dbg!(color);
-        let x = self.position.x;
+
+		let x = self.position.x;
         let y = self.position.y;
 
         let vertex1 = Vertex::new(x, y, color); //Top left

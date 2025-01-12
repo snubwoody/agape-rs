@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{
     app::AppState,
     geometry::{vertex::Vertex, RenderContext},
@@ -6,10 +8,23 @@ use crate::{
     surface::Surface,
     Bounds, Color, Position, Size,
 };
+use crystal::Layout;
 use wgpu::{
     util::{BufferInitDescriptor, DeviceExt},
     BindGroupDescriptor,
 };
+
+pub struct RectView{
+	id:String,
+	corner_radius: u32,
+	resources: HashMap<String,usize>
+}
+
+impl RectView {
+	pub fn new(layout:&dyn Layout,resources: &mut ResourceManager) -> Self{
+		todo!()
+	}
+}
 
 /// This is a primitive that draws to the screen. This holds
 /// essential information about the [`Widget`], ie.
@@ -24,7 +39,7 @@ pub struct RectSurface {
 	size_buffer:usize,
 	radius_buffer:usize,
 	position_buffer:usize,
-	bind_group:usize
+	bind_group:usize,
 }
 
 impl RectSurface {
@@ -93,6 +108,7 @@ impl RectSurface {
 }
 
 impl Surface for RectSurface {
+	// TODO Should remove this function
 	fn build(&mut self, state: &AppState, resources: &ResourceManager) {
 		resources.write_buffer(
 			self.radius_buffer, 
@@ -121,7 +137,6 @@ impl Surface for RectSurface {
         context: &RenderContext,
         state: &AppState,
     ) {
-		dbg!(&self);
 		let vertices = self.to_vertices();
 		
         let vertex_buffer = state
@@ -131,44 +146,6 @@ impl Surface for RectSurface {
                 contents: bytemuck::cast_slice(&vertices),
                 usage: wgpu::BufferUsages::VERTEX,
             });
-
-        // TODO could maybe use the uniform struct
-        let corner_radius = state.device.create_buffer_init(&BufferInitDescriptor {
-            label: Some("Corner radius buffer"),
-            contents: bytemuck::cast_slice(&[self.corner_radius as f32]), // Type casting is important maybe save field as f32
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-        });
-
-        let size_buffer = state.device.create_buffer_init(&BufferInitDescriptor {
-            label: Some("Size buffer"),
-            contents: bytemuck::cast_slice(&[self.size.width, self.size.height]),
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-        });
-
-        let position_buffer = state.device.create_buffer_init(&BufferInitDescriptor {
-            label: Some("Position buffer"),
-            contents: bytemuck::cast_slice(&[self.position.x, self.position.y]),
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-        });
-
-        let bound_bind_group = state.device.create_bind_group(&BindGroupDescriptor {
-            label: Some("Rect bounds bind group"),
-            layout: &context.rect_pipeline.bounds_layout,
-            entries: &[
-                wgpu::BindGroupEntry {
-                    binding: 0,
-                    resource: corner_radius.as_entire_binding(),
-                },
-                wgpu::BindGroupEntry {
-                    binding: 1,
-                    resource: size_buffer.as_entire_binding(),
-                },
-                wgpu::BindGroupEntry {
-                    binding: 2,
-                    resource: position_buffer.as_entire_binding(),
-                },
-            ],
-        });
 
         // Set the render pipeline and vertex buffer
         render_pass.set_pipeline(&context.rect_pipeline.pipeline);

@@ -4,12 +4,9 @@ use crate::Color;
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use nanoid::nanoid;
 
-// TODO change size to u32
 /// A simple rectangle
 pub struct Rect {
     id: String,
-    width: f32,
-    height: f32,
     intrinsic_size: crystal::IntrinsicSize,
     color: Color,
     corner_radius: u32,
@@ -24,20 +21,19 @@ impl Rect {
 
         Self {
             id: nanoid!(),
-            width,
-            height,
             color,
             intrinsic_size,
             corner_radius: 0,
         }
     }
 
-    /// Set th corner radius
+    /// Set the corner radius
     pub fn corner_radius(mut self, corner_radius: u32) -> Self {
         self.corner_radius = corner_radius;
         self
     }
 
+	// TODO replace with impl_widget!()
     pub fn flex_width(mut self, factor: u8) -> Self {
         self.intrinsic_size.width = BoxSizing::Flex(factor);
         self

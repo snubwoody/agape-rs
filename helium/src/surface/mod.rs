@@ -4,7 +4,7 @@ pub mod image;
 pub mod rect;
 pub mod text;
 use crate::{
-    app::AppState, geometry::RenderContext, resources::ResourceManager, widgets::Widget, Bounds,
+    app::AppState, resources::ResourceManager, widgets::Widget, Bounds,
     Position, Size,
 };
 use circle::CircleSurface;
@@ -37,6 +37,7 @@ pub trait Surface: Debug {
 
     fn build(&mut self, state: &AppState, resources: &ResourceManager) {}
 
+	// TODO should probably remove these
     /// Set the [`Position`] of the [`Surface`]
     fn position(&mut self, x: f32, y: f32);
 
@@ -62,8 +63,23 @@ pub trait Surface: Debug {
     fn get_bounds(&self) -> Bounds;
 }
 
+// enum PipelineState {
+//     Compute(ComputePipeline),
+//     Render(RenderPipeline),
+// }
+
+// struct WgpuShader {
+//     pipeline: PipelineState,
+//     bind_group_layout: BindGroupLayout,
+// }
+
+/// Primitives describe how the [`Widget`] will be rendered
+/// to the screen. Each `primitive` has a corresponding [`Surface`]
+/// that manages resources such as buffers and textures, and is 
+/// ultimately responsible for drawing the `Widget` to the screen.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Primitive {
+	/// A [`Primitve`] for rendering text
     Text {
         id: String,
         text: String,

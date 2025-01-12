@@ -7,9 +7,90 @@ use crate::{
     surface::Surface,
     Bounds, Color, Position, Size,
 };
-use std::fmt::Debug;
+use std::{collections::HashMap, fmt::Debug};
+use crystal::Layout;
 use image::GenericImageView;
 use wgpu::util::DeviceExt;
+
+
+pub struct ImageView{
+	id:String,
+	image: ::image::DynamicImage,
+	/// A map of all the resources needed by this view
+	resources:HashMap<String,usize>
+}
+
+impl ImageView {
+	pub fn new(id:&str,image: ::image::DynamicImage) -> Self{
+		Self{
+			id:id.to_string(),
+			image,
+			resources:HashMap::new()
+		}
+	}
+
+	/// Initialize the [`View`], this usually involves creating buffers, textures
+	/// and bind groups.
+	pub fn init(
+		&mut self,
+		layout:&dyn Layout,
+		resources:&mut ResourceManager,
+		state: &AppState
+	) -> Result<(),Error>{
+		let size = layout.size();
+		let position = layout.position();
+
+		let texture = resources.add_texture(
+            "Image texture",
+            size, // Textures cannot have dimensions of 0
+            &state.device,
+        );
+        
+		let view = resources.add_texture_view(texture)?;
+        let sampler = resources.add_sampler("Image texture sampler", &state.device);
+
+
+		let texture_size = wgpu::Extent3d {
+            width: size.width as u32,
+            height: size.height as u32,
+            depth_or_array_layers: 1,
+        };
+
+        self.image
+            .resize(
+                size.width as u32,
+                size.height as u32,
+                image::imageops::FilterType::Nearest, // This is by far the fastest filter type
+            );
+
+        state.queue.write_texture(
+            wgpu::ImageCopyTextureBase {
+                texture: resources.texture(texture).unwrap(),
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
+            &self.image.to_rgba8(),
+            wgpu::ImageDataLayout {
+                offset: 0,
+                bytes_per_row: Some(4 * size.width as u32), // TODO don't even know what this is
+                rows_per_image: None,
+            },
+            texture_size,
+        );
+
+		let bind_group = resources.add_bind_group(
+            "Image texture bind group",
+            &state.context.image_pipeline.texture_bind_group_layout,
+            &state.device,
+            &[],
+            &[view],
+            &[sampler],
+        )?;
+
+		Ok(())
+	}
+}
 
 /// Draws images to the screen
 pub struct ImageSurface {
@@ -48,7 +129,7 @@ impl ImageSurface {
             &context.image_pipeline.texture_bind_group_layout,
             device,
             &[],
-            &[view],
+            &[view], // TODO not sure about this
             &[sampler],
         )?;
 
