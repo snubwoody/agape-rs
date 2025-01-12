@@ -71,7 +71,7 @@ impl App {
 }
 
 pub struct AppState<'a> {
-    pub surface: wgpu::Surface<'a>,
+    pub surface: wgpu::View<'a>,
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub context: RenderContext,

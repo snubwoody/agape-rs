@@ -1,4 +1,4 @@
-use crate::{impl_style, impl_widget, surface::Primitive, widgets::Widget, Color};
+use crate::{impl_style, impl_widget, view::{RectView, View}, widgets::Widget, Color};
 use crystal::{AxisAlignment, HorizontalLayout, Layout};
 use helium_core::color::TRANSPARENT;
 
@@ -80,13 +80,12 @@ impl Widget for HStack {
         Box::new(layout)
     }
 
-    fn primitive(&self) -> Primitive {
-        Primitive::Rect {
-            id: self.id.clone(),
-            corner_radius: 0, // TODO add corner radius
-            color: self.color,
-        }
-    }
+	fn view(&self) -> Box<dyn crate::view::View> {
+		Box::new(
+			RectView::new(&self.id)
+				.color(self.color)	
+		)		
+	}
 
     fn update(&mut self) {
         self.children.iter_mut().for_each(|child| child.update());

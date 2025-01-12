@@ -1,29 +1,65 @@
 use std::collections::HashMap;
-
 use crate::{
     app::AppState,
     geometry::{vertex::Vertex, RenderContext},
-    impl_surface,
     resources::ResourceManager,
-    surface::Surface,
-    Bounds, Color, Position, Size,
+    Color, Position, Size,
 };
-use crystal::Layout;
-use wgpu::{
-    util::{BufferInitDescriptor, DeviceExt},
-    BindGroupDescriptor,
-};
+use wgpu::util::DeviceExt;
 
+use super::View;
+
+#[derive(Debug,Clone,PartialEq)]
 pub struct RectView{
 	id:String,
+	color: Color,
 	corner_radius: u32,
 	resources: HashMap<String,usize>
 }
 
 impl RectView {
-	pub fn new(layout:&dyn Layout,resources: &mut ResourceManager) -> Self{
-		todo!()
+	pub fn new(id:&str) -> Self{
+		Self{
+			id:id.to_string(),
+			color:Color::default(),
+			corner_radius:0,
+			resources:HashMap::new()
+		}
 	}
+
+	pub fn color(mut self, color:Color) -> Self{
+		self.color = color;
+		self
+	}
+
+	pub fn corner_radius(mut self, corner_radius:u32) -> Self{
+		self.corner_radius = corner_radius;
+		self
+	}
+}
+
+impl View for RectView {
+	fn id(&self) -> &str {
+		&self.id	
+	}
+
+	fn init(
+			&mut self,
+			layout:&dyn crystal::Layout,
+			resources:&mut ResourceManager,
+			state: &AppState
+		) -> Result<(),crate::Error> {
+		Ok(())
+	}
+
+	fn draw(
+		&mut self,
+		render_pass: &mut wgpu::RenderPass,
+		resources: &ResourceManager,
+		context: &crate::geometry::RenderContext,
+		state: &AppState,
+	) {	}
+
 }
 
 /// This is a primitive that draws to the screen. This holds
@@ -107,7 +143,7 @@ impl RectSurface {
     }
 }
 
-impl Surface for RectSurface {
+impl RectSurface {
 	// TODO Should remove this function
 	fn build(&mut self, state: &AppState, resources: &ResourceManager) {
 		resources.write_buffer(
@@ -156,6 +192,4 @@ impl Surface for RectSurface {
         // TODO could maybe use some kind of batch drawing later?
         render_pass.draw(0..vertices.len() as u32, 0..1);
     }
-
-    impl_surface!();
 }

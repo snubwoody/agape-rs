@@ -5,7 +5,7 @@ pub mod error;
 mod geometry;
 mod resources;
 pub mod signal;
-pub mod surface;
+pub mod view;
 pub mod widgets;
 
 pub use crystal::*;
@@ -14,5 +14,6 @@ pub use helium_core::position::*;
 pub use helium_core::size::*;
 pub use helium_macros::hex;
 pub use nanoid::nanoid;
+pub use error::Error;
 
 // TODO maybe expose whole crates instead of globs

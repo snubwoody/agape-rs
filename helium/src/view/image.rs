@@ -2,17 +2,16 @@ use crate::{
     app::AppState,
     error::Error,
     geometry::{vertex::Vertex, RenderContext},
-    impl_surface,
     resources::ResourceManager,
-    surface::Surface,
-    Bounds, Color, Position, Size,
+    view::View,
+    Color, Position, Size,
 };
 use std::{collections::HashMap, fmt::Debug};
 use crystal::Layout;
 use image::GenericImageView;
 use wgpu::util::DeviceExt;
 
-
+#[derive(Debug,Clone,PartialEq)]
 pub struct ImageView{
 	id:String,
 	image: ::image::DynamicImage,
@@ -28,10 +27,14 @@ impl ImageView {
 			resources:HashMap::new()
 		}
 	}
+}
 
-	/// Initialize the [`View`], this usually involves creating buffers, textures
-	/// and bind groups.
-	pub fn init(
+impl View for ImageView {
+	fn id(&self) -> &str {
+		&self.id
+	}
+
+	fn init(
 		&mut self,
 		layout:&dyn Layout,
 		resources:&mut ResourceManager,
@@ -89,6 +92,16 @@ impl ImageView {
         )?;
 
 		Ok(())
+	}
+
+	fn draw(
+			&mut self,
+			render_pass: &mut wgpu::RenderPass,
+			resources: &ResourceManager,
+			context: &crate::geometry::RenderContext,
+			state: &AppState,
+		) {
+		
 	}
 }
 
@@ -163,7 +176,7 @@ impl ImageSurface {
     }
 }
 
-impl Surface for ImageSurface {
+impl ImageSurface {
     fn draw(
         &mut self,
         render_pass: &mut wgpu::RenderPass,
@@ -221,8 +234,6 @@ impl Surface for ImageSurface {
             texture_size,
         );
     }
-
-    impl_surface!();
 }
 
 impl Debug for ImageSurface {

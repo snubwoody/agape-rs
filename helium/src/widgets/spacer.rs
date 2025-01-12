@@ -1,7 +1,6 @@
 use super::Widget;
-use crate::surface::Primitive;
+use crate::view::{RectView};
 use crystal::{BoxSizing, EmptyLayout};
-use helium_core::color::Color;
 
 /// A [`Widget`] that fills up all the available space.  
 /// Note that `Spacer`'s have no effect when the parent `widget` has
@@ -29,11 +28,9 @@ impl Widget for Spacer {
         Box::new(layout)
     }
 
-    fn primitive(&self) -> Primitive {
-        Primitive::Rect {
-            id: self.id.clone(),
-            corner_radius: 0, // TODO add corner radius
-            color: Color::default(),
-        }
-    }
+	fn view(&self) -> Box<dyn crate::view::View> {
+		Box::new(
+			RectView::new(&self.id)
+		)		
+	}
 }

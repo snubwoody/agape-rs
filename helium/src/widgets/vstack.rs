@@ -1,4 +1,4 @@
-use crate::{impl_style, impl_widget, surface::Primitive, widgets::Widget, Color};
+use crate::{impl_style, impl_widget, view::RectView, widgets::Widget, Color};
 use crystal::{AxisAlignment, Layout, VerticalLayout};
 use helium_core::color::TRANSPARENT;
 
@@ -86,13 +86,13 @@ impl Widget for VStack {
         Box::new(layout)
     }
 
-    fn primitive(&self) -> crate::surface::Primitive {
-        Primitive::Rect {
-            id: self.id.clone(),
-            corner_radius: self.corner_radius,
-            color: self.color,
-        }
-    }
+	fn view(&self) -> Box<dyn crate::view::View> {
+		Box::new(
+			RectView::new(&self.id)
+				.color(self.color)
+				.corner_radius(self.corner_radius)
+		)		
+	}
 
     fn children(&self) -> Vec<&dyn Widget> {
         self.children

@@ -1,5 +1,5 @@
 use super::AppState;
-use crate::{surface::SurfaceManager, widgets::Widget};
+use crate::{view::SurfaceManager, widgets::Widget};
 use crystal::LayoutSolver;
 
 // TODO maybe change to page?

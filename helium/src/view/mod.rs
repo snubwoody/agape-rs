@@ -1,23 +1,22 @@
-pub mod circle;
-pub mod icon;
-pub mod image;
-pub mod rect;
-pub mod text;
+mod circle;
+mod icon;
+mod image;
+mod rect;
+mod text;
+pub use circle::CircleView;
+pub use image::ImageView;
+pub use rect::RectView;
+pub use text::TextView;
+pub use icon::IconView;
 use crate::{
-    app::AppState, resources::ResourceManager, widgets::Widget, Bounds,
-    Position, Size,
+    app::AppState, resources::ResourceManager, widgets::Widget, Size
 };
-use circle::CircleSurface;
 use crystal::Layout;
-use helium_core::color::Color;
-use icon::IconSurface;
-use image::ImageSurface;
-use rect::RectSurface;
 use std::{collections::HashMap, fmt::Debug};
-use text::TextSurface;
 
+// TODO update docs
 /// The surfaces are the items that are actually responsible for drawing the pixels to the
-/// screen. It is the final stage in the pipeline, each [`Surface`] holds the data
+/// screen. It is the final stage in the pipeline, each [`View`] holds the data
 /// responsible for it's rendering needs, all surfaces, however, hold their [`Position`] and
 /// [`Size`] which is calculated during the layout stage. There are currently five surfaces
 /// - [`RectSurface`]: drawing rectangular primitives to the screen
@@ -25,7 +24,7 @@ use text::TextSurface;
 /// - [`CircleSurface`]: drawing circle primitives to the screen
 /// - [`ImageSurface`]: drawing images to the screen
 /// - [`IconSurface`]: drawing icons to the screen
-pub trait Surface: Debug {
+pub trait View: Debug {
     /// Draw the surface onto the screen
     fn draw(
         &mut self,
@@ -34,33 +33,18 @@ pub trait Surface: Debug {
         context: &crate::geometry::RenderContext,
         state: &AppState,
     );
+	
+	/// Initialize the [`View`], this usually involves creating buffers, textures
+	/// and bind groups.
+	fn init(
+		&mut self,
+		layout:&dyn Layout,
+		resources:&mut ResourceManager,
+		state: &AppState
+	) -> Result<(),crate::Error>;
 
-    fn build(&mut self, state: &AppState, resources: &ResourceManager) {}
-
-	// TODO should probably remove these
-    /// Set the [`Position`] of the [`Surface`]
-    fn position(&mut self, x: f32, y: f32);
-
-    /// Get the id of the [`Surface`]
+    /// Get the id of the [`View`]
     fn id(&self) -> &str;
-
-    /// Get the [`Surface`] position.
-    fn get_position(&self) -> Position;
-
-    /// Set the [`Size`] of the [`Surface`].
-    fn size(&mut self, width: f32, height: f32);
-
-    /// Set the width of the [`Surface`].
-    fn width(&mut self, width: f32);
-
-    /// Set the height of the [`Surface`].
-    fn height(&mut self, height: f32);
-
-    /// Get the [`Size`] of the [`Surface`].
-    fn get_size(&self) -> Size;
-
-    /// Get the [`Bounds`] of the [`Surface`]
-    fn get_bounds(&self) -> Bounds;
 }
 
 // enum PipelineState {
@@ -73,82 +57,16 @@ pub trait Surface: Debug {
 //     bind_group_layout: BindGroupLayout,
 // }
 
-/// Primitives describe how the [`Widget`] will be rendered
-/// to the screen. Each `primitive` has a corresponding [`Surface`]
-/// that manages resources such as buffers and textures, and is 
-/// ultimately responsible for drawing the `Widget` to the screen.
-#[derive(Debug, Clone, PartialEq)]
-pub enum Primitive {
-	/// A [`Primitve`] for rendering text
-    Text {
-        id: String,
-        text: String,
-        font_size: u8,
-        color: Color,
-    },
-    Image {
-        id: String,
-        image: ::image::DynamicImage,
-    },
-    Icon {
-        id: String,
-        image: ::image::DynamicImage,
-    },
-    Rect {
-        id: String,
-        corner_radius: u32,
-        color: Color,
-    },
-    Circle {
-        id: String,
-        color: Color,
-    },
-}
 
-impl Primitive {
-    fn build(&self, resources: &mut ResourceManager, state: &AppState) -> Box<dyn Surface> {
-        match self {
-            // TODO unnecessary image allocations
-            Self::Circle { id, color } => {
-				let mut circle = CircleSurface::new(&id, 30, resources,state); 
-				circle.color(*color);
-				Box::new(circle)
-			},
-            Self::Icon { id, image } => Box::new(IconSurface::new(&id, image.clone())),
-            Self::Image { id, image } => Box::new(
-                ImageSurface::new(&id, image.clone(), &state.context, resources, &state.device)
-                    .unwrap(),
-            ),
-            Self::Rect {
-                id,
-                corner_radius,
-                color,
-            } => {
-                let mut surface = RectSurface::new(&id,resources,state);
-                surface.color(*color);
-                surface.corner_radius(*corner_radius);
-                Box::new(surface)
-            }
-            Self::Text {
-                id,
-                text,
-                font_size,
-                color,
-            } => Box::new(TextSurface::new(&id, &text, *font_size, &color)),
-        }
-    }
-}
-
-/// Manages all [`Surface`]'s and their respective resources including
+/// Manages all [`View`]'s and their respective resources including
 /// - `Buffers`
 /// - `Textures`
 /// - `Samplers`
 /// - `Bind groups`
 #[derive(Debug)]
-pub struct SurfaceManager {
+pub struct ViewManager {
     resources: ResourceManager,
-    primitives: Vec<Primitive>,
-    surfaces: Vec<Box<dyn Surface>>,
+    views: Vec<Box<dyn View>>,
     /// A cache of all the sizes of the surfaces.  
     ///
     /// Resizing some surfaces is expensive, particularly the
@@ -158,20 +76,19 @@ pub struct SurfaceManager {
     size_cache: HashMap<String, Size>,
 }
 
-impl SurfaceManager {
+impl ViewManager {
     /// Create a new [`SurfaceManager`].
     pub fn new(widget: &impl Widget) -> Self {
-        let primitives: Vec<Primitive> = widget.iter().map(|w| w.primitive()).collect();
+        //let primitives: Vec<Primitive> = widget.iter().map(|w| w.primitive()).collect();
 
         Self {
-            primitives,
             resources: ResourceManager::new(),
-            surfaces: vec![],
+            views: vec![],
             size_cache: HashMap::new(),
         }
     }
 
-    /// Build the [`Surface`]'s from the [`Primitive`]'s.
+    /// Build the [`View`]'s from the [`Primitive`]'s.
     pub fn build(&mut self,layout: &dyn Layout, state: &AppState) {
         self.surfaces = self
             .primitives

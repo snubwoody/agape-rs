@@ -1,4 +1,4 @@
-use crate::{impl_style, surface::Primitive, widgets::Widget};
+use crate::{impl_style, view::RectView, widgets::Widget};
 use crystal::{BlockLayout, Layout};
 use helium_core::color::Color;
 use nanoid::nanoid;
@@ -51,15 +51,15 @@ where
         Box::new(layout)
     }
 
-    fn primitive(&self) -> Primitive {
-        Primitive::Rect {
-            id: self.id.clone(),
-            corner_radius: self.corner_radius,
-            color: self.color,
-        }
-    }
+	fn view(&self) -> Box<dyn crate::view::View> {
+		Box::new(
+			RectView::new(&self.id)
+				.color(self.color)
+				.corner_radius(self.corner_radius)
+		)
+	}
 
-    fn children(&self) -> Vec<&dyn Widget> {
+	fn children(&self) -> Vec<&dyn Widget> {
         vec![&self.child]
     }
 

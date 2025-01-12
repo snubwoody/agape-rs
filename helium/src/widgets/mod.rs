@@ -8,10 +8,6 @@ mod rect;
 mod spacer;
 mod text;
 mod vstack;
-use crate::{
-    app::AppState,
-    surface::{rect::RectSurface, Primitive, Surface},
-};
 pub use button::*;
 pub use circle::*;
 pub use container::*;
@@ -32,7 +28,7 @@ pub trait Widget: WidgetIterator + Send + Sync {
     /// rendering.
     fn layout(&self) -> Box<dyn Layout>;
 
-    fn primitive(&self) -> Primitive;
+    fn view(&self) -> Box<dyn crate::view::View>;
 
     /// Load data in the background
     fn update(&mut self) {}

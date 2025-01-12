@@ -1,51 +1,96 @@
 use crate::{
-    app::AppState, geometry::vertex::Vertex, impl_surface, resources::ResourceManager,
-    surface::Surface, Bounds, Color, Position, Size,
+    app::AppState, geometry::vertex::Vertex, resources::ResourceManager,
+    view::View, Color, Position, Size,
 };
 use helium_core::color::BLACK;
-use image::RgbaImage;
-use std::{fmt::Debug, io::Cursor};
+use std::fmt::Debug;
 use wgpu::util::DeviceExt;
 
-#[derive(Clone)]
-pub struct TextSurface {
-    id: String,
-    position: Position,
-    size: Size,
-    text: String,
-    font_size: u8,
+pub struct IconView{
+	id: String,
+    img: image::DynamicImage,
     color: Color,
-    img: RgbaImage,
 }
 
-impl TextSurface {
-    pub fn new(id: &str, text: &str, font_size: u8, color: &Color) -> Self {
-        let text_renderer = text_to_png::TextRenderer::default();
-
-        // Render the text as a png
-        let text_image = text_renderer
-            .render_text_to_png_data(text, font_size, color.into_hex_string().as_str())
-            .unwrap(); // TODO Hangle the errors pls
-
-        let img = image::load(Cursor::new(text_image.data), image::ImageFormat::Png)
-            .unwrap()
-            .to_rgba8();
-
+impl IconView {
+	pub fn new(id: &str, img: image::DynamicImage) -> Self {
         Self {
             id: id.to_string(),
-            position: Position::new(0.0, 0.0),
-            size: Size::new(text_image.size.width as f32, text_image.size.height as f32),
-            text: String::from(text),
-            font_size,
-            color: BLACK,
             img,
+            color: BLACK,
         }
     }
 
-    /// Rasterize the text and return the texture
+    pub fn color(mut self, color: Color) -> Self {
+        self.color = color;
+		self
+    }
+}
+
+impl View for IconView {
+	fn id(&self) -> &str {
+		&self.id
+	}
+
+	fn init(
+		&mut self,
+		layout:&dyn crystal::Layout,
+		resources:&mut ResourceManager,
+		state: &AppState
+	) -> Result<(),crate::Error> {
+		Ok(())
+	}
+
+	fn draw(
+		&mut self,
+		render_pass: &mut wgpu::RenderPass,
+		resources: &ResourceManager,
+		context: &crate::geometry::RenderContext,
+		state: &AppState,
+	) {
+		
+	}
+}
+
+impl Debug for IconView {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("IconSurface")
+            .field("id", &self.id)
+            .field("color", &self.color)
+            .finish()
+    }
+}
+
+/// Draws images to the screen
+#[derive(Clone)]
+pub struct IconSurface {
+    id: String,
+    position: Position,
+    size: Size,
+    img: image::DynamicImage,
+    color: Color,
+}
+
+impl IconSurface {
+    pub fn new(id: &str, img: image::DynamicImage) -> Self {
+        Self {
+            id: id.to_string(),
+            position: Position::default(),
+            size: Size::default(),
+            img,
+            color: BLACK,
+        }
+    }
+
+    pub fn color(&mut self, color: Color) {
+        self.color = color
+    }
+
+    // FIXME Creating the texture every frame is not a good idea
     pub fn prepare(&self, device: &wgpu::Device) -> (wgpu::Texture, wgpu::Extent3d) {
+        // TODO maybe move this to the pipeline
         let texture_size = wgpu::Extent3d {
-            width: self.size.width as u32,
+            width: self.size.width as u32, // TEMP to make sure it doesn't crash
             height: self.size.height as u32,
             depth_or_array_layers: 1,
         };
@@ -57,15 +102,15 @@ impl TextSurface {
             dimension: wgpu::TextureDimension::D2,
             format: wgpu::TextureFormat::Rgba8UnormSrgb,
             usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
-            label: Some("Text Texture"),
+            label: Some("Icon Texture"),
             view_formats: &[],
         });
 
-        return (texture, texture_size);
+        (texture, texture_size)
     }
 
     fn to_vertices(&self, width: f32, height: f32) -> Vec<Vertex> {
-        let color = Color::default().normalize();
+        let color = self.color.normalize();
         let x = self.position.x;
         let y = self.position.y;
 
@@ -80,7 +125,7 @@ impl TextSurface {
     }
 }
 
-impl Surface for TextSurface {
+impl IconSurface {
     fn draw(
         &mut self,
         render_pass: &mut wgpu::RenderPass,
@@ -88,6 +133,7 @@ impl Surface for TextSurface {
         context: &crate::geometry::RenderContext,
         state: &AppState,
     ) {
+        // FIXME wgpu panics if size is 0
         let (texture, texture_size) = self.prepare(&state.device);
 
         let vertices = self.to_vertices(texture_size.width as f32, texture_size.height as f32);
@@ -102,18 +148,12 @@ impl Surface for TextSurface {
 
         let texture_view = texture.create_view(&Default::default());
         let texture_sampler = state.device.create_sampler(&wgpu::SamplerDescriptor {
-            label: Some("Texture sampler"),
-            address_mode_u: wgpu::AddressMode::ClampToEdge,
-            address_mode_v: wgpu::AddressMode::ClampToEdge,
-            address_mode_w: wgpu::AddressMode::ClampToEdge,
-            mag_filter: wgpu::FilterMode::Linear,
-            min_filter: wgpu::FilterMode::Nearest,
-            mipmap_filter: wgpu::FilterMode::Nearest,
+            label: Some("Icon Texture sampler"),
             ..Default::default()
         });
 
         let texture_bind_group = state.device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("Text bind group"),
+            label: Some("Icon Texture bind group"),
             layout: &context.text_pipeline.texture_bind_group_layout,
             entries: &[
                 wgpu::BindGroupEntry {
@@ -127,6 +167,16 @@ impl Surface for TextSurface {
             ],
         });
 
+        let img_data = self
+            .img
+            .resize(
+                self.size.width as u32,
+                self.size.height as u32,
+                image::imageops::FilterType::CatmullRom,
+            )
+            .to_rgba8();
+
+        log::trace!("Writing Icon Texture");
         state.queue.write_texture(
             wgpu::ImageCopyTextureBase {
                 texture: &texture,
@@ -134,35 +184,30 @@ impl Surface for TextSurface {
                 origin: wgpu::Origin3d::ZERO,
                 aspect: wgpu::TextureAspect::All,
             },
-            &self.img,
+            &img_data,
             wgpu::ImageDataLayout {
                 offset: 0,
-                bytes_per_row: Some(4 * self.size.width as u32),
-                rows_per_image: Some(self.size.height as u32),
+                bytes_per_row: Some(4 * self.size.width as u32), // TODO don't even know what this is
+                rows_per_image: None,
             },
             texture_size,
         );
 
         // Set the render pipeline and vertex buffer
-        render_pass.set_pipeline(&context.text_pipeline.pipeline);
-        render_pass.set_bind_group(0, &context.text_pipeline.window_bind_group, &[]);
+        render_pass.set_pipeline(&context.icon_pipeline.pipeline);
+        render_pass.set_bind_group(0, &context.icon_pipeline.window_bind_group, &[]);
         render_pass.set_bind_group(1, &texture_bind_group, &[]);
         render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 
         render_pass.draw(0..vertices.len() as u32, 0..1);
     }
-
-    impl_surface!();
 }
 
-impl Debug for TextSurface {
+impl Debug for IconSurface {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("TextSurface")
+        f.debug_struct("IconSurface")
             .field("size", &self.size)
             .field("position", &self.position)
-            .field("text", &self.text)
-            .field("font_size", &self.font_size)
-            .field("color", &self.color)
             .finish()
     }
 }

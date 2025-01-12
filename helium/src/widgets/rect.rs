@@ -1,6 +1,5 @@
 use super::Widget;
-use crate::surface::Primitive;
-use crate::Color;
+use crate::{view::RectView, Color};
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use nanoid::nanoid;
 
@@ -54,11 +53,11 @@ impl Widget for Rect {
         Box::new(layout)
     }
 
-    fn primitive(&self) -> Primitive {
-        Primitive::Rect {
-            id: self.id.clone(),
-            corner_radius: self.corner_radius, // TODO add corner radius
-            color: self.color,
-        }
-    }
+	fn view(&self) -> Box<dyn crate::view::View> {
+		Box::new(
+			RectView::new(&self.id)
+				.color(self.color)
+				.corner_radius(self.corner_radius)
+		)
+	}
 }

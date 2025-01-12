@@ -1,5 +1,5 @@
 use super::Widget;
-use crate::surface::Primitive;
+use crate::view::Primitive;
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::color::Color;
 

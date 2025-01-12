@@ -1,13 +1,56 @@
+use std::collections::HashMap;
+
 use crate::{
     app::AppState,
     geometry::{vertex::Vertex, RenderContext},
-    impl_surface,
     resources::ResourceManager,
-    surface::Surface,
-    Bounds, Color, Position, Size,
+    view::View,
+    Color, Position, Size,
 };
 use helium_core::color::WHITE;
 use wgpu::util::DeviceExt;
+
+#[derive(Debug,Clone,PartialEq)]
+pub struct CircleView{
+	id:String,
+	color:Color,
+	resources:HashMap<String,usize>
+}
+
+impl CircleView {
+	pub fn new(id:&str,color:Color) -> Self{
+		Self { 
+			id: id.to_string(), 
+			color, 
+			resources: HashMap::new() 
+		}
+	}	
+}
+
+impl View for CircleView {
+	fn id(&self) -> &str {
+		&self.id
+	}
+
+	fn init(
+		&mut self,
+		layout:&dyn crystal::Layout,
+		resources:&mut ResourceManager,
+		state: &AppState
+	) -> Result<(),crate::Error> {
+		Ok(())
+	}
+
+	fn draw(
+		&mut self,
+		render_pass: &mut wgpu::RenderPass,
+		resources: &ResourceManager,
+		context: &crate::geometry::RenderContext,
+		state: &AppState,
+	) {
+		
+	}
+}
 
 /// This is a primitive that draws to the screen. This holds
 /// essential information about the [`Widget`], ie.
@@ -83,7 +126,7 @@ impl CircleSurface {
     }
 }
 
-impl Surface for CircleSurface {
+impl CircleSurface {
     fn build(&mut self, state: &AppState, resources: &ResourceManager) {
 		resources.write_buffer(
 			self.position_buffer, 
@@ -125,5 +168,4 @@ impl Surface for CircleSurface {
         render_pass.draw(0..vertices.len() as u32, 0..1);
     }
 
-    impl_surface!();
 }

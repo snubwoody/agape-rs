@@ -1,5 +1,5 @@
 use super::Widget;
-use crate::{impl_widget, surface::Primitive};
+use crate::{app::view::View, impl_widget, view::ImageView};
 use crystal::{BoxSizing, EmptyLayout};
 use helium_core::color::BLACK;
 use image::{GenericImageView, ImageReader};
@@ -139,12 +139,9 @@ impl Widget for Image {
         Box::new(self.layout.clone())
     }
 
-    fn primitive(&self) -> Primitive {
+    fn view(&self) -> View {
         match &self.state {
-            ImageState::Complete(image) => Primitive::Image {
-                id: self.id.clone(),
-                image: image.clone(),
-            },
+            ImageState::Complete(image) => ImageView::new(&self.id, image.clone()),
             ImageState::Loading(_) => Primitive::Rect {
                 id: self.id.clone(),
                 corner_radius: 12,
