@@ -38,21 +38,6 @@ impl RectView {
         self.corner_radius = corner_radius;
         self
     }
-
-	pub fn to_vertices(&self,size:Size,position:Position) -> Vec<Vertex> {
-        let color = self.color.normalize();
-        let x = position.x;
-        let y = position.y;
-
-        let vertex1 = Vertex::new(x, y, color); //Top left
-        let vertex2 = Vertex::new(x + size.width, y, color); // Top right
-        let vertex3 = Vertex::new(x, y + size.height, color); //Bottom left
-        let vertex4 = Vertex::new(x + size.width, y, color); //Top right
-        let vertex5 = Vertex::new(x, y + size.height, color); // Bottom left
-        let vertex6 = Vertex::new(x + size.width, y + size.height, color); //Bottom right
-
-        return vec![vertex1, vertex2, vertex3, vertex4, vertex5, vertex6];
-    }
 }
 
 impl View for RectView {
@@ -69,7 +54,7 @@ impl View for RectView {
 		let size = layout.size();
 		let position = layout.position();
 
-		let vertices = self.to_vertices(size, position);
+		let vertices = Vertex::quad(size, position, self.color);
 
 		let vertex_buffer = resources.add_vertex_buffer_init(
 			"Rect Vertex Buffer", 

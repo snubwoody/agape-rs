@@ -2,6 +2,7 @@ use crate::error::Error;
 use crystal::Size;
 use wgpu::util::DeviceExt;
 
+// TODO Adda custom resource error? 
 /// Manages resources
 #[derive(Default, Debug)]
 pub struct ResourceManager {

@@ -3,13 +3,14 @@ use crate::{
     Position, Size,
 };
 use helium_core::color::BLACK;
-use std::fmt::Debug;
+use std::{collections::HashMap, fmt::Debug};
 use wgpu::util::DeviceExt;
 
 pub struct IconView {
     id: String,
     img: image::DynamicImage,
     color: Color,
+	resources: HashMap<String,usize>
 }
 
 impl IconView {
@@ -18,7 +19,25 @@ impl IconView {
             id: id.to_string(),
             img,
             color: BLACK,
+			resources:HashMap::new()
         }
+    }
+
+	fn to_vertices(&self, size:Size, position:Position) -> Vec<Vertex> {
+        let color = self.color.normalize();
+		let width = size.width;
+		let height = size.height;
+        let x = position.x;
+        let y = position.y;
+
+        let vertex1 = Vertex::new_with_uv(x, y, color, [0.0, 0.0]); //Top left
+        let vertex2 = Vertex::new_with_uv(x + width, y, color, [1.0, 0.0]); // Top right
+        let vertex3 = Vertex::new_with_uv(x, y + height, color, [0.0, 1.0]); //Bottom left
+        let vertex4 = Vertex::new_with_uv(x + width, y, color, [1.0, 0.0]); //Top right
+        let vertex5 = Vertex::new_with_uv(x, y + height, color, [0.0, 1.0]); // Bottom left
+        let vertex6 = Vertex::new_with_uv(x + width, y + height, color, [1.0, 1.0]); //Bottom right
+
+        return vec![vertex1, vertex2, vertex3, vertex4, vertex5, vertex6];
     }
 
     pub fn color(mut self, color: Color) -> Self {
@@ -38,6 +57,69 @@ impl View for IconView {
         resources: &mut ResourceManager,
         state: &AppState,
     ) -> Result<(), crate::Error> {
+		// FIXME wgpu panics if size is 0
+		let size = layout.size();
+		let position = layout.position();
+
+        let vertices = self.to_vertices(size,position);
+
+        // let vertex_buffer = state
+        //     .device
+        //     .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        //         label: Some("Vertex buffer"),
+        //         contents: bytemuck::cast_slice(&vertices),
+        //         usage: wgpu::BufferUsages::VERTEX,
+        //     });
+
+        // let texture_view = texture.create_view(&Default::default());
+        // let texture_sampler = state.device.create_sampler(&wgpu::SamplerDescriptor {
+        //     label: Some("Icon Texture sampler"),
+        //     ..Default::default()
+        // });
+
+        // let texture_bind_group = state.device.create_bind_group(&wgpu::BindGroupDescriptor {
+        //     label: Some("Icon Texture bind group"),
+        //     layout: &context.text_pipeline.texture_bind_group_layout,
+        //     entries: &[
+        //         wgpu::BindGroupEntry {
+        //             binding: 0,
+        //             resource: wgpu::BindingResource::TextureView(&texture_view),
+        //         },
+        //         wgpu::BindGroupEntry {
+        //             binding: 1,
+        //             resource: wgpu::BindingResource::Sampler(&texture_sampler),
+        //         },
+        //     ],
+        // });
+
+        // let img_data = self
+        //     .img
+        //     .resize(
+        //         self.size.width as u32,
+        //         self.size.height as u32,
+        //         image::imageops::FilterType::CatmullRom,
+        //     )
+        //     .to_rgba8();
+
+        // log::trace!("Writing Icon Texture");
+        // state.queue.write_texture(
+        //     wgpu::ImageCopyTextureBase {
+        //         texture: &texture,
+        //         mip_level: 0,
+        //         origin: wgpu::Origin3d::ZERO,
+        //         aspect: wgpu::TextureAspect::All,
+        //     },
+        //     &img_data,
+        //     wgpu::ImageDataLayout {
+        //         offset: 0,
+        //         bytes_per_row: Some(4 * self.size.width as u32), // TODO don't even know what this is
+        //         rows_per_image: None,
+        //     },
+        //     texture_size,
+        // );
+
+        // Set the render pipeline and vertex buffer
+       
         Ok(())
     }
 
@@ -48,6 +130,12 @@ impl View for IconView {
         context: &crate::geometry::RenderContext,
         state: &AppState,
     ) {
+		// pass.set_pipeline(&context.icon_pipeline.pipeline);
+        // pass.set_bind_group(0, &context.icon_pipeline.window_bind_group, &[]);
+        // pass.set_bind_group(1, &texture_bind_group, &[]);
+        // pass.set_vertex_buffer(0, vertex_buffer.slice(..));
+
+        // pass.draw(0..vertices.len() as u32, 0..1);
     }
 }
 
