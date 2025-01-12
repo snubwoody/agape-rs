@@ -1,5 +1,5 @@
 use super::Widget;
-use crate::view::Primitive;
+use crate::view::CircleView;
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::color::Color;
 
@@ -30,10 +30,9 @@ impl Widget for Circle {
         Box::new(layout)
     }
 
-    fn primitive(&self) -> Primitive {
-        Primitive::Circle {
-            id: self.id.clone(),
-            color: self.color,
-        }
-    }
+	fn view(&self) -> Box<dyn crate::view::View> {
+		Box::new(
+			CircleView::new(&self.id).color(self.color)
+		)
+	}
 }

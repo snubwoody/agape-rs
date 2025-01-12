@@ -18,13 +18,18 @@ pub struct CircleView{
 }
 
 impl CircleView {
-	pub fn new(id:&str,color:Color) -> Self{
+	pub fn new(id:&str) -> Self{
 		Self { 
 			id: id.to_string(), 
-			color, 
+			color:Color::default(), 
 			resources: HashMap::new() 
 		}
 	}	
+
+	pub fn color(mut self,color:Color) -> Self{
+		self.color = color;
+		self
+	}
 }
 
 impl View for CircleView {
