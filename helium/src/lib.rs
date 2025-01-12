@@ -1,6 +1,7 @@
 //! A gui library built using `wgpu`. It uses an entirely custom renderer for drawing
 //! the ui and uses the `crystal` crate for layout.
 pub mod app;
+pub mod page;
 pub mod error;
 mod geometry;
 mod resources;

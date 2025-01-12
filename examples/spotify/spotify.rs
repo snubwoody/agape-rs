@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use helium::{
-    app::{view::View, App},
+    app::{page::Page, App},
     hstack, vstack,
     widgets::{icon::feather_icons, Container, Image, Rect, Spacer, Text, Widget},
     AxisAlignment, Color, LayoutSolver, Size, BLACK, WHITE,
@@ -89,7 +89,7 @@ fn main() {
     writer.write(format!("{:#?}", layout).as_bytes()).unwrap();
     writer.flush().unwrap();
 
-    let home = View::new(home);
+    let home = Page::new(home);
     App::new().add_view(home).run();
 }
 

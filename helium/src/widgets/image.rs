@@ -1,5 +1,5 @@
 use super::Widget;
-use crate::{app::view::View, impl_widget, view::{ImageView, RectView}};
+use crate::{impl_widget, view::{ImageView, RectView}};
 use crystal::{BoxSizing, EmptyLayout};
 use helium_core::color::{BLACK, BLUE};
 use image::{GenericImageView, ImageReader};

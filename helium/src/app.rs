@@ -1,7 +1,5 @@
-pub mod view;
-
 use crate::{geometry::RenderContext, Size};
-use view::View;
+use crate::page::Page;
 use winit::{
     dpi::PhysicalSize,
     event::WindowEvent,
@@ -14,7 +12,7 @@ use winit::{
 pub struct App {
     event_loop: EventLoop<()>,
     window: Window,
-    views: Vec<View>,
+    views: Vec<Page>,
     index: usize,
 }
 
@@ -40,7 +38,7 @@ impl App {
         }
     }
 
-    pub fn add_view(mut self, view: View) -> Self {
+    pub fn add_view(mut self, view: Page) -> Self {
         self.views.push(view);
         self
     }
@@ -71,7 +69,7 @@ impl App {
 }
 
 pub struct AppState<'a> {
-    pub surface: wgpu::View<'a>,
+    pub surface: wgpu::Surface<'a>,
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub context: RenderContext,

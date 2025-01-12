@@ -1,5 +1,5 @@
 use helium::{
-    app::{view::View, App},
+    app::{page::Page, App},
     hstack,
     widgets::{icon::feather_icons, Circle, Rect},
     BLACK,
@@ -18,7 +18,7 @@ fn app() {
     }
     .spacing(54);
 
-    let page = View::new(main);
+    let page = Page::new(main);
 
     App::new().add_view(page).run();
 }

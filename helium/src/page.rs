@@ -1,34 +1,34 @@
-use super::AppState;
-use crate::{view::SurfaceManager, widgets::Widget};
+use crate::app::AppState;
+use crate::{view::ViewManager, widgets::Widget};
 use crystal::LayoutSolver;
 
-// TODO maybe change to page?
-pub struct View {
+
+pub struct Page {
     layout: Box<dyn crystal::Layout>,
     widget: Box<dyn Widget>,
-    surfaces: SurfaceManager,
+    views: ViewManager,
 }
 
-impl View {
+impl Page {
     pub fn new(widget: impl Widget + 'static) -> Self {
         Self {
             layout: widget.layout(),
-            surfaces: SurfaceManager::new(&widget),
+            views: ViewManager::new(&widget),
             widget: Box::new(widget),
         }
     }
 
     pub fn resize(&mut self, state: &AppState) {
         LayoutSolver::solve(&mut *self.layout, state.size);
-        self.surfaces.resize(&*self.layout, state);
+        self.views.resize(&*self.layout, state);
     }
 
-    /// This is a set up function, that calls `SurfaceManager::build()`, which currently
+    /// This is a set up function, that calls `ViewManager::build()`, which currently
     /// just set's up the textures.
     pub fn build(&mut self, state: &AppState) {
 		// FIXME the order of these functions isn't so great
 		LayoutSolver::solve(&mut *self.layout, state.size);
-        self.surfaces.build(&*self.layout,state);
+        self.views.build(&*self.layout,state);
     }
 
     pub fn render(&mut self, state: &AppState) {
@@ -63,7 +63,7 @@ impl View {
             timestamp_writes: None,
         });
 
-        self.surfaces.draw(&mut render_pass, state);
+        self.views.draw(&mut render_pass, state);
 
         // Drop the render pass because it borrows encoder mutably
         std::mem::drop(render_pass);
@@ -75,5 +75,5 @@ impl View {
 
 #[cfg(test)]
 mod test {
-    // TODO test that all the layouts and surfaces have the same id's
+    // TODO test that all the layouts and views have the same id's
 }
