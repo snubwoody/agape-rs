@@ -26,6 +26,10 @@ impl VStack {
         self
     }
 
+	pub fn get(&self,index:usize) -> Option<&dyn Widget>{
+		self.children.get(index).map(|w|&**w)
+	}
+
     pub fn add_child(mut self, widget: impl Widget + 'static) -> Self {
         self.children.push(Box::new(widget));
         self

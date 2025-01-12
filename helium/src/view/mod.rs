@@ -1,3 +1,5 @@
+//! [`View`]'s are responsible for drawing [`Widget`]'s to the screen.
+//! It is the last stage in the pipeline.
 mod circle;
 mod icon;
 mod image;
@@ -14,19 +16,9 @@ use std::{
     fmt::{format, Debug},
 };
 pub use text::TextView;
-
-// TODO update docs
-/// The surfaces are the items that are actually responsible for drawing the pixels to the
-/// screen. It is the final stage in the pipeline, each [`View`] holds the data
-/// responsible for it's rendering needs, all surfaces, however, hold their [`Position`] and
-/// [`Size`] which is calculated during the layout stage. There are currently five surfaces
-/// - [`RectSurface`]: drawing rectangular primitives to the screen
-/// - [`TextSurface`]: drawing text to the screen
-/// - [`CircleSurface`]: drawing circle primitives to the screen
-/// - [`ImageSurface`]: drawing images to the screen
-/// - [`IconSurface`]: drawing icons to the screen
+ 
 pub trait View: Debug {
-    /// Draw the surface onto the screen
+    /// Draws the [`View`] to the screen.
     fn draw(
         &mut self,
         pass: &mut wgpu::RenderPass,

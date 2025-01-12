@@ -12,7 +12,7 @@ pub struct ResourceManager {
     bind_groups: Vec<wgpu::BindGroup>,
 }
 
-// TODO add_buffer_init
+// TODO maybe change add to new or create?
 impl ResourceManager {
     pub fn new() -> Self {
         Self::default()
@@ -163,6 +163,7 @@ impl ResourceManager {
 
     /// Add a texture sampler
     pub fn add_sampler(&mut self, label: &str, device: &wgpu::Device) -> usize {
+		// TODO could have a sampler desription struct
         let texture_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
             label: Some(label),
             ..Default::default()
@@ -253,7 +254,7 @@ impl ResourceManager {
         self.bind_groups.get(index)
     }
 
-    /// Write the `Buffer` at the index.
+    /// Schedule a write into the `Buffer` at the index.
     ///
     /// # Errors
     /// This function returns an error if the `Buffer` is not found.
@@ -275,8 +276,40 @@ impl ResourceManager {
         Ok(())
     }
 
-    pub fn write_texture(&self, queue: &wgpu::Queue) {
-        todo!()
+	/// Schedule a write of an image into a `Texture`
+    pub fn write_texture(
+		&self, 
+		texture:usize,
+		size: Size,
+		image: &image::RgbaImage,
+		queue: &wgpu::Queue
+	) -> Result<(),Error> {
+		let texture = self.texture(texture)
+			.ok_or_else(||Error::NotFound(format!("Texture not found")))?;
+
+		let texture_size = wgpu::Extent3d { 
+			width: size.width as u32, 
+			height: size.height as u32, 
+			depth_or_array_layers: 1
+		};
+
+		queue.write_texture(
+            wgpu::ImageCopyTextureBase {
+                texture: &texture,
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
+            image,
+            wgpu::ImageDataLayout {
+                offset: 0,
+                bytes_per_row: Some(4 * size.width as u32),
+                rows_per_image: Some(size.height as u32),
+            },
+            texture_size,
+        );
+
+		Ok(())
     }
 }
 
