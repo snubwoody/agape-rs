@@ -13,7 +13,7 @@ pub use image::ImageView;
 pub use rect::RectView;
 use std::{
     collections::HashMap,
-    fmt::{format, Debug},
+    fmt::{Debug},
 };
 pub use text::TextView;
  
@@ -99,45 +99,3 @@ impl ViewManager {
     }
 }
 
-#[macro_export]
-macro_rules! impl_surface {
-    () => {
-        fn position(&mut self, x: f32, y: f32) {
-            self.position = Position::new(x, y);
-        }
-
-        fn get_position(&self) -> Position {
-            self.position
-        }
-
-        fn id(&self) -> &str {
-            &self.id
-        }
-
-        fn size(&mut self, width: f32, height: f32) {
-            self.size.width = width;
-            self.size.height = height;
-        }
-
-        fn width(&mut self, width: f32) {
-            self.size.width = width
-        }
-
-        fn height(&mut self, height: f32) {
-            self.size.height = height
-        }
-
-        fn get_size(&self) -> Size {
-            self.size
-        }
-
-        fn get_bounds(&self) -> Bounds {
-            let position = self.get_position();
-            let size = self.get_size();
-            Bounds {
-                x: [position.x, size.width],
-                y: [position.y, size.height],
-            }
-        }
-    };
-}

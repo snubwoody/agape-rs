@@ -5,7 +5,6 @@ pub mod app;
 pub mod error;
 pub mod geometry;
 pub mod page;
-pub mod signal;
 pub mod view;
 pub mod widgets;
 

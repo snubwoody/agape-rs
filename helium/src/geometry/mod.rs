@@ -1,6 +1,6 @@
 mod pipeline;
-pub mod uniform;
-pub mod vertex;
+mod vertex;
+mod uniform;
 
 pub use pipeline::RenderContext;
 pub use vertex::Vertex;

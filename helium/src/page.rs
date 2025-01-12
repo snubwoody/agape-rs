@@ -24,6 +24,9 @@ impl Page {
     }
 
     pub fn render(&mut self, state: &AppState) {
+		// TODO need to resize
+		let instant = std::time::Instant::now();
+
         let output = state.surface.get_current_texture().unwrap(); // TODO maybe handle this error
         let view = output
             .texture
@@ -62,10 +65,7 @@ impl Page {
 
         state.queue.submit(std::iter::once(encoder.finish()));
         output.present();
+		log::debug!("{:?}",instant.elapsed())
     }
 }
 
-#[cfg(test)]
-mod test {
-    // TODO test that all the layouts and views have the same id's
-}
