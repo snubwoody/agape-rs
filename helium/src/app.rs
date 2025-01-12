@@ -43,10 +43,10 @@ impl App {
         self
     }
 
-    pub fn run(mut self) {
+    pub fn run(mut self) -> Result<(),crate::Error> {
         let mut state = async_std::task::block_on(AppState::new(&self.window));
         self.window.set_visible(true);
-        self.views[0].build(&state);
+        self.views[0].build(&state)?;
 
         // TODO when the window is minimized the size of the widgets are changing to zero which
         // causing wgpu to panic.
@@ -57,7 +57,6 @@ impl App {
                     WindowEvent::RedrawRequested => self.views[self.index].render(&state),
                     WindowEvent::Resized(size) => {
                         state.resize(size);
-                        self.views[0].resize(&state);
                         self.window.request_redraw();
                     }
                     _ => {}
@@ -65,6 +64,9 @@ impl App {
                 _ => {}
             })
             .expect("Event loop error occured");
+		// TODO return this error 
+
+		Ok(())
     }
 }
 

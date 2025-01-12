@@ -18,17 +18,10 @@ impl Page {
         }
     }
 
-    pub fn resize(&mut self, state: &AppState) {
-        LayoutSolver::solve(&mut *self.layout, state.size);
-        self.views.resize(&*self.layout, state);
-    }
-
-    /// This is a set up function, that calls `ViewManager::build()`, which currently
-    /// just set's up the textures.
-    pub fn build(&mut self, state: &AppState) {
+    pub fn build(&mut self, state: &AppState) -> Result<(),crate::Error> {
 		// FIXME the order of these functions isn't so great
 		LayoutSolver::solve(&mut *self.layout, state.size);
-        self.views.build(&*self.layout,state);
+        self.views.build(&*self.layout,state)
     }
 
     pub fn render(&mut self, state: &AppState) {

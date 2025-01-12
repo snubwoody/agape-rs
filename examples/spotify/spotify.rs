@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use helium::{
-    app::{page::Page, App},
+    app::App,
+	page::Page,
     hstack, vstack,
     widgets::{icon::feather_icons, Container, Image, Rect, Spacer, Text, Widget},
     AxisAlignment, Color, LayoutSolver, Size, BLACK, WHITE,
@@ -90,7 +91,11 @@ fn main() {
     writer.flush().unwrap();
 
     let home = Page::new(home);
-    App::new().add_view(home).run();
+    
+	App::new()
+		.add_view(home)
+		.run()
+		.unwrap();
 }
 
 fn Sidebar() -> impl Widget {

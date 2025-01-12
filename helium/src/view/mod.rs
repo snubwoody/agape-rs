@@ -12,7 +12,7 @@ use crate::{
     app::AppState, resources::ResourceManager, widgets::Widget, Size
 };
 use crystal::Layout;
-use std::{collections::HashMap, fmt::Debug};
+use std::{collections::HashMap, fmt::{format, Debug}};
 
 // TODO update docs
 /// The surfaces are the items that are actually responsible for drawing the pixels to the
@@ -79,44 +79,29 @@ pub struct ViewManager {
 impl ViewManager {
     /// Create a new [`SurfaceManager`].
     pub fn new(widget: &impl Widget) -> Self {
-        //let primitives: Vec<Primitive> = widget.iter().map(|w| w.primitive()).collect();
+        let views: Vec<Box<dyn View>> = widget.iter().map(|w| w.view()).collect();
 
         Self {
             resources: ResourceManager::new(),
-            views: vec![],
+            views,
             size_cache: HashMap::new(),
         }
     }
 
-    /// Build the [`View`]'s from the [`Primitive`]'s.
-    pub fn build(&mut self,layout: &dyn Layout, state: &AppState) {
-        self.surfaces = self
-            .primitives
-            .iter()
-            .map(|primitive| primitive.build(&mut self.resources, &state))
-            .collect();
+    pub fn build(&mut self,layout: &dyn Layout, state: &AppState) -> Result<(),crate::Error> {
+        for view in &mut self.views{
+			let layout = layout.get(view.id())
+				.ok_or_else(||crate::Error::NotFound(format!("Layout not found")))?;
+			view.init(layout, &mut self.resources, state)?;
+		}
 
-		self.resize(layout, state);
-
-        self.surfaces
-            .iter_mut()
-            .for_each(|s| s.build(state, &self.resources));
+		Ok(())
     }
 
-    pub fn resize(&mut self, layout: &dyn Layout, state: &AppState) {
-        for layout in layout.iter() {
-            for surface in &mut self.surfaces {
-                if layout.id() == surface.id() {
-                    surface.size(layout.size().width, layout.size().height);
-                    surface.position(layout.position().x, layout.position().y);
-                }
-            }
-        }
-    }
 
     /// Draw the surfaces to the screen
     pub fn draw(&mut self, pass: &mut wgpu::RenderPass, state: &AppState) {
-        self.surfaces
+        self.views
             .iter_mut()
             .for_each(|s| s.draw(pass, &self.resources, &state.context, state));
     }
