@@ -1,19 +1,16 @@
 use super::View;
-use crate::{
-    app::AppState, geometry::Vertex, resources::ResourceManager, 
-	Color, Position, Size
-};
+use crate::{app::AppState, geometry::Vertex, resources::ResourceManager, Color, Position, Size};
 use helium_core::color::BLACK;
 use std::{collections::HashMap, fmt::Debug, io::Cursor};
 
-#[derive(Debug, Clone, PartialEq, )]
+#[derive(Debug, Clone, PartialEq)]
 pub struct TextView {
     id: String,
     text: String,
     font_size: u8,
     color: Color,
-	vertices:Vec<Vertex>,
-	resources:HashMap<String,usize>
+    vertices: Vec<Vertex>,
+    resources: HashMap<String, usize>,
 }
 
 impl TextView {
@@ -23,8 +20,8 @@ impl TextView {
             text: text.to_string(),
             font_size: 16,
             color: BLACK,
-			vertices: vec![],
-			resources:HashMap::new()
+            vertices: vec![],
+            resources: HashMap::new(),
         }
     }
 
@@ -34,10 +31,10 @@ impl TextView {
         self
     }
 
-	fn to_vertices(&self, position:Position,size:Size) -> Vec<Vertex> {
+    fn to_vertices(&self, position: Position, size: Size) -> Vec<Vertex> {
         let color = Color::default().normalize();
-		let width = size.width;
-		let height = size.height;
+        let width = size.width;
+        let height = size.height;
         let x = position.x;
         let y = position.y;
 
@@ -63,69 +60,61 @@ impl View for TextView {
         &self.id
     }
 
-	/// Initialises the [`TextView`] to prepare it for rendering.
-	/// 
-	/// Uses the `text_to_png` to rasterize the text into a PNG image,
-	/// which is then written to a texture.
+    /// Initialises the [`TextView`] to prepare it for rendering.
+    ///
+    /// Uses the `text_to_png` to rasterize the text into a PNG image,
+    /// which is then written to a texture.
     fn init(
         &mut self,
         layout: &dyn crystal::Layout,
         resources: &mut ResourceManager,
         state: &AppState,
     ) -> Result<(), crate::Error> {
-		let position = layout.position();
-		let size = layout.size();
-		let vertices = self.to_vertices(position, size);
+        let position = layout.position();
+        let size = layout.size();
+        let vertices = self.to_vertices(position, size);
 
-		let text_renderer = text_to_png::TextRenderer::default();
-		
-		// Render the text as a png
+        let text_renderer = text_to_png::TextRenderer::default();
+
+        // Render the text as a png
         let text_image = text_renderer
             .render_text_to_png_data(
-				self.text.clone(), 
-				self.font_size, 
-				self.color.into_hex_string().as_str()
-			)
+                self.text.clone(),
+                self.font_size,
+                self.color.into_hex_string().as_str(),
+            )
             .unwrap(); // TODO Hangle the errors pls
 
         let image = image::load(Cursor::new(text_image.data), image::ImageFormat::Png)
             .unwrap()
             .to_rgba8();
 
-		let texture = resources.add_texture(
-			"Text Texture", 
-			size, 
-			&state.device
-		);
+        let texture = resources.add_texture("Text Texture", size, &state.device);
 
-		let texture_view = resources.add_texture_view(texture)?;
-		let vertex_buffer = resources.add_vertex_buffer_init(
-			"Text Vertex Buffer", 
-			bytemuck::cast_slice(&vertices), 
-			&state.device
-		);
+        let texture_view = resources.add_texture_view(texture)?;
+        let vertex_buffer = resources.add_vertex_buffer_init(
+            "Text Vertex Buffer",
+            bytemuck::cast_slice(&vertices),
+            &state.device,
+        );
 
-		let sampler = resources.add_sampler("Texture Sampler", &state.device);
-		let bind_group = resources.add_bind_group(
-			"Text Bind Group", 
-			&state.context.text_pipeline.texture_bind_group_layout, 
-			&state.device, 
-			&[], 
-			&[texture_view], 
-			&[sampler]
-		)?;
+        let sampler = resources.add_sampler("Texture Sampler", &state.device);
+        let bind_group = resources.add_bind_group(
+            "Text Bind Group",
+            &state.context.text_pipeline.texture_bind_group_layout,
+            &state.device,
+            &[],
+            &[texture_view],
+            &[sampler],
+        )?;
 
-		resources.write_texture(
-			texture, 
-			size, 
-			&image, 
-			&state.queue
-		)?;
+        resources.write_texture(texture, size, &image, &state.queue)?;
 
         self.resources.insert("Texture".to_string(), texture);
         self.resources.insert("Bind group".to_string(), bind_group);
-        self.resources.insert("Vertex buffer".to_string(), vertex_buffer);
-		self.vertices = vertices;
+        self.resources
+            .insert("Vertex buffer".to_string(), vertex_buffer);
+        self.vertices = vertices;
 
         Ok(())
     }
@@ -137,13 +126,12 @@ impl View for TextView {
         context: &crate::geometry::RenderContext,
         state: &AppState,
     ) {
-
-		let vertex_buffer = resources.buffer(
-			*self.resources.get("Vertex buffer").unwrap()
-		).unwrap();
-		let bind_group = resources.bind_group(
-			*self.resources.get("Bind group").unwrap()
-		).unwrap();
+        let vertex_buffer = resources
+            .buffer(*self.resources.get("Vertex buffer").unwrap())
+            .unwrap();
+        let bind_group = resources
+            .bind_group(*self.resources.get("Bind group").unwrap())
+            .unwrap();
 
         pass.set_pipeline(&context.text_pipeline.pipeline);
         pass.set_bind_group(0, &context.text_pipeline.window_bind_group, &[]);
@@ -151,6 +139,5 @@ impl View for TextView {
         pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 
         pass.draw(0..self.vertices.len() as u32, 0..1);
-
     }
 }

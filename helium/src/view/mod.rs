@@ -11,12 +11,9 @@ use crystal::Layout;
 pub use icon::IconView;
 pub use image::ImageView;
 pub use rect::RectView;
-use std::{
-    collections::HashMap,
-    fmt::{Debug},
-};
+use std::{collections::HashMap, fmt::Debug};
 pub use text::TextView;
- 
+
 pub trait View: Debug {
     /// Draws the [`View`] to the screen.
     fn draw(
@@ -98,4 +95,3 @@ impl ViewManager {
             .for_each(|s| s.draw(pass, &self.resources, &state.context, state));
     }
 }
-

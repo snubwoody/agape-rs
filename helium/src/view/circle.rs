@@ -1,30 +1,23 @@
+use crate::{app::AppState, geometry::Vertex, resources::ResourceManager, view::View, Color};
 use std::collections::HashMap;
-use crate::{
-    app::AppState,
-    geometry::Vertex,
-    resources::ResourceManager,
-    view::View,
-    Color
-};
-
 
 /// Draws a circle to the screen
-/// 
+///
 /// # Example
 /// ```
 /// use helium::view::CircleView;
 /// use helium::Color;
-/// 
+///
 /// CircleView::new("")
 /// 	.color(Color::default());
-/// 
+///
 /// ```
 #[derive(Debug, Clone, PartialEq)]
 pub struct CircleView {
     id: String,
     color: Color,
     resources: HashMap<String, usize>,
-	vertices:Vec<Vertex>
+    vertices: Vec<Vertex>,
 }
 
 impl CircleView {
@@ -33,7 +26,7 @@ impl CircleView {
             id: id.to_string(),
             color: Color::default(),
             resources: HashMap::new(),
-			vertices:vec![]
+            vertices: vec![],
         }
     }
 
@@ -54,14 +47,14 @@ impl View for CircleView {
         resources: &mut ResourceManager,
         state: &AppState,
     ) -> Result<(), crate::Error> {
-		let diameter = layout.size().width;
-		let position = layout.position();
+        let diameter = layout.size().width;
+        let position = layout.position();
 
-		let vertices = Vertex::quad(layout.size(), position, self.color);
+        let vertices = Vertex::quad(layout.size(), position, self.color);
 
-		let position_buffer = resources.add_uniform_init(
+        let position_buffer = resources.add_uniform_init(
             "Circle Position Buffer",
-            bytemuck::cast_slice(&[position.x,position.y]),
+            bytemuck::cast_slice(&[position.x, position.y]),
             &state.device,
         );
 
@@ -71,27 +64,29 @@ impl View for CircleView {
             &state.device,
         );
 
-		let vertex_buffer = resources.add_vertex_buffer_init(
-			"Vertex Buffer", 
-			bytemuck::cast_slice(&vertices), 
-			&state.device
-		);
+        let vertex_buffer = resources.add_vertex_buffer_init(
+            "Vertex Buffer",
+            bytemuck::cast_slice(&vertices),
+            &state.device,
+        );
 
-        let bind_group = resources
-            .add_bind_group(
-                "Circle Dimensions Bind Group",
-                &state.context.circle_pipeline.bounds_layout,
-                &state.device,
-                &[diameter_buffer, position_buffer],
-                &[],
-                &[],
-            )?;
+        let bind_group = resources.add_bind_group(
+            "Circle Dimensions Bind Group",
+            &state.context.circle_pipeline.bounds_layout,
+            &state.device,
+            &[diameter_buffer, position_buffer],
+            &[],
+            &[],
+        )?;
 
-		self.vertices = vertices;
-		self.resources.insert("Bind group".to_string(), bind_group);
-		self.resources.insert("Position".to_string(), position_buffer);
-		self.resources.insert("Diameter".to_string(), diameter_buffer);
-		self.resources.insert("Vertex buffer".to_string(), vertex_buffer);
+        self.vertices = vertices;
+        self.resources.insert("Bind group".to_string(), bind_group);
+        self.resources
+            .insert("Position".to_string(), position_buffer);
+        self.resources
+            .insert("Diameter".to_string(), diameter_buffer);
+        self.resources
+            .insert("Vertex buffer".to_string(), vertex_buffer);
 
         Ok(())
     }
@@ -103,13 +98,13 @@ impl View for CircleView {
         context: &crate::geometry::RenderContext,
         state: &AppState,
     ) {
-		let vertex_buffer = resources.buffer(
-			*self.resources.get("Vertex buffer").unwrap()
-		).unwrap();
+        let vertex_buffer = resources
+            .buffer(*self.resources.get("Vertex buffer").unwrap())
+            .unwrap();
 
-		let bind_group = resources.bind_group(
-			*self.resources.get("Bind group").unwrap()
-		).unwrap();
+        let bind_group = resources
+            .bind_group(*self.resources.get("Bind group").unwrap())
+            .unwrap();
 
         pass.set_pipeline(&context.circle_pipeline.pipeline);
         pass.set_bind_group(0, &context.circle_pipeline.window_uniform.bind_group, &[]);

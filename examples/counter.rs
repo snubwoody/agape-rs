@@ -2,7 +2,7 @@ use helium::{
     app::App,
     hstack,
     page::Page,
-    widgets::{icon::feather_icons, Circle, Rect,Text,Image},
+    widgets::{icon::feather_icons, Circle, Image, Rect, Text},
     BLACK,
 };
 
@@ -15,17 +15,14 @@ fn app() {
     let main = hstack! {
        Rect::new(150.0,150.0,BLACK),
        Circle::new(100,BLACK),
-	   Text::new("Hello world"),
+       Text::new("Hello world"),
        feather_icons::search(),
-	   feather_icons::home(),
-	   Image::url("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
+       feather_icons::home(),
+       Image::url("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
     }
     .spacing(32);
 
     let page = Page::new(main);
 
-    App::new()
-		.add_view(page)
-		.run()
-		.unwrap();
+    App::new().add_view(page).run().unwrap();
 }

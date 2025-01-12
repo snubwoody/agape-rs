@@ -111,7 +111,8 @@ impl Layout for EmptyLayout {
         (self.constraints.min_width, self.constraints.min_height)
     }
 
-    fn solve_max_contraints(&mut self, space: Size) {/* No children to solve for */}
+    fn solve_max_contraints(&mut self, space: Size) { /* No children to solve for */
+    }
 
     fn update_size(&mut self) {
         match self.intrinsic_size.width {

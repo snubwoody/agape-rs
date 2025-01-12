@@ -2,7 +2,7 @@ use crate::error::Error;
 use crystal::Size;
 use wgpu::util::DeviceExt;
 
-// TODO Adda custom resource error? 
+// TODO Adda custom resource error?
 /// Manages resources
 #[derive(Default, Debug)]
 pub struct ResourceManager {
@@ -38,12 +38,12 @@ impl ResourceManager {
         self.buffers.len() - 1
     }
 
-	/// Add a `Vertex Buffer` to the [`ResourceManager`] with data to initialize it.
+    /// Add a `Vertex Buffer` to the [`ResourceManager`] with data to initialize it.
     pub fn add_buffer_init(
         &mut self,
         label: &str,
         contents: &[u8],
-		usage: wgpu::BufferUsages,
+        usage: wgpu::BufferUsages,
         device: &wgpu::Device,
     ) -> usize {
         let buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -71,7 +71,7 @@ impl ResourceManager {
         self.buffers.len() - 1
     }
 
-	/// Add a `Vertex Buffer` to the [`ResourceManager`] with data to initialize it.
+    /// Add a `Vertex Buffer` to the [`ResourceManager`] with data to initialize it.
     pub fn add_vertex_buffer_init(
         &mut self,
         label: &str,
@@ -164,7 +164,7 @@ impl ResourceManager {
 
     /// Add a texture sampler
     pub fn add_sampler(&mut self, label: &str, device: &wgpu::Device) -> usize {
-		// TODO could have a sampler desription struct
+        // TODO could have a sampler desription struct
         let texture_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
             label: Some(label),
             ..Default::default()
@@ -277,24 +277,25 @@ impl ResourceManager {
         Ok(())
     }
 
-	/// Schedule a write of an image into a `Texture`
+    /// Schedule a write of an image into a `Texture`
     pub fn write_texture(
-		&self, 
-		texture:usize,
-		size: Size,
-		image: &image::RgbaImage,
-		queue: &wgpu::Queue
-	) -> Result<(),Error> {
-		let texture = self.texture(texture)
-			.ok_or_else(||Error::NotFound(format!("Texture not found")))?;
+        &self,
+        texture: usize,
+        size: Size,
+        image: &image::RgbaImage,
+        queue: &wgpu::Queue,
+    ) -> Result<(), Error> {
+        let texture = self
+            .texture(texture)
+            .ok_or_else(|| Error::NotFound(format!("Texture not found")))?;
 
-		let texture_size = wgpu::Extent3d { 
-			width: size.width as u32, 
-			height: size.height as u32, 
-			depth_or_array_layers: 1
-		};
+        let texture_size = wgpu::Extent3d {
+            width: size.width as u32,
+            height: size.height as u32,
+            depth_or_array_layers: 1,
+        };
 
-		queue.write_texture(
+        queue.write_texture(
             wgpu::ImageCopyTextureBase {
                 texture: &texture,
                 mip_level: 0,
@@ -310,7 +311,7 @@ impl ResourceManager {
             texture_size,
         );
 
-		Ok(())
+        Ok(())
     }
 }
 
@@ -363,6 +364,7 @@ mod test {
 
     #[async_std::test]
     async fn resource_creation() {
+        // TODO tests fail when run in parallel?
         let (device, _) = setup().await;
 
         let mut resources = ResourceManager::new();

@@ -35,25 +35,25 @@ impl Vertex {
         }
     }
 
-	/// Creates a `Vec` of `Vertices` in a quad layout.
-	/// 
-	/// # Example
-	/// ```
-	/// use helium::{geometry::Vertex,Size,Position,Color};
-	/// 
-	/// let size = Size::new(50.0,75.0);
-	/// let position = Position::default();
-	/// let color = Color::default();
-	/// 
-	/// let vertices = Vertex::quad(size,position,color);
-	/// 
-	/// assert_eq!(vertices[0].position[0],position.x);
-	/// assert_eq!(vertices[5].position[0],position.x + size.width);
-	/// ```
-	pub fn quad(size:Size,position:Position,color:Color) -> Vec<Self>{
-		let color = color.normalize();
-		let width = size.width;
-		let height = size.height;
+    /// Creates a `Vec` of `Vertices` in a quad layout.
+    ///
+    /// # Example
+    /// ```
+    /// use helium::{geometry::Vertex,Size,Position,Color};
+    ///
+    /// let size = Size::new(50.0,75.0);
+    /// let position = Position::default();
+    /// let color = Color::default();
+    ///
+    /// let vertices = Vertex::quad(size,position,color);
+    ///
+    /// assert_eq!(vertices[0].position[0],position.x);
+    /// assert_eq!(vertices[5].position[0],position.x + size.width);
+    /// ```
+    pub fn quad(size: Size, position: Position, color: Color) -> Vec<Self> {
+        let color = color.normalize();
+        let width = size.width;
+        let height = size.height;
         let x = position.x;
         let y = position.y;
 
@@ -65,7 +65,7 @@ impl Vertex {
         let vertex6 = Vertex::new_with_uv(x + width, y + height, color, [1.0, 1.0]); //Bottom right
 
         return vec![vertex1, vertex2, vertex3, vertex4, vertex5, vertex6];
-	}
+    }
 }
 
 // TODO move to resources?

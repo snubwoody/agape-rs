@@ -3,7 +3,7 @@ use crate::{
 };
 use helium_core::{position::Position, size::Size};
 
-// TODO add example 
+// TODO add example
 /// A [`HorizontalLayout`] sizes and position it's children horizontally, of course.
 #[derive(Default, Debug)]
 pub struct HorizontalLayout {
