@@ -2,7 +2,7 @@ use helium::{
     app::App,
     hstack,
     page::Page,
-    widgets::{icon::feather_icons, Circle, Rect,Text},
+    widgets::{icon::feather_icons, Circle, Rect,Text,Image},
     BLACK,
 };
 
@@ -17,6 +17,8 @@ fn app() {
        Circle::new(100,BLACK),
 	   Text::new("Hello world"),
        feather_icons::search(),
+	   feather_icons::home(),
+	   Image::url("https://upload.wikimedia.org/wikipedia/en/9/93/Kendrick_Lamar_-_GNX.png")
     }
     .spacing(32);
 
