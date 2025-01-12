@@ -7,6 +7,7 @@ use crate::{
     Color, Position, Size,
 };
 use crystal::Layout;
+use helium_core::color::WHITE;
 use image::GenericImageView;
 use std::{collections::HashMap, fmt::Debug};
 use wgpu::util::DeviceExt;
@@ -15,7 +16,7 @@ use wgpu::util::DeviceExt;
 pub struct ImageView {
     id: String,
     image: ::image::DynamicImage,
-    /// A map of all the resources needed by this view
+	vertices:Vec<Vertex>,
     resources: HashMap<String, usize>,
 }
 
@@ -24,6 +25,7 @@ impl ImageView {
         Self {
             id: id.to_string(),
             image,
+			vertices:vec![],
             resources: HashMap::new(),
         }
     }
@@ -40,54 +42,47 @@ impl View for ImageView {
         resources: &mut ResourceManager,
         state: &AppState,
     ) -> Result<(), Error> {
-        let size = layout.size();
-        let position = layout.position();
+		let size = layout.size();
+		let position = layout.position();
+
+		let vertices = Vertex::quad(size, position, WHITE);
+
+		let vertex_buffer = resources.add_vertex_buffer_init(
+			"Image Vertex Buffer", 
+			bytemuck::cast_slice(&vertices), 
+			&state.device
+		);
 
         let texture = resources.add_texture(
             "Image texture",
-            size, // Textures cannot have dimensions of 0
+            size, 
             &state.device,
         );
 
-        let view = resources.add_texture_view(texture)?;
+        let texture_view = resources.add_texture_view(texture)?;
         let sampler = resources.add_sampler("Image texture sampler", &state.device);
 
-        let texture_size = wgpu::Extent3d {
-            width: size.width as u32,
-            height: size.height as u32,
-            depth_or_array_layers: 1,
-        };
-
-        self.image.resize(
+        let image = self.image.resize(
             size.width as u32,
             size.height as u32,
             image::imageops::FilterType::Nearest, // This is by far the fastest filter type
-        );
+        ).to_rgba8();
+		
+		resources.write_texture(texture, size, &image, &state.queue)?;
 
-        state.queue.write_texture(
-            wgpu::ImageCopyTextureBase {
-                texture: resources.texture(texture).unwrap(),
-                mip_level: 0,
-                origin: wgpu::Origin3d::ZERO,
-                aspect: wgpu::TextureAspect::All,
-            },
-            &self.image.to_rgba8(),
-            wgpu::ImageDataLayout {
-                offset: 0,
-                bytes_per_row: Some(4 * size.width as u32), // TODO don't even know what this is
-                rows_per_image: None,
-            },
-            texture_size,
-        );
 
         let bind_group = resources.add_bind_group(
             "Image texture bind group",
             &state.context.image_pipeline.texture_bind_group_layout,
             &state.device,
             &[],
-            &[view],
+            &[texture_view],
             &[sampler],
         )?;
+
+		self.vertices = vertices;
+		self.resources.insert("Bind group".to_string(), bind_group);
+		self.resources.insert("Vertex buffer".to_string(), vertex_buffer);
 
         Ok(())
     }
@@ -99,6 +94,20 @@ impl View for ImageView {
         context: &crate::geometry::RenderContext,
         state: &AppState,
     ) {
+		let vertex_buffer = resources.buffer(
+			*self.resources.get("Vertex buffer").unwrap()
+		).unwrap();
+
+		let bind_group = resources.bind_group(
+			*self.resources.get("Bind group").unwrap()
+		).unwrap();
+
+		pass.set_pipeline(&context.image_pipeline.pipeline);
+        pass.set_bind_group(0, &context.image_pipeline.window_bind_group, &[]);
+        pass.set_bind_group(1, bind_group, &[]);
+        pass.set_vertex_buffer(0, vertex_buffer.slice(..));
+
+        pass.draw(0..self.vertices.len() as u32, 0..1);
     }
 }
 

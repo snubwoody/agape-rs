@@ -120,13 +120,15 @@ impl Image {
 
     pub fn url(url: &str) -> Self {
         let id = nanoid::nanoid!();
-
-        let mut layout = EmptyLayout::new();
-        layout.id = id.clone();
-
+		
         let img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
         let image = image::load_from_memory(&img).unwrap();
-
+		
+		let mut layout = EmptyLayout::new();
+		layout.id = id.clone();
+		layout.intrinsic_size.width = BoxSizing::Fixed(image.dimensions().0 as f32);
+		layout.intrinsic_size.height = BoxSizing::Fixed(image.dimensions().1 as f32);
+		
         Self {
             id,
             state: ImageState::Complete(image),
