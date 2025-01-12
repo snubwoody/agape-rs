@@ -121,7 +121,7 @@ impl View for TextView {
 			size, 
 			&image, 
 			&state.queue
-		);
+		)?;
 
         self.resources.insert("Texture".to_string(), texture);
         self.resources.insert("Bind group".to_string(), bind_group);

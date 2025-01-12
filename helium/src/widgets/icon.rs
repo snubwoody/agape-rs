@@ -100,7 +100,7 @@ impl Icon {
 
 impl Widget for Icon {
     fn layout(&self) -> Box<dyn crystal::Layout> {
-        Box::new(EmptyLayout::default())
+        Box::new(self.layout.clone())
     }
 
     fn view(&self) -> Box<dyn crate::view::View> {

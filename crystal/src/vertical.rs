@@ -254,8 +254,6 @@ impl Layout for VerticalLayout {
             })
             .sum();
 
-        let children_len = self.children.len();
-
         let mut available_height;
         match self.intrinsic_size.height {
             BoxSizing::Shrink => {

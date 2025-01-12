@@ -1,6 +1,27 @@
 //! This is the crate that manages all the helium layouts, at a basic level every layout
 //! node must return a size and position so that other layouts can arrange themselves
 //! accordingly.
+//! 
+//! This layout engine is based on the idea that a [`Layout`] can only have one of three 
+//! different intrinsic sizes, known as [`BoxSizing`]
+//! - It wants to be as large as possible, usually filling the parent, this is the 
+//! `BoxSizing::Flex(u8)` variant. It also has a flex factor which can be used to 
+//! control how much space it takes relative it's sibling `Layouts`.
+//! - It wants to be as small as possible, usually fitting it's children, this is the
+//! `BoxSizing::Shrink` variant
+//! - It wants to be a certain fixed size, this is the `BoxSizing::Fixed` variant.
+//! 
+//! # Example
+//! ```
+//! use crystal::{EmptyLayout,HorizontalLayout,LayoutSolver,Size};
+//! 
+//! let mut root = HorizontalLayout::new();
+//! root.add_children(&[EmptyLayout::new(),EmptyLayout::new()])
+//! 
+//! // Pass in the root layout and the window size 
+//! // The layout solver returns any errors that occured, such as layout overflow
+//! let _ = LayoutSolver::solve(&mut root,Size::new(500.0,500.0))
+//! ```
 mod block;
 mod empty;
 mod error;
@@ -8,11 +29,11 @@ mod horizontal;
 mod vertical;
 pub use block::BlockLayout;
 pub use empty::EmptyLayout;
-pub use error::LayoutError;
-pub use helium_core::{position::Position, size::Size};
 pub use horizontal::HorizontalLayout;
-use std::fmt::Debug;
+pub use error::LayoutError;
 pub use vertical::VerticalLayout;
+pub use helium_core::{position::Position, size::Size};
+use std::fmt::Debug;
 
 pub struct LayoutSolver;
 

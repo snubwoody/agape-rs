@@ -2,12 +2,9 @@ use crate::{
     AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter,
 };
 use helium_core::{position::Position, size::Size};
-use std::f32::INFINITY;
 
-// TODO test max constraints
-/// A [`HorizontalLayout`] sizes and position it's children horizontally, of course, the `Flex`
-/// attribute means a layout node will fill it's widget, however the flex factor only works in
-/// the x-axis, in the y-axis all nodes will fill the parent and will be the same height.
+// TODO add example 
+/// A [`HorizontalLayout`] sizes and position it's children horizontally, of course.
 #[derive(Default, Debug)]
 pub struct HorizontalLayout {
     pub id: String,
