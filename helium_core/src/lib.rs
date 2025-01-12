@@ -13,5 +13,5 @@ pub fn map(mut value: f32, input_range: [f32; 2], output_range: [f32; 2]) -> f32
     let scale = (output_range[1] - output_range[0]) / (input_range[1] - input_range[0]);
     let offset = input_range[0] * (scale) + output_range[0];
 
-    return value * scale + offset;
+    value * scale + offset
 }

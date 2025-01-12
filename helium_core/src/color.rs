@@ -60,7 +60,7 @@ impl Color {
                 }
                 [*r, *g, *b, a]
             }
-            Self::Hex(color) => Color::hex_to_rgba(&color).unwrap_or([255, 255, 255, 100]),
+            Self::Hex(color) => Color::hex_to_rgba(color).unwrap_or([255, 255, 255, 100]),
         }
     }
 

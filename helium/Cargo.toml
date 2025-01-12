@@ -3,6 +3,10 @@ name = "helium"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+feather-icons = []
+icon-sets = ["feather-icons"]
+
 [dependencies]
 image = "0.25.2"
 text-to-png = "0.2.0"
