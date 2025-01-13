@@ -10,9 +10,9 @@ pub mod widgets;
 
 pub use crystal::*;
 pub use error::Error;
-pub use helium_core::color::*;
-pub use helium_core::position::*;
-pub use helium_core::size::*;
+pub use helium_core::color::*; // TODO move the constants into their own module
+pub use helium_core::position::{Bounds,Position};
+pub use helium_core::size::Size;
 pub use helium_macros::hex;
 pub use nanoid::nanoid;
 

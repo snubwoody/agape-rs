@@ -118,19 +118,19 @@ impl View for RectView {
 			0, 
 			bytemuck::cast_slice(&self.vertices), 
 			&state.queue
-		).unwrap();
+		)?;
 		resources.write_buffer(
 			*position_buffer, 
 			0, 
 			bytemuck::cast_slice(&[position.x,position.y]), 
 			&state.queue
-		).unwrap();
+		)?;
 		resources.write_buffer(
 			*size_buffer, 
 			0, 
 			bytemuck::cast_slice(&[size.width,size.height]), 
 			&state.queue
-		).unwrap();
+		)?;
 
 		Ok(())
     }

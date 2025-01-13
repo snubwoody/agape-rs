@@ -1,6 +1,7 @@
 pub mod color;
 pub mod position;
 pub mod size;
+// TODD reexport?
 
 /// Map value from one range to another. Any overflow is clipped to the min or max
 pub fn map(mut value: f32, input_range: [f32; 2], output_range: [f32; 2]) -> f32 {

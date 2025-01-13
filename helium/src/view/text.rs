@@ -125,6 +125,19 @@ impl View for TextView {
 		resources: &ResourceManager, 
 		state: &AppState
 	) -> Result<(),crate::Error> {
+		let position = layout.position();
+		let size = layout.size();
+
+		self.vertices = Vertex::quad(size, position, self.color);
+		let vertex_buffer = self.resources.get("Vertex buffer").unwrap();
+
+		resources.write_buffer(
+			*vertex_buffer, 
+			0, 
+			bytemuck::cast_slice(&self.vertices), 
+			&state.queue
+		)?;
+
 		Ok(())
 	}
 
