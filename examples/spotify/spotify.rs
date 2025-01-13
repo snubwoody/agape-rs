@@ -141,7 +141,7 @@ fn Sidebar() -> impl Widget {
 fn DiscoveryPlaylist() -> impl Widget {
     vstack! {
         Image::bytes(include_bytes!("COLOURS - PARTYNEXTDOOR.jpg"))
-		.unwrap()
+        .unwrap()
         .fixed_width(150.0)
         .fixed_height(150.0),
         Text::new("Daily mix")
@@ -176,8 +176,8 @@ fn HomeSection() -> impl Widget {
 fn BottomBar() -> impl Widget {
     hstack! {
         hstack!{
-			Image::bytes(include_bytes!("COLOURS - PARTYNEXTDOOR.jpg"))
-			.unwrap()
+            Image::bytes(include_bytes!("COLOURS - PARTYNEXTDOOR.jpg"))
+            .unwrap()
             .fixed_width(50.0)
             .fixed_height(50.0),
             vstack!{
@@ -254,7 +254,7 @@ fn Chip(text: &str) -> impl Widget {
 fn SidebarPlaylist(title: &str) -> impl Widget {
     hstack! {
         Image::bytes(include_bytes!("COLOURS - PARTYNEXTDOOR.jpg"))
-		.unwrap()
+        .unwrap()
         .fixed_width(50.0)
         .fixed_height(50.0),
         vstack!{
@@ -274,7 +274,7 @@ fn SidebarPlaylist(title: &str) -> impl Widget {
 fn HomePlaylist(name: &str) -> impl Widget {
     hstack! {
         Image::bytes(include_bytes!("COLOURS - PARTYNEXTDOOR.jpg"))
-		.unwrap()
+        .unwrap()
         .fixed_width(50.0)
         .fixed_height(50.0),
         Text::new(name).color(WHITE)

@@ -33,19 +33,16 @@ pub trait View: Debug {
         state: &AppState,
     ) -> Result<(), crate::Error>;
 
+    /// Resize the [`View`].
+    ///
+    /// The behaviour of this is different for each [`View`], for some it's as simple
+    /// as writing to a buffer, but for others the textures and images will need to be
+    /// resized which can be expensive when done frequently.
+    fn resize(&mut self, layout: &dyn Layout, resources: &ResourceManager, state: &AppState);
+
     /// Get the id of the [`View`]
     fn id(&self) -> &str;
 }
-
-// enum PipelineState {
-//     Compute(ComputePipeline),
-//     Render(RenderPipeline),
-// }
-
-// struct WgpuShader {
-//     pipeline: PipelineState,
-//     bind_group_layout: BindGroupLayout,
-// }
 
 /// Manages all [`View`]'s and their respective resources including
 /// - `Buffers`
@@ -74,6 +71,16 @@ impl ViewManager {
             resources: ResourceManager::new(),
             views,
             size_cache: HashMap::new(),
+        }
+    }
+
+    pub fn resize(&mut self, layout: &dyn Layout, state: &AppState) {
+        for view in &mut self.views {
+            // TODO add size cache
+            let layout = layout
+                .get(view.id())
+                .ok_or_else(|| crate::Error::NotFound(format!("Layout not found"))).unwrap();
+            view.resize(layout, &mut self.resources, state);
         }
     }
 

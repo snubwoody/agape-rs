@@ -57,6 +57,7 @@ impl App {
                     WindowEvent::RedrawRequested => self.pages[self.index].render(&state),
                     WindowEvent::Resized(size) => {
                         state.resize(size);
+						self.pages[self.index].resize(&state);
                         self.window.request_redraw();
                     }
                     _ => {}

@@ -89,11 +89,48 @@ impl View for RectView {
         self.resources
             .insert("Position".to_string(), position_buffer);
         self.resources
+            .insert("Size".to_string(), size_buffer);
+        self.resources
             .insert("Corner radius".to_string(), radius_buffer);
         self.resources.insert("Bind group".to_string(), bind_group);
         self.vertices = vertices;
 
         Ok(())
+    }
+
+    fn resize(
+        &mut self,
+        layout: &dyn crystal::Layout,
+        resources: &ResourceManager,
+        state: &AppState,
+    ) {
+		let position = layout.position();
+		let size = layout.size();
+
+		self.vertices = Vertex::quad(size, position, self.color);
+
+		let vertex_buffer = self.resources.get("Vertex buffer").unwrap();
+		let position_buffer = self.resources.get("Position").unwrap();
+		let size_buffer = self.resources.get("Size").unwrap();
+		
+		resources.write_buffer(
+			*vertex_buffer, 
+			0, 
+			bytemuck::cast_slice(&self.vertices), 
+			&state.queue
+		).unwrap();
+		resources.write_buffer(
+			*position_buffer, 
+			0, 
+			bytemuck::cast_slice(&[position.x,position.y]), 
+			&state.queue
+		).unwrap();
+		resources.write_buffer(
+			*size_buffer, 
+			0, 
+			bytemuck::cast_slice(&[size.width,size.height]), 
+			&state.queue
+		).unwrap();
     }
 
     fn draw(

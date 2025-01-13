@@ -17,14 +17,17 @@ impl Page {
         }
     }
 
+	pub fn resize(&mut self,state: &AppState){
+		LayoutSolver::solve(&mut *self.layout, state.size);
+		self.views.resize(&*self.layout, state);
+	}
+
     pub fn build(&mut self, state: &AppState) -> Result<(), crate::Error> {
-        // FIXME the order of these functions isn't so great
         LayoutSolver::solve(&mut *self.layout, state.size);
         self.views.build(&*self.layout, state)
     }
 
     pub fn render(&mut self, state: &AppState) {
-        // TODO need to resize
         let instant = std::time::Instant::now();
 
         let output = state.surface.get_current_texture().unwrap(); // TODO maybe handle this error

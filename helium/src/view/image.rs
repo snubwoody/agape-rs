@@ -79,6 +79,10 @@ impl View for ImageView {
         Ok(())
     }
 
+	fn resize(&mut self, layout: &dyn Layout, resources: &ResourceManager, state: &AppState) {
+		
+	}
+
     fn draw(
         &mut self,
         pass: &mut wgpu::RenderPass,

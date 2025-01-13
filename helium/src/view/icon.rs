@@ -81,6 +81,10 @@ impl View for IconView {
         Ok(())
     }
 
+	fn resize(&mut self, layout: &dyn crystal::Layout, resources: &ResourceManager, state: &AppState) {
+		
+	}
+
     fn draw(
         &mut self,
         pass: &mut wgpu::RenderPass,
