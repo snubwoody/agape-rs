@@ -73,6 +73,7 @@ impl View for ImageView {
 
         self.vertices = vertices;
         self.resources.insert("Bind group".to_string(), bind_group);
+        self.resources.insert("Texture".to_string(), texture);
         self.resources
             .insert("Vertex buffer".to_string(), vertex_buffer);
 
@@ -85,6 +86,26 @@ impl View for ImageView {
 		resources: &ResourceManager, 
 		state: &AppState
 	) -> Result<(),crate::Error> {
+		// FIXME resizing images in extremely slow, use texture atlas?
+		let size = layout.size();
+		let position = layout.position();
+
+		self.vertices = Vertex::quad(size, position, WHITE);
+		
+		let vertex_buffer = *self.resources.get("Vertex buffer").unwrap();
+		let texture = *self.resources.get("Texture").unwrap();
+
+		// let img = self.image
+		// 	.resize(
+		// 		size.width as u32,
+		// 		size.height as u32,
+		// 		image::imageops::FilterType::CatmullRom,
+		// 	)
+		// 	.to_rgba8();
+
+		resources.write_buffer(vertex_buffer, 0, bytemuck::cast_slice(&self.vertices), &state.queue)?;
+		//resources.write_texture(texture, size, &img, &state.queue)?;
+
 		Ok(())
 	}
 

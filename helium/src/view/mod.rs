@@ -7,7 +7,7 @@ mod rect;
 mod text;
 use crate::{app::AppState, resources::ResourceManager, widgets::Widget, Size};
 pub use circle::CircleView;
-use crystal::Layout;
+use crystal::{Layout, Position};
 pub use icon::IconView;
 pub use image::ImageView;
 pub use rect::RectView;
@@ -64,7 +64,7 @@ pub struct ViewManager {
     /// [`ImageSurface`], because an entirely new `Texture` will
     /// have to be created and written to. So only [`Surfaces`]'s
     /// whose size has actually changed will be resized.
-    size_cache: HashMap<String, Size>,
+    cache: HashMap<String, (Size,Position)>,
 }
 
 impl ViewManager {
@@ -75,17 +75,24 @@ impl ViewManager {
         Self {
             resources: ResourceManager::new(),
             views,
-            size_cache: HashMap::new(),
+            cache: HashMap::new(),
         }
     }
 
     pub fn resize(&mut self, layout: &dyn Layout, state: &AppState) -> Result<(),crate::Error> {
         for view in &mut self.views {
-            // TODO add size cache
-            let layout = layout
+			let (size,position) = self.cache.get(view.id()).unwrap();
+
+			if layout.size() == *size && layout.position() == *position{
+				continue;
+			}
+
+			let layout = layout
                 .get(view.id())
                 .ok_or_else(|| crate::Error::NotFound(format!("Layout not found")))?;
+			
             view.resize(layout, &mut self.resources, state)?;
+			self.cache.insert(layout.id().to_string(), (layout.size(),layout.position()));
         }
 		Ok(())
     }
@@ -96,6 +103,7 @@ impl ViewManager {
                 .get(view.id())
                 .ok_or_else(|| crate::Error::NotFound(format!("Layout not found")))?;
             view.init(layout, &mut self.resources, state)?;
+			self.cache.insert(layout.id().to_string(), (layout.size(),layout.position()));
         }
 
         Ok(())
