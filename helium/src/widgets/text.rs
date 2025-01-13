@@ -36,6 +36,9 @@ impl Text {
 }
 
 impl Widget for Text {
+    fn id(&self) -> &str {
+        &self.id
+    }
     fn layout(&self) -> Box<dyn Layout> {
         // FIXME hopefully a temp fix because i don't know how to calculate the size before hand
         let text_renderer = text_to_png::TextRenderer::default();

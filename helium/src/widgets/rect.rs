@@ -26,17 +26,7 @@ impl Rect {
         }
     }
 
-	pub fn on_click(mut self){
-		
-	}
-
-	pub fn run_events(&mut self,event:crate::events::Event){
-		match event {
-			Event::Hover => {
-				
-			},
-		}
-	}
+    pub fn on_click(mut self) {}
 
     /// Set the corner radius
     pub fn corner_radius(mut self, corner_radius: u32) -> Self {
@@ -57,6 +47,10 @@ impl Rect {
 }
 
 impl Widget for Rect {
+    fn id(&self) -> &str {
+        &self.id
+    }
+
     fn layout(&self) -> Box<dyn Layout> {
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size = self.intrinsic_size;
@@ -71,5 +65,13 @@ impl Widget for Rect {
                 .color(self.color)
                 .corner_radius(self.corner_radius),
         )
+    }
+
+    fn run_events(&mut self, event: crate::events::Event) {
+        match event {
+            Event::Hover => {
+                dbg!("Hi");
+            }
+        }
     }
 }

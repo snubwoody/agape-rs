@@ -119,27 +119,27 @@ impl View for TextView {
         Ok(())
     }
 
-	fn resize(
-		&mut self, 
-		layout: &dyn crystal::Layout, 
-		resources: &ResourceManager, 
-		state: &AppState
-	) -> Result<(),crate::Error> {
-		let position = layout.position();
-		let size = layout.size();
+    fn resize(
+        &mut self,
+        layout: &dyn crystal::Layout,
+        resources: &ResourceManager,
+        state: &AppState,
+    ) -> Result<(), crate::Error> {
+        let position = layout.position();
+        let size = layout.size();
 
-		self.vertices = Vertex::quad(size, position, self.color);
-		let vertex_buffer = self.resources.get("Vertex buffer").unwrap();
+        self.vertices = Vertex::quad(size, position, self.color);
+        let vertex_buffer = self.resources.get("Vertex buffer").unwrap();
 
-		resources.write_buffer(
-			*vertex_buffer, 
-			0, 
-			bytemuck::cast_slice(&self.vertices), 
-			&state.queue
-		)?;
+        resources.write_buffer(
+            *vertex_buffer,
+            0,
+            bytemuck::cast_slice(&self.vertices),
+            &state.queue,
+        )?;
 
-		Ok(())
-	}
+        Ok(())
+    }
 
     fn draw(
         &mut self,

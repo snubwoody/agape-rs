@@ -39,11 +39,11 @@ pub trait View: Debug {
     /// as writing to a buffer, but for others the textures and images will need to be
     /// resized which can be expensive when done frequently.
     fn resize(
-		&mut self, 
-		layout: &dyn Layout, 
-		resources: &ResourceManager, 
-		state: &AppState
-	) -> Result<(),crate::Error>;
+        &mut self,
+        layout: &dyn Layout,
+        resources: &ResourceManager,
+        state: &AppState,
+    ) -> Result<(), crate::Error>;
 
     /// Get the id of the [`View`]
     fn id(&self) -> &str;
@@ -64,7 +64,7 @@ pub struct ViewManager {
     /// [`ImageSurface`], because an entirely new `Texture` will
     /// have to be created and written to. So only [`Surfaces`]'s
     /// whose size has actually changed will be resized.
-    cache: HashMap<String, (Size,Position)>,
+    cache: HashMap<String, (Size, Position)>,
 }
 
 impl ViewManager {
@@ -79,22 +79,23 @@ impl ViewManager {
         }
     }
 
-    pub fn resize(&mut self, layout: &dyn Layout, state: &AppState) -> Result<(),crate::Error> {
+    pub fn resize(&mut self, layout: &dyn Layout, state: &AppState) -> Result<(), crate::Error> {
         for view in &mut self.views {
-			let (size,position) = self.cache.get(view.id()).unwrap();
+            let (size, position) = self.cache.get(view.id()).unwrap();
 
-			if layout.size() == *size && layout.position() == *position{
-				continue;
-			}
+            if layout.size() == *size && layout.position() == *position {
+                continue;
+            }
 
-			let layout = layout
+            let layout = layout
                 .get(view.id())
                 .ok_or_else(|| crate::Error::NotFound(format!("Layout not found")))?;
-			
+
             view.resize(layout, &mut self.resources, state)?;
-			self.cache.insert(layout.id().to_string(), (layout.size(),layout.position()));
+            self.cache
+                .insert(layout.id().to_string(), (layout.size(), layout.position()));
         }
-		Ok(())
+        Ok(())
     }
 
     pub fn build(&mut self, layout: &dyn Layout, state: &AppState) -> Result<(), crate::Error> {
@@ -103,7 +104,8 @@ impl ViewManager {
                 .get(view.id())
                 .ok_or_else(|| crate::Error::NotFound(format!("Layout not found")))?;
             view.init(layout, &mut self.resources, state)?;
-			self.cache.insert(layout.id().to_string(), (layout.size(),layout.position()));
+            self.cache
+                .insert(layout.id().to_string(), (layout.size(), layout.position()));
         }
 
         Ok(())

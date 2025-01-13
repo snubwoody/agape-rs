@@ -55,14 +55,12 @@ impl App {
                     WindowEvent::CloseRequested => window_target.exit(),
                     WindowEvent::RedrawRequested => self.pages[self.index].render(&state),
                     WindowEvent::Resized(size) => {
-						state.resize(size);
-						// FIXME handle this error
-						let _ = self.pages[self.index].resize(&state); 
+                        state.resize(size);
+                        // FIXME handle this error
+                        let _ = self.pages[self.index].resize(&state);
                         self.window.request_redraw();
                     }
-                    event => {
-						self.pages[self.index].handle(&event)
-					}
+                    event => self.pages[self.index].handle(&event),
                 },
                 _ => {}
             })

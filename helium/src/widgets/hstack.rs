@@ -55,6 +55,9 @@ impl HStack {
 
 // TODO test this
 impl Widget for HStack {
+    fn id(&self) -> &str {
+        &self.id
+    }
     fn layout(&self) -> Box<dyn Layout> {
         let children_layout: Vec<Box<dyn Layout>> =
             self.children.iter().map(|widget| widget.layout()).collect();

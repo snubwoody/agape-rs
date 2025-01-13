@@ -7,7 +7,7 @@ pub struct Page {
     layout: Box<dyn crystal::Layout>,
     widget: Box<dyn Widget>,
     views: ViewManager,
-	events: EventManager
+    events: EventManager,
 }
 
 impl Page {
@@ -16,19 +16,23 @@ impl Page {
             layout: widget.layout(),
             views: ViewManager::new(&widget),
             widget: Box::new(widget),
-			events:EventManager::new(),
+            events: EventManager::new(),
         }
     }
 
-	pub fn handle(&mut self,event:&winit::event::WindowEvent){
-		let notifications = self.events.handle(event,&*self.layout);
-	}
+    pub fn handle(&mut self, event: &winit::event::WindowEvent) {
+        let notifications = self.events.handle(event, &*self.layout);
+        for notification in notifications {
+            notification.id();
+            notification.event();
+        }
+    }
 
-	pub fn resize(&mut self,state: &AppState) -> Result<(),crate::Error>{
-		LayoutSolver::solve(&mut *self.layout, state.size);
-		self.views.resize(&*self.layout, state)?;
-		Ok(())
-	}
+    pub fn resize(&mut self, state: &AppState) -> Result<(), crate::Error> {
+        LayoutSolver::solve(&mut *self.layout, state.size);
+        self.views.resize(&*self.layout, state)?;
+        Ok(())
+    }
 
     pub fn build(&mut self, state: &AppState) -> Result<(), crate::Error> {
         LayoutSolver::solve(&mut *self.layout, state.size);

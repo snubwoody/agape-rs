@@ -60,6 +60,9 @@ impl VStack {
 }
 
 impl Widget for VStack {
+    fn id(&self) -> &str {
+        &self.id
+    }
     fn layout(&self) -> Box<dyn Layout> {
         let children_layout: Vec<Box<dyn Layout>> =
             self.children.iter().map(|widget| widget.layout()).collect();

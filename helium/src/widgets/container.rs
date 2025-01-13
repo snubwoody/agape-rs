@@ -43,6 +43,9 @@ impl<W> Widget for Container<W>
 where
     W: Widget,
 {
+    fn id(&self) -> &str {
+        &self.id
+    }
     fn layout(&self) -> Box<dyn Layout> {
         let child_layout = self.child.layout();
         let mut layout = BlockLayout::new(child_layout);

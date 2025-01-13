@@ -19,6 +19,9 @@ impl Spacer {
 }
 
 impl Widget for Spacer {
+    fn id(&self) -> &str {
+        &self.id
+    }
     fn layout(&self) -> Box<dyn crystal::Layout> {
         let mut layout = EmptyLayout::new();
         layout.id = self.id.clone();

@@ -28,10 +28,25 @@ pub trait Widget: WidgetIterator + Send + Sync {
     /// rendering.
     fn layout(&self) -> Box<dyn Layout>;
 
+    /// Get the `id` of the [`Widget`]
+    fn id(&self) -> &str;
+
     fn view(&self) -> Box<dyn crate::view::View>;
 
     /// Load data in the background
     fn update(&mut self) {}
+
+    fn run_events(&mut self, event: crate::events::Event) {}
+
+    /// Get a [`Widget`] by it's `id`
+    fn get(&self, id: &str) -> Option<&dyn Widget> {
+        for widget in self.iter() {
+            if widget.id() == id {
+                return Some(widget);
+            }
+        }
+        None
+    }
 
     fn children(&self) -> Vec<&dyn Widget> {
         vec![]

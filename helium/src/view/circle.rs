@@ -91,42 +91,42 @@ impl View for CircleView {
         Ok(())
     }
 
-	fn resize(
-		&mut self, 
-		layout: &dyn crystal::Layout, 
-		resources: &ResourceManager, 
-		state: &AppState
-	) -> Result<(),crate::Error> {
-		let size = layout.size();
-		let position = layout.position();
+    fn resize(
+        &mut self,
+        layout: &dyn crystal::Layout,
+        resources: &ResourceManager,
+        state: &AppState,
+    ) -> Result<(), crate::Error> {
+        let size = layout.size();
+        let position = layout.position();
 
-		self.vertices = Vertex::quad(size, position,self.color);
-		
-		let vertex_buffer = self.resources.get("Vertex buffer").unwrap();
-		let position_buffer = self.resources.get("Position").unwrap();
-		let diameter_buffer = self.resources.get("Diameter").unwrap();
+        self.vertices = Vertex::quad(size, position, self.color);
 
-		resources.write_buffer(
-			*vertex_buffer, 
-			0, 
-			bytemuck::cast_slice(&self.vertices), 
-			&state.queue
-		)?;
-		resources.write_buffer(
-			*position_buffer, 
-			0, 
-			bytemuck::cast_slice(&[position.x,position.y]), 
-			&state.queue
-		)?;
-		resources.write_buffer(
-			*diameter_buffer, 
-			0, 
-			bytemuck::cast_slice(&[size.width]), 
-			&state.queue
-		)?;
+        let vertex_buffer = self.resources.get("Vertex buffer").unwrap();
+        let position_buffer = self.resources.get("Position").unwrap();
+        let diameter_buffer = self.resources.get("Diameter").unwrap();
 
-		Ok(())
-	}
+        resources.write_buffer(
+            *vertex_buffer,
+            0,
+            bytemuck::cast_slice(&self.vertices),
+            &state.queue,
+        )?;
+        resources.write_buffer(
+            *position_buffer,
+            0,
+            bytemuck::cast_slice(&[position.x, position.y]),
+            &state.queue,
+        )?;
+        resources.write_buffer(
+            *diameter_buffer,
+            0,
+            bytemuck::cast_slice(&[size.width]),
+            &state.queue,
+        )?;
+
+        Ok(())
+    }
 
     fn draw(
         &mut self,

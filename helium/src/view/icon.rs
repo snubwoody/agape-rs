@@ -82,34 +82,39 @@ impl View for IconView {
         Ok(())
     }
 
-	fn resize(
-		&mut self, 
-		layout: &dyn crystal::Layout, 
-		resources: &ResourceManager, 
-		state: &AppState
-	) -> Result<(),crate::Error> {
-		let size = layout.size();
-		let position = layout.position();
+    fn resize(
+        &mut self,
+        layout: &dyn crystal::Layout,
+        resources: &ResourceManager,
+        state: &AppState,
+    ) -> Result<(), crate::Error> {
+        let size = layout.size();
+        let position = layout.position();
 
-		self.vertices = Vertex::quad(size, position, self.color);
-		
-		let vertex_buffer = *self.resources.get("Vertex buffer").unwrap();
-		let texture = *self.resources.get("Texture").unwrap();
+        self.vertices = Vertex::quad(size, position, self.color);
 
-		let img = self
-			.img
-			.resize(
-				size.width as u32,
-				size.height as u32,
-				image::imageops::FilterType::CatmullRom,
-			)
-			.to_rgba8();
+        let vertex_buffer = *self.resources.get("Vertex buffer").unwrap();
+        let texture = *self.resources.get("Texture").unwrap();
 
-		resources.write_buffer(vertex_buffer, 0, bytemuck::cast_slice(&self.vertices), &state.queue)?;
-		resources.write_texture(texture, size, &img, &state.queue)?;
+        let img = self
+            .img
+            .resize(
+                size.width as u32,
+                size.height as u32,
+                image::imageops::FilterType::CatmullRom,
+            )
+            .to_rgba8();
 
-		Ok(())
-	}
+        resources.write_buffer(
+            vertex_buffer,
+            0,
+            bytemuck::cast_slice(&self.vertices),
+            &state.queue,
+        )?;
+        resources.write_texture(texture, size, &img, &state.queue)?;
+
+        Ok(())
+    }
 
     fn draw(
         &mut self,
