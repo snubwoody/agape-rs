@@ -49,19 +49,20 @@ impl App {
         self.window.set_visible(true);
         self.pages[0].build(&state)?;
 
-        // TODO when the window is minimized the size of the widgets are changing to zero which
-        // causing wgpu to panic.
         self.event_loop
             .run(|event, window_target| match event {
                 winit::event::Event::WindowEvent { event, .. } => match event {
                     WindowEvent::CloseRequested => window_target.exit(),
                     WindowEvent::RedrawRequested => self.pages[self.index].render(&state),
                     WindowEvent::Resized(size) => {
-                        state.resize(size);
-						self.pages[self.index].resize(&state);
+						state.resize(size);
+						// FIXME handle this error
+						let _ = self.pages[self.index].resize(&state); 
                         self.window.request_redraw();
                     }
-                    _ => {}
+                    event => {
+						self.pages[self.index].handle(&event)
+					}
                 },
                 _ => {}
             })

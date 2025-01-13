@@ -4,6 +4,7 @@ pub mod app;
 pub mod error;
 pub mod geometry;
 pub mod page;
+pub mod events;
 mod resources;
 pub mod view;
 pub mod widgets;

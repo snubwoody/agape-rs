@@ -1,5 +1,5 @@
 use super::Widget;
-use crate::{view::RectView, Color};
+use crate::{events::Event, view::RectView, Color};
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use nanoid::nanoid;
 
@@ -25,6 +25,18 @@ impl Rect {
             corner_radius: 0,
         }
     }
+
+	pub fn on_click(mut self){
+		
+	}
+
+	pub fn run_events(&mut self,event:crate::events::Event){
+		match event {
+			Event::Hover => {
+				
+			},
+		}
+	}
 
     /// Set the corner radius
     pub fn corner_radius(mut self, corner_radius: u32) -> Self {
