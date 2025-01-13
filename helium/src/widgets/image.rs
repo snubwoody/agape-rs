@@ -22,6 +22,7 @@ pub struct Image {
     layout: crystal::EmptyLayout,
 }
 
+// FIXME return all the errors from the methods
 impl Image {
     pub fn file(path: &str) -> Self {
         let id = nanoid::nanoid!();
@@ -118,6 +119,13 @@ impl Image {
         }
     }
 
+	/// Load an image from a url
+	/// 
+	/// # Caution
+	/// 
+	/// This method of creating an image *is* working, however it is currently
+	/// blocking which is quite noticeable when loading multiple images. Currently
+	/// exploring ways to provide non-blocking ways of loading data.
     pub fn url(url: &str) -> Self {
         let id = nanoid::nanoid!();
 
@@ -135,6 +143,25 @@ impl Image {
             layout,
         }
     }
+
+	/// Create an [`Image`] from raw bytes
+	pub fn bytes(bytes:&[u8]) -> Result<Self,image::ImageError>{
+		let id = nanoid::nanoid!();
+		let image = image::load_from_memory(bytes)?;
+
+		let mut layout = EmptyLayout::new();
+        layout.id = id.clone();
+        layout.intrinsic_size.width = BoxSizing::Fixed(image.dimensions().0 as f32);
+        layout.intrinsic_size.height = BoxSizing::Fixed(image.dimensions().1 as f32);
+
+		Ok(
+			Self {
+				id,
+				state: ImageState::Complete(image),
+				layout,
+			}
+		)
+	}
 
     impl_widget!();
 }

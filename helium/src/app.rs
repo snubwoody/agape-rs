@@ -12,7 +12,7 @@ use winit::{
 pub struct App {
     event_loop: EventLoop<()>,
     window: Window,
-    views: Vec<Page>,
+    pages: Vec<Page>,
     index: usize,
 }
 
@@ -33,20 +33,20 @@ impl App {
         Self {
             event_loop,
             window,
-            views: vec![],
+            pages: vec![],
             index: 0,
         }
     }
 
-    pub fn add_view(mut self, view: Page) -> Self {
-        self.views.push(view);
+    pub fn add_page(mut self, page: Page) -> Self {
+        self.pages.push(page);
         self
     }
 
     pub fn run(mut self) -> Result<(), crate::Error> {
         let mut state = async_std::task::block_on(AppState::new(&self.window));
         self.window.set_visible(true);
-        self.views[0].build(&state)?;
+        self.pages[0].build(&state)?;
 
         // TODO when the window is minimized the size of the widgets are changing to zero which
         // causing wgpu to panic.
@@ -54,7 +54,7 @@ impl App {
             .run(|event, window_target| match event {
                 winit::event::Event::WindowEvent { event, .. } => match event {
                     WindowEvent::CloseRequested => window_target.exit(),
-                    WindowEvent::RedrawRequested => self.views[self.index].render(&state),
+                    WindowEvent::RedrawRequested => self.pages[self.index].render(&state),
                     WindowEvent::Resized(size) => {
                         state.resize(size);
                         self.window.request_redraw();

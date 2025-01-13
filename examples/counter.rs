@@ -24,5 +24,5 @@ fn app() {
 
     let page = Page::new(main);
 
-    App::new().add_view(page).run().unwrap();
+    App::new().add_page(page).run().unwrap();
 }
