@@ -119,8 +119,13 @@ impl View for TextView {
         Ok(())
     }
 
-	fn resize(&mut self, layout: &dyn crystal::Layout, resources: &ResourceManager, state: &AppState) {
-		
+	fn resize(
+		&mut self, 
+		layout: &dyn crystal::Layout, 
+		resources: &ResourceManager, 
+		state: &AppState
+	) -> Result<(),crate::Error> {
+		Ok(())
 	}
 
     fn draw(

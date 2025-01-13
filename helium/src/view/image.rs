@@ -79,8 +79,13 @@ impl View for ImageView {
         Ok(())
     }
 
-	fn resize(&mut self, layout: &dyn Layout, resources: &ResourceManager, state: &AppState) {
-		
+	fn resize(
+		&mut self, 
+		layout: &dyn crystal::Layout, 
+		resources: &ResourceManager, 
+		state: &AppState
+	) -> Result<(),crate::Error> {
+		Ok(())
 	}
 
     fn draw(

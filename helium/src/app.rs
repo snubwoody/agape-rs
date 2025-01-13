@@ -1,5 +1,6 @@
 use crate::page::Page;
 use crate::{geometry::RenderContext, Size};
+use winit::event_loop::EventLoopProxy;
 use winit::{
     dpi::PhysicalSize,
     event::WindowEvent,

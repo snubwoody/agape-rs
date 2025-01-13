@@ -38,7 +38,12 @@ pub trait View: Debug {
     /// The behaviour of this is different for each [`View`], for some it's as simple
     /// as writing to a buffer, but for others the textures and images will need to be
     /// resized which can be expensive when done frequently.
-    fn resize(&mut self, layout: &dyn Layout, resources: &ResourceManager, state: &AppState);
+    fn resize(
+		&mut self, 
+		layout: &dyn Layout, 
+		resources: &ResourceManager, 
+		state: &AppState
+	) -> Result<(),crate::Error>;
 
     /// Get the id of the [`View`]
     fn id(&self) -> &str;
@@ -74,14 +79,15 @@ impl ViewManager {
         }
     }
 
-    pub fn resize(&mut self, layout: &dyn Layout, state: &AppState) {
+    pub fn resize(&mut self, layout: &dyn Layout, state: &AppState) -> Result<(),crate::Error> {
         for view in &mut self.views {
             // TODO add size cache
             let layout = layout
                 .get(view.id())
-                .ok_or_else(|| crate::Error::NotFound(format!("Layout not found"))).unwrap();
-            view.resize(layout, &mut self.resources, state);
+                .ok_or_else(|| crate::Error::NotFound(format!("Layout not found")))?;
+            view.resize(layout, &mut self.resources, state)?;
         }
+		Ok(())
     }
 
     pub fn build(&mut self, layout: &dyn Layout, state: &AppState) -> Result<(), crate::Error> {

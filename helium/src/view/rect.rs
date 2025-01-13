@@ -99,11 +99,11 @@ impl View for RectView {
     }
 
     fn resize(
-        &mut self,
-        layout: &dyn crystal::Layout,
-        resources: &ResourceManager,
-        state: &AppState,
-    ) {
+		&mut self, 
+		layout: &dyn crystal::Layout, 
+		resources: &ResourceManager, 
+		state: &AppState
+	) -> Result<(),crate::Error> {
 		let position = layout.position();
 		let size = layout.size();
 
@@ -131,6 +131,8 @@ impl View for RectView {
 			bytemuck::cast_slice(&[size.width,size.height]), 
 			&state.queue
 		).unwrap();
+
+		Ok(())
     }
 
     fn draw(
