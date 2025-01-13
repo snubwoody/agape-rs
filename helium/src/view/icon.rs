@@ -74,6 +74,7 @@ impl View for IconView {
         resources.write_texture(texture, size, &img, &state.queue)?;
 
         self.vertices = vertices;
+        self.resources.insert("Texture".to_string(), texture);
         self.resources.insert("Bind group".to_string(), bind_group);
         self.resources
             .insert("Vertex buffer".to_string(), vertex_buffer);
@@ -87,6 +88,26 @@ impl View for IconView {
 		resources: &ResourceManager, 
 		state: &AppState
 	) -> Result<(),crate::Error> {
+		let size = layout.size();
+		let position = layout.position();
+
+		self.vertices = Vertex::quad(size, position, self.color);
+		
+		let vertex_buffer = *self.resources.get("Vertex buffer").unwrap();
+		let texture = *self.resources.get("Texture").unwrap();
+
+		let img = self
+			.img
+			.resize(
+				size.width as u32,
+				size.height as u32,
+				image::imageops::FilterType::CatmullRom,
+			)
+			.to_rgba8();
+
+		resources.write_buffer(vertex_buffer, 0, bytemuck::cast_slice(&self.vertices), &state.queue)?;
+		resources.write_texture(texture, size, &img, &state.queue)?;
+
 		Ok(())
 	}
 
