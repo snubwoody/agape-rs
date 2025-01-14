@@ -2,7 +2,33 @@ use crate::{impl_style, impl_widget, view::RectView, widgets::Widget, Color};
 use crystal::{AxisAlignment, HorizontalLayout, Layout};
 use helium_core::color::TRANSPARENT;
 
-/// A [`Widget`] that places it's children horizontally.
+/// A [`Widget`] that places it's children horizontally. The `hstack!` macro
+/// provides convienient initialization and is mostly how you be creating an `HStack`
+/// most of the time.
+/// 
+/// # Example using `hstack!`
+/// ```
+/// use helium::{hstack,widgets::{Circle,Text}};
+///
+/// hstack!{
+/// 	Circle::new(15),
+/// 	Text::new("Hello world")
+/// };
+///
+/// ```
+/// 
+/// You can also simply use the struct method for initialization if you choose to, 
+/// which is what `hstack!` expands to
+/// 
+/// ```
+/// use helium::widgets::{Text,HStack};
+///
+/// HStack::new()
+/// 	.add_child(Text::new("Hello"))
+/// 	.add_child(Text::new("World"));
+///
+/// ```
+/// 
 pub struct HStack {
     id: String,
     children: Vec<Box<dyn Widget>>,
@@ -104,11 +130,11 @@ impl Widget for HStack {
 /// Creates an [`HStack`].  
 /// `hstack!` allows [`HStack`]'s to be declared in a more declarative manner.
 /// ```
-/// use helium::{hstack,widgets::{Button,Text}};
+/// use helium::{hstack,widgets::{Text}};
 ///
 /// hstack!{
-/// 	Button::new("Click me"),
-/// 	Text::new("Hello world")
+/// 	Text::new("Hello"),
+/// 	Text::new("world"),
 /// };
 ///
 /// ```

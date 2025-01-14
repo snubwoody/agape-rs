@@ -101,14 +101,15 @@ impl Bounds {
     ///
     /// # Example
     /// ```
-    ///     use helium_core::{position::{Position,Bounds},size::Size};
+    /// use helium_core::{position::{Position,Bounds},size::Size};
     ///
-    ///     let size = Size::new(250.0,100.0);
-    ///     let position = Position::new(10.0,0.0);
+    /// let size = Size::new(250.0,100.0);
+    /// let position = Position::new(10.0,0.0);
     ///
-    ///     let bounds = Bounds::new(&position,&size);
+    /// let bounds = Bounds::new(position,size);
     ///
-    ///     assert!(bounds.within(&Position::new(50.0,45.5)));
+    /// assert!(bounds.within(&Position::new(50.0,45.5)));
+    /// assert!(!bounds.within(&Position::new(1550.0,445.5)));
     /// ```
     pub fn within(&self, position: &Position) -> bool {
         // TODO change the name of this to has and move within to position

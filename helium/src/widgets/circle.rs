@@ -3,7 +3,7 @@ use crate::view::CircleView;
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::color::Color;
 
-#[derive(Debug, Clone)]
+#[derive(Debug,Clone,PartialEq, PartialOrd)]
 pub struct Circle {
     id: String,
     diameter: u32,
@@ -11,19 +11,25 @@ pub struct Circle {
 }
 
 impl Circle {
-    pub fn new(diameter: u32, color: Color) -> Self {
+    pub fn new(diameter: u32) -> Self {
         Self {
             id: nanoid::nanoid!(),
             diameter,
-            color,
+            color:Color::default(),
         }
     }
+
+	pub fn color(mut self, color:Color) -> Self{
+		self.color = color;
+		self
+	}
 }
 
 impl Widget for Circle {
     fn id(&self) -> &str {
         &self.id
     }
+
     fn layout(&self) -> Box<dyn Layout> {
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size.width = BoxSizing::Fixed(self.diameter as f32);

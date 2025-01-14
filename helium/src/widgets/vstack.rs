@@ -2,6 +2,34 @@ use crate::{impl_style, impl_widget, view::RectView, widgets::Widget, Color};
 use crystal::{AxisAlignment, Layout, VerticalLayout};
 use helium_core::color::TRANSPARENT;
 
+/// A [`Widget`] that places it's children vertically. The `vstack!` macro
+/// provides convienient initialization and is likely how you will be creating an 
+/// `VStack` most of the time.
+/// 
+/// # Example using `vstack!`
+/// 
+/// ```
+/// use helium::{vstack,widgets::{Circle,Text}};
+///
+/// vstack!{
+/// 	Circle::new(15),
+/// 	Text::new("Hello world")
+/// };
+///
+/// ```
+/// 
+/// You can also simply use the struct method for initialization if you choose to, 
+/// which is what `vstack!` expands to
+/// 
+/// ```
+/// use helium::widgets::{Text,VStack};
+///
+/// VStack::new()
+/// 	.add_child(Text::new("Hello"))
+/// 	.add_child(Text::new("World"));
+///
+/// ```
+/// 
 pub struct VStack {
     id: String,
     children: Vec<Box<dyn Widget>>,
@@ -118,8 +146,8 @@ impl Widget for VStack {
 /// use helium::{vstack,widgets::{Button,Text}};
 ///
 /// vstack!{
-/// 	Button::new("Click me"),
-/// 	Text::new("Hello world")
+/// 	Text::new("Hello"),
+/// 	Text::new("world")
 /// };
 /// ```
 #[macro_export]

@@ -6,6 +6,8 @@ use crate::widgets::Widget;
 trait Interactive{
 	fn on_click();
 	fn on_hover();
+	fn on_pan();
+	fn on_slide();
 	fn while_hover();
 	fn while_click();
 }
@@ -22,7 +24,13 @@ impl EventFn {
     }
 }
 
-enum State {}
+#[derive(Debug,Default,PartialEq,Eq, PartialOrd,Ord,Clone, Copy,Hash)]
+enum ElementState{
+	#[default]
+	Default,
+	Hovered
+}
+
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default, Hash)]
 pub enum Event {
@@ -34,16 +42,14 @@ pub enum Event {
 #[derive(Debug,Clone, PartialEq, Eq,PartialOrd,Ord)]
 struct Element {
 	id:String,
-    mouse_over: bool,
-    mouse_down: bool,
+	state:ElementState,
 }
 
 impl Element {
 	pub fn new(id:&str) -> Self{
 		Self{
 			id:String::from(id),
-			mouse_down:false,
-			mouse_over:false
+			state:ElementState::Default,
 		}
 	}
 }
@@ -82,7 +88,7 @@ impl Notif {
 pub struct EventManager {
     mouse_pos: Position,
 	elements: Vec<Element>,
-	notifications:Vec<Notif>
+	notifications: Vec<Notif>
 }
 
 impl EventManager {
@@ -96,15 +102,32 @@ impl EventManager {
 		}
     }
 
-	/// Get an [`Element`] by it's `id`
+	/// Get a reference to an [`Element`] by it's `id`
 	fn element(&self,id:&str) -> Option<&Element>{
 		self.elements.iter().find(|e|e.id == id)
 	}
 
+	/// Get a `&mut` to an [`Element`] by it's `id`
+	fn element_mut(&mut self,id:&str) -> Option<&mut Element>{
+		self.elements.iter_mut().find(|e|e.id == id)
+	}
+
 	fn process_hover(&mut self,layout: &dyn Layout){
 		let bounds = Bounds::new(layout.position(), layout.size());
-		if bounds.within(&self.mouse_pos) {
-			self.notifications.push(Notif::hover(layout.id()));
+		let mouse_pos = self.mouse_pos;
+		let element = self.elements.iter_mut().find(|e|e.id == layout.id()).unwrap();
+
+		if bounds.within(&mouse_pos){
+			match element.state {
+				ElementState::Default => {
+					self.notifications.push(Notif::hover(layout.id()));
+					element.state = ElementState::Hovered;
+				},
+				ElementState::Hovered => {}
+			}
+		}else {
+			element.state = ElementState::Default;
+			return;
 		}
 	}
 
@@ -118,14 +141,11 @@ impl EventManager {
             WindowEvent::CursorMoved {position,..} => {
                 self.mouse_pos = (*position).into();
                 for layout in layout.iter() {
-					self.process_hover(*layout);
+					self.element_mut(layout.id());
+					self.process_hover(layout);
                 }
-            }
-            WindowEvent::MouseInput {
-                device_id,
-                state,
-                button,
-            } => {}
+            },
+            WindowEvent::MouseInput {state,button,..} => {},
             _ => {}
         }
     }
@@ -146,6 +166,11 @@ mod test{
 	use winit::{dpi::PhysicalPosition, event::DeviceId};
 	use crate::widgets::Text;
 	use super::*;
+
+	#[test]
+	fn element_and_widget_ids_match(){
+		todo!()
+	}
 
 	#[test]
 	fn mouse_position_updates(){
