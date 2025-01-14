@@ -30,11 +30,22 @@ pub enum Event {
     Hover,
 }
 
-struct EventBody {
+/// Describes the state of a [`Widget`]
+#[derive(Debug,Clone, PartialEq, Eq,PartialOrd,Ord)]
+struct Element {
 	id:String,
-	events:EventFn,
     mouse_over: bool,
     mouse_down: bool,
+}
+
+impl Element {
+	pub fn new(id:&str) -> Self{
+		Self{
+			id:String::from(id),
+			mouse_down:false,
+			mouse_over:false
+		}
+	}
 }
 
 #[derive(Debug,Clone,Default,PartialEq, PartialOrd)]
@@ -67,34 +78,42 @@ impl Notif {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
+#[derive(Debug, Clone, PartialEq, PartialOrd,Default)]
 pub struct EventManager {
     mouse_pos: Position,
+	elements: Vec<Element>,
+	notifications:Vec<Notif>
 }
 
 impl EventManager {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(widget: &dyn Widget) -> Self {
+		let elements:Vec<Element> = widget.iter().map(|w|Element::new(w.id())).collect();
+        
+		Self{
+			elements,
+			mouse_pos:Position::default(),
+			notifications:vec![]
+		}
     }
 
-    pub fn handle(
+	/// Get an [`Element`] by it's `id`
+	fn element(id:&str) -> Option<&Element>{
+
+	}
+
+	/// Process the incoming `WindowEvent` and dispatch events to [`Widget`]'s
+    pub fn process(
         &mut self,
         event: &winit::event::WindowEvent,
-		widget: &dyn Widget,
         layout: &dyn Layout,
     ){
-        let mut notifications = vec![];
-
         match event {
-            WindowEvent::CursorMoved {
-                device_id,
-                position,
-            } => {
+            WindowEvent::CursorMoved {position,..} => {
                 self.mouse_pos = (*position).into();
                 for layout in layout.iter() {
                     let bounds = Bounds::new(layout.position(), layout.size());
                     if bounds.within(&self.mouse_pos) {
-                        notifications.push(Notif::hover(layout.id()));
+                        self.notifications.push(Notif::hover(layout.id()));
                     }
                 }
             }
@@ -105,13 +124,77 @@ impl EventManager {
             } => {}
             _ => {}
         }
+    }
 
-		for notif in notifications{
+	pub fn notify(&mut self,widget: &dyn Widget){
+		for notif in self.notifications.drain(..){
 			if let Some(widget) = widget.get(notif.id()){
 				widget.notify(&notif);
 			}
 		}
-    }
+	}
+}
 
-    fn notify(&self, widget: &mut dyn Widget) {}
+
+#[cfg(test)]
+mod test{
+	use crystal::{EmptyLayout, Size};
+	use winit::{dpi::PhysicalPosition, event::DeviceId};
+	use crate::widgets::Text;
+	use super::*;
+
+	#[test]
+	fn mouse_position_updates(){
+		let mut events = EventManager::default();
+		
+		let device_id = unsafe {DeviceId::dummy()};
+		let position = PhysicalPosition::new(50.0, 60.0);
+		let cursor_event = WindowEvent::CursorMoved {device_id,position};
+
+		events.process(&cursor_event, &EmptyLayout::default());
+		assert_eq!(events.mouse_pos,position.into())
+	}
+
+	#[test]
+	fn hover_event(){
+		let mut events = EventManager::new(&Text::new(""));
+		let mut layout = EmptyLayout::default();
+		layout.id = String::from("id");
+		layout.position = Position::new(50.0, 50.0);
+		layout.size = Size::new(100.0, 100.0);
+
+		let device_id = unsafe {DeviceId::dummy()};
+		let position = PhysicalPosition::new(92.23, 63.2);
+
+		let cursor_event = WindowEvent::CursorMoved {device_id,position};
+
+		events.process(&cursor_event, &layout);
+
+		assert!(events.notifications.contains(&Notif::hover("id")))
+	}
+
+	#[test]
+	fn no_duplicate_hover_events(){
+		let text = Text::new("");
+
+		let mut events = EventManager::new(&text);
+		let mut layout = EmptyLayout::default();
+		layout.id = String::from(text.id());
+		layout.position = Position::new(50.0, 50.0);
+		layout.size = Size::new(100.0, 100.0);
+
+		let device_id = unsafe {DeviceId::dummy()};
+		let position = PhysicalPosition::new(92.23, 63.2);
+
+		let cursor_event = WindowEvent::CursorMoved {device_id,position};
+
+		events.process(&cursor_event, &layout);
+		events.process(&cursor_event, &layout);
+		events.process(&cursor_event, &layout);
+		events.process(&cursor_event, &layout);
+
+		dbg!(&events);
+
+		assert!(events.notifications.len() == 1)
+	}
 }

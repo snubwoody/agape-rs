@@ -1,8 +1,7 @@
 use std::cell::RefCell;
-
 use super::Widget;
 use crate::{
-    events::{Event, EventFn},
+    events::EventFn,
     view::RectView,
     Color,
 };
@@ -34,6 +33,7 @@ impl Rect {
         }
     }
 
+	// FIXME this is actually on hover
     pub fn on_click(self, f: impl FnMut() + 'static) -> Self {
         let event = EventFn::OnHover(Box::new(f));
         self.events.borrow_mut().push(event);

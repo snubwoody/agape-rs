@@ -35,7 +35,7 @@ pub trait Widget: WidgetIterator {
 
     fn run_events(&mut self, notification:Vec<Notif>) {}
 
-    /// Get a [`Widget`] by it's `id`
+    /// Get a [`Widget`] from the widget tree by it's `id`
     fn get(&self, id: &str) -> Option<&dyn Widget> {
         for widget in self.iter() {
             if widget.id() == id {

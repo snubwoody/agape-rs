@@ -15,13 +15,14 @@ impl Page {
         Self {
             layout: widget.layout(),
             views: ViewManager::new(&widget),
+            events: EventManager::new(&widget),
             widget: Box::new(widget),
-            events: EventManager::new(),
         }
     }
 
     pub fn handle(&mut self, event: &winit::event::WindowEvent) {
-        let _ = self.events.handle(event,&*self.widget, &*self.layout);
+        self.events.process(event,&*self.layout);
+		self.events.notify(&*self.widget);
     }
 
     pub fn resize(&mut self, state: &AppState) -> Result<(), crate::Error> {
@@ -76,6 +77,6 @@ impl Page {
 
         state.queue.submit(std::iter::once(encoder.finish()));
         output.present();
-        log::debug!("{:?}", instant.elapsed())
+        dbg!(instant.elapsed());
     }
 }
