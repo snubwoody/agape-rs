@@ -187,7 +187,7 @@ impl Layout for VerticalLayout {
 
     fn iter(&self) -> crate::LayoutIter {
         LayoutIter {
-            stack: vec![Box::new(self)],
+            stack: vec![self],
         }
     }
 

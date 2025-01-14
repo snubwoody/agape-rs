@@ -16,11 +16,11 @@
 //! use crystal::{EmptyLayout,HorizontalLayout,LayoutSolver,Size};
 //!
 //! let mut root = HorizontalLayout::new();
-//! root.add_children(&[EmptyLayout::new(),EmptyLayout::new()])
+//! root.add_children([EmptyLayout::new(),EmptyLayout::new()]);
 //!
 //! // Pass in the root layout and the window size
 //! // The layout solver returns any errors that occured, such as layout overflow
-//! let _ = LayoutSolver::solve(&mut root,Size::new(500.0,500.0))
+//! let _ = LayoutSolver::solve(&mut root,Size::new(500.0,500.0));
 //! ```
 mod block;
 mod empty;
@@ -105,7 +105,7 @@ pub trait Layout: Debug + Send + Sync {
     fn get(&self, id: &str) -> Option<&dyn Layout> {
         for layout in self.iter() {
             if layout.id() == id {
-                return Some(*layout);
+                return Some(layout);
             }
         }
         None
@@ -113,11 +113,11 @@ pub trait Layout: Debug + Send + Sync {
 }
 
 pub struct LayoutIter<'a> {
-    stack: Vec<Box<&'a dyn Layout>>, // TODO unnecessary box and maybe make it a provided trait
+    stack: Vec<&'a dyn Layout>, // TODO unnecessary box and maybe make it a provided trait
 }
 
 impl<'a> Iterator for LayoutIter<'a> {
-    type Item = Box<&'a dyn Layout>;
+    type Item = &'a dyn Layout;
 
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(layout) = self.stack.pop() {
@@ -125,7 +125,7 @@ impl<'a> Iterator for LayoutIter<'a> {
 
             let k = children.iter().map(|child| {
                 // Type gymnastics indeed
-                Box::new(&*child.as_ref())
+                &*child.as_ref()
             });
 
             self.stack.extend(k.rev());

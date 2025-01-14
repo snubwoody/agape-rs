@@ -85,7 +85,7 @@ impl Layout for EmptyLayout {
 
     fn iter(&self) -> crate::LayoutIter {
         LayoutIter {
-            stack: vec![Box::new(self)],
+            stack: vec![self],
         }
     }
 

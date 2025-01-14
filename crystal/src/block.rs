@@ -142,7 +142,7 @@ impl Layout for BlockLayout {
 
     fn iter(&self) -> LayoutIter {
         LayoutIter {
-            stack: vec![Box::new(self)],
+            stack: vec![self],
         }
     }
 

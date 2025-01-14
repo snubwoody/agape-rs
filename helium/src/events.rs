@@ -97,8 +97,15 @@ impl EventManager {
     }
 
 	/// Get an [`Element`] by it's `id`
-	fn element(id:&str) -> Option<&Element>{
+	fn element(&self,id:&str) -> Option<&Element>{
+		self.elements.iter().find(|e|e.id == id)
+	}
 
+	fn process_hover(&mut self,layout: &dyn Layout){
+		let bounds = Bounds::new(layout.position(), layout.size());
+		if bounds.within(&self.mouse_pos) {
+			self.notifications.push(Notif::hover(layout.id()));
+		}
 	}
 
 	/// Process the incoming `WindowEvent` and dispatch events to [`Widget`]'s
@@ -111,10 +118,7 @@ impl EventManager {
             WindowEvent::CursorMoved {position,..} => {
                 self.mouse_pos = (*position).into();
                 for layout in layout.iter() {
-                    let bounds = Bounds::new(layout.position(), layout.size());
-                    if bounds.within(&self.mouse_pos) {
-                        self.notifications.push(Notif::hover(layout.id()));
-                    }
+					self.process_hover(*layout);
                 }
             }
             WindowEvent::MouseInput {
