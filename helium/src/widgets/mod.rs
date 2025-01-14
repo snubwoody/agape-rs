@@ -18,8 +18,7 @@ pub use rect::*;
 pub use spacer::*;
 pub use text::*;
 pub use vstack::*;
-
-use crate::events::{EventFn, Notification};
+use crate::events::{EventFn,Notif};
 
 /// The trait that all widgets must implement. Each `widget` must implement the build function
 /// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about
@@ -34,7 +33,7 @@ pub trait Widget: WidgetIterator {
 
     fn view(&self) -> Box<dyn crate::view::View>;
 
-    fn run_events(&mut self, notification:Vec<Notification>) {}
+    fn run_events(&mut self, notification:Vec<Notif>) {}
 
     /// Get a [`Widget`] by it's `id`
     fn get(&self, id: &str) -> Option<&dyn Widget> {
@@ -45,6 +44,8 @@ pub trait Widget: WidgetIterator {
         }
         None
     }
+
+	fn notify(&self, notification:&Notif){}
 
     fn gestures(&self) -> Vec<EventFn> {
         vec![]

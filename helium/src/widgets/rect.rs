@@ -1,3 +1,5 @@
+use std::cell::RefCell;
+
 use super::Widget;
 use crate::{
     events::{Event, EventFn},
@@ -13,7 +15,7 @@ pub struct Rect {
     intrinsic_size: crystal::IntrinsicSize,
     color: Color,
     corner_radius: u32,
-    events: Vec<EventFn>,
+    events: RefCell<Vec<EventFn>>,
 }
 
 impl Rect {
@@ -28,13 +30,13 @@ impl Rect {
             color,
             intrinsic_size,
             corner_radius: 0,
-            events: vec![],
+            events: RefCell::new(vec![]),
         }
     }
 
-    pub fn on_click(mut self, f: impl FnMut() + 'static) -> Self {
+    pub fn on_click(self, f: impl FnMut() + 'static) -> Self {
         let event = EventFn::OnHover(Box::new(f));
-        self.events.push(event);
+        self.events.borrow_mut().push(event);
         self
     }
 
@@ -61,6 +63,13 @@ impl Widget for Rect {
         &self.id
     }
 
+	fn notify(&self,notification:&crate::events::Notif) {
+		//dbg!(&notification);	
+		for event in self.events.borrow_mut().iter_mut(){
+			event.run();
+		}
+	}
+
     fn layout(&self) -> Box<dyn Layout> {
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size = self.intrinsic_size;
@@ -76,12 +85,4 @@ impl Widget for Rect {
                 .corner_radius(self.corner_radius),
         )
     }
-
-	fn run_events(&mut self, notifications:Vec<crate::events::Notification>) {
-		for notification in notifications{
-			if notification.id() == self.id{
-				self.events.iter_mut().for_each(|f|f.run());
-			}
-		}
-	}
 }

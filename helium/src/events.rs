@@ -31,16 +31,19 @@ pub enum Event {
 }
 
 struct EventBody {
+	id:String,
+	events:EventFn,
     mouse_over: bool,
     mouse_down: bool,
 }
 
-pub struct Notification {
+#[derive(Debug,Clone,Default,PartialEq, PartialOrd)]
+pub struct Notif {
     id: String,
     event: Event,
 }
 
-impl Notification {
+impl Notif {
     pub fn new(id: &str, event: Event) -> Self {
         Self {
             id: id.to_string(),
@@ -77,8 +80,9 @@ impl EventManager {
     pub fn handle(
         &mut self,
         event: &winit::event::WindowEvent,
+		widget: &dyn Widget,
         layout: &dyn Layout,
-    ) -> Vec<Notification> {
+    ){
         let mut notifications = vec![];
 
         match event {
@@ -90,7 +94,7 @@ impl EventManager {
                 for layout in layout.iter() {
                     let bounds = Bounds::new(layout.position(), layout.size());
                     if bounds.within(&self.mouse_pos) {
-                        notifications.push(Notification::hover(layout.id()));
+                        notifications.push(Notif::hover(layout.id()));
                     }
                 }
             }
@@ -102,7 +106,11 @@ impl EventManager {
             _ => {}
         }
 
-        notifications
+		for notif in notifications{
+			if let Some(widget) = widget.get(notif.id()){
+				widget.notify(&notif);
+			}
+		}
     }
 
     fn notify(&self, widget: &mut dyn Widget) {}

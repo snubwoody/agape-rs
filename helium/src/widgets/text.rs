@@ -1,11 +1,8 @@
 use crate::view::TextView;
-
 use super::Widget;
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::color::Color;
 
-// TODO add background, foreground color,padding and border radius
-// TODO probably crate a rich text then make text a tuple struct or a function
 pub struct Text {
     id: String,
     text: String,
@@ -39,6 +36,7 @@ impl Widget for Text {
     fn id(&self) -> &str {
         &self.id
     }
+
     fn layout(&self) -> Box<dyn Layout> {
         // FIXME hopefully a temp fix because i don't know how to calculate the size before hand
         let text_renderer = text_to_png::TextRenderer::default();

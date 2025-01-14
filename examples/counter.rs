@@ -12,7 +12,9 @@ fn main() {
 }
 
 fn app() {
-    let main = Rect::new(150.0, 150.0, BLACK).corner_radius(24);
+    let main = Rect::new(150.0, 150.0, BLACK)
+		.corner_radius(24)
+		.on_click(||println!("Hello world"));
 
     let page = Page::new(main);
 

@@ -21,8 +21,7 @@ impl Page {
     }
 
     pub fn handle(&mut self, event: &winit::event::WindowEvent) {
-        let notifications = self.events.handle(event, &*self.layout);
-		self.widget.run_events(notifications);
+        let _ = self.events.handle(event,&*self.widget, &*self.layout);
     }
 
     pub fn resize(&mut self, state: &AppState) -> Result<(), crate::Error> {
