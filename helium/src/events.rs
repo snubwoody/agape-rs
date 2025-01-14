@@ -1,6 +1,26 @@
 use crystal::{Layout, Position};
 use helium_core::position::Bounds;
 use winit::event::WindowEvent;
+use crate::widgets::Widget;
+
+trait Interactive{
+	fn on_click();
+	fn on_hover();
+	fn while_hover();
+	fn while_click();
+}
+
+pub enum EventFn {
+    OnHover(Box<dyn FnMut()>),
+}
+
+impl EventFn {
+    pub fn run(&mut self) {
+        match self {
+            Self::OnHover(func) => (func)(),
+        }
+    }
+}
 
 enum State {}
 
@@ -84,4 +104,6 @@ impl EventManager {
 
         notifications
     }
+
+    fn notify(&self, widget: &mut dyn Widget) {}
 }

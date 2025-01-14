@@ -19,11 +19,12 @@ pub use spacer::*;
 pub use text::*;
 pub use vstack::*;
 
+use crate::events::{EventFn, Notification};
+
 /// The trait that all widgets must implement. Each `widget` must implement the build function
 /// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about
 /// the widget.
-pub trait Widget: WidgetIterator + Send + Sync {
-    // TODO add an iter please
+pub trait Widget: WidgetIterator {
     /// Build the [`Widget`] into a primitive [`WidgetBody`] for
     /// rendering.
     fn layout(&self) -> Box<dyn Layout>;
@@ -33,10 +34,7 @@ pub trait Widget: WidgetIterator + Send + Sync {
 
     fn view(&self) -> Box<dyn crate::view::View>;
 
-    /// Load data in the background
-    fn update(&mut self) {}
-
-    fn run_events(&mut self, event: crate::events::Event) {}
+    fn run_events(&mut self, notification:Vec<Notification>) {}
 
     /// Get a [`Widget`] by it's `id`
     fn get(&self, id: &str) -> Option<&dyn Widget> {
@@ -48,7 +46,15 @@ pub trait Widget: WidgetIterator + Send + Sync {
         None
     }
 
+    fn gestures(&self) -> Vec<EventFn> {
+        vec![]
+    }
+
     fn children(&self) -> Vec<&dyn Widget> {
+        vec![]
+    }
+
+    fn children_mut(&mut self) -> Vec<&mut dyn Widget> {
         vec![]
     }
 }
@@ -81,7 +87,6 @@ impl<T: Widget> WidgetIterator for T {
     }
 }
 
-// TODO remove this and replace with modifiers
 /// Implement common styling attributes
 #[macro_export]
 macro_rules! impl_style {

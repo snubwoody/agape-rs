@@ -168,6 +168,7 @@ impl Widget for Image {
     fn id(&self) -> &str {
         &self.id
     }
+	
     fn layout(&self) -> Box<dyn crystal::Layout> {
         Box::new(self.layout.clone())
     }
@@ -178,14 +179,6 @@ impl Widget for Image {
             ImageState::Loading(_) => {
                 Box::new(RectView::new(&self.id).color(BLUE).corner_radius(12))
             }
-        }
-    }
-
-    fn update(&mut self) {
-        if let ImageState::Loading(url) = &self.state {
-            let img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
-            let image = image::load_from_memory(&img).unwrap();
-            self.state = ImageState::Complete(image);
         }
     }
 }

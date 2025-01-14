@@ -1,5 +1,9 @@
 use super::Widget;
-use crate::{events::Event, view::RectView, Color};
+use crate::{
+    events::{Event, EventFn},
+    view::RectView,
+    Color,
+};
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use nanoid::nanoid;
 
@@ -9,6 +13,7 @@ pub struct Rect {
     intrinsic_size: crystal::IntrinsicSize,
     color: Color,
     corner_radius: u32,
+    events: Vec<EventFn>,
 }
 
 impl Rect {
@@ -23,10 +28,15 @@ impl Rect {
             color,
             intrinsic_size,
             corner_radius: 0,
+            events: vec![],
         }
     }
 
-    pub fn on_click(mut self) {}
+    pub fn on_click(mut self, f: impl FnMut() + 'static) -> Self {
+        let event = EventFn::OnHover(Box::new(f));
+        self.events.push(event);
+        self
+    }
 
     /// Set the corner radius
     pub fn corner_radius(mut self, corner_radius: u32) -> Self {
@@ -67,11 +77,11 @@ impl Widget for Rect {
         )
     }
 
-    fn run_events(&mut self, event: crate::events::Event) {
-        match event {
-            Event::Hover => {
-                dbg!("Hi");
-            }
-        }
-    }
+	fn run_events(&mut self, notifications:Vec<crate::events::Notification>) {
+		for notification in notifications{
+			if notification.id() == self.id{
+				self.events.iter_mut().for_each(|f|f.run());
+			}
+		}
+	}
 }

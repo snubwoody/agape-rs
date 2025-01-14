@@ -65,8 +65,4 @@ where
     fn children(&self) -> Vec<&dyn Widget> {
         vec![&self.child]
     }
-
-    fn update(&mut self) {
-        self.child.update();
-    }
 }

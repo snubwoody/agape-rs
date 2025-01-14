@@ -22,10 +22,7 @@ impl Page {
 
     pub fn handle(&mut self, event: &winit::event::WindowEvent) {
         let notifications = self.events.handle(event, &*self.layout);
-        for notification in notifications {
-            notification.id();
-            notification.event();
-        }
+		self.widget.run_events(notifications);
     }
 
     pub fn resize(&mut self, state: &AppState) -> Result<(), crate::Error> {

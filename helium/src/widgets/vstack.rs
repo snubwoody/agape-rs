@@ -63,6 +63,7 @@ impl Widget for VStack {
     fn id(&self) -> &str {
         &self.id
     }
+	
     fn layout(&self) -> Box<dyn Layout> {
         let children_layout: Vec<Box<dyn Layout>> =
             self.children.iter().map(|widget| widget.layout()).collect();
@@ -106,10 +107,6 @@ impl Widget for VStack {
             .iter()
             .map(|child| child.as_ref())
             .collect::<Vec<_>>()
-    }
-
-    fn update(&mut self) {
-        self.children.iter_mut().for_each(|child| child.update());
     }
 }
 

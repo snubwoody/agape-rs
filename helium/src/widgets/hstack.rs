@@ -2,6 +2,7 @@ use crate::{impl_style, impl_widget, view::RectView, widgets::Widget, Color};
 use crystal::{AxisAlignment, HorizontalLayout, Layout};
 use helium_core::color::TRANSPARENT;
 
+/// A [`Widget`] that places it's children horizontally.
 pub struct HStack {
     id: String,
     children: Vec<Box<dyn Widget>>,
@@ -90,10 +91,6 @@ impl Widget for HStack {
 
     fn view(&self) -> Box<dyn crate::view::View> {
         Box::new(RectView::new(&self.id).color(self.color))
-    }
-
-    fn update(&mut self) {
-        self.children.iter_mut().for_each(|child| child.update());
     }
 
     fn children(&self) -> Vec<&dyn Widget> {
