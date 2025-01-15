@@ -8,6 +8,7 @@ trait Interactive{
 	fn on_hover();
 	fn on_pan();
 	fn on_slide();
+	fn on_right_click();
 	fn while_hover();
 	fn while_click();
 }
@@ -22,6 +23,20 @@ impl EventFn {
         match self {
             Self::OnHover(func) => (func)(),
             Self::OnTap(func) => (func)(),
+        }
+    }
+
+    pub fn run_hover(&mut self) {
+        match self {
+            Self::OnHover(func) => (func)(),
+            _ => {},
+        }
+    }
+ 
+    pub fn run_tap(&mut self) {
+        match self {
+            Self::OnTap(func) => (func)(),
+            _ => {},
         }
     }
 }
@@ -149,13 +164,23 @@ impl EventManager {
 		button:&winit::event::MouseButton
 	){
 		let element = self.elements.iter_mut().find(|e|e.id == layout.id()).unwrap();
-		match element.state {
-			ElementState::Default => {},
-			ElementState::Hovered => {
-				self.notifications.push(Notify::click(layout.id()));
-			},
-			ElementState::Clicked => {}
+		match state {
+			&winit::event::ElementState::Pressed => {
+				match element.state {
+					ElementState::Default => {},
+					ElementState::Hovered => {
+						self.notifications.push(Notify::click(layout.id()));
+						element.state = ElementState::Clicked;
+					},
+					ElementState::Clicked => {}
+				}
+			}
+			&winit::event::ElementState::Released => {
+				// Not sure about this
+				element.state = ElementState::Hovered;
+			}
 		}
+		
 	}
 
 	/// Process the incoming `WindowEvent` and dispatch events to [`Widget`]'s
@@ -194,14 +219,9 @@ impl EventManager {
 #[cfg(test)]
 mod test{
 	use crystal::{EmptyLayout, Size};
-	use winit::{dpi::PhysicalPosition, event::DeviceId};
+	use winit::{dpi::PhysicalPosition, event::{DeviceId, ElementState as WinitElementState, MouseButton}};
 	use crate::widgets::Text;
 	use super::*;
-
-	#[test]
-	fn element_and_widget_ids_match(){
-		todo!()
-	}
 
 	#[test]
 	fn mouse_position_updates(){
@@ -253,8 +273,52 @@ mod test{
 		events.process(&cursor_event, &layout);
 		events.process(&cursor_event, &layout);
 
-		dbg!(&events);
-
 		assert!(events.notifications.len() == 1)
+	}
+
+	#[test]
+	fn click_event(){
+		let text = Text::new("");
+		let mut events = EventManager::new(&text);
+		let mut layout = EmptyLayout::default();
+		layout.id = String::from(text.id());
+
+		let device_id = unsafe {DeviceId::dummy()};
+		let click_event = WindowEvent::MouseInput { 
+			device_id, 
+			state: WinitElementState::Pressed, 
+			button: MouseButton::Left
+		};
+
+		events.elements[0].state = ElementState::Hovered;
+		events.process(&click_event, &layout);
+
+		assert!(events.notifications.contains(&Notify::click(text.id())))
+	}
+
+	#[test]
+	fn click_element_state(){
+		let text = Text::new("");
+		let mut events = EventManager::new(&text);
+		let mut layout = EmptyLayout::default();
+		layout.id = String::from(text.id());
+
+		let device_id = unsafe {DeviceId::dummy()};
+		let click_event = WindowEvent::MouseInput { 
+			device_id, 
+			state: WinitElementState::Pressed, 
+			button: MouseButton::Left
+		};
+		events.elements[0].state = ElementState::Hovered;
+		events.process(&click_event, &layout);
+		assert_eq!(events.elements[0].state,ElementState::Clicked);
+		
+		let click_event = WindowEvent::MouseInput { 
+			device_id, 
+			state: WinitElementState::Released, 
+			button: MouseButton::Left
+		};
+		events.process(&click_event, &layout);
+		assert_eq!(events.elements[0].state,ElementState::Hovered);
 	}
 }

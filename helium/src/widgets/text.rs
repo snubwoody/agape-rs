@@ -3,6 +3,14 @@ use super::Widget;
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::color::Color;
 
+/// A [`Widget`] for displaying text onto the screen.
+/// 
+/// # Example
+/// ```
+/// use helium::widgets::Text;
+/// 
+/// Text::new("Hello world");
+/// ```
 #[derive(Debug,Clone,PartialEq,PartialOrd,Hash)]
 pub struct Text {
     id: String,

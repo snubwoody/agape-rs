@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use super::Widget;
 use crate::{
-    events::EventFn,
+    events::{Event, EventFn},
     view::RectView,
     Color,
 };
@@ -70,7 +70,14 @@ impl Widget for Rect {
 
 	fn notify(&self,notification:&crate::events::Notify) {
 		for event in self.events.borrow_mut().iter_mut(){
-			event.run();
+			match notification.event() {
+				Event::Clicked => {
+					event.run_tap();
+				},
+				Event::Hover => {
+					event.run_hover();
+				}
+			}
 		}
 	}
 

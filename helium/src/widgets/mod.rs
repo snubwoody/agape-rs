@@ -1,3 +1,6 @@
+//! [`Widget`]'s describe what you want to present onto the screen. Helium tries to provide
+//! as many [`Widget`]'s as possible for various uses such as [`Text`],[`Button`],[`HStack`]
+//! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
 mod button;
 mod circle;
 mod container;

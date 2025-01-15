@@ -10,16 +10,6 @@ use winit::{
 /// [`App`]'s contain the whole program and are the point of entry for helium
 /// they are responsible for the overall management of rendering, resources, 
 /// [`Widget`]'s etc.
-/// 
-/// # Example
-/// 
-/// ```
-/// use helium::{app::App};
-/// 
-/// App::new()
-/// 	.run()
-/// 	.unwrap()
-/// ```
 pub struct App {
     event_loop: EventLoop<()>,
     window: Window,
