@@ -1,6 +1,5 @@
 use crate::page::Page;
 use crate::{geometry::RenderContext, Size};
-use winit::event_loop::EventLoopProxy;
 use winit::{
     dpi::PhysicalSize,
     event::WindowEvent,
@@ -8,8 +7,19 @@ use winit::{
     window::{Window, WindowBuilder},
 };
 
-/// This is a singular isolated program. Most projects
-/// will only contain one app.
+/// [`App`]'s contain the whole program and are the point of entry for helium
+/// they are responsible for the overall management of rendering, resources, 
+/// [`Widget`]'s etc.
+/// 
+/// # Example
+/// 
+/// ```
+/// use helium::{app::App};
+/// 
+/// App::new()
+/// 	.run()
+/// 	.unwrap()
+/// ```
 pub struct App {
     event_loop: EventLoop<()>,
     window: Window,

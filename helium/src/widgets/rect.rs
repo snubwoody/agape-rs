@@ -33,9 +33,14 @@ impl Rect {
         }
     }
 
-	// FIXME this is actually on hover
-    pub fn on_click(self, f: impl FnMut() + 'static) -> Self {
+    pub fn on_hover(self, f: impl FnMut() + 'static) -> Self {
         let event = EventFn::OnHover(Box::new(f));
+        self.events.borrow_mut().push(event);
+        self
+    }
+
+    pub fn on_tap(self, f: impl FnMut() + 'static) -> Self {
+        let event = EventFn::OnTap(Box::new(f));
         self.events.borrow_mut().push(event);
         self
     }
@@ -63,8 +68,7 @@ impl Widget for Rect {
         &self.id
     }
 
-	fn notify(&self,notification:&crate::events::Notif) {
-		//dbg!(&notification);	
+	fn notify(&self,notification:&crate::events::Notify) {
 		for event in self.events.borrow_mut().iter_mut(){
 			event.run();
 		}

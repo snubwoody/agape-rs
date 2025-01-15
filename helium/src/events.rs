@@ -14,12 +14,14 @@ trait Interactive{
 
 pub enum EventFn {
     OnHover(Box<dyn FnMut()>),
+    OnTap(Box<dyn FnMut()>),
 }
 
 impl EventFn {
     pub fn run(&mut self) {
         match self {
             Self::OnHover(func) => (func)(),
+            Self::OnTap(func) => (func)(),
         }
     }
 }
@@ -28,7 +30,8 @@ impl EventFn {
 enum ElementState{
 	#[default]
 	Default,
-	Hovered
+	Hovered,
+	Clicked
 }
 
 
@@ -36,6 +39,7 @@ enum ElementState{
 pub enum Event {
     #[default]
     Hover,
+	Clicked
 }
 
 /// Describes the state of a [`Widget`]
@@ -54,13 +58,17 @@ impl Element {
 	}
 }
 
-#[derive(Debug,Clone,Default,PartialEq, PartialOrd)]
-pub struct Notif {
+#[derive(Debug,Clone,PartialEq, PartialOrd)]
+pub struct Notify {
     id: String,
     event: Event,
 }
 
-impl Notif {
+impl Notify {
+	pub fn id(&self) -> &str {
+		&self.id
+	}
+
     pub fn new(id: &str, event: Event) -> Self {
         Self {
             id: id.to_string(),
@@ -75,8 +83,11 @@ impl Notif {
         }
     }
 
-    pub fn id(&self) -> &str {
-        &self.id
+    pub fn click(id: &str) -> Self {
+        Self {
+            id: id.to_string(),
+            event: Event::Clicked,
+        }
     }
 
     pub fn event(&self) -> Event {
@@ -88,7 +99,7 @@ impl Notif {
 pub struct EventManager {
     mouse_pos: Position,
 	elements: Vec<Element>,
-	notifications: Vec<Notif>
+	notifications: Vec<Notify>
 }
 
 impl EventManager {
@@ -120,14 +131,30 @@ impl EventManager {
 		if bounds.within(&mouse_pos){
 			match element.state {
 				ElementState::Default => {
-					self.notifications.push(Notif::hover(layout.id()));
+					self.notifications.push(Notify::hover(layout.id()));
 					element.state = ElementState::Hovered;
 				},
-				ElementState::Hovered => {}
+				_ => {}
 			}
 		}else {
 			element.state = ElementState::Default;
 			return;
+		}
+	}
+
+	fn process_mouse(
+		&mut self,
+		layout: &dyn Layout,
+		state:&winit::event::ElementState,
+		button:&winit::event::MouseButton
+	){
+		let element = self.elements.iter_mut().find(|e|e.id == layout.id()).unwrap();
+		match element.state {
+			ElementState::Default => {},
+			ElementState::Hovered => {
+				self.notifications.push(Notify::click(layout.id()));
+			},
+			ElementState::Clicked => {}
 		}
 	}
 
@@ -140,12 +167,16 @@ impl EventManager {
         match event {
             WindowEvent::CursorMoved {position,..} => {
                 self.mouse_pos = (*position).into();
+				// TODO maybe move the loop outside?
                 for layout in layout.iter() {
-					self.element_mut(layout.id());
 					self.process_hover(layout);
                 }
             },
-            WindowEvent::MouseInput {state,button,..} => {},
+            WindowEvent::MouseInput {state,button,..} => {
+				for layout in layout.iter() {
+					self.process_mouse(layout,state, button);
+                }
+			},
             _ => {}
         }
     }
@@ -199,7 +230,7 @@ mod test{
 
 		events.process(&cursor_event, &layout);
 
-		assert!(events.notifications.contains(&Notif::hover("id")))
+		assert!(events.notifications.contains(&Notify::hover("id")))
 	}
 
 	#[test]

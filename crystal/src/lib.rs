@@ -6,7 +6,7 @@
 //! different intrinsic sizes, known as [`BoxSizing`]
 //! - It wants to be as large as possible, usually filling the parent, this is the
 //! `BoxSizing::Flex(u8)` variant. It also has a flex factor which can be used to
-//! control how much space it takes relative it's sibling `Layouts`.
+//! control how much space it takes relative it's to sibling `Layouts`.
 //! - It wants to be as small as possible, usually fitting it's children, this is the
 //! `BoxSizing::Shrink` variant
 //! - It wants to be a certain fixed size, this is the `BoxSizing::Fixed` variant.
@@ -40,10 +40,6 @@ pub struct LayoutSolver;
 impl LayoutSolver {
     /// Calculates the layout of all the layout nodes
     pub fn solve(root: &mut dyn Layout, window_size: Size) -> Vec<crate::LayoutError> {
-        // Sorting the children caused errors because i didn't realise that it actually messes with the order
-        //root.sort_children();
-
-        // Set the max constraints of the root node to the window size
         root.set_max_width(window_size.width);
         root.set_max_height(window_size.height);
 
@@ -53,7 +49,8 @@ impl LayoutSolver {
         root.solve_max_contraints(window_size);
         root.update_size();
         root.position_children();
-        // TODO add a push error function that checks for equality so that we don't have duplicate errors
+        
+		// TODO add a push error function that checks for equality so that we don't have duplicate errors
         // or maybe just clear the error stack every frame
         root.collect_errors()
     }

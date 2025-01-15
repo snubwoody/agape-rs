@@ -12,9 +12,11 @@ fn main() {
 }
 
 fn app() {
+	let mut name = "";
+	let text = Text::new(&format!("{name}"));
     let main = Rect::new(150.0, 150.0, BLACK)
 		.corner_radius(24)
-		.on_click(||println!("Hello world"));
+		.on_hover(||println!(""));
 
     let page = Page::new(main);
 

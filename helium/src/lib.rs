@@ -9,7 +9,7 @@ mod resources;
 pub mod view;
 pub mod widgets;
 
-pub use crystal::*;
+pub use crystal;
 pub use error::Error;
 pub use helium_core::color::*; // TODO move the constants into their own module
 pub use helium_core::position::{Bounds, Position};

@@ -5,7 +5,7 @@ use helium::{
     page::Page,
     vstack,
     widgets::{icon::feather_icons, Container, Image, Rect, Spacer, Text, Widget},
-    AxisAlignment, Color, LayoutSolver, Size, BLACK, WHITE,
+    crystal::AxisAlignment, Color, crystal::LayoutSolver, Size, BLACK, WHITE,
 };
 use std::{
     env,

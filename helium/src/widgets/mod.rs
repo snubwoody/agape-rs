@@ -2,23 +2,23 @@ mod button;
 mod circle;
 mod container;
 mod hstack;
-pub mod icon;
 mod image;
 mod rect;
 mod spacer;
 mod text;
 mod vstack;
+pub mod icon;
+use crate::events::Notify;
+use crystal::Layout;
 pub use button::*;
 pub use circle::*;
 pub use container::*;
-use crystal::Layout;
 pub use hstack::*;
 pub use image::*;
 pub use rect::*;
 pub use spacer::*;
 pub use text::*;
 pub use vstack::*;
-use crate::events::{EventFn,Notif};
 
 /// The trait that all widgets must implement. Each `widget` must implement the build function
 /// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about
@@ -33,8 +33,6 @@ pub trait Widget: WidgetIterator {
 
     fn view(&self) -> Box<dyn crate::view::View>;
 
-    fn run_events(&mut self, notification:Vec<Notif>) {}
-
     /// Get a [`Widget`] from the widget tree by it's `id`
     fn get(&self, id: &str) -> Option<&dyn Widget> {
         for widget in self.iter() {
@@ -45,17 +43,11 @@ pub trait Widget: WidgetIterator {
         None
     }
 
-	fn notify(&self, notification:&Notif){}
+	/// Notifies a [`Widget`] when a gesture event has occurred.
+	fn notify(&self, notification:&Notify){}
 
-    fn gestures(&self) -> Vec<EventFn> {
-        vec![]
-    }
-
+	/// Get the direct children of the [`Widget`]
     fn children(&self) -> Vec<&dyn Widget> {
-        vec![]
-    }
-
-    fn children_mut(&mut self) -> Vec<&mut dyn Widget> {
         vec![]
     }
 }
