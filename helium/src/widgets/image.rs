@@ -4,18 +4,19 @@ use crate::{
     view::{ImageView, RectView},
 };
 use crystal::{BoxSizing, EmptyLayout};
-use helium_core::color::{BLACK, BLUE};
+use helium_core::color::BLUE;
 use image::{GenericImageView, ImageReader};
 use resvg::tiny_skia::Pixmap;
 
 /// Represents the state of the [`Image`]
-#[derive(Debug)]
+#[derive(Debug,Clone,PartialEq,)]
 enum ImageState {
     Loading(String),
     Complete(image::DynamicImage),
 }
 
 /// An Image.  
+#[derive(Debug,Clone,PartialEq,)]
 pub struct Image {
     id: String,
     state: ImageState,

@@ -228,7 +228,6 @@ impl EventManager {
         event: &winit::event::WindowEvent,
         layout: &dyn Layout,
     ){
-		//dbg!(&self.elements);
         match event {
 			WindowEvent::CursorMoved {position,..} => {
 				self.mouse_pos = (*position).into();

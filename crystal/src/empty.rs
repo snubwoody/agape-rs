@@ -7,7 +7,7 @@ use helium_core::{position::Position, size::Size};
 /// - Text
 /// - Placeholders
 /// - Icons
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone,PartialEq, )]
 pub struct EmptyLayout {
     pub id: String,
     pub size: Size,

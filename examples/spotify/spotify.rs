@@ -1,11 +1,6 @@
 #![allow(non_snake_case)]
 use helium::{
-    app::App,
-    hstack,
-    page::Page,
-    vstack,
-    widgets::*,
-    crystal::AxisAlignment, Color, crystal::LayoutSolver, Size, BLACK, WHITE,
+    app::App, crystal::{AxisAlignment, LayoutSolver}, events::EventContext, hstack, page::Page, vstack, widgets::*, Color, Size, BLACK, WHITE
 };
 use icon::feather_icons;
 use std::{
@@ -23,6 +18,7 @@ fn main() {
         "trace,wgpu_core=error,naga=warn,wgpu_hal=error,async_std=warn,reqwest=warn",
     );
     env_logger::init();
+	let cx = EventContext::new();
 
     let announcements = Rect::new(0.0, 400.0)
 		.color(BACKGROUND)
@@ -91,7 +87,7 @@ fn main() {
     writer.write(format!("{:#?}", layout).as_bytes()).unwrap();
     writer.flush().unwrap();
 
-    let home = Page::new(home);
+    let home = Page::new(cx,home);
 
     App::new().add_page(home).run().unwrap();
 }

@@ -1,19 +1,18 @@
-use std::cell::RefCell;
 use super::Widget;
 use crate::{
-    events::{Event, EventContext, EventFn}, view::RectView, Color
+    events::{EventContext, EventFn}, view::RectView, Color
 };
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use helium_core::color::WHITE;
 use nanoid::nanoid;
 
 /// A simple rectangle
+#[derive(Debug,Clone, PartialEq,PartialOrd)]
 pub struct Rect {
     id: String,
     intrinsic_size: crystal::IntrinsicSize,
     color: Color,
     corner_radius: u32,
-    events: RefCell<Vec<EventFn>>,
 }
 
 impl Rect {
@@ -28,7 +27,6 @@ impl Rect {
             color:WHITE,
             intrinsic_size,
             corner_radius: 0,
-            events: RefCell::new(vec![]),
         }
     }
 
@@ -105,18 +103,5 @@ impl Widget for Rect {
                 .corner_radius(self.corner_radius),
         )
     }
-
-	fn notify(&self,notification:&crate::events::Notify) {
-		for event in self.events.borrow_mut().iter_mut(){
-			match notification.event() {
-				Event::Clicked => {
-					event.run_click();
-				},
-				Event::Hover => {
-					event.run_hover();
-				}
-			}
-		}
-	}
 }
 

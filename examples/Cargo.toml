@@ -16,6 +16,10 @@ path = "counter.rs"
 name = "spotify"
 path = "spotify/spotify.rs"
 
+[[example]]
+name = "sign_in"
+path = "pages/sign_in.rs"
+
 [dependencies]
 dotenv = "0.15.0"
 tokio.workspace = true
