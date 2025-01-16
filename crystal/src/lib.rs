@@ -179,7 +179,7 @@ impl BoxContraints {
 /// This is the size that a [`Widget`] will try to be,  
 /// the actual final size is dependant on the space
 /// available.
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy, Default,PartialEq,PartialOrd,)]
 pub struct IntrinsicSize {
     // TODO does this really need to be a seperate struct?
     pub width: BoxSizing,

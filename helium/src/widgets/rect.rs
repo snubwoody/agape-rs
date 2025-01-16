@@ -11,8 +11,8 @@ use nanoid::nanoid;
 pub struct Rect {
     id: String,
     intrinsic_size: crystal::IntrinsicSize,
-    color: Color,
-    corner_radius: u32,
+    pub color: Color,
+    pub corner_radius: u32,
     events: RefCell<Vec<EventFn>>,
 }
 
@@ -61,7 +61,6 @@ impl Rect {
 	/// Rect::new(150.0,150.0)
 	/// 	.on_click(||println!("Hello world"));
 	/// ```
-
     pub fn on_click(self, f: impl FnMut() + 'static) -> Self {
         let event = EventFn::OnClick(Box::new(f));
         self.events.borrow_mut().push(event);

@@ -6,7 +6,7 @@ members = [
 	"examples", 
 	"helium_macros", 
 	"helium_core", 
-	"crystal",
+	"crystal", "helium_derive",
 ]
 
 [workspace.dependencies]

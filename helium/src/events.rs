@@ -1,9 +1,27 @@
+use std::{collections::HashMap, fmt::Debug};
 use crystal::{Layout, Position};
 use helium_core::position::Bounds;
 use winit::event::WindowEvent;
 use crate::widgets::Widget;
 
+/// Stores callback functions for [`Widget`]'s
+pub struct EventContext{
+	/// A map of callbacks with their widget `id`s
+	callbacks:HashMap<String,EventFn>
+}
 
+impl EventContext {
+	pub fn new() -> Self{
+		Self{callbacks:HashMap::new()}
+	}
+
+	pub fn add(&mut self,id:&str,callback:EventFn){
+		self.callbacks.insert(id.to_string(), callback);
+	}
+}
+
+
+// Might need to rethink these cause no widget can impl clone
 pub enum EventFn {
     OnHover(Box<dyn FnMut()>),
     OnClick(Box<dyn FnMut()>),
@@ -23,6 +41,15 @@ impl EventFn {
             _ => {},
         }
     }
+}
+
+impl Debug for EventFn {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		match self {
+			&Self::OnClick(_) => f.debug_tuple("OnClick(_)").finish(),
+			&Self::OnHover(_) => f.debug_tuple("OnHover(_)").finish(),
+		}
+	}
 }
 
 #[derive(Debug,Default,PartialEq,Eq, PartialOrd,Ord,Clone, Copy,Hash)]
