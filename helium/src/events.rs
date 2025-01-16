@@ -14,7 +14,7 @@ trait Interactive{
 }
 pub enum EventFn {
     OnHover(Box<dyn FnMut()>),
-    OnTap(Box<dyn FnMut()>),
+    OnClick(Box<dyn FnMut()>),
 }
 
 impl EventFn {
@@ -25,9 +25,9 @@ impl EventFn {
         }
     }
  
-    pub fn run_tap(&mut self) {
+    pub fn run_click(&mut self) {
         match self {
-            Self::OnTap(func) => (func)(),
+            Self::OnClick(func) => (func)(),
             _ => {},
         }
     }

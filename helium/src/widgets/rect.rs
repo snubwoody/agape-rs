@@ -39,8 +39,8 @@ impl Rect {
         self
     }
 
-    pub fn on_tap(self, f: impl FnMut() + 'static) -> Self {
-        let event = EventFn::OnTap(Box::new(f));
+    pub fn on_click(self, f: impl FnMut() + 'static) -> Self {
+        let event = EventFn::OnClick(Box::new(f));
         self.events.borrow_mut().push(event);
         self
     }
@@ -72,7 +72,7 @@ impl Widget for Rect {
 		for event in self.events.borrow_mut().iter_mut(){
 			match notification.event() {
 				Event::Clicked => {
-					event.run_tap();
+					event.run_click();
 				},
 				Event::Hover => {
 					event.run_hover();

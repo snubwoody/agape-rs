@@ -15,7 +15,7 @@ fn app() {
     let main = Rect::new(150.0, 150.0, BLACK)
 		.corner_radius(24)
 		.on_hover(||println!("I was hovered"))
-		.on_tap(||println!("I was tapped"));
+		.on_click(||println!("I was tapped"));
 
     let page = Page::new(main);
 
