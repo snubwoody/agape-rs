@@ -3,15 +3,7 @@ use helium_core::position::Bounds;
 use winit::event::WindowEvent;
 use crate::widgets::Widget;
 
-trait Interactive{
-	fn on_click();
-	fn on_hover();
-	fn on_pan();
-	fn on_slide();
-	fn on_right_click();
-	fn while_hover();
-	fn while_click();
-}
+
 pub enum EventFn {
     OnHover(Box<dyn FnMut()>),
     OnClick(Box<dyn FnMut()>),

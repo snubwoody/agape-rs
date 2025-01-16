@@ -46,8 +46,7 @@ pub trait Widget: WidgetIterator {
         None
     }
 
-	/// Notifies a [`Widget`] when a gesture event has occurred.
-	fn notify(&self, notification:&Notify){}
+	fn notify(&self,notification:&crate::events::Notify){}
 
 	/// Get the direct children of the [`Widget`]
     fn children(&self) -> Vec<&dyn Widget> {

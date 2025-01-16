@@ -1,11 +1,10 @@
 use std::cell::RefCell;
 use super::Widget;
 use crate::{
-    events::{Event, EventFn},
-    view::RectView,
-    Color,
+    events::{Event, EventFn}, view::RectView, Color
 };
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
+use helium_core::color::WHITE;
 use nanoid::nanoid;
 
 /// A simple rectangle
@@ -18,7 +17,7 @@ pub struct Rect {
 }
 
 impl Rect {
-    pub fn new(width: f32, height: f32, color: Color) -> Self {
+    pub fn new(width: f32, height: f32,) -> Self {
         let intrinsic_size = IntrinsicSize {
             width: BoxSizing::Fixed(width),
             height: BoxSizing::Fixed(height),
@@ -26,18 +25,42 @@ impl Rect {
 
         Self {
             id: nanoid!(),
-            color,
+            color:WHITE,
             intrinsic_size,
             corner_radius: 0,
             events: RefCell::new(vec![]),
         }
     }
 
+	pub fn color(mut self, color:Color) -> Self{
+		self.color = color;
+		self
+	}
+
+	/// This event fires when the mouse cursor is over a [`Widget`]
+	/// 
+	/// # Example
+	/// ```
+	/// use helium::widgets::Rect;
+	/// 
+	/// Rect::new(150.0,150.0)
+	/// 	.on_hover(||println!("Hello world"));
+	/// ```
     pub fn on_hover(self, f: impl FnMut() + 'static) -> Self {
         let event = EventFn::OnHover(Box::new(f));
         self.events.borrow_mut().push(event);
         self
     }
+
+	/// This event fires when the mouse clicks on a [`Widget`]
+	/// 
+	/// # Example
+	/// ```
+	/// use helium::widgets::Rect;
+	/// 
+	/// Rect::new(150.0,150.0)
+	/// 	.on_click(||println!("Hello world"));
+	/// ```
 
     pub fn on_click(self, f: impl FnMut() + 'static) -> Self {
         let event = EventFn::OnClick(Box::new(f));
@@ -68,19 +91,6 @@ impl Widget for Rect {
         &self.id
     }
 
-	fn notify(&self,notification:&crate::events::Notify) {
-		for event in self.events.borrow_mut().iter_mut(){
-			match notification.event() {
-				Event::Clicked => {
-					event.run_click();
-				},
-				Event::Hover => {
-					event.run_hover();
-				}
-			}
-		}
-	}
-
     fn layout(&self) -> Box<dyn Layout> {
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size = self.intrinsic_size;
@@ -96,4 +106,18 @@ impl Widget for Rect {
                 .corner_radius(self.corner_radius),
         )
     }
+
+	fn notify(&self,notification:&crate::events::Notify) {
+		for event in self.events.borrow_mut().iter_mut(){
+			match notification.event() {
+				Event::Clicked => {
+					event.run_click();
+				},
+				Event::Hover => {
+					event.run_hover();
+				}
+			}
+		}
+	}
 }
+

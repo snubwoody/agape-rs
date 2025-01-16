@@ -33,7 +33,7 @@ pub fn include_icons(dir: TokenStream) -> TokenStream {
     match fs::read_dir(path) {
         Ok(entries) => {
             for entry in entries {
-                // TODO handle these unwrraps
+                // TODO handle these unwraps
                 let file = entry.unwrap();
                 let entry_type = file.file_type().unwrap();
 
