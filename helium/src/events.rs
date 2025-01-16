@@ -12,20 +12,12 @@ trait Interactive{
 	fn while_hover();
 	fn while_click();
 }
-
 pub enum EventFn {
     OnHover(Box<dyn FnMut()>),
     OnTap(Box<dyn FnMut()>),
 }
 
 impl EventFn {
-    pub fn run(&mut self) {
-        match self {
-            Self::OnHover(func) => (func)(),
-            Self::OnTap(func) => (func)(),
-        }
-    }
-
     pub fn run_hover(&mut self) {
         match self {
             Self::OnHover(func) => (func)(),
@@ -61,15 +53,40 @@ pub enum Event {
 #[derive(Debug,Clone, PartialEq, Eq,PartialOrd,Ord)]
 struct Element {
 	id:String,
+	previous_state:ElementState,
 	state:ElementState,
 }
 
 impl Element {
-	pub fn new(id:&str) -> Self{
+	fn new(id:&str) -> Self{
 		Self{
 			id:String::from(id),
+			previous_state:ElementState::Default,
 			state:ElementState::Default,
 		}
+	}
+
+	/// Set the element state to whatever it was previously
+	fn roll_back(&mut self){
+		self.state = self.previous_state;
+	}
+	
+	/// Set the element state to `ElementState::Default`
+	fn default(&mut self){
+		self.previous_state = self.state;
+		self.state = ElementState::Default;
+	}
+
+	/// Set the element state to `ElementState::Clicked`
+	fn click(&mut self){
+		self.previous_state = self.state;
+		self.state = ElementState::Clicked;
+	}
+
+	/// Set the element state to `ElementState::Hovered`
+	fn hover(&mut self){
+		self.previous_state = self.state;
+		self.state = ElementState::Hovered;
 	}
 }
 
@@ -110,7 +127,7 @@ impl Notify {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, PartialOrd,Default)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct EventManager {
     mouse_pos: Position,
 	elements: Vec<Element>,
@@ -118,8 +135,8 @@ pub struct EventManager {
 }
 
 impl EventManager {
-    pub fn new(widget: &dyn Widget) -> Self {
-		let elements:Vec<Element> = widget.iter().map(|w|Element::new(w.id())).collect();
+    pub fn new(layout: &dyn Layout) -> Self {
+		let elements:Vec<Element> = layout.iter().map(|l|Element::new(l.id())).collect();
         
 		Self{
 			elements,
@@ -147,12 +164,12 @@ impl EventManager {
 			match element.state {
 				ElementState::Default => {
 					self.notifications.push(Notify::hover(layout.id()));
-					element.state = ElementState::Hovered;
+					element.hover();
 				},
 				_ => {}
 			}
 		}else {
-			element.state = ElementState::Default;
+			element.default();
 			return;
 		}
 	}
@@ -164,20 +181,21 @@ impl EventManager {
 		button:&winit::event::MouseButton
 	){
 		let element = self.elements.iter_mut().find(|e|e.id == layout.id()).unwrap();
+		
 		match state {
 			&winit::event::ElementState::Pressed => {
 				match element.state {
 					ElementState::Default => {},
 					ElementState::Hovered => {
 						self.notifications.push(Notify::click(layout.id()));
-						element.state = ElementState::Clicked;
+						element.click();
 					},
 					ElementState::Clicked => {}
 				}
 			}
 			&winit::event::ElementState::Released => {
 				// Not sure about this
-				element.state = ElementState::Hovered;
+				element.roll_back();
 			}
 		}
 		
@@ -189,10 +207,10 @@ impl EventManager {
         event: &winit::event::WindowEvent,
         layout: &dyn Layout,
     ){
+		//dbg!(&self.elements);
         match event {
-            WindowEvent::CursorMoved {position,..} => {
-                self.mouse_pos = (*position).into();
-				// TODO maybe move the loop outside?
+			WindowEvent::CursorMoved {position,..} => {
+				self.mouse_pos = (*position).into();
                 for layout in layout.iter() {
 					self.process_hover(layout);
                 }
@@ -208,9 +226,8 @@ impl EventManager {
 
 	pub fn notify(&mut self,widget: &dyn Widget){
 		for notif in self.notifications.drain(..){
-			if let Some(widget) = widget.get(notif.id()){
-				widget.notify(&notif);
-			}
+			let widget = widget.get(notif.id()).unwrap();
+			widget.notify(&notif);
 		}
 	}
 }
@@ -219,13 +236,15 @@ impl EventManager {
 #[cfg(test)]
 mod test{
 	use crystal::{EmptyLayout, Size};
-	use winit::{dpi::PhysicalPosition, event::{DeviceId, ElementState as WinitElementState, MouseButton}};
-	use crate::widgets::Text;
+	use winit::{
+		dpi::PhysicalPosition, 
+		event::{DeviceId, ElementState as WinitElementState, MouseButton}
+	};
 	use super::*;
 
 	#[test]
 	fn mouse_position_updates(){
-		let mut events = EventManager::default();
+		let mut events = EventManager::new(&EmptyLayout::default());
 		
 		let device_id = unsafe {DeviceId::dummy()};
 		let position = PhysicalPosition::new(50.0, 60.0);
@@ -237,11 +256,11 @@ mod test{
 
 	#[test]
 	fn hover_event(){
-		let mut events = EventManager::new(&Text::new(""));
 		let mut layout = EmptyLayout::default();
 		layout.id = String::from("id");
 		layout.position = Position::new(50.0, 50.0);
 		layout.size = Size::new(100.0, 100.0);
+		let mut events = EventManager::new(&layout);
 
 		let device_id = unsafe {DeviceId::dummy()};
 		let position = PhysicalPosition::new(92.23, 63.2);
@@ -255,13 +274,10 @@ mod test{
 
 	#[test]
 	fn no_duplicate_hover_events(){
-		let text = Text::new("");
-
-		let mut events = EventManager::new(&text);
 		let mut layout = EmptyLayout::default();
-		layout.id = String::from(text.id());
 		layout.position = Position::new(50.0, 50.0);
 		layout.size = Size::new(100.0, 100.0);
+		let mut events = EventManager::new(&layout);
 
 		let device_id = unsafe {DeviceId::dummy()};
 		let position = PhysicalPosition::new(92.23, 63.2);
@@ -278,10 +294,8 @@ mod test{
 
 	#[test]
 	fn click_event(){
-		let text = Text::new("");
-		let mut events = EventManager::new(&text);
-		let mut layout = EmptyLayout::default();
-		layout.id = String::from(text.id());
+		let layout = EmptyLayout::default();
+		let mut events = EventManager::new(&layout);
 
 		let device_id = unsafe {DeviceId::dummy()};
 		let click_event = WindowEvent::MouseInput { 
@@ -293,15 +307,27 @@ mod test{
 		events.elements[0].state = ElementState::Hovered;
 		events.process(&click_event, &layout);
 
-		assert!(events.notifications.contains(&Notify::click(text.id())))
+		assert!(events.notifications.contains(&Notify::click(layout.id())))
+	}
+
+	#[test]
+	fn hover_state(){
+		let layout = EmptyLayout::default();
+		let mut events = EventManager::new(&layout);
+
+		let device_id = unsafe {DeviceId::dummy()};
+		let position = PhysicalPosition::new(92.23, 63.2);
+
+		let cursor_event = WindowEvent::CursorMoved {device_id,position};
+		events.process(&cursor_event, &layout);
+
+		assert_eq!(events.elements[0].state,ElementState::Hovered);
 	}
 
 	#[test]
 	fn click_element_state(){
-		let text = Text::new("");
-		let mut events = EventManager::new(&text);
-		let mut layout = EmptyLayout::default();
-		layout.id = String::from(text.id());
+		let layout = EmptyLayout::default();
+		let mut events = EventManager::new(&layout);
 
 		let device_id = unsafe {DeviceId::dummy()};
 		let click_event = WindowEvent::MouseInput { 

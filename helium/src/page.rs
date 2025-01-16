@@ -14,8 +14,8 @@ impl Page {
     pub fn new(widget: impl Widget + 'static) -> Self {
         Self {
             layout: widget.layout(),
+            events: EventManager::new(&*widget.layout()),
             views: ViewManager::new(&widget),
-            events: EventManager::new(&widget),
             widget: Box::new(widget),
         }
     }
