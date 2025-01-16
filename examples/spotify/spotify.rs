@@ -4,13 +4,12 @@ use helium::{
     hstack,
     page::Page,
     vstack,
-    widgets::{icon::feather_icons, Container, Image, Rect, Spacer, Text, Widget},
+    widgets::*,
     crystal::AxisAlignment, Color, crystal::LayoutSolver, Size, BLACK, WHITE,
 };
+use icon::feather_icons;
 use std::{
-    env,
-    fs::OpenOptions,
-    io::{BufWriter, Write},
+    backtrace::Backtrace, env, fs::OpenOptions, io::{BufWriter, Write}
 };
 
 const BACKGROUND: Color = Color::Hex("#121212");
@@ -25,7 +24,8 @@ fn main() {
     );
     env_logger::init();
 
-    let announcements = Rect::new(0.0, 400.0, BACKGROUND)
+    let announcements = Rect::new(0.0, 400.0)
+		.color(BACKGROUND)
         .flex_width(1)
         .corner_radius(24);
 
@@ -204,7 +204,9 @@ fn BottomBar() -> impl Widget {
             hstack!{
                 Text::new("0:00")
                 .color(WHITE),
-                Rect::new(350.0, 5.0, BLACK).corner_radius(2),
+                Rect::new(350.0, 5.0)
+				.color(BLACK)
+				.corner_radius(2),
                 Text::new("4:00")
                 .color(WHITE)
             }

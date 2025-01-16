@@ -17,7 +17,7 @@ pub struct Rect {
 }
 
 impl Rect {
-    pub fn new(width: f32, height: f32,) -> Self {
+    pub fn new(width: f32, height: f32) -> Self {
         let intrinsic_size = IntrinsicSize {
             width: BoxSizing::Fixed(width),
             height: BoxSizing::Fixed(height),
