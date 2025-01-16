@@ -181,7 +181,7 @@ impl EventManager {
 		button:&winit::event::MouseButton
 	){
 		let element = self.elements.iter_mut().find(|e|e.id == layout.id()).unwrap();
-		
+		// TODO use right click only
 		match state {
 			&winit::event::ElementState::Pressed => {
 				match element.state {
@@ -312,7 +312,8 @@ mod test{
 
 	#[test]
 	fn hover_state(){
-		let layout = EmptyLayout::default();
+		let mut layout = EmptyLayout::default();
+		layout.size = Size::new(500.0, 500.0);
 		let mut events = EventManager::new(&layout);
 
 		let device_id = unsafe {DeviceId::dummy()};
