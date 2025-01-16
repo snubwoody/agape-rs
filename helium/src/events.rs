@@ -146,21 +146,23 @@ impl Notify {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
+#[derive(Debug)]
 pub struct EventManager {
     mouse_pos: Position,
 	elements: Vec<Element>,
-	notifications: Vec<Notify>
+	notifications: Vec<Notify>,
+	callbacks:HashMap<String,EventFn>
 }
 
 impl EventManager {
-    pub fn new(layout: &dyn Layout) -> Self {
+    pub fn new(cx:EventContext,layout: &dyn Layout) -> Self {
 		let elements:Vec<Element> = layout.iter().map(|l|Element::new(l.id())).collect();
-        
+
 		Self{
 			elements,
 			mouse_pos:Position::default(),
-			notifications:vec![]
+			notifications:vec![],
+			callbacks:cx.callbacks
 		}
     }
 
@@ -245,8 +247,15 @@ impl EventManager {
 
 	pub fn notify(&mut self,widget: &dyn Widget){
 		for notif in self.notifications.drain(..){
-			let widget = widget.get(notif.id()).unwrap();
-			widget.notify(&notif);
+			// FIXME
+			match notif.event {
+				Event::Clicked => {
+					self.callbacks.get_mut(notif.id()).unwrap().run_click();
+				},
+				Event::Hover => {
+					self.callbacks.get_mut(notif.id()).unwrap().run_hover();
+				}
+			}
 		}
 	}
 }
@@ -263,7 +272,7 @@ mod test{
 
 	#[test]
 	fn mouse_position_updates(){
-		let mut events = EventManager::new(&EmptyLayout::default());
+		let mut events = EventManager::new(EventContext::new(),&EmptyLayout::default());
 		
 		let device_id = unsafe {DeviceId::dummy()};
 		let position = PhysicalPosition::new(50.0, 60.0);
@@ -279,7 +288,7 @@ mod test{
 		layout.id = String::from("id");
 		layout.position = Position::new(50.0, 50.0);
 		layout.size = Size::new(100.0, 100.0);
-		let mut events = EventManager::new(&layout);
+		let mut events = EventManager::new(EventContext::new(),&layout);
 
 		let device_id = unsafe {DeviceId::dummy()};
 		let position = PhysicalPosition::new(92.23, 63.2);
@@ -296,7 +305,7 @@ mod test{
 		let mut layout = EmptyLayout::default();
 		layout.position = Position::new(50.0, 50.0);
 		layout.size = Size::new(100.0, 100.0);
-		let mut events = EventManager::new(&layout);
+		let mut events = EventManager::new(EventContext::new(),&layout);
 
 		let device_id = unsafe {DeviceId::dummy()};
 		let position = PhysicalPosition::new(92.23, 63.2);
@@ -314,7 +323,7 @@ mod test{
 	#[test]
 	fn click_event(){
 		let layout = EmptyLayout::default();
-		let mut events = EventManager::new(&layout);
+		let mut events = EventManager::new(EventContext::new(),&layout);
 
 		let device_id = unsafe {DeviceId::dummy()};
 		let click_event = WindowEvent::MouseInput { 
@@ -333,7 +342,7 @@ mod test{
 	fn hover_state(){
 		let mut layout = EmptyLayout::default();
 		layout.size = Size::new(500.0, 500.0);
-		let mut events = EventManager::new(&layout);
+		let mut events = EventManager::new(EventContext::new(),&layout);
 
 		let device_id = unsafe {DeviceId::dummy()};
 		let position = PhysicalPosition::new(92.23, 63.2);
@@ -347,7 +356,7 @@ mod test{
 	#[test]
 	fn click_element_state(){
 		let layout = EmptyLayout::default();
-		let mut events = EventManager::new(&layout);
+		let mut events = EventManager::new(EventContext::new(),&layout);
 
 		let device_id = unsafe {DeviceId::dummy()};
 		let click_event = WindowEvent::MouseInput { 

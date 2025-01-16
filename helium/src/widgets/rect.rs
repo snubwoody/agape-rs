@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use super::Widget;
 use crate::{
-    events::{Event, EventFn}, view::RectView, Color
+    events::{Event, EventContext, EventFn}, view::RectView, Color
 };
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use helium_core::color::WHITE;
@@ -11,8 +11,8 @@ use nanoid::nanoid;
 pub struct Rect {
     id: String,
     intrinsic_size: crystal::IntrinsicSize,
-    pub color: Color,
-    pub corner_radius: u32,
+    color: Color,
+    corner_radius: u32,
     events: RefCell<Vec<EventFn>>,
 }
 
@@ -46,9 +46,9 @@ impl Rect {
 	/// Rect::new(150.0,150.0)
 	/// 	.on_hover(||println!("Hello world"));
 	/// ```
-    pub fn on_hover(self, f: impl FnMut() + 'static) -> Self {
-        let event = EventFn::OnHover(Box::new(f));
-        self.events.borrow_mut().push(event);
+    pub fn on_hover(self,cx:&mut EventContext, f: impl FnMut() + 'static) -> Self {
+		let event = EventFn::OnHover(Box::new(f));
+		cx.add(&self.id,event);
         self
     }
 
@@ -61,9 +61,9 @@ impl Rect {
 	/// Rect::new(150.0,150.0)
 	/// 	.on_click(||println!("Hello world"));
 	/// ```
-    pub fn on_click(self, f: impl FnMut() + 'static) -> Self {
+    pub fn on_click(self,cx:&mut EventContext, f: impl FnMut() + 'static) -> Self {
         let event = EventFn::OnClick(Box::new(f));
-        self.events.borrow_mut().push(event);
+		cx.add(&self.id,event);
         self
     }
 

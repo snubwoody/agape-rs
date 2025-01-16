@@ -1,5 +1,5 @@
 use crate::app::AppState;
-use crate::events::EventManager;
+use crate::events::{EventContext, EventManager};
 use crate::{view::ViewManager, widgets::Widget};
 use crystal::LayoutSolver;
 
@@ -11,10 +11,10 @@ pub struct Page {
 }
 
 impl Page {
-    pub fn new(widget: impl Widget + 'static) -> Self {
+    pub fn new(cx:EventContext,widget: impl Widget + 'static) -> Self {
         Self {
             layout: widget.layout(),
-            events: EventManager::new(&*widget.layout()),
+            events: EventManager::new(cx,&*widget.layout()),
             views: ViewManager::new(&widget),
             widget: Box::new(widget),
         }
