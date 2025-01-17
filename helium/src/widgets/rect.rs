@@ -45,11 +45,10 @@ impl Rect {
 	/// 	.on_hover(||println!("Hello world"));
 	/// ```
     pub fn on_hover(self,cx:&mut EventContext, f: impl FnMut() + 'static) -> Self {
-		let event = EventFn::OnHover(Box::new(f));
-		cx.add(&self.id,event);
+		cx.add(EventFn::hover(&self.id, f));
         self
     }
-
+	
 	/// This event fires when the mouse clicks on a [`Widget`]
 	/// 
 	/// # Example
@@ -60,8 +59,7 @@ impl Rect {
 	/// 	.on_click(||println!("Hello world"));
 	/// ```
     pub fn on_click(self,cx:&mut EventContext, f: impl FnMut() + 'static) -> Self {
-        let event = EventFn::OnClick(Box::new(f));
-		cx.add(&self.id,event);
+		cx.add(EventFn::click(&self.id, f));
         self
     }
 

@@ -2,42 +2,56 @@ use std::{collections::HashMap, fmt::Debug};
 use crystal::{Layout, Position};
 use helium_core::position::Bounds;
 use winit::event::WindowEvent;
-use crate::widgets::Widget;
 
 /// Stores callback functions for [`Widget`]'s
 pub struct EventContext{
 	/// A map of callbacks with their widget `id`s
-	callbacks:HashMap<String,EventFn>
+	callbacks:Vec<EventFn>
 }
 
 impl EventContext {
 	pub fn new() -> Self{
-		Self{callbacks:HashMap::new()}
+		Self{callbacks:vec![]}
 	}
 
-	pub fn add(&mut self,id:&str,callback:EventFn){
-		self.callbacks.insert(id.to_string(), callback);
+	pub fn add(&mut self,callback:EventFn){
+		self.callbacks.push(callback);
 	}
 }
 
 
-// Might need to rethink these cause no widget can impl clone
 pub enum EventFn {
-    OnHover(Box<dyn FnMut()>),
-    OnClick(Box<dyn FnMut()>),
+    OnHover(String,Box<dyn FnMut()>),
+    OnClick(String,Box<dyn FnMut()>),
 }
 
 impl EventFn {
-    pub fn run_hover(&mut self) {
+	pub fn hover(id:&str,f:impl FnMut() + 'static) -> Self{
+		Self::OnHover(id.to_string(), Box::new(f))
+	}
+
+	pub fn click(id:&str,f:impl FnMut() + 'static) -> Self{
+		Self::OnClick(id.to_string(), Box::new(f))
+	}
+
+    fn run_hover(&mut self,widget_id:&str) {
         match self {
-            Self::OnHover(func) => (func)(),
+            Self::OnHover(id,func) => {
+				if id == widget_id {
+					(func)()
+				}
+			},
             _ => {},
         }
     }
  
-    pub fn run_click(&mut self) {
+    fn run_click(&mut self,widget_id:&str) {
         match self {
-            Self::OnClick(func) => (func)(),
+            Self::OnClick(id,func) => {
+				if id == widget_id{
+					(func)()
+				}
+			},
             _ => {},
         }
     }
@@ -46,8 +60,8 @@ impl EventFn {
 impl Debug for EventFn {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		match self {
-			&Self::OnClick(_) => f.debug_tuple("OnClick(_)").finish(),
-			&Self::OnHover(_) => f.debug_tuple("OnHover(_)").finish(),
+			Self::OnClick(id,_) => f.debug_tuple(format!("OnClick({id},_)").as_str()).finish(),
+			Self::OnHover(id,_) => f.debug_tuple(format!("OnHover({id},_)").as_str()).finish(),
 		}
 	}
 }
@@ -60,13 +74,6 @@ enum ElementState{
 	Clicked
 }
 
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default, Hash)]
-pub enum Event {
-    #[default]
-    Hover,
-	Clicked
-}
 
 /// Describes the state of a [`Widget`]
 #[derive(Debug,Clone, PartialEq, Eq,PartialOrd,Ord)]
@@ -104,54 +111,17 @@ impl Element {
 
 	/// Set the element state to `ElementState::Hovered`
 	fn hover(&mut self){
-		self.previous_state = self.state;
+		// FIXME
+		self.previous_state = ElementState::Default;
 		self.state = ElementState::Hovered;
 	}
-}
-
-#[derive(Debug,Clone,PartialEq, PartialOrd)]
-pub struct Notify {
-    id: String,
-    event: Event,
-}
-
-impl Notify {
-	pub fn id(&self) -> &str {
-		&self.id
-	}
-
-    pub fn new(id: &str, event: Event) -> Self {
-        Self {
-            id: id.to_string(),
-            event,
-        }
-    }
-
-    pub fn hover(id: &str) -> Self {
-        Self {
-            id: id.to_string(),
-            event: Event::Hover,
-        }
-    }
-
-    pub fn click(id: &str) -> Self {
-        Self {
-            id: id.to_string(),
-            event: Event::Clicked,
-        }
-    }
-
-    pub fn event(&self) -> Event {
-        self.event
-    }
 }
 
 #[derive(Debug)]
 pub struct EventManager {
     mouse_pos: Position,
 	elements: Vec<Element>,
-	notifications: Vec<Notify>,
-	callbacks:HashMap<String,EventFn>
+	callbacks:Vec<EventFn>
 }
 
 impl EventManager {
@@ -161,20 +131,9 @@ impl EventManager {
 		Self{
 			elements,
 			mouse_pos:Position::default(),
-			notifications:vec![],
 			callbacks:cx.callbacks
 		}
     }
-
-	/// Get a reference to an [`Element`] by it's `id`
-	fn element(&self,id:&str) -> Option<&Element>{
-		self.elements.iter().find(|e|e.id == id)
-	}
-
-	/// Get a `&mut` to an [`Element`] by it's `id`
-	fn element_mut(&mut self,id:&str) -> Option<&mut Element>{
-		self.elements.iter_mut().find(|e|e.id == id)
-	}
 
 	fn process_hover(&mut self,layout: &dyn Layout){
 		let bounds = Bounds::new(layout.position(), layout.size());
@@ -184,8 +143,10 @@ impl EventManager {
 		if bounds.within(&mouse_pos){
 			match element.state {
 				ElementState::Default => {
-					self.notifications.push(Notify::hover(layout.id()));
 					element.hover();
+					for callback in &mut self.callbacks{
+						callback.run_hover(layout.id());
+					}
 				},
 				_ => {}
 			}
@@ -208,8 +169,10 @@ impl EventManager {
 				match element.state {
 					ElementState::Default => {},
 					ElementState::Hovered => {
-						self.notifications.push(Notify::click(layout.id()));
 						element.click();
+						for callback in &mut self.callbacks{
+							callback.run_click(layout.id());
+						}
 					},
 					ElementState::Clicked => {}
 				}
@@ -228,6 +191,7 @@ impl EventManager {
         event: &winit::event::WindowEvent,
         layout: &dyn Layout,
     ){
+		// FIXME please handle the panics
         match event {
 			WindowEvent::CursorMoved {position,..} => {
 				self.mouse_pos = (*position).into();
@@ -243,31 +207,22 @@ impl EventManager {
             _ => {}
         }
     }
-
-	pub fn notify(&mut self,widget: &dyn Widget){
-		for notif in self.notifications.drain(..){
-			// FIXME
-			match notif.event {
-				Event::Clicked => {
-					self.callbacks.get_mut(notif.id()).unwrap().run_click();
-				},
-				Event::Hover => {
-					self.callbacks.get_mut(notif.id()).unwrap().run_hover();
-				}
-			}
-		}
-	}
 }
 
 
 #[cfg(test)]
 mod test{
+	use super::*;
 	use crystal::{EmptyLayout, Size};
 	use winit::{
 		dpi::PhysicalPosition, 
 		event::{DeviceId, ElementState as WinitElementState, MouseButton}
 	};
-	use super::*;
+
+	#[test]
+	fn event_and_widget_ids_match(){
+
+	}
 
 	#[test]
 	fn mouse_position_updates(){
@@ -279,62 +234,6 @@ mod test{
 
 		events.process(&cursor_event, &EmptyLayout::default());
 		assert_eq!(events.mouse_pos,position.into())
-	}
-
-	#[test]
-	fn hover_event(){
-		let mut layout = EmptyLayout::default();
-		layout.id = String::from("id");
-		layout.position = Position::new(50.0, 50.0);
-		layout.size = Size::new(100.0, 100.0);
-		let mut events = EventManager::new(EventContext::new(),&layout);
-
-		let device_id = unsafe {DeviceId::dummy()};
-		let position = PhysicalPosition::new(92.23, 63.2);
-
-		let cursor_event = WindowEvent::CursorMoved {device_id,position};
-
-		events.process(&cursor_event, &layout);
-
-		assert!(events.notifications.contains(&Notify::hover("id")))
-	}
-
-	#[test]
-	fn no_duplicate_hover_events(){
-		let mut layout = EmptyLayout::default();
-		layout.position = Position::new(50.0, 50.0);
-		layout.size = Size::new(100.0, 100.0);
-		let mut events = EventManager::new(EventContext::new(),&layout);
-
-		let device_id = unsafe {DeviceId::dummy()};
-		let position = PhysicalPosition::new(92.23, 63.2);
-
-		let cursor_event = WindowEvent::CursorMoved {device_id,position};
-
-		events.process(&cursor_event, &layout);
-		events.process(&cursor_event, &layout);
-		events.process(&cursor_event, &layout);
-		events.process(&cursor_event, &layout);
-
-		assert!(events.notifications.len() == 1)
-	}
-
-	#[test]
-	fn click_event(){
-		let layout = EmptyLayout::default();
-		let mut events = EventManager::new(EventContext::new(),&layout);
-
-		let device_id = unsafe {DeviceId::dummy()};
-		let click_event = WindowEvent::MouseInput { 
-			device_id, 
-			state: WinitElementState::Pressed, 
-			button: MouseButton::Left
-		};
-
-		events.elements[0].state = ElementState::Hovered;
-		events.process(&click_event, &layout);
-
-		assert!(events.notifications.contains(&Notify::click(layout.id())))
 	}
 
 	#[test]

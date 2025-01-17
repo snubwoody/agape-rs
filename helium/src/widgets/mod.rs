@@ -11,7 +11,6 @@ mod spacer;
 mod text;
 mod vstack;
 pub mod icon;
-use crate::events::Notify;
 use crystal::Layout;
 pub use button::*;
 pub use circle::*;
@@ -45,8 +44,6 @@ pub trait Widget: WidgetIterator {
         }
         None
     }
-
-	fn notify(&self,notification:&crate::events::Notify){}
 
 	/// Get the direct children of the [`Widget`]
     fn children(&self) -> Vec<&dyn Widget> {
