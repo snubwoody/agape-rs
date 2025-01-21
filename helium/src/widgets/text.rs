@@ -3,6 +3,7 @@ use super::Widget;
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::color::Color;
 
+// TODO add editable() method?
 /// A [`Widget`] for displaying text onto the screen.
 /// 
 /// # Example

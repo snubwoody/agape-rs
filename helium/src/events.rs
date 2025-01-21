@@ -1,11 +1,10 @@
-use std::{collections::HashMap, fmt::Debug};
+use std::fmt::Debug;
 use crystal::{Layout, Position};
 use helium_core::position::Bounds;
 use winit::event::WindowEvent;
 
 /// Stores callback functions for [`Widget`]'s
 pub struct EventContext{
-	/// A map of callbacks with their widget `id`s
 	callbacks:Vec<EventFn>
 }
 
@@ -19,10 +18,19 @@ impl EventContext {
 	}
 }
 
+#[derive(Debug,Clone, Copy)]
+pub enum Key{
+	Shift,
+	Enter,
+	Ctrl,
+	Space,
+	Char(char)
+}
 
 pub enum EventFn {
     OnHover(String,Box<dyn FnMut()>),
     OnClick(String,Box<dyn FnMut()>),
+    OnKey(String,Box<dyn FnMut(Key)>),
 }
 
 impl EventFn {
@@ -62,6 +70,7 @@ impl Debug for EventFn {
 		match self {
 			Self::OnClick(id,_) => f.debug_tuple(format!("OnClick({id},_)").as_str()).finish(),
 			Self::OnHover(id,_) => f.debug_tuple(format!("OnHover({id},_)").as_str()).finish(),
+			Self::OnKey(id,_) => f.debug_tuple(format!("OnKey({id},_)").as_str()).finish(),
 		}
 	}
 }
@@ -71,14 +80,15 @@ enum ElementState{
 	#[default]
 	Default,
 	Hovered,
-	Clicked
+	// Maybe add mouse button? or just add RightClicked
+	Clicked,
 }
 
 
 /// Describes the state of a [`Widget`]
 #[derive(Debug,Clone, PartialEq, Eq,PartialOrd,Ord)]
 struct Element {
-	id:String,
+	id:String, // TODO add size and position
 	previous_state:ElementState,
 	state:ElementState,
 }
@@ -112,7 +122,7 @@ impl Element {
 	/// Set the element state to `ElementState::Hovered`
 	fn hover(&mut self){
 		// FIXME
-		self.previous_state = ElementState::Default;
+		self.previous_state = self.state;
 		self.state = ElementState::Hovered;
 	}
 }
@@ -156,14 +166,12 @@ impl EventManager {
 		}
 	}
 
-	fn process_mouse(
+	fn process_left_click(
 		&mut self,
 		layout: &dyn Layout,
 		state:&winit::event::ElementState,
-		button:&winit::event::MouseButton
 	){
 		let element = self.elements.iter_mut().find(|e|e.id == layout.id()).unwrap();
-		// TODO use right click only
 		match state {
 			&winit::event::ElementState::Pressed => {
 				match element.state {
@@ -177,12 +185,39 @@ impl EventManager {
 					ElementState::Clicked => {}
 				}
 			}
-			&winit::event::ElementState::Released => {
-				// Not sure about this
-				element.roll_back();
-			}
+			&winit::event::ElementState::Released => element.roll_back()
 		}
+	}
+
+	fn process_click(
+		&mut self,
+		layout: &dyn Layout,
+		state:&winit::event::ElementState,
+		button:&winit::event::MouseButton
+	){
+		match button {
+			winit::event::MouseButton::Left => {
+				self.process_left_click(layout, state);
+			},
+			winit::event::MouseButton::Right => {
+
+			},
+			_ => {}
+		}		
 		
+	}
+
+	fn process_keyboard(
+		&mut self,
+		event:&winit::event::KeyEvent
+	){
+		match &event.logical_key {
+			winit::keyboard::Key::Character(ch) => {
+
+			},
+			_ => {}
+		}
+		dbg!(event);	
 	}
 
 	/// Process the incoming `WindowEvent` and dispatch events to [`Widget`]'s
@@ -201,9 +236,12 @@ impl EventManager {
             },
             WindowEvent::MouseInput {state,button,..} => {
 				for layout in layout.iter() {
-					self.process_mouse(layout,state, button);
+					self.process_click(layout,state, button);
                 }
 			},
+			WindowEvent::KeyboardInput { event,..} => {
+				self.process_keyboard(event);
+			}
             _ => {}
         }
     }
@@ -218,11 +256,6 @@ mod test{
 		dpi::PhysicalPosition, 
 		event::{DeviceId, ElementState as WinitElementState, MouseButton}
 	};
-
-	#[test]
-	fn event_and_widget_ids_match(){
-
-	}
 
 	#[test]
 	fn mouse_position_updates(){
@@ -244,15 +277,20 @@ mod test{
 
 		let device_id = unsafe {DeviceId::dummy()};
 		let position = PhysicalPosition::new(92.23, 63.2);
-
+		
 		let cursor_event = WindowEvent::CursorMoved {device_id,position};
 		events.process(&cursor_event, &layout);
-
+		
 		assert_eq!(events.elements[0].state,ElementState::Hovered);
+		
+		let position = PhysicalPosition::new(9002.23, 6003.2);
+		let cursor_event = WindowEvent::CursorMoved {device_id,position};
+		events.process(&cursor_event, &layout);
+		assert_eq!(events.elements[0].state,ElementState::Default);
 	}
 
 	#[test]
-	fn click_element_state(){
+	fn click_state(){
 		let layout = EmptyLayout::default();
 		let mut events = EventManager::new(EventContext::new(),&layout);
 

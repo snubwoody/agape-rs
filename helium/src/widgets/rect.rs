@@ -49,7 +49,7 @@ impl Rect {
         self
     }
 	
-	/// This event fires when the mouse clicks on a [`Widget`]
+	/// This event fires when the mouse clicks on a [`Widget`].
 	/// 
 	/// # Example
 	/// ```
