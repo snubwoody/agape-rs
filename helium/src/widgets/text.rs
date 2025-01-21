@@ -63,9 +63,7 @@ impl Widget for Text {
         &self.id
     }
 
-	fn tick(&mut self,elements:&[crate::events::Element]) {
-		
-	}
+	fn tick(&mut self,elements:&[crate::events::Element]) {}
 
     fn layout(&self) -> Box<dyn Layout> {
         // FIXME hopefully a temp fix because i don't know how to calculate the size before hand

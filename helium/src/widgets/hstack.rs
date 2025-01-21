@@ -143,7 +143,8 @@ impl Widget for HStack {
 /// };
 ///
 /// ```
-#[macro_export] // TODO add vec-like syntax hstack[widget;10]
+// TODO add vec-like syntax hstack[widget;10]
+#[macro_export]
 macro_rules! hstack {
 	($($child:expr), + $(,)?) => {
 		{

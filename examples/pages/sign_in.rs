@@ -1,12 +1,18 @@
 use helium::{
-	colors::{self, tailwind_colors}, events::EventContext, hex, hstack, vstack, widgets::*, App, Page, BLACK 
+	colors::tailwind_colors, 
+	events::EventContext, 
+	hex, 
+	vstack, 
+	widgets::*, 
+	App, 
+	Page, 
 };
 
 fn main(){
 	let mut cx = EventContext::new();
 	// TODO export hstack from widgets
 
-	let form = vstack! {
+	let form = vstack!{
 		Text::new("Sign in"),
 		InputField("Email"),
 		InputField("Password"),

@@ -49,11 +49,7 @@ pub trait View: Debug {
     fn id(&self) -> &str;
 }
 
-/// Manages all [`View`]'s and their respective resources including
-/// - `Buffers`
-/// - `Textures`
-/// - `Samplers`
-/// - `Bind groups`
+/// Manages all [`View`]'s and their respective resources.
 #[derive(Debug)]
 pub struct ViewManager {
     resources: ResourceManager,
@@ -78,6 +74,10 @@ impl ViewManager {
             cache: HashMap::new(),
         }
     }
+
+	pub fn update(&mut self,widget: &dyn Widget){
+
+	}
 
     pub fn resize(&mut self, layout: &dyn Layout, state: &AppState) -> Result<(), crate::Error> {
         for view in &mut self.views {

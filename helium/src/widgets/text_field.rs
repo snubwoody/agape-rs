@@ -1,26 +1,26 @@
-use std::cell::Cell;
-use crystal::EmptyLayout;
-use crate::{colors::tailwind_colors::GRAY200, events::{Element, EventContext, EventFn, Key}, view::{RectView, TextView}};
-use super::Widget;
+use crystal::{BlockLayout, EmptyLayout};
+use helium_core::color::{Color, INDIGO};
+use crate::{
+	colors::tailwind_colors::{BLUE100, GRAY100, GREEN100, RED100}, events::Element, view::{RectView, TextView}
+};
+use super::{Text, Widget};
+use rand::seq::SliceRandom; 
+use rand::thread_rng;       
+
 
 /// Contains editable text
-pub struct TextField<'a>{
+pub struct TextField{
 	id:String,
-	text:Cell<&'a str>,
+	text:Text,
+	background_color:Color
 }
 
-impl<'a> TextField<'a> {
+impl TextField {
 	pub fn new() -> Self{
-		let text = Cell::new("");
-		let mut events = vec![];
-
-		let on_input = ||{};
-
-		events.push(on_input);
-		
 		Self{
 			id:nanoid::nanoid!(),
-			text,
+			text:Text::new("Placeholder"),
+			background_color:Color::default()
 		}
 	}
 
@@ -28,33 +28,42 @@ impl<'a> TextField<'a> {
 		self
 	}
 
-	pub fn click(&mut self){
-		//self.focused = !self.focused;
-		//self.cursor.blink();
-		//self.border.color = Colors::Blue;
-	}
-
 	fn on_input(&mut self){
 
 	}
 }
 
-impl<'a> Widget for TextField<'a> {
+impl Widget for TextField {
 	fn id(&self) -> &str {
 		&self.id
 	}
 
 	fn tick(&mut self,elements:&[Element]) {
-		
+		println!("Hi");
+
+		let colors = [
+			BLUE100,
+			RED100,
+			GRAY100,
+			GREEN100,
+			INDIGO
+		];
+
+		if let Some(&random_color) = colors.choose(&mut thread_rng()) {
+			self.background_color = random_color;
+		}
+	
+		self.text.text.push('H');
 	}
 
 	fn layout(&self) -> Box<dyn crystal::Layout> {
-		let mut layout = EmptyLayout::new();
-		layout.id = self.id.clone();
-		Box::new(layout)
+		let child_layout = self.text.layout();
+        let mut layout = BlockLayout::new(child_layout);
+        layout.id = self.id.clone();
+        Box::new(layout)
 	}
 
 	fn view(&self) -> Box<dyn crate::view::View> {
-		Box::new(RectView::new(&self.id).color(GRAY200))
+		Box::new(RectView::new(&self.id).color(self.background_color))
 	}
 }
