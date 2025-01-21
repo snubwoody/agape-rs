@@ -1,5 +1,5 @@
 use helium::{
-	events::EventContext, hex, hstack, vstack, widgets::*, App, Page 
+	colors::{self, tailwind_colors}, events::EventContext, hex, hstack, vstack, widgets::*, App, Page, BLACK 
 };
 
 fn main(){
@@ -8,8 +8,8 @@ fn main(){
 
 	let form = vstack! {
 		Text::new("Sign in"),
-		Text::new("Email"),
-		Text::new("Password"),
+		InputField("Email"),
+		InputField("Password"),
 		Text::new("Forgot password"),
 		Button::new(Text::new("Hello world"))
 			.color(hex!("#000000")),
@@ -24,4 +24,15 @@ fn main(){
 		.add_page(page)
 		.run()
 		.unwrap();
+}
+
+// Turn into widget
+fn InputField(label:&str) -> impl Widget{
+	vstack! {
+		Text::new(label),
+		Rect::new(120.0,20.0).color(
+			tailwind_colors::NEUTRAL300
+		).corner_radius(12),
+	}
+	.spacing(8)
 }

@@ -7,6 +7,7 @@ pub mod events;
 pub mod geometry;
 pub mod page;
 pub mod view;
+pub mod colors;
 pub mod widgets;
 
 pub use crystal;
