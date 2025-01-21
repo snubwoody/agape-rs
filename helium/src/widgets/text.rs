@@ -1,18 +1,18 @@
-use crate::view::TextView;
 use super::Widget;
+use crate::view::TextView;
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::color::Color;
 
 // TODO add editable() method?
 /// A [`Widget`] for displaying text onto the screen.
-/// 
+///
 /// # Example
 /// ```
 /// use helium::widgets::Text;
-/// 
+///
 /// Text::new("Hello world");
 /// ```
-#[derive(Debug,Clone,PartialEq,PartialOrd,Hash)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Hash)]
 pub struct Text {
     id: String,
     pub text: String,
@@ -21,14 +21,14 @@ pub struct Text {
 }
 
 impl Default for Text {
-	fn default() -> Self {
-		Self {
+    fn default() -> Self {
+        Self {
             id: nanoid::nanoid!(),
             font_size: 16,
             text: Default::default(),
             color: Color::Hex("#000000"),
         }
-	}	
+    }
 }
 
 impl Text {
@@ -41,10 +41,10 @@ impl Text {
         }
     }
 
-	pub fn text(mut self, text: &str) -> Self{
-		self.text = text.to_string();
-		self
-	}
+    pub fn text(mut self, text: &str) -> Self {
+        self.text = text.to_string();
+        self
+    }
 
     pub fn color(mut self, color: Color) -> Self {
         self.color = color;
@@ -63,7 +63,7 @@ impl Widget for Text {
         &self.id
     }
 
-	fn tick(&mut self,elements:&[crate::events::Element]) {}
+    fn tick(&mut self, elements: &[crate::events::Element]) {}
 
     fn layout(&self) -> Box<dyn Layout> {
         // FIXME hopefully a temp fix because i don't know how to calculate the size before hand

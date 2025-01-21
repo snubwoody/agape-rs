@@ -141,9 +141,7 @@ impl Layout for BlockLayout {
     }
 
     fn iter(&self) -> LayoutIter {
-        LayoutIter {
-            stack: vec![self],
-        }
+        LayoutIter { stack: vec![self] }
     }
 
     fn solve_min_constraints(&mut self) -> (f32, f32) {

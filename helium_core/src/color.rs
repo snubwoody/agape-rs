@@ -120,7 +120,7 @@ mod test {
 
     #[test]
     fn test_valid_hex_colors() {
-		// Invalid hex colors are defaulted to white
+        // Invalid hex colors are defaulted to white
         let color = Color::Hex("#".into());
         assert_eq!(color.to_rgba(), [255, 255, 255, 100]);
 

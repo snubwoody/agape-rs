@@ -1,10 +1,20 @@
 #![allow(non_snake_case)]
 use helium::{
-    app::App, crystal::{AxisAlignment, LayoutSolver}, events::EventContext, hstack, page::Page, vstack, widgets::*, Color, Size, BLACK, WHITE
+    app::App,
+    crystal::{AxisAlignment, LayoutSolver},
+    events::EventContext,
+    hstack,
+    page::Page,
+    vstack,
+    widgets::*,
+    Color, Size, BLACK, WHITE,
 };
 use icon::feather_icons;
 use std::{
-    backtrace::Backtrace, env, fs::OpenOptions, io::{BufWriter, Write}
+    backtrace::Backtrace,
+    env,
+    fs::OpenOptions,
+    io::{BufWriter, Write},
 };
 
 const BACKGROUND: Color = Color::Hex("#121212");
@@ -18,10 +28,10 @@ fn main() {
         "trace,wgpu_core=error,naga=warn,wgpu_hal=error,async_std=warn,reqwest=warn",
     );
     env_logger::init();
-	let cx = EventContext::new();
+    let cx = EventContext::new();
 
     let announcements = Rect::new(0.0, 400.0)
-		.color(BACKGROUND)
+        .color(BACKGROUND)
         .flex_width(1)
         .corner_radius(24);
 
@@ -87,7 +97,7 @@ fn main() {
     writer.write(format!("{:#?}", layout).as_bytes()).unwrap();
     writer.flush().unwrap();
 
-    let home = Page::new(cx,home);
+    let home = Page::new(cx, home);
 
     App::new().add_page(home).run().unwrap();
 }
@@ -201,8 +211,8 @@ fn BottomBar() -> impl Widget {
                 Text::new("0:00")
                 .color(WHITE),
                 Rect::new(350.0, 5.0)
-				.color(BLACK)
-				.corner_radius(2),
+                .color(BLACK)
+                .corner_radius(2),
                 Text::new("4:00")
                 .color(WHITE)
             }

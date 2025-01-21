@@ -1,13 +1,15 @@
 use super::Widget;
 use crate::{
-    events::{EventContext, EventFn}, view::RectView, Color
+    events::{EventContext, EventFn},
+    view::RectView,
+    Color,
 };
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use helium_core::color::WHITE;
 use nanoid::nanoid;
 
 /// A simple rectangle
-#[derive(Debug,Clone, PartialEq,PartialOrd)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Rect {
     id: String,
     intrinsic_size: crystal::IntrinsicSize,
@@ -24,42 +26,42 @@ impl Rect {
 
         Self {
             id: nanoid!(),
-            color:WHITE,
+            color: WHITE,
             intrinsic_size,
             corner_radius: 0,
         }
     }
 
-	pub fn color(mut self, color:Color) -> Self{
-		self.color = color;
-		self
-	}
-
-	/// This event fires when the mouse cursor is over a [`Widget`]
-	/// 
-	/// # Example
-	/// ```
-	/// use helium::widgets::Rect;
-	/// 
-	/// Rect::new(150.0,150.0)
-	/// 	.on_hover(||println!("Hello world"));
-	/// ```
-    pub fn on_hover(self,cx:&mut EventContext, f: impl FnMut() + 'static) -> Self {
-		cx.add(EventFn::hover(&self.id, f));
+    pub fn color(mut self, color: Color) -> Self {
+        self.color = color;
         self
     }
-	
-	/// This event fires when the mouse clicks on a [`Widget`].
-	/// 
-	/// # Example
-	/// ```
-	/// use helium::widgets::Rect;
-	/// 
-	/// Rect::new(150.0,150.0)
-	/// 	.on_click(||println!("Hello world"));
-	/// ```
-    pub fn on_click(self,cx:&mut EventContext, f: impl FnMut() + 'static) -> Self {
-		cx.add(EventFn::click(&self.id, f));
+
+    /// This event fires when the mouse cursor is over a [`Widget`]
+    ///
+    /// # Example
+    /// ```
+    /// use helium::widgets::Rect;
+    ///
+    /// Rect::new(150.0,150.0)
+    /// 	.on_hover(||println!("Hello world"));
+    /// ```
+    pub fn on_hover(self, cx: &mut EventContext, f: impl FnMut() + 'static) -> Self {
+        cx.add(EventFn::hover(&self.id, f));
+        self
+    }
+
+    /// This event fires when the mouse clicks on a [`Widget`].
+    ///
+    /// # Example
+    /// ```
+    /// use helium::widgets::Rect;
+    ///
+    /// Rect::new(150.0,150.0)
+    /// 	.on_click(||println!("Hello world"));
+    /// ```
+    pub fn on_click(self, cx: &mut EventContext, f: impl FnMut() + 'static) -> Self {
+        cx.add(EventFn::click(&self.id, f));
         self
     }
 
@@ -86,9 +88,7 @@ impl Widget for Rect {
         &self.id
     }
 
-	fn tick(&mut self,elements:&[crate::events::Element]) {
-		
-	}
+    fn tick(&mut self, elements: &[crate::events::Element]) {}
 
     fn layout(&self) -> Box<dyn Layout> {
         let mut layout = EmptyLayout::new();
@@ -106,4 +106,3 @@ impl Widget for Rect {
         )
     }
 }
-

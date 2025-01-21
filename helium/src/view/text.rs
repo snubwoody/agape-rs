@@ -83,9 +83,9 @@ impl View for TextView {
                 self.font_size,
                 self.color.into_hex_string().as_str(),
             )
-            .unwrap(); 
-		// FIXME empty text causing panic
-		// TODO Hangle the errors pls
+            .unwrap();
+        // FIXME empty text causing panic
+        // TODO Hangle the errors pls
 
         let image = image::load(Cursor::new(text_image.data), image::ImageFormat::Png)
             .unwrap()

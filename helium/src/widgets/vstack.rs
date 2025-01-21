@@ -3,11 +3,11 @@ use crystal::{AxisAlignment, Layout, VerticalLayout};
 use helium_core::color::TRANSPARENT;
 
 /// A [`Widget`] that places it's children vertically. The `vstack!` macro
-/// provides convienient initialization and is likely how you will be creating an 
+/// provides convienient initialization and is likely how you will be creating an
 /// `VStack` most of the time.
-/// 
+///
 /// # Example using `vstack!`
-/// 
+///
 /// ```
 /// use helium::{vstack,widgets::{Circle,Text}};
 ///
@@ -17,10 +17,10 @@ use helium_core::color::TRANSPARENT;
 /// };
 ///
 /// ```
-/// 
-/// You can also simply use the struct method for initialization if you choose to, 
+///
+/// You can also simply use the struct method for initialization if you choose to,
 /// which is what `vstack!` expands to
-/// 
+///
 /// ```
 /// use helium::widgets::{Text,VStack};
 ///
@@ -29,7 +29,7 @@ use helium_core::color::TRANSPARENT;
 /// 	.add_child(Text::new("World"));
 ///
 /// ```
-/// 
+///
 pub struct VStack {
     id: String,
     children: Vec<Box<dyn Widget>>,
@@ -98,10 +98,12 @@ impl Widget for VStack {
         &self.id
     }
 
-	fn tick(&mut self,elements:&[crate::events::Element]) {
-		self.children.iter_mut().for_each(|child|child.tick(elements));
-	}
-	
+    fn tick(&mut self, elements: &[crate::events::Element]) {
+        self.children
+            .iter_mut()
+            .for_each(|child| child.tick(elements));
+    }
+
     fn layout(&self) -> Box<dyn Layout> {
         let children_layout: Vec<Box<dyn Layout>> =
             self.children.iter().map(|widget| widget.layout()).collect();

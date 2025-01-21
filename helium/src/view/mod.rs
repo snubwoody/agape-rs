@@ -33,6 +33,8 @@ pub trait View: Debug {
         state: &AppState,
     ) -> Result<(), crate::Error>;
 
+    fn update(&mut self) {}
+
     /// Resize the [`View`].
     ///
     /// The behaviour of this is different for each [`View`], for some it's as simple
@@ -75,9 +77,9 @@ impl ViewManager {
         }
     }
 
-	pub fn update(&mut self,widget: &dyn Widget){
-
-	}
+    pub fn update(&mut self, widget: &dyn Widget) {
+        let views: Vec<Box<dyn View>> = widget.iter().map(|w| w.view()).collect();
+    }
 
     pub fn resize(&mut self, layout: &dyn Layout, state: &AppState) -> Result<(), crate::Error> {
         for view in &mut self.views {

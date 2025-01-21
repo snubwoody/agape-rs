@@ -5,7 +5,7 @@ use helium_core::color::TRANSPARENT;
 /// A [`Widget`] that places it's children horizontally. The `hstack!` macro
 /// provides convienient initialization and is mostly how you be creating an `HStack`
 /// most of the time.
-/// 
+///
 /// # Example using `hstack!`
 /// ```
 /// use helium::{hstack,widgets::{Circle,Text}};
@@ -16,10 +16,10 @@ use helium_core::color::TRANSPARENT;
 /// };
 ///
 /// ```
-/// 
-/// You can also simply use the struct method for initialization if you choose to, 
+///
+/// You can also simply use the struct method for initialization if you choose to,
 /// which is what `hstack!` expands to
-/// 
+///
 /// ```
 /// use helium::widgets::{Text,HStack};
 ///
@@ -28,7 +28,7 @@ use helium_core::color::TRANSPARENT;
 /// 	.add_child(Text::new("World"));
 ///
 /// ```
-/// 
+///
 pub struct HStack {
     id: String,
     children: Vec<Box<dyn Widget>>,
@@ -86,9 +86,11 @@ impl Widget for HStack {
         &self.id
     }
 
-	fn tick(&mut self,elements:&[crate::events::Element]) {
-		self.children.iter_mut().for_each(|child|child.tick(elements));
-	}
+    fn tick(&mut self, elements: &[crate::events::Element]) {
+        self.children
+            .iter_mut()
+            .for_each(|child| child.tick(elements));
+    }
 
     fn layout(&self) -> Box<dyn Layout> {
         let children_layout: Vec<Box<dyn Layout>> =

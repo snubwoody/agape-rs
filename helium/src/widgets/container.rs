@@ -47,9 +47,9 @@ where
         &self.id
     }
 
-	fn tick(&mut self,elements:&[crate::events::Element]) {
-		self.child.tick(elements);
-	}
+    fn tick(&mut self, elements: &[crate::events::Element]) {
+        self.child.tick(elements);
+    }
 
     fn layout(&self) -> Box<dyn Layout> {
         let child_layout = self.child.layout();

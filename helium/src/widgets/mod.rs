@@ -5,23 +5,23 @@ mod button;
 mod circle;
 mod container;
 mod hstack;
+pub mod icon;
 mod image;
 mod rect;
 mod spacer;
 mod text;
-mod vstack;
 mod text_field;
-pub mod icon;
-use crystal::Layout;
+mod vstack;
 pub use button::*;
 pub use circle::*;
 pub use container::*;
+use crystal::Layout;
 pub use hstack::*;
 pub use image::*;
-pub use text_field::*;
 pub use rect::*;
 pub use spacer::*;
 pub use text::*;
+pub use text_field::*;
 pub use vstack::*;
 
 use crate::events::Element;
@@ -37,7 +37,7 @@ pub trait Widget: WidgetIterator {
     /// Get the `id` of the [`Widget`]
     fn id(&self) -> &str;
 
-	/// Get the [`Widget`]'s [`View`].
+    /// Get the [`Widget`]'s [`View`].
     fn view(&self) -> Box<dyn crate::view::View>;
 
     /// Get a [`Widget`] from the widget tree by it's `id`
@@ -50,18 +50,17 @@ pub trait Widget: WidgetIterator {
         None
     }
 
-	fn tick(&mut self,elements:&[Element]);
+    fn tick(&mut self, elements: &[Element]);
 
-	// TODO maybe make a test macro to make sure all widgets 
-	// handle this right
-	/// Get the direct children of the [`Widget`]
+    // TODO maybe make a test macro to make sure all widgets
+    // handle this right
+    /// Get the direct children of the [`Widget`]
     fn children(&self) -> Vec<&dyn Widget> {
-		vec![]
+        vec![]
     }
 
-
     fn children_mut(&mut self) -> Vec<&mut dyn Widget> {
-		vec![]
+        vec![]
     }
 }
 

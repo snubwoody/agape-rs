@@ -49,8 +49,8 @@ impl LayoutSolver {
         root.solve_max_contraints(window_size);
         root.update_size();
         root.position_children();
-        
-		// TODO add a push error function that checks for equality so that we don't have duplicate errors
+
+        // TODO add a push error function that checks for equality so that we don't have duplicate errors
         // or maybe just clear the error stack every frame
         root.collect_errors()
     }
@@ -179,7 +179,7 @@ impl BoxContraints {
 /// This is the size that a [`Widget`] will try to be,  
 /// the actual final size is dependant on the space
 /// available.
-#[derive(Debug, Clone, Copy, Default,PartialEq,PartialOrd,)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, PartialOrd)]
 pub struct IntrinsicSize {
     // TODO does this really need to be a seperate struct?
     pub width: BoxSizing,

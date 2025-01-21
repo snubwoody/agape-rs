@@ -204,9 +204,7 @@ impl Layout for HorizontalLayout {
     }
 
     fn iter(&self) -> crate::LayoutIter {
-        LayoutIter {
-            stack: vec![self],
-        }
+        LayoutIter { stack: vec![self] }
     }
 
     fn solve_min_constraints(&mut self) -> (f32, f32) {

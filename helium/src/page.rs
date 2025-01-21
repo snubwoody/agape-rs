@@ -11,19 +11,19 @@ pub struct Page {
 }
 
 impl Page {
-    pub fn new(cx:EventContext,widget: impl Widget + 'static) -> Self {
+    pub fn new(cx: EventContext, widget: impl Widget + 'static) -> Self {
         Self {
             layout: widget.layout(),
-            events: EventManager::new(cx,&*widget.layout()),
+            events: EventManager::new(cx, &*widget.layout()),
             views: ViewManager::new(&widget),
             widget: Box::new(widget),
         }
     }
 
     pub fn handle(&mut self, event: &winit::event::WindowEvent) {
-        self.events.process(event,&*self.layout);
-		self.widget.tick(self.events.elements());
-		self.views.update(&mut *self.widget);
+        self.events.process(event, &*self.layout);
+        self.widget.tick(self.events.elements());
+        self.views.update(&mut *self.widget);
     }
 
     pub fn resize(&mut self, state: &AppState) -> Result<(), crate::Error> {
@@ -78,6 +78,6 @@ impl Page {
 
         state.queue.submit(std::iter::once(encoder.finish()));
         output.present();
-       	dbg!(instant.elapsed());
+        dbg!(instant.elapsed());
     }
 }

@@ -7,7 +7,7 @@ use helium_core::{position::Position, size::Size};
 /// - Text
 /// - Placeholders
 /// - Icons
-#[derive(Debug, Default, Clone,PartialEq, )]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct EmptyLayout {
     pub id: String,
     pub size: Size,
@@ -84,9 +84,7 @@ impl Layout for EmptyLayout {
     }
 
     fn iter(&self) -> crate::LayoutIter {
-        LayoutIter {
-            stack: vec![self],
-        }
+        LayoutIter { stack: vec![self] }
     }
 
     fn solve_min_constraints(&mut self) -> (f32, f32) {

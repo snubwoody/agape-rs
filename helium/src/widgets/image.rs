@@ -9,14 +9,14 @@ use image::{GenericImageView, ImageReader};
 use resvg::tiny_skia::Pixmap;
 
 /// Represents the state of the [`Image`]
-#[derive(Debug,Clone,PartialEq,)]
+#[derive(Debug, Clone, PartialEq)]
 enum ImageState {
     Loading(String),
     Complete(image::DynamicImage),
 }
 
 /// An Image.  
-#[derive(Debug,Clone,PartialEq,)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Image {
     id: String,
     state: ImageState,
@@ -170,10 +170,8 @@ impl Widget for Image {
         &self.id
     }
 
-	fn tick(&mut self,elements:&[crate::events::Element]) {
-		
-	}
-	
+    fn tick(&mut self, elements: &[crate::events::Element]) {}
+
     fn layout(&self) -> Box<dyn crystal::Layout> {
         Box::new(self.layout.clone())
     }

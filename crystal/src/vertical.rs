@@ -186,9 +186,7 @@ impl Layout for VerticalLayout {
     }
 
     fn iter(&self) -> crate::LayoutIter {
-        LayoutIter {
-            stack: vec![self],
-        }
+        LayoutIter { stack: vec![self] }
     }
 
     fn sort_children(&mut self) {

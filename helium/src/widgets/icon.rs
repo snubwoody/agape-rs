@@ -103,10 +103,8 @@ impl Widget for Icon {
     fn id(&self) -> &str {
         &self.id
     }
-	
-	fn tick(&mut self,elements:&[crate::events::Element]) {
-		
-	}
+
+    fn tick(&mut self, elements: &[crate::events::Element]) {}
 
     fn layout(&self) -> Box<dyn crystal::Layout> {
         Box::new(self.layout.clone())
