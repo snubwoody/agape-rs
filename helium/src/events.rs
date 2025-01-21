@@ -18,12 +18,17 @@ impl EventContext {
 	}
 }
 
-#[derive(Debug,Clone, Copy)]
+#[derive(Debug,Clone, Copy,PartialEq, Eq, PartialOrd, Ord)]
 pub enum Key{
 	Shift,
 	Enter,
 	Ctrl,
 	Space,
+	Tab,
+	CapsLock,
+	Fn,
+	Alt,
+	Super,
 	Char(char)
 }
 

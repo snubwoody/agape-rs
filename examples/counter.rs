@@ -15,7 +15,7 @@ fn app() {
 		.corner_radius(24)
 		.on_hover(&mut cx,||println!("I was hovered"))
 		.on_click(&mut cx,||println!("I was clicked"));
-
+    
     let page = Page::new(cx,main);
 
     App::new().add_page(page).run().unwrap();

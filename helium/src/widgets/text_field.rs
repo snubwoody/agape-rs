@@ -3,6 +3,7 @@ use crystal::EmptyLayout;
 use crate::view::TextView;
 use super::Widget;
 
+/// Contains editable text
 pub struct TextField<'a>{
 	id:String,
 	text:Cell<&'a str>,
@@ -23,6 +24,12 @@ impl<'a> TextField<'a> {
 			text,
 			events:vec![]
 		}
+	}
+
+	pub fn on_click(&mut self){
+		//self.focused = !self.focused;
+		//self.cursor.blink();
+		//self.border.color = Colors::Blue;
 	}
 }
 

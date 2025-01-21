@@ -44,6 +44,7 @@ impl App {
         self
     }
 
+	// FIXME app panics if there are no views
     pub fn run(mut self) -> Result<(), crate::Error> {
         let mut state = async_std::task::block_on(AppState::new(&self.window));
         self.window.set_visible(true);

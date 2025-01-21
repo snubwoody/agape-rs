@@ -16,5 +16,7 @@ pub use helium_core::position::{Bounds, Position};
 pub use helium_core::size::Size;
 pub use helium_macros::hex;
 pub use nanoid::nanoid;
+pub use app::App;
+pub use page::Page;
 
 // TODO maybe expose whole crates instead of globs
