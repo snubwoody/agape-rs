@@ -1,13 +1,12 @@
 use std::cell::Cell;
 use crystal::EmptyLayout;
-use crate::view::TextView;
+use crate::{colors::tailwind_colors::GRAY200, events::{Element, EventContext, EventFn, Key}, view::{RectView, TextView}};
 use super::Widget;
 
 /// Contains editable text
 pub struct TextField<'a>{
 	id:String,
 	text:Cell<&'a str>,
-	events:Vec<Box<dyn FnMut()>>
 }
 
 impl<'a> TextField<'a> {
@@ -22,20 +21,31 @@ impl<'a> TextField<'a> {
 		Self{
 			id:nanoid::nanoid!(),
 			text,
-			events:vec![]
 		}
 	}
 
-	pub fn on_click(&mut self){
+	pub fn on_click(mut self,f:impl FnMut() + 'static) -> Self{
+		self
+	}
+
+	pub fn click(&mut self){
 		//self.focused = !self.focused;
 		//self.cursor.blink();
 		//self.border.color = Colors::Blue;
+	}
+
+	fn on_input(&mut self){
+
 	}
 }
 
 impl<'a> Widget for TextField<'a> {
 	fn id(&self) -> &str {
 		&self.id
+	}
+
+	fn tick(&mut self,elements:&[Element]) {
+		
 	}
 
 	fn layout(&self) -> Box<dyn crystal::Layout> {
@@ -45,6 +55,6 @@ impl<'a> Widget for TextField<'a> {
 	}
 
 	fn view(&self) -> Box<dyn crate::view::View> {
-		Box::new(TextView::new(&self.id, self.text.get()))
+		Box::new(RectView::new(&self.id).color(GRAY200))
 	}
 }

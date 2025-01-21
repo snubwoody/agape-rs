@@ -24,6 +24,8 @@ pub use spacer::*;
 pub use text::*;
 pub use vstack::*;
 
+use crate::events::Element;
+
 /// The trait that all widgets must implement. Each `widget` must implement the build function
 /// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about
 /// the widget.
@@ -35,6 +37,7 @@ pub trait Widget: WidgetIterator {
     /// Get the `id` of the [`Widget`]
     fn id(&self) -> &str;
 
+	/// Get the [`Widget`]'s [`View`].
     fn view(&self) -> Box<dyn crate::view::View>;
 
     /// Get a [`Widget`] from the widget tree by it's `id`
@@ -47,13 +50,18 @@ pub trait Widget: WidgetIterator {
         None
     }
 
-	fn run_hover(&mut self){
+	fn tick(&mut self,elements:&[Element]);
 
-	}
-
+	// TODO maybe make a test macro to make sure all widgets 
+	// handle this right
 	/// Get the direct children of the [`Widget`]
     fn children(&self) -> Vec<&dyn Widget> {
-        vec![]
+		vec![]
+    }
+
+
+    fn children_mut(&mut self) -> Vec<&mut dyn Widget> {
+		vec![]
     }
 }
 

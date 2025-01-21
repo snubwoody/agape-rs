@@ -47,7 +47,22 @@ impl EventFn {
 		Self::OnClick(id.to_string(), Box::new(f))
 	}
 
-    fn run_hover(&mut self,widget_id:&str) {
+	pub fn key(id:&str,f:impl FnMut(Key) + 'static) -> Self{
+		Self::OnKey(id.to_string(), Box::new(f))
+	}
+
+    pub fn run_key(&mut self,widget_id:&str,key:Key) {
+        match self {
+            Self::OnKey(id,func,) => {
+				if id == widget_id {
+					(func)(key)
+				}
+			},
+            _ => {},
+        }
+    }
+
+    pub fn run_hover(&mut self,widget_id:&str) {
         match self {
             Self::OnHover(id,func) => {
 				if id == widget_id {
@@ -58,7 +73,7 @@ impl EventFn {
         }
     }
  
-    fn run_click(&mut self,widget_id:&str) {
+    pub fn run_click(&mut self,widget_id:&str) {
         match self {
             Self::OnClick(id,func) => {
 				if id == widget_id{
@@ -91,15 +106,15 @@ enum ElementState{
 
 
 /// Describes the state of a [`Widget`]
-#[derive(Debug,Clone, PartialEq, Eq,PartialOrd,Ord)]
-struct Element {
+#[derive(Debug)]
+pub struct Element {
 	id:String, // TODO add size and position
 	previous_state:ElementState,
 	state:ElementState,
 }
 
 impl Element {
-	fn new(id:&str) -> Self{
+	pub fn new(id:&str) -> Self{
 		Self{
 			id:String::from(id),
 			previous_state:ElementState::Default,
@@ -150,6 +165,10 @@ impl EventManager {
 		}
     }
 
+	pub fn elements(&self) -> &[Element]{
+		self.elements.as_slice()
+	}
+
 	fn process_hover(&mut self,layout: &dyn Layout){
 		let bounds = Bounds::new(layout.position(), layout.size());
 		let mouse_pos = self.mouse_pos;
@@ -176,6 +195,7 @@ impl EventManager {
 		layout: &dyn Layout,
 		state:&winit::event::ElementState,
 	){
+		// FIXME shouldn't be unwrapping
 		let element = self.elements.iter_mut().find(|e|e.id == layout.id()).unwrap();
 		match state {
 			&winit::event::ElementState::Pressed => {
@@ -214,15 +234,19 @@ impl EventManager {
 
 	fn process_keyboard(
 		&mut self,
-		event:&winit::event::KeyEvent
+		event:&winit::event::KeyEvent,
+		layout: &dyn Layout,
 	){
 		match &event.logical_key {
 			winit::keyboard::Key::Character(ch) => {
-
+				for callback in &mut self.callbacks{
+					// impl FROM for characters
+					let _char = ch.chars().into_iter().next().unwrap();
+					callback.run_key(layout.id(), Key::Char(_char));
+				}
 			},
 			_ => {}
 		}
-		dbg!(event);	
 	}
 
 	/// Process the incoming `WindowEvent` and dispatch events to [`Widget`]'s
@@ -245,7 +269,7 @@ impl EventManager {
                 }
 			},
 			WindowEvent::KeyboardInput { event,..} => {
-				self.process_keyboard(event);
+				self.process_keyboard(event,layout);
 			}
             _ => {}
         }

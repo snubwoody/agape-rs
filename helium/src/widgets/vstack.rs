@@ -97,6 +97,10 @@ impl Widget for VStack {
     fn id(&self) -> &str {
         &self.id
     }
+
+	fn tick(&mut self,elements:&[crate::events::Element]) {
+		self.children.iter_mut().for_each(|child|child.tick(elements));
+	}
 	
     fn layout(&self) -> Box<dyn Layout> {
         let children_layout: Vec<Box<dyn Layout>> =

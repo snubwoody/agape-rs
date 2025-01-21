@@ -22,6 +22,7 @@ impl Page {
 
     pub fn handle(&mut self, event: &winit::event::WindowEvent) {
         self.events.process(event,&*self.layout);
+		self.widget.tick(self.events.elements());
     }
 
     pub fn resize(&mut self, state: &AppState) -> Result<(), crate::Error> {
