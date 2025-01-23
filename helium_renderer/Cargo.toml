@@ -1,0 +1,14 @@
+[package]
+name = "helium_renderer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+helium_core = {path = "../helium_core"}
+wgpu.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+text-to-png.workspace = true
+winit.workspace = true
+bytemuck.workspace = true
+log.workspace = true

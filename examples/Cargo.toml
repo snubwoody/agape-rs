@@ -5,8 +5,12 @@ edition = "2021"
 
 [dev-dependencies]
 helium = { path = "../helium", features = ["icon-sets"]}
+helium_renderer = {path = "../helium_renderer"}
 env_logger = "0.11.5"
 log = "0.4.22"
+tokio.workspace = true
+dotenv = "0.15.0"
+winit.workspace = true
 
 [[example]]
 name = "counter"
@@ -20,6 +24,6 @@ path = "spotify/spotify.rs"
 name = "sign_in"
 path = "pages/sign_in.rs"
 
-[dependencies]
-dotenv = "0.15.0"
-tokio.workspace = true
+[[example]]
+name = "renderer"
+path = "renderer.rs"
