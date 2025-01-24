@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 helium_core = {path = "../helium_core"}
+crystal = {path = "../crystal"}
 wgpu.workspace = true
 thiserror.workspace = true
 tokio.workspace = true
@@ -12,3 +13,4 @@ text-to-png.workspace = true
 winit.workspace = true
 bytemuck.workspace = true
 log.workspace = true
+image.workspace = true

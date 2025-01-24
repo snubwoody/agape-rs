@@ -1,8 +1,16 @@
-use helium_core::Size;
+mod vertex;
+mod rect;
+mod resources;
+mod error;
+mod primitives;
+use crystal::Position;
+pub use error::Error;
+use helium_core::{color::BLACK, Size};
+use primitives::RectShader;
+use resources::ResourceManager;
+use vertex::Vertex;
 use winit::{
     dpi::PhysicalSize,
-    event::WindowEvent,
-    event_loop::{ControlFlow, EventLoop},
     window::{Window, WindowBuilder},
 };
 
@@ -13,6 +21,8 @@ pub struct Renderer<'a> {
     pub queue: wgpu::Queue,
     pub config: wgpu::SurfaceConfiguration,
     pub size: Size,
+	pub shader:RectShader,
+	pub resources: ResourceManager
 }
 
 impl<'a> Renderer<'a> {
@@ -76,6 +86,9 @@ impl<'a> Renderer<'a> {
 
         // Configure the surface for presentation
         surface.configure(&device, &config);
+		let mut resources = ResourceManager::new();
+		// FIXME return error
+		let shader = RectShader::new(&device, &mut resources, config.format).unwrap();
 
         Self {
             surface,
@@ -83,6 +96,8 @@ impl<'a> Renderer<'a> {
             queue,
             config,
             size,
+			shader,
+			resources,
         }
     }
 
@@ -93,7 +108,114 @@ impl<'a> Renderer<'a> {
         // Resize the surface with the window to keep the right scale
         self.surface.configure(&self.device, &self.config);
     }
+
+	pub fn render(&mut self){
+		let instant = std::time::Instant::now();
+
+		let output = self.surface.get_current_texture().unwrap(); // TODO maybe handle this error
+		let view = output
+			.texture
+			.create_view(&wgpu::TextureViewDescriptor::default());
+
+		let mut encoder = self
+			.device
+			.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+				label: Some("Render encoder"),
+			});
+
+		let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+			label: Some("Render Pass"),
+			color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+				view: &view,
+				resolve_target: None,
+				ops: wgpu::Operations {
+					load: wgpu::LoadOp::Clear(wgpu::Color {
+						r: 1.0,
+						g: 1.0,
+						b: 1.0,
+						a: 1.0,
+					}),
+					store: wgpu::StoreOp::Store,
+				},
+			})],
+			depth_stencil_attachment: None,
+			occlusion_query_set: None,
+			timestamp_writes: None,
+		});
+
+		self.draw_rect(&mut render_pass);
+		// Drop the render pass because it borrows encoder mutably
+		std::mem::drop(render_pass);
+
+		self.queue.submit(std::iter::once(encoder.finish()));
+		output.present();
+		
+		dbg!(instant.elapsed());
+	}
+
+	pub fn draw_rect(
+		&mut self,
+		pass:&mut wgpu::RenderPass,
+	){
+		let device = &self.device;
+		let size = Size::new(250.0, 250.0);
+		let position = Position::new(250.0, 250.0);
+	
+		let vertices = Vertex::quad(size, position, BLACK);
+	
+		let vertex_buffer = self.resources.add_vertex_buffer_init(
+			"Rect Vertex Buffer",
+			bytemuck::cast_slice(&vertices),
+			device,
+		);
+	
+		let size_buffer = self.resources.add_uniform_init(
+			"Rect Size Buffer",
+			bytemuck::cast_slice(&[size.width, size.height]),
+			device,
+		);
+	
+		let position_buffer = self.resources.add_uniform_init(
+			"Rect Position Buffer",
+			bytemuck::cast_slice(&[position.x, position.y]),
+			device,
+		);
+	
+		let radius_buffer = self.resources.add_uniform_init(
+			"Rect Corner Radius Buffer",
+			bytemuck::cast_slice(&[0]),
+			device,
+		);
+	
+		let bind_group_index = self.resources.add_bind_group(
+			"Rect Bind Group",
+			self.shader.layout(),
+			device,
+			&[radius_buffer, size_buffer, position_buffer],
+			&[],
+			&[],
+		).unwrap();
+
+		let bind_group = self.resources.bind_group(bind_group_index).unwrap();
+
+		let vertex_buffer = self.resources
+            .buffer(vertex_buffer)
+            .unwrap();
+		
+        let window_bind_group = self.resources
+            .bind_group(self.shader.window_bind_group())
+            .unwrap();
+
+        pass.set_pipeline(self.shader.pipeline());
+        pass.set_bind_group(0, window_bind_group, &[]);
+        pass.set_bind_group(1, bind_group, &[]);
+        pass.set_vertex_buffer(0, vertex_buffer.slice(..));
+
+        pass.draw(0..vertices.len() as u32, 0..1);
+	}
+	
 }
+
 
 
 #[cfg(test)]
