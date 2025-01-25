@@ -10,6 +10,7 @@ use helium_core::{
 	Size
 };
 use primitives::RectShader;
+use rect::Rect;
 use resources::ResourcePool;
 use vertex::Vertex;
 use winit::{
@@ -179,8 +180,10 @@ impl<'a> Renderer<'a> {
 		});
 
 		
-
-		self.draw_rect(&mut render_pass);
+		let rect = Rect::new(50.0, 50.0).color(RED);
+		self.draw_rect(&mut render_pass,&rect);
+		self.draw_rect(&mut render_pass,&rect);
+		
 		// Drop the render pass because it borrows encoder mutably
 		std::mem::drop(render_pass);
 
@@ -193,12 +196,11 @@ impl<'a> Renderer<'a> {
 	pub fn draw_rect(
 		&mut self,
 		pass:&mut wgpu::RenderPass,
+		rect:&Rect,
 	){
 		let device = &self.device;
-		let size = Size::new(250.0, 250.0);
-		let position = Position::new(0.0, 0.0);
 		
-		let vertices = Vertex::quad(size, position, RED);
+		let vertices = Vertex::quad(rect.size, rect.position, rect.color);
 	
 		let vertex_buffer = self.resources.add_vertex_buffer_init(
 			"Rect Vertex Buffer",
@@ -208,19 +210,19 @@ impl<'a> Renderer<'a> {
 	
 		let size_buffer = self.resources.add_uniform_init(
 			"Rect Size Buffer",
-			bytemuck::cast_slice(&[size.width, size.height]),
+			bytemuck::cast_slice(&[rect.size.width, rect.size.height]),
 			device,
 		);
 	
 		let position_buffer = self.resources.add_uniform_init(
 			"Rect Position Buffer",
-			bytemuck::cast_slice(&[position.x, position.y]),
+			bytemuck::cast_slice(&[rect.position.x, rect.position.y]),
 			device,
 		);
 	
 		let radius_buffer = self.resources.add_uniform_init(
 			"Rect Corner Radius Buffer",
-			bytemuck::cast_slice(&[0]),
+			bytemuck::cast_slice(&[12.0]),
 			device,
 		);
 	

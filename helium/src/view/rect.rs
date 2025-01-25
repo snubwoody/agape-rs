@@ -70,7 +70,7 @@ impl View for RectView {
 
         let radius_buffer = resources.add_uniform_init(
             "Rect Corner Radius Buffer",
-            bytemuck::cast_slice(&[self.corner_radius]),
+            bytemuck::cast_slice(&[self.corner_radius as f32]),
             &state.device,
         );
 
