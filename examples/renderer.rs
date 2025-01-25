@@ -5,6 +5,8 @@ use winit::{
 
 #[tokio::main]
 async fn main(){
+	std::env::set_var("RUST_LOG", "trace,naga=warn,wgpu_core=warn");
+	env_logger::init();
 	let event_loop = EventLoop::new().unwrap();
 
 	let window = WindowBuilder::new()
@@ -12,15 +14,22 @@ async fn main(){
 		.unwrap();
 
 	let mut renderer = Renderer::new(&window).await;
-
+	
 	event_loop
 		.run(|event, window_target| match event {
 			winit::event::Event::WindowEvent { event, .. } => match event {
 				WindowEvent::CloseRequested => {
 					window_target.exit();
+				}
+				WindowEvent::Resized(size) => {
+					renderer.resize(size);
 				},
-				event => {
+				WindowEvent::RedrawRequested => {
 					renderer.render();
+
+				}
+				event => {
+					window.request_redraw();
 				}
 			},
 			_ => {}

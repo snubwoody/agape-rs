@@ -8,6 +8,7 @@ use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use helium_core::color::WHITE;
 use nanoid::nanoid;
 
+// TODO add BoxStyle struct
 /// A simple rectangle
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Rect {

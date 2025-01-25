@@ -1,5 +1,5 @@
 use helium_core::Color;
-use crate::{resources::ResourceManager, vertex::Vertex};
+use crate::{resources::ResourcePool, vertex::Vertex};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -41,7 +41,7 @@ impl RectView {
     fn init(
         &mut self,
         layout: &dyn crystal::Layout,
-        resources: &mut ResourceManager,
+        resources: &mut ResourcePool,
         device:&wgpu::Device,
     ) {
         // let size = layout.size();
@@ -99,7 +99,7 @@ impl RectView {
     fn resize(
         &mut self,
         layout: &dyn crystal::Layout,
-        resources: &ResourceManager,
+        resources: &ResourcePool,
 		queue:&wgpu::Queue,
     ) -> Result<(), crate::Error> {
         let position = layout.position();
@@ -136,7 +136,7 @@ impl RectView {
     fn draw(
         &mut self,
         pass: &mut wgpu::RenderPass,
-        resources: &ResourceManager,
+        resources: &ResourcePool,
 		pipeline:&wgpu::RenderPipeline
     ) {
         // let vertex_buffer = resources
@@ -179,7 +179,7 @@ mod test {
 
         let layout = EmptyLayout::new();
         let mut rect = RectView::new("");
-        let mut resources = ResourceManager::new();
+        let mut resources = ResourcePool::new();
 
         //rect.init(&layout, &mut resources, &state).unwrap();
     }

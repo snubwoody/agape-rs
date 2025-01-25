@@ -1,9 +1,9 @@
-use crate::{resources::ResourceManager, Vertex};
+use crate::{resources::ResourcePool, Error, Vertex};
 pub trait Shader{}
 
 pub struct RectShader{
-	/// The index of bind group in the [`ResourceManager`].
-	window_bind_group:usize,
+	/// The index of bind group in the [`ResourcePool`].
+	window_layout:wgpu::BindGroupLayout,
 	layout:wgpu::BindGroupLayout,
 	pipeline:wgpu::RenderPipeline
 }
@@ -11,9 +11,10 @@ pub struct RectShader{
 impl RectShader{
 	pub fn new(
 		device:&wgpu::Device,
-		resources:&mut ResourceManager,
+		resources:&mut ResourcePool,
 		format:wgpu::TextureFormat
 	) -> Result<Self,crate::Error>{
+		
 		let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
 			label: Some("Rect Shader Module"),
 			source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/rect.wgsl").into()),
@@ -69,22 +70,6 @@ impl RectShader{
 			],
 		});
 
-		let window_buffer = resources.add_buffer_init(
-			"Global window buffer", 
-			bytemuck::cast_slice(&[300,300]), 
-			wgpu::BufferUsages::UNIFORM, 
-			device
-		);
-
-		let window_bind_group = resources.add_bind_group(
-			"Global window bind group", 
-			&window_layout, 
-			device, 
-			&[window_buffer], 
-			&[], 
-			&[]
-		)?;
-	
 		// TODO replace with builder
 		let buffer_layout = wgpu::VertexBufferLayout {
 			array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
@@ -155,7 +140,7 @@ impl RectShader{
 		Ok(
 			Self { 
 				pipeline,
-				window_bind_group, 
+				window_layout, 
 				layout: rect_layout
 			}
 		)
@@ -169,8 +154,9 @@ impl RectShader{
 		&self.pipeline
 	}
 
-	pub fn window_bind_group(&self) -> usize{
-		self.window_bind_group
+	/// Get the index of the `wgpu::BindGroup` in the [`ResourcePool`]
+	pub fn window_layout(&self) -> &wgpu::BindGroupLayout{
+		&self.window_layout
 	}
 	
 }

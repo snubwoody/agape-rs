@@ -1,33 +1,39 @@
-mod vertex;
+pub mod vertex;
 mod rect;
 mod resources;
 mod error;
 mod primitives;
 use crystal::Position;
 pub use error::Error;
-use helium_core::{color::BLACK, Size};
+use helium_core::{
+	color::*, 
+	Size
+};
 use primitives::RectShader;
-use resources::ResourceManager;
+use resources::ResourcePool;
 use vertex::Vertex;
 use winit::{
     dpi::PhysicalSize,
-    window::{Window, WindowBuilder},
+    window::Window,
 };
 
 
 pub struct Renderer<'a> {
-    pub surface: wgpu::Surface<'a>,
-    pub device: wgpu::Device,
-    pub queue: wgpu::Queue,
-    pub config: wgpu::SurfaceConfiguration,
-    pub size: Size,
-	pub shader:RectShader,
-	pub resources: ResourceManager
+    surface: wgpu::Surface<'a>,
+    device: wgpu::Device,
+    queue: wgpu::Queue,
+    config: wgpu::SurfaceConfiguration,
+	/// The size of the `Window`.
+	size: Size,
+	shader:RectShader,
+	window_bind_group:usize,
+	window_buffer:usize,
+	resources: ResourcePool
 }
 
 impl<'a> Renderer<'a> {
     pub async fn new(window: &'a Window) -> Self {
-        let size = window.inner_size().into();
+        let size = Size::from(window.inner_size());
 
         // Handle to wpgu for creating a surface and an adapter
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
@@ -86,9 +92,27 @@ impl<'a> Renderer<'a> {
 
         // Configure the surface for presentation
         surface.configure(&device, &config);
-		let mut resources = ResourceManager::new();
-		// FIXME return error
+		let mut resources = ResourcePool::new();
+		
 		let shader = RectShader::new(&device, &mut resources, config.format).unwrap();
+		
+		let window_buffer = resources.add_buffer_init(
+			"Global window buffer", 
+			bytemuck::cast_slice(&[window.inner_size().width as f32,window.inner_size().height as f32]), 
+			wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST, 
+			&device
+		);
+
+		let window_bind_group = resources.add_bind_group(
+			"Global window bind group", 
+			&shader.window_layout(), 
+			&device, 
+			&[window_buffer], 
+			&[], 
+			&[]
+		).unwrap();
+
+		// FIXME return error
 
         Self {
             surface,
@@ -97,21 +121,31 @@ impl<'a> Renderer<'a> {
             config,
             size,
 			shader,
+			window_buffer,
+			window_bind_group,
 			resources,
         }
     }
 
     pub fn resize(&mut self, size: PhysicalSize<u32>) {
-        self.size = size.into();
+        self.size = Size::from(size);
         self.config.width = size.width;
         self.config.height = size.height;
-        // Resize the surface with the window to keep the right scale
-        self.surface.configure(&self.device, &self.config);
+        
+		// Resize the surface with the window to keep the right scale
+		self.resources.write_buffer(
+			self.window_buffer, 
+			0,
+			bytemuck::cast_slice(&[self.size.width,self.size.height]), 
+			&self.queue
+		).unwrap();
+
+		self.surface.configure(&self.device, &self.config);
     }
 
 	pub fn render(&mut self){
 		let instant = std::time::Instant::now();
-
+		
 		let output = self.surface.get_current_texture().unwrap(); // TODO maybe handle this error
 		let view = output
 			.texture
@@ -122,6 +156,7 @@ impl<'a> Renderer<'a> {
 			.create_command_encoder(&wgpu::CommandEncoderDescriptor {
 				label: Some("Render encoder"),
 			});
+
 
 		let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
 			label: Some("Render Pass"),
@@ -143,6 +178,8 @@ impl<'a> Renderer<'a> {
 			timestamp_writes: None,
 		});
 
+		
+
 		self.draw_rect(&mut render_pass);
 		// Drop the render pass because it borrows encoder mutably
 		std::mem::drop(render_pass);
@@ -150,7 +187,7 @@ impl<'a> Renderer<'a> {
 		self.queue.submit(std::iter::once(encoder.finish()));
 		output.present();
 		
-		dbg!(instant.elapsed());
+		//dbg!(instant.elapsed());
 	}
 
 	pub fn draw_rect(
@@ -159,9 +196,9 @@ impl<'a> Renderer<'a> {
 	){
 		let device = &self.device;
 		let size = Size::new(250.0, 250.0);
-		let position = Position::new(250.0, 250.0);
-	
-		let vertices = Vertex::quad(size, position, BLACK);
+		let position = Position::new(0.0, 0.0);
+		
+		let vertices = Vertex::quad(size, position, RED);
 	
 		let vertex_buffer = self.resources.add_vertex_buffer_init(
 			"Rect Vertex Buffer",
@@ -201,9 +238,9 @@ impl<'a> Renderer<'a> {
 		let vertex_buffer = self.resources
             .buffer(vertex_buffer)
             .unwrap();
-		
+
         let window_bind_group = self.resources
-            .bind_group(self.shader.window_bind_group())
+            .bind_group(self.window_bind_group)
             .unwrap();
 
         pass.set_pipeline(self.shader.pipeline());

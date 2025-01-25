@@ -1,12 +1,17 @@
 use crystal::Size;
 use wgpu::util::DeviceExt;
-
 use crate::error::Error;
 
-// TODO Adda custom resource error?
-/// Manages resources
+// TODO add bind group layouts and render pipelines
+/// Manages resources, resources are accessed using their index.
+/// 
+/// # Caution
+/// When writing to resources it is important to make sure that the data
+/// type matches the data type in the shader, type mismatches are often
+/// not flagged since data is converted to raw bytes first, which can 
+/// cause headache inducing errors.
 #[derive(Default, Debug)]
-pub struct ResourceManager {
+pub struct ResourcePool {
     buffers: Vec<wgpu::Buffer>,
     textures: Vec<wgpu::Texture>,
     texture_views: Vec<wgpu::TextureView>,
@@ -15,7 +20,7 @@ pub struct ResourceManager {
 }
 
 // TODO maybe change add to new or create?
-impl ResourceManager {
+impl ResourcePool {
     pub fn new() -> Self {
         Self::default()
     }
@@ -39,7 +44,7 @@ impl ResourceManager {
         self.buffers.len() - 1
     }
 
-    /// Add a `Vertex Buffer` to the [`ResourceManager`] with data to initialize it.
+    /// Add a `Vertex Buffer` to the [`ResourcePool`] with data to initialize it.
     pub fn add_buffer_init(
         &mut self,
         label: &str,
@@ -47,6 +52,8 @@ impl ResourceManager {
         usage: wgpu::BufferUsages,
         device: &wgpu::Device,
     ) -> usize {
+		let raw_data:&[f32] = bytemuck::cast_slice(contents);
+		log::trace!("Resources::add_buffer_init label(): {label}, contents:{:?}",raw_data);
         let buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some(label),
             usage,
@@ -72,7 +79,7 @@ impl ResourceManager {
         self.buffers.len() - 1
     }
 
-    /// Add a `Vertex Buffer` to the [`ResourceManager`] with data to initialize it.
+    /// Add a vertex `Buffer` to the [`ResourcePool`] with data to initialize it.
     pub fn add_vertex_buffer_init(
         &mut self,
         label: &str,
@@ -90,7 +97,7 @@ impl ResourceManager {
         self.buffers.len() - 1
     }
 
-    /// Add a `wgpu::Buffer` to the [`ResourceManager`]
+    /// Add a `wgpu::Buffer` to the [`ResourcePool`]
     pub fn add_uniform(&mut self, label: &str, size: u64, device: &wgpu::Device) -> usize {
         let buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some(label),
@@ -104,7 +111,7 @@ impl ResourceManager {
         self.buffers.len() - 1
     }
 
-    /// Add a `wgpu::Buffer` to the [`ResourceManager`] with data to initialize it.
+    /// Add a `wgpu::Buffer` to the [`ResourcePool`] with data to initialize it.
     pub fn add_uniform_init(
         &mut self,
         label: &str,
@@ -176,7 +183,9 @@ impl ResourceManager {
         self.samplers.len() - 1
     }
 
-    pub fn add_bind_group(
+	/// Creates a `wgpu::BindGroup` and returns it's index in the 
+	/// [`ResourcePool`].  
+    pub fn add_bind_group( 
         &mut self,
         label: &str,
         layout: &wgpu::BindGroupLayout,
@@ -368,7 +377,7 @@ mod test {
         // TODO tests fail when run in parallel?
         let (device, _) = setup().await;
 
-        let mut resources = ResourceManager::new();
+        let mut resources = ResourcePool::new();
         let a = resources.add_buffer("Buffer", 12, wgpu::BufferUsages::VERTEX, &device);
         let b = resources.add_vertex_buffer("Vertex Buffer", 102, &device);
         let c = resources.add_uniform("Uniform Buffer", 12, &device);
@@ -382,7 +391,7 @@ mod test {
 
     #[test]
     fn missing_texture_when_creating_texture_view() {
-        let mut resources = ResourceManager::new();
+        let mut resources = ResourcePool::new();
         let res = resources.add_texture_view(0);
 
         assert!(matches!(res, Err(Error::ResourceNotFound(_))));
@@ -391,7 +400,7 @@ mod test {
     #[tokio::test]
     async fn writing_buffer() {
         let (device, queue) = setup().await;
-        let mut resources = ResourceManager::new();
+        let mut resources = ResourcePool::new();
         let uniform =
             resources.add_uniform("Buffer", size_of::<[f64; 2]>().try_into().unwrap(), &device);
         resources
