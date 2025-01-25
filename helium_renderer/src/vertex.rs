@@ -1,4 +1,4 @@
-use crystal::{Position, Size};
+use helium_core::{Position, Size};
 use helium_core::color::Color;
 use bytemuck::{Pod,Zeroable};
 

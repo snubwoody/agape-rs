@@ -3,7 +3,6 @@ mod rect;
 mod resources;
 mod error;
 mod primitives;
-use crystal::Position;
 pub use error::Error;
 use helium_core::{
 	color::*, 
@@ -24,7 +23,6 @@ pub struct Renderer<'a> {
     device: wgpu::Device,
     queue: wgpu::Queue,
     config: wgpu::SurfaceConfiguration,
-	/// The size of the `Window`.
 	size: Size,
 	shader:RectShader,
 	window_bind_group:usize,
@@ -53,7 +51,7 @@ impl<'a> Renderer<'a> {
                 force_fallback_adapter: false,
             })
             .await
-            .unwrap();
+            .unwrap(); // FIXME return these errors
 
         // The device is an open connection to the graphics
         // card and the queue is a command buffer

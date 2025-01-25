@@ -1,17 +1,8 @@
 //! This is the crate that manages all the helium layouts, at a basic level every layout
 //! node must return a size and position so that other layouts can arrange themselves
 //! accordingly.
-//!
-//! This layout engine is based on the idea that a [`Layout`] can only have one of three
-//! different intrinsic sizes, known as [`BoxSizing`]
-//! - It wants to be as large as possible, usually filling the parent, this is the
-//! `BoxSizing::Flex(u8)` variant. It also has a flex factor which can be used to
-//! control how much space it takes relative it's to sibling `Layouts`.
-//! - It wants to be as small as possible, usually fitting it's children, this is the
-//! `BoxSizing::Shrink` variant
-//! - It wants to be a certain fixed size, this is the `BoxSizing::Fixed` variant.
-//!
-//! # Example
+//! 
+//! # Getting started
 //! ```
 //! use crystal::{EmptyLayout,HorizontalLayout,LayoutSolver,Size};
 //!
@@ -22,6 +13,25 @@
 //! // The layout solver returns any errors that occured, such as layout overflow
 //! let _ = LayoutSolver::solve(&mut root,Size::new(500.0,500.0));
 //! ```
+//! 
+//! This layout engine is based on the idea that a [`Layout`] can only have one of three
+//! different intrinsic sizes, known as [`BoxSizing`]
+//! - It wants to be as large as possible, usually filling the parent, this is the
+//! `BoxSizing::Flex(u8)` variant. It also has a flex factor which can be used to
+//! control how much space it takes relative it's to sibling `Layouts`.
+//! - It wants to be as small as possible, usually fitting it's children, this is the
+//! `BoxSizing::Shrink` variant
+//! - It wants to be a certain fixed size, this is the `BoxSizing::Fixed` variant.
+//!
+//! `crystal` uses `layouts` to perform calculations, a layout is anything which implements
+//! the [`Layout`] trait. Currently there are 4 distinct types of [`Layout`]
+//! 
+//! - [`HorizontalLayout`]: Arranges children horizontally
+//! - [`VerticalLayout`]: Arranges children verically
+//! - [`BlockLayout`]: A layout with a single child
+//! - [`EmptyLayout`]: A layout with no children, commonly used for things like
+//! text and images.
+
 mod block;
 mod empty;
 mod error;

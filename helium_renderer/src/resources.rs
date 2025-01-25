@@ -1,4 +1,4 @@
-use crystal::Size;
+use helium_core::Size;
 use wgpu::util::DeviceExt;
 use crate::error::Error;
 
