@@ -1,5 +1,5 @@
 pub mod vertex;
-mod rect;
+pub mod rect;
 mod resources;
 mod error;
 mod primitives;
