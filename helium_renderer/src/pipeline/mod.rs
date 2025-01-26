@@ -1,4 +1,6 @@
 mod rect;
+mod circle;
+pub use circle::CirclePipeline;
 pub use rect::RectPipeline;
 use helium_core::Size;
 use crate::builders::{BindGroupLayoutBuilder,BufferBuilder,BindGroupBuilder};

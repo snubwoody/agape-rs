@@ -1,5 +1,5 @@
 use helium::BLACK;
-use helium_renderer::{primitives::Rect, Renderer};
+use helium_renderer::{primitives::{Circle, Rect}, Renderer};
 use winit::{
     event::WindowEvent, event_loop::EventLoop, window::WindowBuilder
 };
@@ -26,7 +26,11 @@ async fn main(){
 					renderer.resize(size.into());
 				},
 				WindowEvent::RedrawRequested => {
-					renderer.draw([Rect::new(200.0, 200.0).color(BLACK)]);
+					renderer.draw([
+						Rect::new(200.0, 200.0).color(BLACK),
+						
+					]);	
+					renderer.draw([Circle::new(120.0).color(BLACK).position(150.0, 200.0)]);
 					renderer.render();
 				}
 				event => {
