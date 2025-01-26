@@ -121,7 +121,7 @@ impl RectPipeline {
             .label("Rect corner radius buffer")
             .uniform()
             .copy_dst()
-            .init(&[12.0])
+            .init(&[rect.corner_radius])
             .build(device);
 
         let rect_bind_group = BindGroupBuilder::new()

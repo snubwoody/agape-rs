@@ -27,7 +27,7 @@ async fn main(){
 				},
 				WindowEvent::RedrawRequested => {
 					renderer.draw([
-						Rect::new(200.0, 200.0).color(BLACK),
+						Rect::new(200.0, 200.0).color(BLACK).corner_radius(24.0),
 						
 					]);	
 					renderer.draw([Circle::new(120.0).color(BLACK).position(150.0, 200.0)]);

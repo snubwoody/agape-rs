@@ -6,14 +6,14 @@ pub struct Rect{
 	pub size:Size,
 	pub position:Position,
 	pub color:Color,
+	pub corner_radius:f32,
 }
 
 impl Rect {
 	pub fn new(width:f32,height:f32) -> Self{
 		Self{
 			size:Size{width,height},
-			position:Position::default(),
-			color:Color::default()
+			..Default::default()
 		}
 	}
 
@@ -31,6 +31,11 @@ impl Rect {
 
 	pub fn color(mut self,color:Color) -> Self{
 		self.color = color;
+		self
+	}
+	
+	pub fn corner_radius(mut self,corner_radius:f32) -> Self{
+		self.corner_radius = corner_radius;
 		self
 	}
 }
