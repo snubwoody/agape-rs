@@ -1,7 +1,7 @@
 use std::rc::Rc;
 use crate::{
     builders::{BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, VertexBufferLayoutBuilder},
-    rect::Rect,
+    primitives::Rect,
     vertex::Vertex,
 };
 use super::GlobalResources;

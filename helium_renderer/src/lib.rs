@@ -1,9 +1,8 @@
 pub mod vertex;
-pub mod rect;
 pub mod builders;
 mod pipeline;
 mod error;
-mod primitives;
+pub mod primitives;
 pub use error::Error;
 use std::rc::Rc;
 use helium_core::{
@@ -11,12 +10,9 @@ use helium_core::{
 	Size
 };
 use pipeline::{GlobalResources, RectPipeline};
-use rect::Rect;
+use primitives::{IntoPrimitive, Primitive, Rect};
 use vertex::Vertex;
-use winit::{
-    dpi::PhysicalSize,
-    window::Window,
-};
+use winit::window::Window;
 
 
 pub struct Renderer<'r> {
@@ -24,9 +20,9 @@ pub struct Renderer<'r> {
     device: wgpu::Device,
     queue: wgpu::Queue,
     config: wgpu::SurfaceConfiguration,
-	size: Size,
 	global:Rc<GlobalResources>,
-	rect_pipeline:RectPipeline
+	rect_pipeline:RectPipeline,
+	draw_queue:Vec<Primitive>
 }
 
 impl<'r> Renderer<'r> {
@@ -91,24 +87,35 @@ impl<'r> Renderer<'r> {
             device,
             queue,
             config,
-            size,
 			rect_pipeline,
 			global,
+			draw_queue:vec![]
         }
     }
 
-    pub fn resize(&mut self, size: PhysicalSize<u32>) {
-        self.size = Size::from(size);
-        self.config.width = size.width;
-        self.config.height = size.height;
+    pub fn resize(&mut self, size: Size) {
+        self.config.width = size.width as u32;
+        self.config.height = size.height as u32;
         
 		// Resize the surface with the window to keep the right scale
 		self.queue.write_buffer(
-			self.global.window_buffer(), 0, bytemuck::cast_slice(&[self.size])
+			self.global.window_buffer(), 0, bytemuck::cast_slice(&[size])
 		);
 		self.surface.configure(&self.device, &self.config);
     }
 
+	/// Add primitives to the draw queue
+	pub fn draw<I,P>(&mut self,primitives:I)
+	where 
+		I:IntoIterator<Item = P>,
+		P:IntoPrimitive
+	{
+		self.draw_queue.extend(
+			primitives.into_iter().map(|p|p.into_primitive())
+		);
+	}
+
+	/// TODO Change to present then add primitive queue?
 	pub fn render(&mut self){
 		let instant = std::time::Instant::now();
 		
@@ -144,12 +151,13 @@ impl<'r> Renderer<'r> {
 			timestamp_writes: None,
 		});
 
-		
-		let rect = Rect::new(50.0, 50.0).color(RED);
-		let rect_2 = Rect::new(150.0, 50.0).color(BLUE).position(150.0, 150.0);
-
-		self.rect_pipeline.draw(&rect,&self.device,&mut render_pass);
-		self.rect_pipeline.draw(&rect_2,&self.device,&mut render_pass,);
+		for primitive in self.draw_queue.drain(..){
+			match primitive {
+				Primitive::Rect(rect) => {
+					self.rect_pipeline.draw(&rect, &self.device, &mut render_pass);
+				}
+			}
+		}
 		
 		// Drop the render pass because it borrows encoder mutably
 		std::mem::drop(render_pass);

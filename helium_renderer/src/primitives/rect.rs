@@ -1,6 +1,8 @@
 use helium_core::{Size,Position,Color};
 
-#[derive(Debug,Clone)]
+use super::{IntoPrimitive, Primitive};
+
+#[derive(Debug,Clone,Copy,PartialEq, PartialOrd,Default)]
 pub struct Rect{
 	pub size:Size,
 	pub position:Position,
@@ -16,6 +18,13 @@ impl Rect {
 		}
 	}
 
+	pub fn unit(value:f32) -> Self{
+		Self{
+			size:Size::unit(value),
+			..Default::default()
+		}
+	}
+
 	pub fn position(mut self,x:f32,y:f32) -> Self{
 		self.position = Position{x,y};
 		self
@@ -24,5 +33,11 @@ impl Rect {
 	pub fn color(mut self,color:Color) -> Self{
 		self.color = color;
 		self
+	}
+}
+
+impl IntoPrimitive for Rect {
+	fn into_primitive(self) -> Primitive{
+		Primitive::Rect(self)
 	}
 }

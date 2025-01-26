@@ -1,4 +1,5 @@
-use helium_renderer::Renderer;
+use helium::BLACK;
+use helium_renderer::{primitives::Rect, Renderer};
 use winit::{
     event::WindowEvent, event_loop::EventLoop, window::WindowBuilder
 };
@@ -22,11 +23,11 @@ async fn main(){
 					window_target.exit();
 				}
 				WindowEvent::Resized(size) => {
-					renderer.resize(size);
+					renderer.resize(size.into());
 				},
 				WindowEvent::RedrawRequested => {
+					renderer.draw([Rect::new(200.0, 200.0).color(BLACK)]);
 					renderer.render();
-
 				}
 				event => {
 					window.request_redraw();
