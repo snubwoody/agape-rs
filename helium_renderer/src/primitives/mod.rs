@@ -1,9 +1,12 @@
 mod rect;
+mod circle;
 pub use rect::Rect;
+pub use circle::Circle;
 
-#[derive(Debug)]
+#[derive(Debug,Clone,PartialEq)]
 pub enum Primitive {
-	Rect(Rect)
+	Rect(Rect),
+	Circle(Circle),
 }
 
 pub trait IntoPrimitive{

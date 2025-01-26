@@ -1,17 +1,13 @@
-pub mod vertex;
-pub mod builders;
+mod builders;
+mod vertex;
 mod pipeline;
 mod error;
 pub mod primitives;
 pub use error::Error;
 use std::rc::Rc;
-use helium_core::{
-	color::*, 
-	Size
-};
+use helium_core::Size;
 use pipeline::{GlobalResources, RectPipeline};
-use primitives::{IntoPrimitive, Primitive, Rect};
-use vertex::Vertex;
+use primitives::{IntoPrimitive, Primitive};
 use winit::window::Window;
 
 
@@ -155,6 +151,9 @@ impl<'r> Renderer<'r> {
 			match primitive {
 				Primitive::Rect(rect) => {
 					self.rect_pipeline.draw(&rect, &self.device, &mut render_pass);
+				},
+				Primitive::Circle(circle) => {
+					
 				}
 			}
 		}
