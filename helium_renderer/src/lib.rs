@@ -1,10 +1,12 @@
 pub mod vertex;
 pub mod rect;
+pub mod builders;
 mod pipeline;
 mod error;
-mod builders;
 mod primitives;
-use builders::{BindGroupBuilder, BufferBuilder};
+use std::rc::Rc;
+
+use builders::{BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder};
 pub use error::Error;
 use helium_core::{
 	color::*, 
@@ -27,6 +29,7 @@ pub struct Renderer<'r> {
     config: wgpu::SurfaceConfiguration,
 	size: Size,
 	window_buffer:wgpu::Buffer,
+	window_bind_group:Rc<wgpu::BindGroup>,
 	rect_pipeline:RectPipeline
 }
 
@@ -83,6 +86,11 @@ impl<'r> Renderer<'r> {
         };
 
         surface.configure(&device, &config);
+
+		let window_layout = BindGroupLayoutBuilder::new()
+			.label("Global window bind group layout")
+			.uniform(wgpu::ShaderStages::VERTEX_FRAGMENT)
+			.build(&device);
 		
 		let window_buffer = BufferBuilder::new()
 			.label("Global window buffer")
@@ -91,12 +99,14 @@ impl<'r> Renderer<'r> {
 			.init(&[Size::from(window.inner_size())])
 			.build(&device);
 
-		// let window_bind_group = BindGroupBuilder::new()
-		// 	.label("Global window bind group")
-		// 	.buffer(&window_buffer)
-		// 	.build(shader.window_layout(), &device);
+		let window_bind_group = BindGroupBuilder::new()
+			.label("Global window bind group")
+			.buffer(&window_buffer)
+			.build(&window_layout, &device);
+		
+		let window_bind_group = Rc::new(window_bind_group);
 
-		let rect_pipeline = RectPipeline::new(&device,config.format);
+		let rect_pipeline = RectPipeline::new(&device,config.format,&window_layout,window_bind_group.clone());
 
         Self {
             surface,
@@ -105,6 +115,7 @@ impl<'r> Renderer<'r> {
             config,
             size,
 			window_buffer,
+			window_bind_group,
 			rect_pipeline
         }
     }

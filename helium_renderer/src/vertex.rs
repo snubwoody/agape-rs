@@ -84,34 +84,3 @@ impl Vertex {
         return vec![vertex1, vertex2, vertex3,];
     }
 }
-
-// TODO move to resources?
-pub struct VertexBufferLayoutBuilder {
-    attributes: Vec<wgpu::VertexAttribute>,
-}
-
-impl VertexBufferLayoutBuilder {
-    pub fn new() -> Self {
-        Self { attributes: vec![] }
-    }
-
-    /// Adds a vertex attribute to the `VertexBufferLayout`
-    pub fn add_attribute(mut self, offset: usize, format: wgpu::VertexFormat) -> Self {
-        let shader_location = self.attributes.len() as u32;
-        let attribute = wgpu::VertexAttribute {
-            offset: offset as wgpu::BufferAddress,
-            shader_location,
-            format,
-        };
-        self.attributes.push(attribute);
-        self
-    }
-
-    pub fn build(self) -> wgpu::VertexBufferLayout<'static> {
-        wgpu::VertexBufferLayout {
-            array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
-            step_mode: wgpu::VertexStepMode::Vertex,
-            attributes: Box::leak(Box::new(self.attributes)),
-        }
-    }
-}

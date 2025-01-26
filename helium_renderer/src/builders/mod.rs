@@ -1,11 +1,14 @@
 mod buffer;
 mod bind_group;
-use winit::{platform::windows::EventLoopBuilderExtWindows, window::WindowBuilder};
+mod vertex;
+pub use vertex::*;
 pub use buffer::*;
 pub use bind_group::*;
 
 #[cfg(test)]
-pub async fn setup() -> (wgpu::Device,wgpu::Queue){
+pub(self) async fn setup() -> (wgpu::Device,wgpu::Queue){
+    use winit::{platform::windows::EventLoopBuilderExtWindows, window::WindowBuilder};
+
 	let event_loop = winit::event_loop::EventLoopBuilder::new()
 		.with_any_thread(true)
 		.build().expect("Failed to create EventLoop");
