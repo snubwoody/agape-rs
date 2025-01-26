@@ -1,23 +1,22 @@
 use std::rc::Rc;
-
 use crate::{
     builders::{BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, VertexBufferLayoutBuilder},
     rect::Rect,
     vertex::Vertex,
 };
+use super::GlobalResources;
 
 pub struct RectPipeline {
 	pipeline:wgpu::RenderPipeline,
     rect_layout: wgpu::BindGroupLayout,
-	window_bind_group:Rc<wgpu::BindGroup>
+	global:Rc<GlobalResources>
 }
 
 impl RectPipeline {
     pub fn new(
 		device: &wgpu::Device,
 		format:wgpu::TextureFormat,
-		window_layout:&wgpu::BindGroupLayout,
-		window_bind_group:Rc<wgpu::BindGroup>
+		global:Rc<GlobalResources>
 	) -> Self {
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("Rect Shader Module"),
@@ -31,28 +30,6 @@ impl RectPipeline {
             .uniform(wgpu::ShaderStages::FRAGMENT)
             .build(device);
 
-        let buffer_layout = wgpu::VertexBufferLayout {
-            array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
-            step_mode: wgpu::VertexStepMode::Vertex,
-            attributes: &[
-                wgpu::VertexAttribute {
-                    offset: 0,
-                    shader_location: 0,
-                    format: wgpu::VertexFormat::Float32x2,
-                },
-                wgpu::VertexAttribute {
-                    offset: size_of::<[f32; 2]>() as wgpu::BufferAddress,
-                    shader_location: 1,
-                    format: wgpu::VertexFormat::Float32x4,
-                },
-                wgpu::VertexAttribute {
-                    offset: size_of::<[f32; 6]>() as wgpu::BufferAddress,
-                    shader_location: 2,
-                    format: wgpu::VertexFormat::Float32x2,
-                },
-            ],
-        };
-
 		let vertex_buffer_layout = VertexBufferLayoutBuilder::new()
 			.array_stride(size_of::<Vertex>() as u64)
 			.attribute(0, wgpu::VertexFormat::Float32x2)
@@ -62,10 +39,11 @@ impl RectPipeline {
 
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("Rect Pipeline Layout"),
-            bind_group_layouts: &[window_layout, &rect_layout],
+            bind_group_layouts: &[global.window_layout(), &rect_layout],
             push_constant_ranges: &[],
         });
 
+		// TODO create a builder for this
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("Rect Render Pipeline"),
             layout: Some(&pipeline_layout),
@@ -107,7 +85,7 @@ impl RectPipeline {
 		Self{
 			pipeline,
 			rect_layout,
-			window_bind_group
+			global,
 		}
     }
 
@@ -117,7 +95,6 @@ impl RectPipeline {
 		device: &wgpu::Device, 
 		pass: &mut wgpu::RenderPass, 
 	) {
-
         let vertices = Vertex::quad(rect.size, rect.position, rect.color);
 
         let vertex_buffer = BufferBuilder::new()
@@ -155,7 +132,7 @@ impl RectPipeline {
             .build(&self.rect_layout, device);
 
         pass.set_pipeline(&self.pipeline);
-        pass.set_bind_group(0, &self.window_bind_group, &[]);
+        pass.set_bind_group(0, self.global.window_bind_group(), &[]);
         pass.set_bind_group(1, &rect_bind_group, &[]);
         pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 

@@ -4,16 +4,13 @@ pub mod builders;
 mod pipeline;
 mod error;
 mod primitives;
-use std::rc::Rc;
-
-use builders::{BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder};
 pub use error::Error;
+use std::rc::Rc;
 use helium_core::{
 	color::*, 
 	Size
 };
-use pipeline::RectPipeline;
-use primitives::RectShader;
+use pipeline::{GlobalResources, RectPipeline};
 use rect::Rect;
 use vertex::Vertex;
 use winit::{
@@ -28,8 +25,7 @@ pub struct Renderer<'r> {
     queue: wgpu::Queue,
     config: wgpu::SurfaceConfiguration,
 	size: Size,
-	window_buffer:wgpu::Buffer,
-	window_bind_group:Rc<wgpu::BindGroup>,
+	global:Rc<GlobalResources>,
 	rect_pipeline:RectPipeline
 }
 
@@ -87,36 +83,17 @@ impl<'r> Renderer<'r> {
 
         surface.configure(&device, &config);
 
-		let window_layout = BindGroupLayoutBuilder::new()
-			.label("Global window bind group layout")
-			.uniform(wgpu::ShaderStages::VERTEX_FRAGMENT)
-			.build(&device);
-		
-		let window_buffer = BufferBuilder::new()
-			.label("Global window buffer")
-			.copy_dst()
-			.uniform()
-			.init(&[Size::from(window.inner_size())])
-			.build(&device);
-
-		let window_bind_group = BindGroupBuilder::new()
-			.label("Global window bind group")
-			.buffer(&window_buffer)
-			.build(&window_layout, &device);
-		
-		let window_bind_group = Rc::new(window_bind_group);
-
-		let rect_pipeline = RectPipeline::new(&device,config.format,&window_layout,window_bind_group.clone());
-
-        Self {
+		let global = Rc::new(GlobalResources::new(&device, Size::from(window.inner_size())));
+		let rect_pipeline = RectPipeline::new(&device,config.format,Rc::clone(&global));
+        
+		Self {
             surface,
             device,
             queue,
             config,
             size,
-			window_buffer,
-			window_bind_group,
-			rect_pipeline
+			rect_pipeline,
+			global,
         }
     }
 
@@ -126,7 +103,9 @@ impl<'r> Renderer<'r> {
         self.config.height = size.height;
         
 		// Resize the surface with the window to keep the right scale
-		self.queue.write_buffer(&self.window_buffer, 0, bytemuck::cast_slice(&[self.size]));
+		self.queue.write_buffer(
+			self.global.window_buffer(), 0, bytemuck::cast_slice(&[self.size])
+		);
 		self.surface.configure(&self.device, &self.config);
     }
 
