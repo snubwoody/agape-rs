@@ -3,7 +3,7 @@
 /// 
 /// The binding of the entries will be in the order they are
 /// defined.
-/// ```
+/// ```no_run
 /// use helium_renderer::builders::BindGroupLayoutBuilder;
 /// 
 /// BindGroupLayoutBuilder::new()
@@ -104,6 +104,11 @@ impl<'b> BindGroupBuilder<'b> {
 		Self::default()
 	}
 
+	pub fn label(mut self,label:&'b str) -> Self{
+		self.label = Some(label);
+		self
+	}
+
 	pub fn buffer(mut self,buffer:&'b wgpu::Buffer) -> Self{
 		let entry = wgpu::BindGroupEntry{
 			binding:self.entries.len() as u32,
@@ -190,6 +195,7 @@ mod tests{
 			.build(&device);
 
 		let _ = BindGroupBuilder::new()
+			.label("Bind group")
 			.buffer(&color)
 			.buffer(&size)
 			.build(&layout, &device);

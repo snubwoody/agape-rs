@@ -1371,6 +1371,7 @@ dependencies = [
 name = "helium_core"
 version = "0.1.0"
 dependencies = [
+ "bytemuck",
  "thiserror 2.0.9",
  "winit",
 ]

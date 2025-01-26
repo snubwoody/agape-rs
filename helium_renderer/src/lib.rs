@@ -4,7 +4,7 @@ mod resources;
 mod error;
 mod builders;
 mod primitives;
-use builders::BufferBuilder;
+use builders::{BindGroupBuilder, BufferBuilder};
 pub use error::Error;
 use helium_core::{
 	color::*, 
@@ -31,7 +31,6 @@ pub struct Renderer<'a> {
 	window_bind_group:usize,
 	window_buffer:usize,
 	resources: ResourcePool,
-	rect_renderer:RectRenderer,
 }
 
 impl<'a> Renderer<'a> {
@@ -114,8 +113,6 @@ impl<'a> Renderer<'a> {
 			&[], 
 			&[]
 		).unwrap();
-		let rect_renderer = RectRenderer::new(&device, config.format);
-
 
 		// FIXME return error
 
@@ -129,7 +126,6 @@ impl<'a> Renderer<'a> {
 			window_buffer,
 			window_bind_group,
 			resources,
-			rect_renderer
         }
     }
 
@@ -187,7 +183,7 @@ impl<'a> Renderer<'a> {
 		
 		let rect = Rect::new(50.0, 50.0).color(RED);
 		let rect_2 = Rect::new(150.0, 50.0).color(BLUE).position(150.0, 150.0);
-		//self.rect_renderer.draw(&rect, &self.device, &mut self.resources, &mut render_pass);
+
 		self.draw_rect(&mut render_pass,&rect);
 		self.draw_rect(&mut render_pass,&rect_2);
 		
@@ -208,281 +204,54 @@ impl<'a> Renderer<'a> {
 		let device = &self.device;
 		
 		let vertices = Vertex::quad(rect.size, rect.position, rect.color);
-	
-		let vertex_buffer = self.resources.add_vertex_buffer_init(
-			"Rect Vertex Buffer",
-			bytemuck::cast_slice(&vertices),
-			device,
-		);
 
-		let buffer = BufferBuilder::new().init(&[2]);
+		let vertex_buffer = BufferBuilder::new()
+			.label("Rect vertex buffer")
+			.vertex()
+			.init(&vertices)
+			.build(device);
+		
+		let size = BufferBuilder::new()
+			.label("Rect size buffer")
+			.uniform()
+			.copy_dst() // Try using repr C
+			.init(&[rect.size.width,rect.size.height])
+			.build(device);
+		
+		let position = BufferBuilder::new()
+			.label("Rect position buffer")
+			.uniform()
+			.copy_dst() 
+			.init(&[rect.position.x,rect.position.y])
+			.build(device);
 	
-		let size_buffer = self.resources.add_uniform_init(
-			"Rect Size Buffer",
-			bytemuck::cast_slice(&[rect.size.width, rect.size.height]),
-			device,
-		);
-	
-		let position_buffer = self.resources.add_uniform_init(
-			"Rect Position Buffer",
-			bytemuck::cast_slice(&[rect.position.x, rect.position.y]),
-			device,
-		);
-	
-		let radius_buffer = self.resources.add_uniform_init(
-			"Rect Corner Radius Buffer",
-			bytemuck::cast_slice(&[12.0]),
-			device,
-		);
-	
-		let bind_group_index = self.resources.add_bind_group(
-			"Rect Bind Group",
-			self.shader.layout(),
-			device,
-			&[radius_buffer, size_buffer, position_buffer],
-			&[],
-			&[],
-		).unwrap();
+		let corner_radius = BufferBuilder::new()
+			.label("Rect corner radius buffer")
+			.uniform()
+			.copy_dst() 
+			.init(&[12.0])
+			.build(device);
 
-		let bind_group = self.resources.bind_group(bind_group_index).unwrap();
-
-		let vertex_buffer = self.resources
-            .buffer(vertex_buffer)
-            .unwrap();
-
+		let rect_bind_group = BindGroupBuilder::new()
+			.label("Rect bind group")
+			.buffer(&corner_radius)
+			.buffer(&size)
+			.buffer(&position)
+			.build(self.shader.layout(), device);
+	
         let window_bind_group = self.resources
             .bind_group(self.window_bind_group)
             .unwrap();
 
         pass.set_pipeline(self.shader.pipeline());
         pass.set_bind_group(0, window_bind_group, &[]);
-        pass.set_bind_group(1, bind_group, &[]);
+        pass.set_bind_group(1, &rect_bind_group, &[]);
         pass.set_vertex_buffer(0, vertex_buffer.slice(..));
 
         pass.draw(0..vertices.len() as u32, 0..1);
 	}
 	
 }
-
-#[derive(Debug)]
-struct RectRenderer{
-	pipeline:wgpu::RenderPipeline,
-	layout: wgpu::BindGroupLayout,
-	snapshots:Vec<Rect>,
-	window_bind_group:wgpu::BindGroup,
-	bind_groups:Vec<wgpu::BindGroup>,
-	buffers:Vec<wgpu::Buffer>,
-	// the number of frames since the buffer was last used
-	// last_used:u8 remove it when it reaches the max
-}
-
-impl RectRenderer {
-	pub fn new(device:&wgpu::Device,format:wgpu::TextureFormat) -> Self{
-		// TODO create builders to reduce the boilerplate
-		let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-			label: Some("Rect Shader Module"),
-			source: wgpu::ShaderSource::Wgsl(include_str!("../shaders/rect.wgsl").into()),
-		});
-
-		let window_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            label: Some("Global window bind group layout"),
-            entries: &[wgpu::BindGroupLayoutEntry {
-                binding: 0,
-                visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
-                ty: wgpu::BindingType::Buffer {
-                    ty: wgpu::BufferBindingType::Uniform,
-                    has_dynamic_offset: false,
-                    min_binding_size: None,
-                },
-                count: None,
-            }],
-        });
-	
-		let rect_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-			label: Some("Rect layout"),
-			entries: &[
-				wgpu::BindGroupLayoutEntry {
-					binding: 0,
-					visibility: wgpu::ShaderStages::FRAGMENT,
-					ty: wgpu::BindingType::Buffer {
-						ty: wgpu::BufferBindingType::Uniform,
-						has_dynamic_offset: false,
-						min_binding_size: None,
-					},
-					count: None,
-				},
-				wgpu::BindGroupLayoutEntry {
-					binding: 1,
-					visibility: wgpu::ShaderStages::FRAGMENT,
-					ty: wgpu::BindingType::Buffer {
-						ty: wgpu::BufferBindingType::Uniform,
-						has_dynamic_offset: false,
-						min_binding_size: None,
-					},
-					count: None,
-				},
-				wgpu::BindGroupLayoutEntry {
-					binding: 2,
-					visibility: wgpu::ShaderStages::FRAGMENT,
-					ty: wgpu::BindingType::Buffer {
-						ty: wgpu::BufferBindingType::Uniform,
-						has_dynamic_offset: false,
-						min_binding_size: None,
-					},
-					count: None,
-				},
-			],
-		});
-
-		// TODO replace with builder
-		let vertex_buffer_layout = wgpu::VertexBufferLayout {
-			array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
-			step_mode: wgpu::VertexStepMode::Vertex,
-			attributes: &[
-				wgpu::VertexAttribute { // Position
-					offset: 0,
-					shader_location: 0,
-					format: wgpu::VertexFormat::Float32x2,
-				},
-				wgpu::VertexAttribute { // Color
-					offset: size_of::<[f32; 2]>() as wgpu::BufferAddress,
-					shader_location: 1,
-					format: wgpu::VertexFormat::Float32x4, 
-				},
-				wgpu::VertexAttribute { // UV
-					offset: size_of::<[f32; 6]>() as wgpu::BufferAddress,
-					shader_location: 2,
-					format: wgpu::VertexFormat::Float32x2,
-				},
-			],
-		};
-
-        let window_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Window buffer"),
-            usage:wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-            contents:bytemuck::cast_slice(&[500.0,500.0]),
-        });
-
-		let window_bind_group = device.create_bind_group(
-			&wgpu::BindGroupDescriptor {
-				label: Some("Window bind group"),
-				entries: &[
-					wgpu::BindGroupEntry{
-						binding:0,
-						resource:window_buffer.as_entire_binding()
-					}
-				],
-				layout:&window_layout,
-			}
-		);
-	
-		let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-			label: Some("Rect Pipeline Layout"),
-			bind_group_layouts: &[&window_layout, &rect_layout],
-			push_constant_ranges: &[],
-		});
-	
-		let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-			label: Some("Rect Render Pipeline"),
-			layout: Some(&pipeline_layout),
-			vertex: wgpu::VertexState {
-				module: &shader,
-				entry_point: "vs_main",
-				compilation_options: Default::default(),
-				buffers: &[vertex_buffer_layout],
-			},
-			fragment: Some(wgpu::FragmentState {
-				module: &shader,
-				entry_point: "fs_main",
-				compilation_options: Default::default(),
-				targets: &[Some(wgpu::ColorTargetState {
-					format,
-					blend: Some(wgpu::BlendState::ALPHA_BLENDING),
-					write_mask: wgpu::ColorWrites::ALL,
-				})],
-			}),
-			primitive: wgpu::PrimitiveState {
-				topology: wgpu::PrimitiveTopology::TriangleList,
-				strip_index_format: None,
-				front_face: wgpu::FrontFace::Ccw,
-				cull_mode: None,
-				unclipped_depth: false,
-				polygon_mode: wgpu::PolygonMode::Fill,
-				conservative: false,
-			},
-			multisample: wgpu::MultisampleState {
-				count: 1,
-				mask: !0,
-				alpha_to_coverage_enabled: false,
-			},
-			depth_stencil: None,
-			multiview: None,
-			cache: None,
-		});
-
-		Self{
-			layout:rect_layout,
-			pipeline,
-			window_bind_group,
-			snapshots:vec![],
-			bind_groups:vec![],
-			buffers:vec![],
-		}
-	}
-
-	pub fn draw(
-		&mut self,
-		rect:&Rect,
-		device:&wgpu::Device,
-		resources:&mut ResourcePool,
-		pass:&mut wgpu::RenderPass,
-	){
-		let vertices = Vertex::quad(rect.size, rect.position, rect.color);
-	
-		let vertex_buffer = BufferBuilder::new()
-			.label("Rect vertex buffer")
-			.vertex()
-			.init(&vertices)
-			.build(device);
-	
-		let size_buffer = resources.add_uniform_init(
-			"Rect Size Buffer",
-			bytemuck::cast_slice(&[rect.size.width, rect.size.height]),
-			device,
-		);
-	
-		let position_buffer = resources.add_uniform_init(
-			"Rect Position Buffer",
-			bytemuck::cast_slice(&[rect.position.x, rect.position.y]),
-			device,
-		);
-	
-		let radius_buffer = resources.add_uniform_init(
-			"Rect Corner Radius Buffer",
-			bytemuck::cast_slice(&[12.0]),
-			device,
-		);
-	
-		let bind_group_index = resources.add_bind_group(
-			"Rect Bind Group",
-			&self.layout,
-			device,
-			&[radius_buffer, size_buffer, position_buffer],
-			&[],
-			&[],
-		).unwrap();
-
-		let bind_group = resources.bind_group(bind_group_index).unwrap();
-
-        pass.set_pipeline(&self.pipeline);
-        pass.set_bind_group(0, &self.window_bind_group, &[]);
-        pass.set_bind_group(1, bind_group, &[]);
-        pass.set_vertex_buffer(0, vertex_buffer.slice(..));
-
-        pass.draw(0..vertices.len() as u32, 0..1);
-	}
-}
-
 
 #[cfg(test)]
 mod tests {

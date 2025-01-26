@@ -1,9 +1,35 @@
 use std::ops::{Add, AddAssign, Div, Mul, Sub, SubAssign};
-
+use bytemuck::{Pod, Zeroable};
 use winit::dpi::PhysicalSize;
 
-/// Anything with a width and a height
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Default)]
+/// Anything with a width and a height.
+/// 
+/// You can add and subtract `Size`'s to and from each other
+/// ```
+/// use helium_core::Size;
+/// 
+/// let mut size = Size::new(200.0,200.0);
+/// size -= Size::unit(50.0);
+/// assert_eq!(size.width,150.0);
+/// 
+/// size += Size::unit(120.0);
+/// assert_eq!(size.height,270.0);
+/// ```
+///
+/// You can also add and subtract arbitrary values to and from `Size`'s
+/// ```
+/// use helium_core::Size;
+/// 
+/// let mut size = Size::new(200.0,200.0);
+/// size += 55.0;
+/// assert_eq!(size.width,255.0);
+/// 
+/// size -= 25.0;
+/// assert_eq!(size.height,230.0);
+/// ```
+/// 
+#[repr(C)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Default,Pod,Zeroable)]
 pub struct Size {
     pub width: f32,
     pub height: f32,
@@ -13,6 +39,22 @@ impl Size {
     pub fn new(width: f32, height: f32) -> Self {
         Self { width, height }
     }
+
+	/// Creates a [`Size`] where both the width and the height are
+	/// a single value
+	/// 
+	/// # Example
+	/// ```
+	/// use helium_core::Size;
+	/// 
+	/// let size = Size::unit(500.0);
+	/// 
+	/// assert_eq!(size.width,size.height);
+	/// assert_eq!(size.width,500.0);
+	/// ```
+	pub fn unit(value:f32) -> Self{
+		Self { width: value, height: value }
+	}
 
     pub fn scale(&mut self, factor: f32) {
         self.width *= factor;
@@ -39,6 +81,15 @@ impl AddAssign for Size {
         *self = Self {
             width: self.width + other.width,
             height: self.height + other.height,
+        };
+    }
+}
+
+impl SubAssign for Size {
+    fn sub_assign(&mut self, other: Self) {
+        *self = Self {
+            width: self.width - other.width,
+            height: self.height - other.height,
         };
     }
 }
