@@ -1,5 +1,4 @@
-use crate::{resources::ResourcePool, Error, Vertex};
-pub trait Shader{}
+use crate::Vertex;
 
 pub struct RectShader{
 	/// The index of bind group in the [`ResourcePool`].
@@ -11,7 +10,6 @@ pub struct RectShader{
 impl RectShader{
 	pub fn new(
 		device:&wgpu::Device,
-		resources:&mut ResourcePool,
 		format:wgpu::TextureFormat
 	) -> Result<Self,crate::Error>{
 		
@@ -160,5 +158,3 @@ impl RectShader{
 	}
 	
 }
-
-impl Shader for RectShader {}

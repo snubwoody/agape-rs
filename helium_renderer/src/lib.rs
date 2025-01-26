@@ -1,6 +1,6 @@
 pub mod vertex;
 pub mod rect;
-mod resources;
+mod pipeline;
 mod error;
 mod builders;
 mod primitives;
@@ -10,43 +10,37 @@ use helium_core::{
 	color::*, 
 	Size
 };
+use pipeline::RectPipeline;
 use primitives::RectShader;
 use rect::Rect;
-use resources::ResourcePool;
 use vertex::Vertex;
-use wgpu::util::DeviceExt;
 use winit::{
     dpi::PhysicalSize,
     window::Window,
 };
 
 
-pub struct Renderer<'a> {
-    surface: wgpu::Surface<'a>,
+pub struct Renderer<'r> {
+    surface: wgpu::Surface<'r>,
     device: wgpu::Device,
     queue: wgpu::Queue,
     config: wgpu::SurfaceConfiguration,
 	size: Size,
-	shader:RectShader,
-	window_bind_group:usize,
-	window_buffer:usize,
-	resources: ResourcePool,
+	window_buffer:wgpu::Buffer,
+	rect_pipeline:RectPipeline
 }
 
-impl<'a> Renderer<'a> {
-    pub async fn new(window: &'a Window) -> Self {
+impl<'r> Renderer<'r> {
+    pub async fn new(window: &'r Window) -> Self {
         let size = Size::from(window.inner_size());
 
-        // Handle to wpgu for creating a surface and an adapter
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
             backends: wgpu::Backends::PRIMARY,
             ..Default::default()
         });
 
-        // Create the surface to draw on
         let surface = instance.create_surface(window).unwrap();
 
-        // Handle to the graphics card
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: Default::default(),
@@ -56,8 +50,6 @@ impl<'a> Renderer<'a> {
             .await
             .unwrap(); // FIXME return these errors
 
-        // The device is an open connection to the graphics
-        // card and the queue is a command buffer
         let (device, queue) = adapter
             .request_device(
                 &wgpu::DeviceDescriptor {
@@ -72,7 +64,6 @@ impl<'a> Renderer<'a> {
 
         let surface_caps = surface.get_capabilities(&adapter);
 
-        // Get an sRGB texture format
         let surface_format = surface_caps
             .formats
             .iter()
@@ -80,7 +71,6 @@ impl<'a> Renderer<'a> {
             .copied()
             .unwrap_or(surface_caps.formats[0]);
 
-        // The surface configuration
         let config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
             format: surface_format,
@@ -92,29 +82,21 @@ impl<'a> Renderer<'a> {
             desired_maximum_frame_latency: 2,
         };
 
-        // Configure the surface for presentation
         surface.configure(&device, &config);
-		let mut resources = ResourcePool::new();
 		
-		let shader = RectShader::new(&device, &mut resources, config.format).unwrap();
-		
-		let window_buffer = resources.add_buffer_init(
-			"Global window buffer", 
-			bytemuck::cast_slice(&[window.inner_size().width as f32,window.inner_size().height as f32]), 
-			wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST, 
-			&device
-		);
+		let window_buffer = BufferBuilder::new()
+			.label("Global window buffer")
+			.copy_dst()
+			.uniform()
+			.init(&[Size::from(window.inner_size())])
+			.build(&device);
 
-		let window_bind_group = resources.add_bind_group(
-			"Global window bind group", 
-			&shader.window_layout(), 
-			&device, 
-			&[window_buffer], 
-			&[], 
-			&[]
-		).unwrap();
+		// let window_bind_group = BindGroupBuilder::new()
+		// 	.label("Global window bind group")
+		// 	.buffer(&window_buffer)
+		// 	.build(shader.window_layout(), &device);
 
-		// FIXME return error
+		let rect_pipeline = RectPipeline::new(&device,config.format);
 
         Self {
             surface,
@@ -122,10 +104,8 @@ impl<'a> Renderer<'a> {
             queue,
             config,
             size,
-			shader,
 			window_buffer,
-			window_bind_group,
-			resources,
+			rect_pipeline
         }
     }
 
@@ -135,13 +115,7 @@ impl<'a> Renderer<'a> {
         self.config.height = size.height;
         
 		// Resize the surface with the window to keep the right scale
-		self.resources.write_buffer(
-			self.window_buffer, 
-			0,
-			bytemuck::cast_slice(&[self.size.width,self.size.height]), 
-			&self.queue
-		).unwrap();
-
+		self.queue.write_buffer(&self.window_buffer, 0, bytemuck::cast_slice(&[self.size]));
 		self.surface.configure(&self.device, &self.config);
     }
 
@@ -184,8 +158,8 @@ impl<'a> Renderer<'a> {
 		let rect = Rect::new(50.0, 50.0).color(RED);
 		let rect_2 = Rect::new(150.0, 50.0).color(BLUE).position(150.0, 150.0);
 
-		self.draw_rect(&mut render_pass,&rect);
-		self.draw_rect(&mut render_pass,&rect_2);
+		self.rect_pipeline.draw(&rect,&self.device,&mut render_pass);
+		self.rect_pipeline.draw(&rect_2,&self.device,&mut render_pass,);
 		
 		// Drop the render pass because it borrows encoder mutably
 		std::mem::drop(render_pass);
@@ -193,64 +167,9 @@ impl<'a> Renderer<'a> {
 		self.queue.submit(std::iter::once(encoder.finish()));
 		output.present();
 		
-		//dbg!(instant.elapsed());
+		//log::trace!("Frame time: {:?}",instant.elapsed());
 	}
 
-	pub fn draw_rect(
-		&mut self,
-		pass:&mut wgpu::RenderPass,
-		rect:&Rect,
-	){
-		let device = &self.device;
-		
-		let vertices = Vertex::quad(rect.size, rect.position, rect.color);
-
-		let vertex_buffer = BufferBuilder::new()
-			.label("Rect vertex buffer")
-			.vertex()
-			.init(&vertices)
-			.build(device);
-		
-		let size = BufferBuilder::new()
-			.label("Rect size buffer")
-			.uniform()
-			.copy_dst() // Try using repr C
-			.init(&[rect.size.width,rect.size.height])
-			.build(device);
-		
-		let position = BufferBuilder::new()
-			.label("Rect position buffer")
-			.uniform()
-			.copy_dst() 
-			.init(&[rect.position.x,rect.position.y])
-			.build(device);
-	
-		let corner_radius = BufferBuilder::new()
-			.label("Rect corner radius buffer")
-			.uniform()
-			.copy_dst() 
-			.init(&[12.0])
-			.build(device);
-
-		let rect_bind_group = BindGroupBuilder::new()
-			.label("Rect bind group")
-			.buffer(&corner_radius)
-			.buffer(&size)
-			.buffer(&position)
-			.build(self.shader.layout(), device);
-	
-        let window_bind_group = self.resources
-            .bind_group(self.window_bind_group)
-            .unwrap();
-
-        pass.set_pipeline(self.shader.pipeline());
-        pass.set_bind_group(0, window_bind_group, &[]);
-        pass.set_bind_group(1, &rect_bind_group, &[]);
-        pass.set_vertex_buffer(0, vertex_buffer.slice(..));
-
-        pass.draw(0..vertices.len() as u32, 0..1);
-	}
-	
 }
 
 #[cfg(test)]
