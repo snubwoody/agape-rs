@@ -4,18 +4,16 @@ use crate::{
         BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, TextureBuilder,
         VertexBufferLayoutBuilder,
     },
-    primitives::{Rect, Text},
+    primitives::Image,
     vertex::Vertex,
 };
-use cosmic_text::{Attrs, FontSystem, Metrics, Shaping, SwashCache};
-use helium_core::Size;
-use std::{io::Cursor, rc::Rc};
+use helium_core::{color::WHITE, Size};
+use std::rc::Rc;
 use wgpu::Extent3d;
 
-// TODO replace text_to_png
 pub struct ImagePipeline {
     pipeline: wgpu::RenderPipeline,
-    rect_layout: wgpu::BindGroupLayout,
+    layout: wgpu::BindGroupLayout,
     global: Rc<GlobalResources>,
 }
 
@@ -26,12 +24,12 @@ impl ImagePipeline {
         global: Rc<GlobalResources>,
     ) -> Self {
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Text Shader Module"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/text.wgsl").into()),
+            label: Some("Image Shader Module"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/image.wgsl").into()),
         });
 
-        let rect_layout = BindGroupLayoutBuilder::new()
-            .label("Text bind group layout")
+        let layout = BindGroupLayoutBuilder::new()
+            .label("Image bind group layout")
             .texture(
                 wgpu::ShaderStages::FRAGMENT,
                 wgpu::TextureSampleType::Float { filterable: true },
@@ -53,7 +51,7 @@ impl ImagePipeline {
 
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("Text Pipeline Layout"),
-            bind_group_layouts: &[global.window_layout(), &rect_layout],
+            bind_group_layouts: &[global.window_layout(), &layout],
             push_constant_ranges: &[],
         });
 
@@ -98,49 +96,37 @@ impl ImagePipeline {
 
         Self {
             pipeline,
-            rect_layout,
+            layout,
             global,
         }
     }
 
     pub fn draw(
         &mut self,
-        text: &Text,
+        image: &Image,
         queue: &wgpu::Queue,
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
     ) {
-        let text_renderer = text_to_png::TextRenderer::default();
-
         // Rasterize the text
         // Should hopefully replace this library eventually with something glyph based
-        let text_image = text_renderer
-            .render_text_to_png_data(
-                text.text.clone(),
-                text.font_size,
-                text.color.into_hex_string().as_str(),
-            )
-            .unwrap();
+        let image_data = image.image.to_rgba8();
 
-        // FIXME return these errors
-        let image = image::load(Cursor::new(text_image.data), image::ImageFormat::Png)
-            .unwrap()
-            .to_rgba8();
-
-        let size = Size {
-            width: text_image.size.width as f32,
-            height: text_image.size.height as f32,
+		let size = Size {
+            width: image_data.dimensions().0 as f32,
+            height: image_data.dimensions().1 as f32,
         };
-        let vertices = Vertex::quad(size, text.position, text.color);
+
+        let vertices = Vertex::quad(size, image.position, WHITE);
 
         let vertex_buffer = BufferBuilder::new()
-            .label("Rect vertex buffer")
+            .label("Image vertex buffer")
             .vertex()
             .init(&vertices)
             .build(device);
 
         let texture = TextureBuilder::new()
-            .label("Text texture")
+            .label("Image texture")
             .size(size)
             .dimension(wgpu::TextureDimension::D2)
             .format(wgpu::TextureFormat::Rgba8UnormSrgb)
@@ -151,10 +137,10 @@ impl ImagePipeline {
         let sampler = device.create_sampler(&Default::default());
 
         let bind_group = BindGroupBuilder::new()
-            .label("Text bind group")
+            .label("Image bind group")
             .texture_view(&texture_view)
             .sampler(&sampler)
-            .build(&self.rect_layout, device);
+            .build(&self.layout, device);
 
         let size = Extent3d {
             width: size.width as u32,
@@ -169,7 +155,7 @@ impl ImagePipeline {
                 origin: wgpu::Origin3d::ZERO,
                 aspect: wgpu::TextureAspect::All,
             },
-            &image,
+            &image_data,
             wgpu::ImageDataLayout {
                 offset: 0,
                 bytes_per_row: Some(4 * size.width as u32),

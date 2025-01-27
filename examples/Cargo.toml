@@ -11,6 +11,7 @@ log = "0.4.22"
 tokio.workspace = true
 dotenv = "0.15.0"
 winit.workspace = true
+image.workspace = true
 
 [[example]]
 name = "counter"

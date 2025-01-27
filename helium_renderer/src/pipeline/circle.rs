@@ -12,7 +12,7 @@ use crate::{
 
 pub struct CirclePipeline {
     pipeline: wgpu::RenderPipeline,
-    rect_layout: wgpu::BindGroupLayout,
+    layout: wgpu::BindGroupLayout,
     global: Rc<GlobalResources>,
 }
 
@@ -27,7 +27,7 @@ impl CirclePipeline {
             source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/circle.wgsl").into()),
         });
 
-        let rect_layout = BindGroupLayoutBuilder::new()
+        let layout = BindGroupLayoutBuilder::new()
             .label("Circle bind group layout")
             .uniform(wgpu::ShaderStages::FRAGMENT)
             .uniform(wgpu::ShaderStages::FRAGMENT)
@@ -42,7 +42,7 @@ impl CirclePipeline {
 
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("Circle Pipeline Layout"),
-            bind_group_layouts: &[global.window_layout(), &rect_layout],
+            bind_group_layouts: &[global.window_layout(), &layout],
             push_constant_ranges: &[],
         });
 
@@ -87,7 +87,7 @@ impl CirclePipeline {
 
         Self {
             pipeline,
-            rect_layout,
+            layout,
             global,
         }
     }
@@ -119,7 +119,7 @@ impl CirclePipeline {
             .label("Rect bind group")
             .buffer(&diameter)
             .buffer(&position)
-            .build(&self.rect_layout, device);
+            .build(&self.layout, device);
 
         pass.set_pipeline(&self.pipeline);
         pass.set_bind_group(0, self.global.window_bind_group(), &[]);

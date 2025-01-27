@@ -5,7 +5,7 @@ pub mod primitives;
 mod vertex;
 pub use error::Error;
 use helium_core::Size;
-use pipeline::{CirclePipeline, GlobalResources, RectPipeline, TextPipeline};
+use pipeline::{CirclePipeline, GlobalResources, ImagePipeline, RectPipeline, TextPipeline};
 use primitives::{IntoPrimitive, Primitive};
 use std::rc::Rc;
 use winit::window::Window;
@@ -19,6 +19,7 @@ pub struct Renderer<'r> {
     rect_pipeline: RectPipeline,
     circle_pipeline: CirclePipeline,
     text_pipeline: TextPipeline,
+    image_pipeline: ImagePipeline,
     draw_queue: Vec<Primitive>,
 }
 
@@ -81,6 +82,7 @@ impl<'r> Renderer<'r> {
         let rect_pipeline = RectPipeline::new(&device, config.format, Rc::clone(&global));
         let circle_pipeline = CirclePipeline::new(&device, config.format, Rc::clone(&global));
         let text_pipeline = TextPipeline::new(&device, config.format, Rc::clone(&global));
+        let image_pipeline = ImagePipeline::new(&device, config.format, Rc::clone(&global));
 
         Self {
             surface,
@@ -90,6 +92,7 @@ impl<'r> Renderer<'r> {
             rect_pipeline,
             circle_pipeline,
             text_pipeline,
+			image_pipeline,
             global,
             draw_queue: vec![],
         }
@@ -166,7 +169,10 @@ impl<'r> Renderer<'r> {
                 Primitive::Text(text) => {
                     self.text_pipeline
                         .draw(&text, &self.queue, &self.device, &mut render_pass);
-                }
+                },
+				Primitive::Image(image) => {
+					self.image_pipeline.draw(&image, &self.queue, &self.device, &mut render_pass);
+				}
             }
         }
 

@@ -36,8 +36,8 @@ impl Text {
         }
     }
 
-    pub fn position(mut self, position: Position) -> Self {
-        self.position = position;
+    pub fn position(mut self, x:f32,y:f32) -> Self {
+        self.position = Position{x,y};
         self
     }
 

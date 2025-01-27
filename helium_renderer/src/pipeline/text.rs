@@ -16,7 +16,7 @@ use crate::{
 // TODO replace text_to_png
 pub struct TextPipeline {
     pipeline: wgpu::RenderPipeline,
-    rect_layout: wgpu::BindGroupLayout,
+    layout: wgpu::BindGroupLayout,
     global: Rc<GlobalResources>,
 }
 
@@ -31,7 +31,7 @@ impl TextPipeline {
             source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/text.wgsl").into()),
         });
 
-        let rect_layout = BindGroupLayoutBuilder::new()
+        let layout = BindGroupLayoutBuilder::new()
             .label("Text bind group layout")
             .texture(
                 wgpu::ShaderStages::FRAGMENT,
@@ -54,7 +54,7 @@ impl TextPipeline {
 
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("Text Pipeline Layout"),
-            bind_group_layouts: &[global.window_layout(), &rect_layout],
+            bind_group_layouts: &[global.window_layout(), &layout],
             push_constant_ranges: &[],
         });
 
@@ -99,7 +99,7 @@ impl TextPipeline {
 
         Self {
             pipeline,
-            rect_layout,
+            layout,
             global,
         }
     }
@@ -135,7 +135,7 @@ impl TextPipeline {
         let vertices = Vertex::quad(size, text.position, text.color);
 
         let vertex_buffer = BufferBuilder::new()
-            .label("Rect vertex buffer")
+            .label("Text vertex buffer")
             .vertex()
             .init(&vertices)
             .build(device);
@@ -155,7 +155,7 @@ impl TextPipeline {
             .label("Text bind group")
             .texture_view(&texture_view)
             .sampler(&sampler)
-            .build(&self.rect_layout, device);
+            .build(&self.layout, device);
 
         let size = Extent3d {
             width: size.width as u32,

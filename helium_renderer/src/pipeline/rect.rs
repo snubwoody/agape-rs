@@ -10,7 +10,7 @@ use std::rc::Rc;
 
 pub struct RectPipeline {
     pipeline: wgpu::RenderPipeline,
-    rect_layout: wgpu::BindGroupLayout,
+    layout: wgpu::BindGroupLayout,
     global: Rc<GlobalResources>,
 }
 
@@ -25,7 +25,7 @@ impl RectPipeline {
             source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/rect.wgsl").into()),
         });
 
-        let rect_layout = BindGroupLayoutBuilder::new()
+        let layout = BindGroupLayoutBuilder::new()
             .label("Rect bind group layout")
             .uniform(wgpu::ShaderStages::FRAGMENT)
             .uniform(wgpu::ShaderStages::FRAGMENT)
@@ -41,7 +41,7 @@ impl RectPipeline {
 
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("Rect Pipeline Layout"),
-            bind_group_layouts: &[global.window_layout(), &rect_layout],
+            bind_group_layouts: &[global.window_layout(), &layout],
             push_constant_ranges: &[],
         });
 
@@ -86,7 +86,7 @@ impl RectPipeline {
 
         Self {
             pipeline,
-            rect_layout,
+            layout,
             global,
         }
     }
@@ -126,7 +126,7 @@ impl RectPipeline {
             .buffer(&corner_radius)
             .buffer(&size)
             .buffer(&position)
-            .build(&self.rect_layout, device);
+            .build(&self.layout, device);
 
         pass.set_pipeline(&self.pipeline);
         pass.set_bind_group(0, self.global.window_bind_group(), &[]);

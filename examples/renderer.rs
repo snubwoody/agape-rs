@@ -1,6 +1,6 @@
 use helium::{Position, BLACK};
 use helium_renderer::{
-    primitives::{Circle, Rect, Text},
+    primitives::{Circle, Image, Rect, Text},
     Renderer,
 };
 use winit::{event::WindowEvent, event_loop::EventLoop, window::WindowBuilder};
@@ -27,7 +27,12 @@ async fn main() {
                 WindowEvent::RedrawRequested => {
                     renderer.draw([Rect::new(200.0, 200.0).color(BLACK).corner_radius(24.0)]);
                     renderer.draw([Circle::new(120.0).color(BLACK).position(150.0, 200.0)]);
-                    renderer.draw([Text::new("Hello world").position(Position::new(350.0, 0.0))]);
+                    renderer.draw([Text::new("Hello world").position(350.0, 0.0)]);
+                    renderer.draw([
+						Image::new(
+							image::load_from_memory(include_bytes!("./temp/legends never die.png"))
+							.unwrap()
+					).position(450.0,150.0)]);
                     renderer.render();
                 }
                 event => {
