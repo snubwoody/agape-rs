@@ -1425,10 +1425,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "helium_derive"
-version = "0.1.0"
-
-[[package]]
 name = "helium_macros"
 version = "0.1.0"
 dependencies = [

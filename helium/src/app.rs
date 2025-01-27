@@ -67,7 +67,10 @@ impl App {
 						// I think resizing already causes a redraw request but i'm not sure
                         self.window.request_redraw(); 
                     }
-                    event => self.pages[self.index].handle(&event),
+                    event => {
+						self.pages[self.index].handle(&event);
+						self.window.request_redraw();
+					},
                 },
                 _ => {}
             })

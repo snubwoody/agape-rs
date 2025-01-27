@@ -45,7 +45,7 @@ impl Widget for TextField {
         if let Some(&random_color) = colors.choose(&mut thread_rng()) {
             self.background_color = random_color;
         }
-
+		dbg!(self.background_color);
         self.text.text.push('H');
     }
 
