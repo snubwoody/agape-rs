@@ -1,5 +1,7 @@
 mod rect;
+mod text;
 mod circle;
+pub use text::TextPipeline;
 pub use circle::CirclePipeline;
 pub use rect::RectPipeline;
 use helium_core::Size;

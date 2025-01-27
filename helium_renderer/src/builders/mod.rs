@@ -1,7 +1,9 @@
 mod buffer;
 mod bind_group;
 mod vertex;
+mod texture;
 pub use vertex::*;
+pub use texture::*;
 pub use buffer::*;
 pub use bind_group::*;
 

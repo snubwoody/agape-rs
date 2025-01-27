@@ -13,3 +13,4 @@ winit.workspace = true
 bytemuck.workspace = true
 log.workspace = true
 image.workspace = true
+cosmic-text = "0.12.1"

@@ -1,5 +1,5 @@
-use helium::BLACK;
-use helium_renderer::{primitives::{Circle, Rect}, Renderer};
+use helium::{Position, BLACK};
+use helium_renderer::{primitives::{Circle, Rect, Text}, Renderer};
 use winit::{
     event::WindowEvent, event_loop::EventLoop, window::WindowBuilder
 };
@@ -31,6 +31,7 @@ async fn main(){
 						
 					]);	
 					renderer.draw([Circle::new(120.0).color(BLACK).position(150.0, 200.0)]);
+					renderer.draw([Text::new("Hello world").position(Position::new(350.0, 0.0))]);
 					renderer.render();
 				}
 				event => {

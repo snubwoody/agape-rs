@@ -6,7 +6,7 @@ pub mod primitives;
 pub use error::Error;
 use std::rc::Rc;
 use helium_core::Size;
-use pipeline::{CirclePipeline, GlobalResources, RectPipeline};
+use pipeline::{CirclePipeline, GlobalResources, RectPipeline, TextPipeline};
 use primitives::{IntoPrimitive, Primitive};
 use winit::window::Window;
 
@@ -19,13 +19,12 @@ pub struct Renderer<'r> {
 	global:Rc<GlobalResources>,
 	rect_pipeline:RectPipeline,
 	circle_pipeline:CirclePipeline,
+	text_pipeline:TextPipeline,
 	draw_queue:Vec<Primitive>
 }
 
 impl<'r> Renderer<'r> {
     pub async fn new(window: &'r Window) -> Self {
-        let size = Size::from(window.inner_size());
-
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
             backends: wgpu::Backends::PRIMARY,
             ..Default::default()
@@ -79,6 +78,7 @@ impl<'r> Renderer<'r> {
 		let global = Rc::new(GlobalResources::new(&device, Size::from(window.inner_size())));
 		let rect_pipeline = RectPipeline::new(&device,config.format,Rc::clone(&global));
 		let circle_pipeline = CirclePipeline::new(&device,config.format,Rc::clone(&global));
+		let text_pipeline = TextPipeline::new(&device,config.format,Rc::clone(&global));
         
 		Self {
             surface,
@@ -87,6 +87,7 @@ impl<'r> Renderer<'r> {
             config,
 			rect_pipeline,
 			circle_pipeline,
+			text_pipeline,
 			global,
 			draw_queue:vec![]
         }
@@ -157,7 +158,10 @@ impl<'r> Renderer<'r> {
 				},
 				Primitive::Circle(circle) => {
 					self.circle_pipeline.draw(&circle, &self.device, &mut render_pass);
-				}
+				},
+				Primitive::Text(text) => {
+					self.text_pipeline.draw(&text,&self.queue, &self.device, &mut render_pass);
+				},
 			}
 		}
 		
