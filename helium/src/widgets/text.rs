@@ -83,6 +83,15 @@ impl Widget for Text {
         Box::new(layout)
     }
 
+	fn draw(&self,layout:&dyn Layout,renderer:&mut helium_renderer::Renderer) {
+		renderer.draw([
+			helium_renderer::Text::new(&self.text)
+				.position(layout.position().x, layout.position().y)
+				.font_size(self.font_size)
+				.color(self.color)
+		]);
+	}
+
     fn view(&self) -> Box<dyn crate::view::View> {
         Box::new(
             TextView::new(&self.id, &self.text)

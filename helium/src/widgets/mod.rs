@@ -16,6 +16,7 @@ pub use button::*;
 pub use circle::*;
 pub use container::*;
 use crystal::Layout;
+use helium_renderer::Renderer;
 pub use hstack::*;
 pub use image::*;
 pub use rect::*;
@@ -51,6 +52,9 @@ pub trait Widget: WidgetIterator {
     }
 
     fn tick(&mut self, elements: &[Element]);
+
+	/// Draw the [`Widget`] to the screen
+    fn draw(&self,layout:&dyn Layout,renderer:&mut Renderer);
 
     // TODO maybe make a test macro to make sure all widgets
     // handle this right

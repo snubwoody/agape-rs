@@ -1,8 +1,6 @@
 use super::Widget;
 use crate::{
-    events::{EventContext, EventFn},
-    view::RectView,
-    Color,
+    colors::tailwind_colors::RED300, events::{EventContext, EventFn}, view::RectView, Color
 };
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use helium_core::color::WHITE;
@@ -98,6 +96,14 @@ impl Widget for Rect {
 
         Box::new(layout)
     }
+
+	fn draw(&self,layout:&dyn Layout, renderer:&mut helium_renderer::Renderer) {
+		renderer.draw([
+			helium_renderer::Rect::new(layout.size().width,layout.size().height)
+				.position(layout.position().x, layout.position().y)
+				.color(self.color)
+		]);
+	}
 
     fn view(&self) -> Box<dyn crate::view::View> {
         Box::new(

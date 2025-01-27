@@ -1,14 +1,14 @@
 mod builders;
 mod error;
 mod pipeline;
-pub mod primitives;
+mod primitives;
 mod vertex;
 pub use error::Error;
 use helium_core::Size;
 use pipeline::{CirclePipeline, GlobalResources, IconPipeline, ImagePipeline, RectPipeline, TextPipeline};
-use primitives::{IntoPrimitive, Primitive};
 use std::rc::Rc;
 use winit::window::Window;
+pub use primitives::*;
 
 pub struct Renderer<'r> {
     surface: wgpu::Surface<'r>,
@@ -124,7 +124,6 @@ impl<'r> Renderer<'r> {
             .extend(primitives.into_iter().map(|p| p.into_primitive()));
     }
 
-    /// TODO Change to present then add primitive queue?
     pub fn render(&mut self) {
         let instant = std::time::Instant::now();
 

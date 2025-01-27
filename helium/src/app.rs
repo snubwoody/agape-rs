@@ -1,5 +1,6 @@
 use crate::page::Page;
 use crate::{geometry::RenderContext, Size};
+use helium_renderer::Renderer;
 use winit::{
     dpi::PhysicalSize,
     event::WindowEvent,
@@ -10,7 +11,7 @@ use winit::{
 /// [`App`]'s contain the whole program and are the point of entry for helium
 /// they are responsible for the overall management of rendering, resources,
 /// [`Widget`]'s etc.
-pub struct App {
+pub struct App{
     event_loop: EventLoop<()>,
     window: Window,
     pages: Vec<Page>,
@@ -30,6 +31,7 @@ impl App {
             .with_visible(false)
             .build(&event_loop)
             .unwrap();
+		
 
         Self {
             event_loop,
@@ -50,15 +52,21 @@ impl App {
         self.window.set_visible(true);
         self.pages[0].build(&state)?;
 
+		let mut renderer = async_std::task::block_on(Renderer::new(&self.window));
+
         self.event_loop
             .run(|event, window_target| match event {
                 winit::event::Event::WindowEvent { event, .. } => match event {
                     WindowEvent::CloseRequested => window_target.exit(),
-                    WindowEvent::RedrawRequested => self.pages[self.index].render(&state),
+                    WindowEvent::RedrawRequested => {
+						self.pages[0].draw(&mut renderer);
+						renderer.render();
+					}
                     WindowEvent::Resized(size) => {
                         state.resize(size);
                         // FIXME handle this error
-                        let _ = self.pages[self.index].resize(&state);
+                        //let _ = self.pages[self.index].resize(&state);
+						renderer.resize(size.into());
                         self.window.request_redraw();
                     }
                     event => self.pages[self.index].handle(&event),

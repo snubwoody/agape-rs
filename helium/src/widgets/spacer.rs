@@ -1,6 +1,7 @@
 use super::Widget;
 use crate::view::RectView;
 use crystal::{BoxSizing, EmptyLayout};
+use helium_renderer::Rect;
 
 /// A [`Widget`] that fills up all the available space.  
 /// Note that `Spacer`'s have no effect when the parent `widget` has
@@ -33,6 +34,13 @@ impl Widget for Spacer {
 
         Box::new(layout)
     }
+
+	fn draw(&self,layout:&dyn crystal::Layout,renderer:&mut helium_renderer::Renderer) {
+		renderer.draw([
+			Rect::new(layout.size().width, layout.size().height)
+				.position(layout.position().x, layout.position().y)
+		]);
+	}
 
     fn view(&self) -> Box<dyn crate::view::View> {
         Box::new(RectView::new(&self.id))

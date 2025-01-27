@@ -2,6 +2,7 @@ use crate::app::AppState;
 use crate::events::{EventContext, EventManager};
 use crate::{view::ViewManager, widgets::Widget};
 use crystal::LayoutSolver;
+use helium_renderer::Renderer;
 
 pub struct Page {
     layout: Box<dyn crystal::Layout>,
@@ -36,6 +37,15 @@ impl Page {
         LayoutSolver::solve(&mut *self.layout, state.size);
         self.views.build(&*self.layout, state)
     }
+
+	pub fn draw(&self, renderer:&mut Renderer){
+		self.widget.iter().for_each(|w|{
+			if let Some(layout) = self.layout.get(w.id()){
+				// TODO add an error or similar here; every widget should have a layout
+				w.draw(layout,renderer); 
+			}
+		});
+	}
 
     pub fn render(&mut self, state: &AppState) {
         let instant = std::time::Instant::now();

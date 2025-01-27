@@ -1,6 +1,7 @@
 use crate::{impl_style, impl_widget, view::RectView, widgets::Widget, Color};
 use crystal::{AxisAlignment, Layout, VerticalLayout};
 use helium_core::color::TRANSPARENT;
+use helium_renderer::Rect;
 
 /// A [`Widget`] that places it's children vertically. The `vstack!` macro
 /// provides convienient initialization and is likely how you will be creating an
@@ -141,6 +142,15 @@ impl Widget for VStack {
                 .corner_radius(self.corner_radius),
         )
     }
+
+	fn draw(&self,layout:&dyn crystal::Layout,renderer:&mut helium_renderer::Renderer) {
+		renderer.draw([
+			Rect::new(layout.size().width, layout.size().height)
+				.position(layout.position().x, layout.position().y)
+				.color(self.color)
+				.corner_radius(self.corner_radius as f32)
+		]);
+	}
 
     fn children(&self) -> Vec<&dyn Widget> {
         self.children

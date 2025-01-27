@@ -1,6 +1,7 @@
 use crate::{impl_style, impl_widget, view::RectView, widgets::Widget, Color};
 use crystal::{AxisAlignment, HorizontalLayout, Layout};
 use helium_core::color::TRANSPARENT;
+use helium_renderer::Rect;
 
 /// A [`Widget`] that places it's children horizontally. The `hstack!` macro
 /// provides convienient initialization and is mostly how you be creating an `HStack`
@@ -33,6 +34,7 @@ pub struct HStack {
     id: String,
     children: Vec<Box<dyn Widget>>,
     color: Color,
+	corner_radius:u32,
     layout: HorizontalLayout,
 }
 
@@ -43,9 +45,15 @@ impl HStack {
             id: nanoid::nanoid!(),
             color: TRANSPARENT,
             children: vec![],
+			corner_radius:0,
             layout: HorizontalLayout::new(),
         }
     }
+
+	pub fn corner_radius(mut self,corner_radius:u32) -> Self{
+		self.corner_radius = corner_radius;
+		self
+	}
 
     pub fn get(&self, index: usize) -> Option<&dyn Widget> {
         self.children.get(index).map(|w| &**w)
@@ -125,6 +133,15 @@ impl Widget for HStack {
     fn view(&self) -> Box<dyn crate::view::View> {
         Box::new(RectView::new(&self.id).color(self.color))
     }
+
+	fn draw(&self,layout:&dyn crystal::Layout,renderer:&mut helium_renderer::Renderer) {
+		renderer.draw([
+			Rect::new(layout.size().width, layout.size().height)
+				.position(layout.position().x, layout.position().y)
+				.color(self.color)
+				.corner_radius(self.corner_radius as f32)
+		]);
+	}
 
     fn children(&self) -> Vec<&dyn Widget> {
         self.children

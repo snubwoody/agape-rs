@@ -2,10 +2,11 @@ use super::{Text, Widget};
 use crate::{
     colors::tailwind_colors::{BLUE100, GRAY100, GREEN100, RED100},
     events::Element,
-    view::{RectView, TextView},
+    view::RectView,
 };
-use crystal::{BlockLayout, EmptyLayout};
+use crystal::BlockLayout;
 use helium_core::color::{Color, INDIGO};
+use helium_renderer::Rect;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 
@@ -55,6 +56,14 @@ impl Widget for TextField {
         layout.id = self.id.clone();
         Box::new(layout)
     }
+
+	fn draw(&self,layout:&dyn crystal::Layout,renderer:&mut helium_renderer::Renderer) {
+		renderer.draw([ // TODO impl From<Layout>
+			Rect::new(layout.size().width, layout.size().height)
+				.position(layout.position().x, layout.position().y)
+				.color(self.background_color)
+		]);
+	}
 
     fn view(&self) -> Box<dyn crate::view::View> {
         Box::new(RectView::new(&self.id).color(self.background_color))

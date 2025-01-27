@@ -59,6 +59,15 @@ impl<W: Widget> Widget for Button<W> {
         vec![&self.child]
     }
 
+	fn draw(&self,layout:&dyn Layout, renderer:&mut helium_renderer::Renderer) {
+		renderer.draw([
+			helium_renderer::Rect::new(layout.size().width,layout.size().height)
+				.position(layout.position().x, layout.position().y)
+				.color(self.color)
+				.corner_radius(self.corner_radius as f32)
+		]);
+	}
+
     fn view(&self) -> Box<dyn View> {
         Box::new(
             RectView::new(&self.id)

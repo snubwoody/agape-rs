@@ -176,6 +176,24 @@ impl Widget for Image {
         Box::new(self.layout.clone())
     }
 
+	fn draw(&self,layout:&dyn crystal::Layout,renderer:&mut helium_renderer::Renderer) {
+		match &self.state {
+            ImageState::Complete(image) => {
+				renderer.draw([
+					helium_renderer::Image::new(image.clone())
+						.position(layout.position().x, layout.position().y)
+				]);
+			},
+            ImageState::Loading(_) => {
+                renderer.draw([
+					helium_renderer::Rect::default()
+						.position(layout.position().x, layout.position().y)
+				]);
+            }
+        }
+		
+	}
+
     fn view(&self) -> Box<dyn crate::view::View> {
         match &self.state {
             ImageState::Complete(image) => Box::new(ImageView::new(&self.id, image.clone())),

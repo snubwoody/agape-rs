@@ -41,6 +41,14 @@ impl Widget for Circle {
         Box::new(layout)
     }
 
+	fn draw(&self,layout:&dyn Layout, renderer:&mut helium_renderer::Renderer) {
+		renderer.draw([
+			helium_renderer::Circle::new(layout.size().width)
+				.position(layout.position().x, layout.position().y)
+				.color(self.color)
+		]);
+	}
+
     fn view(&self) -> Box<dyn crate::view::View> {
         Box::new(CircleView::new(&self.id).color(self.color))
     }

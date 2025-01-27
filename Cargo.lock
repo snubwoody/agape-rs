@@ -1399,6 +1399,7 @@ dependencies = [
  "env_logger",
  "helium_core",
  "helium_macros",
+ "helium_renderer",
  "image",
  "log",
  "nanoid",
