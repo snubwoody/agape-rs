@@ -1,7 +1,9 @@
 mod circle;
 mod rect;
 mod text;
+mod icon;
 mod image;
+pub use icon::Icon;
 pub use image::Image;
 pub use circle::Circle;
 pub use rect::Rect;
@@ -13,6 +15,7 @@ pub enum Primitive {
     Circle(Circle),
     Text(Text),
     Image(Image),
+    Icon(Icon),
 }
 
 pub trait IntoPrimitive {

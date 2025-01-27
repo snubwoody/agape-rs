@@ -2,10 +2,12 @@ mod circle;
 mod image;
 mod rect;
 mod text;
+mod icon;
 use crate::builders::{BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder};
 pub use circle::CirclePipeline;
 use helium_core::Size;
 pub use image::ImagePipeline;
+pub use icon::IconPipeline;
 pub use rect::RectPipeline;
 pub use text::TextPipeline;
 

@@ -1,6 +1,6 @@
 use helium::{Position, BLACK};
 use helium_renderer::{
-    primitives::{Circle, Image, Rect, Text},
+    primitives::{Circle, Icon, Image, Rect, Text},
     Renderer,
 };
 use winit::{event::WindowEvent, event_loop::EventLoop, window::WindowBuilder};
@@ -29,7 +29,7 @@ async fn main() {
                     renderer.draw([Circle::new(120.0).color(BLACK).position(150.0, 200.0)]);
                     renderer.draw([Text::new("Hello world").position(350.0, 0.0)]);
                     renderer.draw([
-						Image::new(
+						Icon::new(
 							image::load_from_memory(include_bytes!("./temp/legends never die.png"))
 							.unwrap()
 					).position(450.0,150.0)]);

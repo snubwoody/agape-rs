@@ -4,32 +4,32 @@ use crate::{
         BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, TextureBuilder,
         VertexBufferLayoutBuilder,
     },
-    primitives::Image,
+    primitives::Icon,
     vertex::Vertex,
 };
 use helium_core::{color::{TRANSPARENT, WHITE}, Size};
 use std::rc::Rc;
 use wgpu::Extent3d;
 
-pub struct ImagePipeline {
+pub struct IconPipeline {
     pipeline: wgpu::RenderPipeline,
     layout: wgpu::BindGroupLayout,
     global: Rc<GlobalResources>,
 }
 
-impl ImagePipeline {
+impl IconPipeline {
     pub fn new(
         device: &wgpu::Device,
         format: wgpu::TextureFormat,
         global: Rc<GlobalResources>,
     ) -> Self {
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Image Shader Module"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/image.wgsl").into()),
+            label: Some("Icon Shader Module"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/icon.wgsl").into()),
         });
 
         let layout = BindGroupLayoutBuilder::new()
-            .label("Image bind group layout")
+            .label("Icon bind group layout")
             .texture(
                 wgpu::ShaderStages::FRAGMENT,
                 wgpu::TextureSampleType::Float { filterable: true },
@@ -103,30 +103,30 @@ impl ImagePipeline {
 
     pub fn draw(
         &mut self,
-        image: &Image,
+        icon: &Icon,
         queue: &wgpu::Queue,
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
     ) {
         // Rasterize the text
         // Should hopefully replace this library eventually with something glyph based
-        let image_data = image.image.to_rgba8();
+        let image_data = icon.image.to_rgba8();
 
 		let size = Size {
             width: image_data.dimensions().0 as f32,
             height: image_data.dimensions().1 as f32,
         };
 
-        let vertices = Vertex::quad(size, image.position, TRANSPARENT);
+        let vertices = Vertex::quad(size, icon.position, TRANSPARENT);
 
         let vertex_buffer = BufferBuilder::new()
-            .label("Image vertex buffer")
+            .label("Icon vertex buffer")
             .vertex()
             .init(&vertices)
             .build(device);
 
         let texture = TextureBuilder::new()
-            .label("Image texture")
+            .label("Icon texture")
             .size(size)
             .dimension(wgpu::TextureDimension::D2)
             .format(wgpu::TextureFormat::Rgba8UnormSrgb)
@@ -137,7 +137,7 @@ impl ImagePipeline {
         let sampler = device.create_sampler(&Default::default());
 
         let bind_group = BindGroupBuilder::new()
-            .label("Image bind group")
+            .label("Icon bind group")
             .texture_view(&texture_view)
             .sampler(&sampler)
             .build(&self.layout, device);
