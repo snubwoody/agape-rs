@@ -1,10 +1,10 @@
-use helium_core::{Position, Size};
+use bytemuck::{Pod, Zeroable};
 use helium_core::color::Color;
-use bytemuck::{Pod,Zeroable};
+use helium_core::{Position, Size};
 
 /// Represents a single vertex
 #[repr(C)]
-#[derive(Debug, Clone, Copy, PartialEq,PartialOrd, Pod, Default,Zeroable)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Pod, Default, Zeroable)]
 pub struct Vertex {
     pub position: [f32; 2],
     pub color: [f32; 4],
@@ -40,7 +40,7 @@ impl Vertex {
     ///
     /// # Example
     /// ```
-	/// use helium_core::{Size,Position,Color};
+    /// use helium_core::{Size,Position,Color};
     /// use helium_renderer::{vertex::Vertex,};
     ///
     /// let size = Size::new(50.0,75.0);
@@ -70,7 +70,7 @@ impl Vertex {
     }
 
     pub fn tri(size: Size, position: Position, color: Color) -> Vec<Self> {
-		// TODO add orientation option
+        // TODO add orientation option
         let color = color.normalize();
         let width = size.width;
         let height = size.height;
@@ -81,6 +81,6 @@ impl Vertex {
         let vertex2 = Vertex::new_with_uv(x + width, y, color, [1.0, 0.0]); // Top right
         let vertex3 = Vertex::new_with_uv(x, y + height, color, [0.0, 1.0]); //Bottom left
 
-        return vec![vertex1, vertex2, vertex3,];
+        return vec![vertex1, vertex2, vertex3];
     }
 }

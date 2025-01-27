@@ -8,7 +8,7 @@ pub enum Error {
 }
 
 impl Error {
-	pub fn resource_not_found(message:&str) -> Self{
-		Self::ResourceNotFound(message.to_string())
-	}
+    pub fn resource_not_found(message: &str) -> Self {
+        Self::ResourceNotFound(message.to_string())
+    }
 }

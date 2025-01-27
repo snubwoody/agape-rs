@@ -1,25 +1,27 @@
-use std::rc::Rc;
 use helium_core::Size;
+use std::rc::Rc;
 
+use super::GlobalResources;
 use crate::{
-    builders::{BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, VertexBufferLayoutBuilder},
+    builders::{
+        BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, VertexBufferLayoutBuilder,
+    },
     primitives::{Circle, Rect},
     vertex::Vertex,
 };
-use super::GlobalResources;
 
 pub struct CirclePipeline {
-	pipeline:wgpu::RenderPipeline,
+    pipeline: wgpu::RenderPipeline,
     rect_layout: wgpu::BindGroupLayout,
-	global:Rc<GlobalResources>
+    global: Rc<GlobalResources>,
 }
 
 impl CirclePipeline {
     pub fn new(
-		device: &wgpu::Device,
-		format:wgpu::TextureFormat,
-		global:Rc<GlobalResources>
-	) -> Self {
+        device: &wgpu::Device,
+        format: wgpu::TextureFormat,
+        global: Rc<GlobalResources>,
+    ) -> Self {
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("Circle Shader Module"),
             source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/circle.wgsl").into()),
@@ -31,12 +33,12 @@ impl CirclePipeline {
             .uniform(wgpu::ShaderStages::FRAGMENT)
             .build(device);
 
-		let vertex_buffer_layout = VertexBufferLayoutBuilder::new()
-			.array_stride(size_of::<Vertex>() as u64)
-			.attribute(0, wgpu::VertexFormat::Float32x2)
-			.attribute(size_of::<[f32;2]>() as u64, wgpu::VertexFormat::Float32x4)
-			.attribute(size_of::<[f32;6]>() as u64, wgpu::VertexFormat::Float32x2)
-			.build();
+        let vertex_buffer_layout = VertexBufferLayoutBuilder::new()
+            .array_stride(size_of::<Vertex>() as u64)
+            .attribute(0, wgpu::VertexFormat::Float32x2)
+            .attribute(size_of::<[f32; 2]>() as u64, wgpu::VertexFormat::Float32x4)
+            .attribute(size_of::<[f32; 6]>() as u64, wgpu::VertexFormat::Float32x2)
+            .build();
 
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("Circle Pipeline Layout"),
@@ -44,7 +46,7 @@ impl CirclePipeline {
             push_constant_ranges: &[],
         });
 
-		// TODO create a builder for this
+        // TODO create a builder for this
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("Circle Render Pipeline"),
             layout: Some(&pipeline_layout),
@@ -83,19 +85,14 @@ impl CirclePipeline {
             cache: None,
         });
 
-		Self{
-			pipeline,
-			rect_layout,
-			global,
-		}
+        Self {
+            pipeline,
+            rect_layout,
+            global,
+        }
     }
 
-    pub fn draw(
-		&mut self,
-		circle: &Circle,
-		device: &wgpu::Device, 
-		pass: &mut wgpu::RenderPass, 
-	) {
+    pub fn draw(&mut self, circle: &Circle, device: &wgpu::Device, pass: &mut wgpu::RenderPass) {
         let vertices = Vertex::quad(Size::unit(circle.diameter), circle.position, circle.color);
 
         let vertex_buffer = BufferBuilder::new()
@@ -117,7 +114,6 @@ impl CirclePipeline {
             .copy_dst()
             .init(&[circle.position])
             .build(device);
-
 
         let rect_bind_group = BindGroupBuilder::new()
             .label("Rect bind group")

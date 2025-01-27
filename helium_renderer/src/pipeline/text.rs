@@ -1,28 +1,31 @@
-use std::{io::Cursor, rc::Rc};
 use cosmic_text::{Attrs, FontSystem, Metrics, Shaping, SwashCache};
 use helium_core::Size;
+use std::{io::Cursor, rc::Rc};
 use wgpu::Extent3d;
 
+use super::GlobalResources;
 use crate::{
-    builders::{BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, TextureBuilder, VertexBufferLayoutBuilder},
+    builders::{
+        BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, TextureBuilder,
+        VertexBufferLayoutBuilder,
+    },
     primitives::{Rect, Text},
     vertex::Vertex,
 };
-use super::GlobalResources;
 
 // TODO replace text_to_png
 pub struct TextPipeline {
-	pipeline:wgpu::RenderPipeline,
+    pipeline: wgpu::RenderPipeline,
     rect_layout: wgpu::BindGroupLayout,
-	global:Rc<GlobalResources>
+    global: Rc<GlobalResources>,
 }
 
 impl TextPipeline {
     pub fn new(
-		device: &wgpu::Device,
-		format:wgpu::TextureFormat,
-		global:Rc<GlobalResources>
-	) -> Self {
+        device: &wgpu::Device,
+        format: wgpu::TextureFormat,
+        global: Rc<GlobalResources>,
+    ) -> Self {
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("Text Shader Module"),
             source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/text.wgsl").into()),
@@ -30,29 +33,32 @@ impl TextPipeline {
 
         let rect_layout = BindGroupLayoutBuilder::new()
             .label("Text bind group layout")
-			.texture(
-				wgpu::ShaderStages::FRAGMENT, 
-				wgpu::TextureSampleType::Float { filterable: true }, 
-				wgpu::TextureViewDimension::D2, 
-				false
-			)
-			.sampler(wgpu::ShaderStages::FRAGMENT, wgpu::SamplerBindingType::Filtering)
+            .texture(
+                wgpu::ShaderStages::FRAGMENT,
+                wgpu::TextureSampleType::Float { filterable: true },
+                wgpu::TextureViewDimension::D2,
+                false,
+            )
+            .sampler(
+                wgpu::ShaderStages::FRAGMENT,
+                wgpu::SamplerBindingType::Filtering,
+            )
             .build(device);
 
-		let vertex_buffer_layout = VertexBufferLayoutBuilder::new()
-			.array_stride(size_of::<Vertex>() as u64)
-			.attribute(0, wgpu::VertexFormat::Float32x2)
-			.attribute(size_of::<[f32;2]>() as u64, wgpu::VertexFormat::Float32x4)
-			.attribute(size_of::<[f32;6]>() as u64, wgpu::VertexFormat::Float32x2)
-			.build();
+        let vertex_buffer_layout = VertexBufferLayoutBuilder::new()
+            .array_stride(size_of::<Vertex>() as u64)
+            .attribute(0, wgpu::VertexFormat::Float32x2)
+            .attribute(size_of::<[f32; 2]>() as u64, wgpu::VertexFormat::Float32x4)
+            .attribute(size_of::<[f32; 6]>() as u64, wgpu::VertexFormat::Float32x2)
+            .build();
 
-		let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-			label: Some("Text Pipeline Layout"),
-			bind_group_layouts: &[global.window_layout(), &rect_layout],
-			push_constant_ranges: &[],
-		});
+        let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+            label: Some("Text Pipeline Layout"),
+            bind_group_layouts: &[global.window_layout(), &rect_layout],
+            push_constant_ranges: &[],
+        });
 
-		// TODO create a builder for this
+        // TODO create a builder for this
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("Text Render Pipeline"),
             layout: Some(&pipeline_layout),
@@ -91,21 +97,21 @@ impl TextPipeline {
             cache: None,
         });
 
-		Self{
-			pipeline,
-			rect_layout,
-			global,
-		}
+        Self {
+            pipeline,
+            rect_layout,
+            global,
+        }
     }
 
     pub fn draw(
-		&mut self,
-		text: &Text,
-		queue: &wgpu::Queue, 
-		device: &wgpu::Device, 
-		pass: &mut wgpu::RenderPass, 
-	) {
-		let text_renderer = text_to_png::TextRenderer::default();
+        &mut self,
+        text: &Text,
+        queue: &wgpu::Queue,
+        device: &wgpu::Device,
+        pass: &mut wgpu::RenderPass,
+    ) {
+        let text_renderer = text_to_png::TextRenderer::default();
 
         // Rasterize the text
         // Should hopefully replace this library eventually with something glyph based
@@ -117,15 +123,15 @@ impl TextPipeline {
             )
             .unwrap();
 
-		// FIXME return these errors
+        // FIXME return these errors
         let image = image::load(Cursor::new(text_image.data), image::ImageFormat::Png)
             .unwrap()
             .to_rgba8();
 
-		let size = Size{
-			width:text_image.size.width as f32,
-			height:text_image.size.height as f32,
-		};
+        let size = Size {
+            width: text_image.size.width as f32,
+            height: text_image.size.height as f32,
+        };
         let vertices = Vertex::quad(size, text.position, text.color);
 
         let vertex_buffer = BufferBuilder::new()
@@ -133,45 +139,45 @@ impl TextPipeline {
             .vertex()
             .init(&vertices)
             .build(device);
-		
-		let texture = TextureBuilder::new()
-			.label("Text texture")
-			.size(size)
-			.dimension(wgpu::TextureDimension::D2)
-			.format(wgpu::TextureFormat::Rgba8UnormSrgb)
-			.usage(wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST)
-			.build(device);
 
-		let texture_view = texture.create_view(&Default::default());
-		let sampler = device.create_sampler(&Default::default());
+        let texture = TextureBuilder::new()
+            .label("Text texture")
+            .size(size)
+            .dimension(wgpu::TextureDimension::D2)
+            .format(wgpu::TextureFormat::Rgba8UnormSrgb)
+            .usage(wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST)
+            .build(device);
+
+        let texture_view = texture.create_view(&Default::default());
+        let sampler = device.create_sampler(&Default::default());
 
         let bind_group = BindGroupBuilder::new()
             .label("Text bind group")
-			.texture_view(&texture_view)
-			.sampler(&sampler)
+            .texture_view(&texture_view)
+            .sampler(&sampler)
             .build(&self.rect_layout, device);
 
-		let size = Extent3d{
-			width:size.width as u32,
-			height:size.height as u32,
-			depth_or_array_layers:1
-		};
+        let size = Extent3d {
+            width: size.width as u32,
+            height: size.height as u32,
+            depth_or_array_layers: 1,
+        };
 
-		queue.write_texture(
-			wgpu::ImageCopyTextureBase {
+        queue.write_texture(
+            wgpu::ImageCopyTextureBase {
                 texture: &texture,
                 mip_level: 0,
                 origin: wgpu::Origin3d::ZERO,
                 aspect: wgpu::TextureAspect::All,
             },
-			&image, 
-			wgpu::ImageDataLayout {
+            &image,
+            wgpu::ImageDataLayout {
                 offset: 0,
                 bytes_per_row: Some(4 * size.width as u32),
                 rows_per_image: Some(size.height as u32),
             },
-			size
-		);
+            size,
+        );
 
         pass.set_pipeline(&self.pipeline);
         pass.set_bind_group(0, self.global.window_bind_group(), &[]);

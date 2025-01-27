@@ -1,26 +1,25 @@
 mod builders;
-mod vertex;
-mod pipeline;
 mod error;
+mod pipeline;
 pub mod primitives;
+mod vertex;
 pub use error::Error;
-use std::rc::Rc;
 use helium_core::Size;
 use pipeline::{CirclePipeline, GlobalResources, RectPipeline, TextPipeline};
 use primitives::{IntoPrimitive, Primitive};
+use std::rc::Rc;
 use winit::window::Window;
-
 
 pub struct Renderer<'r> {
     surface: wgpu::Surface<'r>,
     device: wgpu::Device,
     queue: wgpu::Queue,
     config: wgpu::SurfaceConfiguration,
-	global:Rc<GlobalResources>,
-	rect_pipeline:RectPipeline,
-	circle_pipeline:CirclePipeline,
-	text_pipeline:TextPipeline,
-	draw_queue:Vec<Primitive>
+    global: Rc<GlobalResources>,
+    rect_pipeline: RectPipeline,
+    circle_pipeline: CirclePipeline,
+    text_pipeline: TextPipeline,
+    draw_queue: Vec<Primitive>,
 }
 
 impl<'r> Renderer<'r> {
@@ -75,113 +74,118 @@ impl<'r> Renderer<'r> {
 
         surface.configure(&device, &config);
 
-		let global = Rc::new(GlobalResources::new(&device, Size::from(window.inner_size())));
-		let rect_pipeline = RectPipeline::new(&device,config.format,Rc::clone(&global));
-		let circle_pipeline = CirclePipeline::new(&device,config.format,Rc::clone(&global));
-		let text_pipeline = TextPipeline::new(&device,config.format,Rc::clone(&global));
-        
-		Self {
+        let global = Rc::new(GlobalResources::new(
+            &device,
+            Size::from(window.inner_size()),
+        ));
+        let rect_pipeline = RectPipeline::new(&device, config.format, Rc::clone(&global));
+        let circle_pipeline = CirclePipeline::new(&device, config.format, Rc::clone(&global));
+        let text_pipeline = TextPipeline::new(&device, config.format, Rc::clone(&global));
+
+        Self {
             surface,
             device,
             queue,
             config,
-			rect_pipeline,
-			circle_pipeline,
-			text_pipeline,
-			global,
-			draw_queue:vec![]
+            rect_pipeline,
+            circle_pipeline,
+            text_pipeline,
+            global,
+            draw_queue: vec![],
         }
     }
 
     pub fn resize(&mut self, size: Size) {
         self.config.width = size.width as u32;
         self.config.height = size.height as u32;
-        
-		// Resize the surface with the window to keep the right scale
-		self.queue.write_buffer(
-			self.global.window_buffer(), 0, bytemuck::cast_slice(&[size])
-		);
-		self.surface.configure(&self.device, &self.config);
+
+        // Resize the surface with the window to keep the right scale
+        self.queue.write_buffer(
+            self.global.window_buffer(),
+            0,
+            bytemuck::cast_slice(&[size]),
+        );
+        self.surface.configure(&self.device, &self.config);
     }
 
-	/// Add primitives to the draw queue
-	pub fn draw<I,P>(&mut self,primitives:I)
-	where 
-		I:IntoIterator<Item = P>,
-		P:IntoPrimitive
-	{
-		self.draw_queue.extend(
-			primitives.into_iter().map(|p|p.into_primitive())
-		);
-	}
+    /// Add primitives to the draw queue
+    pub fn draw<I, P>(&mut self, primitives: I)
+    where
+        I: IntoIterator<Item = P>,
+        P: IntoPrimitive,
+    {
+        self.draw_queue
+            .extend(primitives.into_iter().map(|p| p.into_primitive()));
+    }
 
-	/// TODO Change to present then add primitive queue?
-	pub fn render(&mut self){
-		let instant = std::time::Instant::now();
-		
-		let output = self.surface.get_current_texture().unwrap(); // TODO maybe handle this error
-		let view = output
-			.texture
-			.create_view(&wgpu::TextureViewDescriptor::default());
+    /// TODO Change to present then add primitive queue?
+    pub fn render(&mut self) {
+        let instant = std::time::Instant::now();
 
-		let mut encoder = self
-			.device
-			.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-				label: Some("Render encoder"),
-			});
+        let output = self.surface.get_current_texture().unwrap(); // TODO maybe handle this error
+        let view = output
+            .texture
+            .create_view(&wgpu::TextureViewDescriptor::default());
 
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("Render encoder"),
+            });
 
-		let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-			label: Some("Render Pass"),
-			color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-				view: &view,
-				resolve_target: None,
-				ops: wgpu::Operations {
-					load: wgpu::LoadOp::Clear(wgpu::Color {
-						r: 1.0,
-						g: 1.0,
-						b: 1.0,
-						a: 1.0,
-					}),
-					store: wgpu::StoreOp::Store,
-				},
-			})],
-			depth_stencil_attachment: None,
-			occlusion_query_set: None,
-			timestamp_writes: None,
-		});
+        let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: Some("Render Pass"),
+            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                view: &view,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(wgpu::Color {
+                        r: 1.0,
+                        g: 1.0,
+                        b: 1.0,
+                        a: 1.0,
+                    }),
+                    store: wgpu::StoreOp::Store,
+                },
+            })],
+            depth_stencil_attachment: None,
+            occlusion_query_set: None,
+            timestamp_writes: None,
+        });
 
-		for primitive in self.draw_queue.drain(..){
-			match primitive {
-				Primitive::Rect(rect) => {
-					self.rect_pipeline.draw(&rect, &self.device, &mut render_pass);
-				},
-				Primitive::Circle(circle) => {
-					self.circle_pipeline.draw(&circle, &self.device, &mut render_pass);
-				},
-				Primitive::Text(text) => {
-					self.text_pipeline.draw(&text,&self.queue, &self.device, &mut render_pass);
-				},
-			}
-		}
-		
-		// Drop the render pass because it borrows encoder mutably
-		std::mem::drop(render_pass);
+        for primitive in self.draw_queue.drain(..) {
+            match primitive {
+                Primitive::Rect(rect) => {
+                    self.rect_pipeline
+                        .draw(&rect, &self.device, &mut render_pass);
+                }
+                Primitive::Circle(circle) => {
+                    self.circle_pipeline
+                        .draw(&circle, &self.device, &mut render_pass);
+                }
+                Primitive::Text(text) => {
+                    self.text_pipeline
+                        .draw(&text, &self.queue, &self.device, &mut render_pass);
+                }
+            }
+        }
 
-		self.queue.submit(std::iter::once(encoder.finish()));
-		output.present();
-		
-		//log::trace!("Frame time: {:?}",instant.elapsed());
-	}
+        // Drop the render pass because it borrows encoder mutably
+        std::mem::drop(render_pass);
 
+        self.queue.submit(std::iter::once(encoder.finish()));
+        output.present();
+
+        //log::trace!("Frame time: {:?}",instant.elapsed());
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-	#[test]
-	fn create_renderer(){
-		todo!()
-	}
+    #[test]
+    fn create_renderer() {
+        todo!()
+    }
 }

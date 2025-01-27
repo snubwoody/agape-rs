@@ -1,18 +1,18 @@
 use crate::size::Size;
-use std::ops::{AddAssign, SubAssign};
 use bytemuck::{Pod, Zeroable};
+use std::ops::{AddAssign, SubAssign};
 use winit::dpi::PhysicalPosition;
 
 /// Represents the position of any structure
-/// 
+///
 /// You can add and subtract `Positions`'s to and from each other
 /// ```
 /// use helium_core::Position;
-/// 
+///
 /// let mut position = Position::new(200.0,200.0);
 /// position -= Position::unit(50.0);
 /// assert_eq!(position.x,150.0);
-/// 
+///
 /// position += Position::unit(120.0);
 /// assert_eq!(position.y,270.0);
 /// ```
@@ -20,17 +20,17 @@ use winit::dpi::PhysicalPosition;
 /// You can also add and subtract arbitrary values to and from `Position`'s
 /// ```
 /// use helium_core::Position;
-/// 
+///
 /// let mut position = Position::new(200.0,200.0);
 /// position += 55.0;
 /// assert_eq!(position.x,255.0);
-/// 
+///
 /// position -= 25.0;
 /// assert_eq!(position.y,230.0);
 /// ```
-/// 
+///
 #[repr(C)]
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Default,Pod,Zeroable)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Default, Pod, Zeroable)]
 pub struct Position {
     pub x: f32,
     pub y: f32,
@@ -62,21 +62,21 @@ impl Position {
         self.y = y;
     }
 
-	/// Creates a [`Position`] where both the x and y are
-	/// a single value.
-	/// 
-	/// # Example
-	/// ```
-	/// use helium_core::Position;
-	/// 
-	/// let position = Position::unit(500.0);
-	/// 
-	/// assert_eq!(position.x,position.y);
-	/// assert_eq!(position.x,500.0);
-	/// ```
-	pub fn unit(value:f32) -> Self{
-		Self{ x: value, y: value }
-	}
+    /// Creates a [`Position`] where both the x and y are
+    /// a single value.
+    ///
+    /// # Example
+    /// ```
+    /// use helium_core::Position;
+    ///
+    /// let position = Position::unit(500.0);
+    ///
+    /// assert_eq!(position.x,position.y);
+    /// assert_eq!(position.x,500.0);
+    /// ```
+    pub fn unit(value: f32) -> Self {
+        Self { x: value, y: value }
+    }
 }
 
 impl AddAssign<Position> for Position {
