@@ -1,4 +1,4 @@
-use crate::{impl_style, impl_widget, view::RectView, widgets::Widget, Color};
+use crate::{impl_style, impl_widget, widgets::Widget, Color};
 use crystal::{AxisAlignment, Layout, VerticalLayout};
 use helium_core::color::TRANSPARENT;
 use helium_renderer::Rect;
@@ -133,14 +133,6 @@ impl Widget for VStack {
         };
 
         Box::new(layout)
-    }
-
-    fn view(&self) -> Box<dyn crate::view::View> {
-        Box::new(
-            RectView::new(&self.id)
-                .color(self.color)
-                .corner_radius(self.corner_radius),
-        )
     }
 
 	fn draw(&self,layout:&dyn crystal::Layout,renderer:&mut helium_renderer::Renderer) {

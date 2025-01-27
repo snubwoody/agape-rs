@@ -4,10 +4,7 @@ pub mod app;
 pub mod colors;
 pub mod error;
 pub mod events;
-pub mod geometry;
 pub mod page;
-mod resources;
-pub mod view;
 pub mod widgets;
 
 pub use app::App;

@@ -24,7 +24,6 @@ pub use spacer::*;
 pub use text::*;
 pub use text_field::*;
 pub use vstack::*;
-
 use crate::events::Element;
 
 /// The trait that all widgets must implement. Each `widget` must implement the build function
@@ -37,9 +36,6 @@ pub trait Widget: WidgetIterator {
 
     /// Get the `id` of the [`Widget`]
     fn id(&self) -> &str;
-
-    /// Get the [`Widget`]'s [`View`].
-    fn view(&self) -> Box<dyn crate::view::View>;
 
     /// Get a [`Widget`] from the widget tree by it's `id`
     fn get(&self, id: &str) -> Option<&dyn Widget> {

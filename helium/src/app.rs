@@ -1,5 +1,5 @@
 use crate::page::Page;
-use crate::{geometry::RenderContext, Size};
+use crate::Size;
 use helium_renderer::Renderer;
 use winit::{
     dpi::PhysicalSize,
@@ -48,9 +48,7 @@ impl App {
 
     // FIXME app panics if there are no views
     pub fn run(mut self) -> Result<(), crate::Error> {
-        let mut state = async_std::task::block_on(AppState::new(&self.window));
         self.window.set_visible(true);
-        self.pages[0].build(&state)?;
 
 		let mut renderer = async_std::task::block_on(Renderer::new(&self.window));
 
@@ -63,11 +61,11 @@ impl App {
 						renderer.render();
 					}
                     WindowEvent::Resized(size) => {
-                        state.resize(size);
-                        // FIXME handle this error
-                        //let _ = self.pages[self.index].resize(&state);
+                        self.pages[self.index].resize(Size::from(size));
 						renderer.resize(size.into());
-                        self.window.request_redraw();
+
+						// I think resizing already causes a redraw request but i'm not sure
+                        self.window.request_redraw(); 
                     }
                     event => self.pages[self.index].handle(&event),
                 },
@@ -77,124 +75,5 @@ impl App {
         // TODO return this error
 
         Ok(())
-    }
-}
-
-pub struct AppState<'a> {
-    pub surface: wgpu::Surface<'a>,
-    pub device: wgpu::Device,
-    pub queue: wgpu::Queue,
-    pub context: RenderContext,
-    pub config: wgpu::SurfaceConfiguration,
-    pub size: Size,
-}
-
-impl<'a> AppState<'a> {
-    pub async fn new(window: &'a Window) -> Self {
-        let size = window.inner_size().into();
-
-        // Handle to wpgu for creating a surface and an adapter
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
-            backends: wgpu::Backends::PRIMARY,
-            ..Default::default()
-        });
-
-        // Create the surface to draw on
-        let surface = instance.create_surface(window).unwrap();
-
-        // Handle to the graphics card
-        let adapter = instance
-            .request_adapter(&wgpu::RequestAdapterOptions {
-                power_preference: Default::default(),
-                compatible_surface: Some(&surface),
-                force_fallback_adapter: false,
-            })
-            .await
-            .unwrap();
-
-        // The device is an open connection to the graphics
-        // card and the queue is a command buffer
-        let (device, queue) = adapter
-            .request_device(
-                &wgpu::DeviceDescriptor {
-                    label: Some("Device/Queue"),
-                    required_features: wgpu::Features::empty(),
-                    ..Default::default()
-                },
-                None,
-            )
-            .await
-            .unwrap();
-
-        let surface_caps = surface.get_capabilities(&adapter);
-
-        // Get an sRGB texture format
-        let surface_format = surface_caps
-            .formats
-            .iter()
-            .find(|s| s.is_srgb())
-            .copied()
-            .unwrap_or(surface_caps.formats[0]);
-
-        // The surface configuration
-        let config = wgpu::SurfaceConfiguration {
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
-            format: surface_format,
-            width: window.inner_size().width,
-            height: window.inner_size().height,
-            present_mode: surface_caps.present_modes[0],
-            alpha_mode: surface_caps.alpha_modes[0],
-            view_formats: vec![],
-            desired_maximum_frame_latency: 2,
-        };
-
-        // Configure the surface for presentation
-        surface.configure(&device, &config);
-
-        let context = RenderContext::new(&device, &config, &size);
-
-        Self {
-            surface,
-            device,
-            queue,
-            context,
-            config,
-            size,
-        }
-    }
-
-    pub fn resize(&mut self, size: PhysicalSize<u32>) {
-        self.size = size.into();
-        self.config.width = size.width;
-        self.config.height = size.height;
-        // Resize the surface with the window to keep the right scale
-        self.surface.configure(&self.device, &self.config);
-
-        //TODO maybe add a global uniform instead
-        self.queue.write_buffer(
-            &self.context.rect_pipeline.window_buffer,
-            0,
-            bytemuck::cast_slice(&[self.size.width, self.size.height]),
-        );
-        self.queue.write_buffer(
-            &self.context.text_pipeline.window_buffer,
-            0,
-            bytemuck::cast_slice(&[self.size.width, self.size.height]),
-        );
-        self.queue.write_buffer(
-            &self.context.circle_pipeline.window_uniform.buffer(),
-            0,
-            bytemuck::cast_slice(&[self.size.width, self.size.height]),
-        );
-        self.queue.write_buffer(
-            &self.context.image_pipeline.window_buffer,
-            0,
-            bytemuck::cast_slice(&[self.size.width, self.size.height]),
-        );
-        self.queue.write_buffer(
-            &self.context.icon_pipeline.window_buffer,
-            0,
-            bytemuck::cast_slice(&[self.size.width, self.size.height]),
-        );
     }
 }

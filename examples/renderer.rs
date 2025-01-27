@@ -1,6 +1,5 @@
 use helium::{Position, BLACK};
-use helium_renderer::{
-    primitives::{Circle, Icon, Image, Rect, Text},
+use helium_renderer::{Circle, Icon, Image, Rect, Text,
     Renderer,
 };
 use winit::{event::WindowEvent, event_loop::EventLoop, window::WindowBuilder};

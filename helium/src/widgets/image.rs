@@ -1,10 +1,6 @@
 use super::Widget;
-use crate::{
-    impl_widget,
-    view::{ImageView, RectView},
-};
+use crate::impl_widget;
 use crystal::{BoxSizing, EmptyLayout};
-use helium_core::color::BLUE;
 use image::{GenericImageView, ImageReader};
 use resvg::tiny_skia::Pixmap;
 
@@ -193,13 +189,4 @@ impl Widget for Image {
         }
 		
 	}
-
-    fn view(&self) -> Box<dyn crate::view::View> {
-        match &self.state {
-            ImageState::Complete(image) => Box::new(ImageView::new(&self.id, image.clone())),
-            ImageState::Loading(_) => {
-                Box::new(RectView::new(&self.id).color(BLUE).corner_radius(12))
-            }
-        }
-    }
 }

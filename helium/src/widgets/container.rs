@@ -1,4 +1,4 @@
-use crate::{impl_style, view::RectView, widgets::Widget};
+use crate::{impl_style, widgets::Widget};
 use crystal::{BlockLayout, Layout};
 use helium_core::color::Color;
 use nanoid::nanoid;
@@ -57,14 +57,6 @@ where
         layout.id = self.id.clone();
         layout.padding = self.padding;
         Box::new(layout)
-    }
-
-    fn view(&self) -> Box<dyn crate::view::View> {
-        Box::new(
-            RectView::new(&self.id)
-                .color(self.color)
-                .corner_radius(self.corner_radius),
-        )
     }
 
 	fn draw(&self,layout:&dyn Layout, renderer:&mut helium_renderer::Renderer) {

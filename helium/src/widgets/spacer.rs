@@ -1,5 +1,4 @@
 use super::Widget;
-use crate::view::RectView;
 use crystal::{BoxSizing, EmptyLayout};
 use helium_renderer::Rect;
 
@@ -41,8 +40,4 @@ impl Widget for Spacer {
 				.position(layout.position().x, layout.position().y)
 		]);
 	}
-
-    fn view(&self) -> Box<dyn crate::view::View> {
-        Box::new(RectView::new(&self.id))
-    }
 }

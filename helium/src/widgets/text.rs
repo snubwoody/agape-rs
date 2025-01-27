@@ -1,5 +1,4 @@
 use super::Widget;
-use crate::view::TextView;
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::color::Color;
 
@@ -91,12 +90,4 @@ impl Widget for Text {
 				.color(self.color)
 		]);
 	}
-
-    fn view(&self) -> Box<dyn crate::view::View> {
-        Box::new(
-            TextView::new(&self.id, &self.text)
-                .font_size(self.font_size)
-                .color(self.color),
-        )
-    }
 }

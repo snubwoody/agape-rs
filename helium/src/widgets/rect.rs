@@ -1,6 +1,7 @@
 use super::Widget;
 use crate::{
-    colors::tailwind_colors::RED300, events::{EventContext, EventFn}, view::RectView, Color
+    events::{EventContext, EventFn},
+	Color
 };
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use helium_core::color::WHITE;
@@ -104,12 +105,4 @@ impl Widget for Rect {
 				.color(self.color)
 		]);
 	}
-
-    fn view(&self) -> Box<dyn crate::view::View> {
-        Box::new(
-            RectView::new(&self.id)
-                .color(self.color)
-                .corner_radius(self.corner_radius),
-        )
-    }
 }

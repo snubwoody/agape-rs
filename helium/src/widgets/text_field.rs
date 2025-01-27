@@ -2,7 +2,6 @@ use super::{Text, Widget};
 use crate::{
     colors::tailwind_colors::{BLUE100, GRAY100, GREEN100, RED100},
     events::Element,
-    view::RectView,
 };
 use crystal::BlockLayout;
 use helium_core::color::{Color, INDIGO};
@@ -64,8 +63,4 @@ impl Widget for TextField {
 				.color(self.background_color)
 		]);
 	}
-
-    fn view(&self) -> Box<dyn crate::view::View> {
-        Box::new(RectView::new(&self.id).color(self.background_color))
-    }
 }
