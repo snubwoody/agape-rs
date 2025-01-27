@@ -2,7 +2,6 @@ use std::{io::Cursor, rc::Rc};
 use cosmic_text::{Attrs, FontSystem, Metrics, Shaping, SwashCache};
 use helium_core::Size;
 use wgpu::Extent3d;
-
 use crate::{
     builders::{BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, TextureBuilder, VertexBufferLayoutBuilder},
     primitives::{Rect, Text},
@@ -11,13 +10,13 @@ use crate::{
 use super::GlobalResources;
 
 // TODO replace text_to_png
-pub struct TextPipeline {
+pub struct ImagePipeline {
 	pipeline:wgpu::RenderPipeline,
     rect_layout: wgpu::BindGroupLayout,
 	global:Rc<GlobalResources>
 }
 
-impl TextPipeline {
+impl ImagePipeline {
     pub fn new(
 		device: &wgpu::Device,
 		format:wgpu::TextureFormat,
