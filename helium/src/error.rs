@@ -1,8 +1,8 @@
 use thiserror::Error;
 
-#[derive(Debug, Clone, Error, PartialEq, Eq)]
+#[derive(Debug,Error)]
 pub enum Error {
-    /// A resource was not found at it's expected location.  
-    #[error("{0} was not found")]
-    NotFound(String),
+	/* Third party wrappers */
+	#[error(transparent)]
+	EventLoopError(#[from] winit::error::EventLoopError)
 }

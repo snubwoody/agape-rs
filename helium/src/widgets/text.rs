@@ -72,7 +72,7 @@ impl Widget for Text {
         // Render the text as a png to get the size
         let text_image = text_renderer
             .render_text_to_png_data(self.text.clone(), self.font_size, "#000000")
-            .unwrap();
+            .unwrap(); // FIXME don't unwrap 
 
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size.width = BoxSizing::Fixed(text_image.size.width as f32);

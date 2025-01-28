@@ -1,4 +1,6 @@
-use helium_renderer::Renderer;
+use std::time::{Duration, Instant};
+
+use helium_renderer::{Renderer, Text};
 use winit::{
     event::{KeyEvent, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
@@ -23,9 +25,6 @@ impl App {
     pub fn new() -> Self {
         // FIXME handle the errors
         let event_loop = EventLoop::new().unwrap();
-
-        // Set the event loop to always start a new
-        // iteration even if there are no events.
         event_loop.set_control_flow(ControlFlow::Poll);
 
         let window = WindowBuilder::new()
@@ -52,34 +51,45 @@ impl App {
         self.window.set_visible(true);
 
 		let mut renderer = async_std::task::block_on(Renderer::new(&self.window));
+		log::info!("Running app");
+
+		// Not quite sure how accurate this is
+		let mut previous_duration = Duration::new(0, 0);
+		let mut size = Size::from(self.window.inner_size());
 
         self.event_loop
-            .run(|event, window_target| match event {
-                winit::event::Event::WindowEvent { event, .. } => match event {
-                    WindowEvent::CloseRequested => window_target.exit(),
-                    WindowEvent::RedrawRequested => {
-						self.pages[0].draw(&mut renderer);
+            .run(|event, window_target|{ 
+				let instant = Instant::now();
+				match event {
+				winit::event::Event::WindowEvent { event, .. } => match event {
+					WindowEvent::CloseRequested => window_target.exit(),
+					WindowEvent::RedrawRequested => {
+						self.pages[0].draw(&mut renderer,size);
+						renderer.draw([
+							Text::new(format!("{:?}",previous_duration).as_str())
+						]);
 						renderer.render();
 					}
-                    WindowEvent::Resized(size) => {
-                        self.pages[self.index].resize(Size::from(size));
-						renderer.resize(size.into());
-
+					WindowEvent::Resized(window_size) => {
+						size = window_size.into();
+						self.pages[self.index].resize(Size::from(window_size));
+						renderer.resize(window_size.into());
 						// I think resizing already causes a redraw request but i'm not sure
-                        self.window.request_redraw(); 
-                    },
+						self.window.request_redraw(); 
+					},
 					WindowEvent::KeyboardInput { event,..  } => {
 						self.pages[self.index].process_key(&event);
+						self.window.request_redraw();
 					}
-                    event => {
+					event => {
 						self.pages[self.index].handle(&event);
 						self.window.request_redraw();
 					},
-                },
-                _ => {}
-            })
-            .expect("Event loop error occured");
-        // TODO return this error
+				},
+				_ => {}
+            	}
+				previous_duration = instant.elapsed();
+		})?;
 
         Ok(())
     }
@@ -113,9 +123,12 @@ impl Page {
 		self.widget.process_key(&key_event.logical_key);
 	}	
 
-	pub fn draw(&self, renderer:&mut Renderer){
+	pub fn draw(&self, renderer:&mut Renderer,size:Size){
+		let mut layout = self.widget.layout();
+		LayoutSolver::solve(&mut *layout, size);
+
 		self.widget.iter().for_each(|w|{
-			if let Some(layout) = self.layout.get(w.id()){
+			if let Some(layout) = layout.get(w.id()){
 				// TODO add an error or similar here; every widget should have a layout
 				w.draw(layout,renderer); 
 			}else {

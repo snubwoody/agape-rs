@@ -10,9 +10,11 @@ fn main() {
         InputField("Email"),
         InputField("Password"),
         Text::new("Forgot password"),
-        Button::new(Text::new("Hello world"))
-            .color(hex!("#000000")),
-        TextField::new(),
+        Button::new(Text::new("Sign in"))
+            .color(tailwind_colors::NEUTRAL200)
+			.corner_radius(12),
+        TextField::new()
+			.background_color(tailwind_colors::NEUTRAL200),
     }
     .spacing(24)
     .fill()
