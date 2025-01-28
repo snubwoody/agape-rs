@@ -62,9 +62,18 @@ impl Widget for TextField {
 				match named_key {
 					winit::keyboard::NamedKey::Backspace => {
 						if let Some(text) = &mut self.text {
+							if text.text.len() == 1{
+								self.text = None;
+								return;
+							}
 							text.text.pop(); // FIXME panics
 						};
 					},
+					winit::keyboard::NamedKey::Space => {
+						if let Some(text) = &mut self.text {
+							text.text.push_str(" ");
+						};
+					}
 					_ => {}
 				}
 			},
@@ -96,9 +105,9 @@ impl Widget for TextField {
 	}
 
 	fn draw(&self,layout:&dyn crystal::Layout,renderer:&mut helium_renderer::Renderer) {
+		
 		renderer.draw([ // TODO impl From<Layout>
-			Rect::new(layout.size().width, layout.size().height)
-				.position(layout.position().x, layout.position().y)
+			Rect::from(layout)
 				.color(self.background_color)
 				.corner_radius(self.corner_radius as f32)
 		]);

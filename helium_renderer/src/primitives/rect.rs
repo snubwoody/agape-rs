@@ -45,3 +45,13 @@ impl IntoPrimitive for Rect {
         Primitive::Rect(self)
     }
 }
+
+impl From<&dyn crystal::Layout> for Rect {
+	fn from(layout: &dyn crystal::Layout) -> Self {
+		let size = layout.size(); 
+		let position = layout.position(); 
+		
+		Self::new(size.width, size.height)
+			.position(position.x, position.y)
+	}
+}
