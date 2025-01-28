@@ -139,6 +139,10 @@ impl Widget for HStack {
 		]);
 	}
 
+	fn process_key(&mut self,key:&winit::keyboard::Key) {
+		self.children.iter_mut().for_each(|w|w.process_key(key))
+	}
+
     fn children(&self) -> Vec<&dyn Widget> {
         self.children
             .iter()

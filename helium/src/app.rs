@@ -1,12 +1,13 @@
-use crate::page::Page;
-use crate::Size;
 use helium_renderer::Renderer;
 use winit::{
-    dpi::PhysicalSize,
-    event::WindowEvent,
+    event::{KeyEvent, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::{Window, WindowBuilder},
 };
+use crate::events::{EventContext, EventManager};
+use crate::widgets::Widget;
+use crystal::{LayoutSolver, Size};
+
 
 /// [`App`]'s contain the whole program and are the point of entry for helium
 /// they are responsible for the overall management of rendering, resources,
@@ -66,7 +67,10 @@ impl App {
 
 						// I think resizing already causes a redraw request but i'm not sure
                         self.window.request_redraw(); 
-                    }
+                    },
+					WindowEvent::KeyboardInput { event,..  } => {
+						self.pages[self.index].process_key(&event);
+					}
                     event => {
 						self.pages[self.index].handle(&event);
 						self.window.request_redraw();
@@ -79,4 +83,44 @@ impl App {
 
         Ok(())
     }
+}
+
+pub struct Page {
+    layout: Box<dyn crystal::Layout>,
+    widget: Box<dyn Widget>,
+    events: EventManager,
+}
+
+impl Page {
+    pub fn new(cx: EventContext, widget: impl Widget + 'static) -> Self {
+        Self {
+            layout: widget.layout(),
+            events: EventManager::new(cx, &*widget.layout()),
+            widget: Box::new(widget),
+        }
+    }
+
+    pub fn handle(&mut self, event: &winit::event::WindowEvent) {
+        self.events.process(event, &*self.layout);
+        self.widget.tick(self.events.elements());
+    }
+	
+    pub fn resize(&mut self, size:Size) {
+        LayoutSolver::solve(&mut *self.layout,size);
+    }
+
+	pub fn process_key(&mut self,key_event:&winit::event::KeyEvent){
+		self.widget.process_key(&key_event.logical_key);
+	}	
+
+	pub fn draw(&self, renderer:&mut Renderer){
+		self.widget.iter().for_each(|w|{
+			if let Some(layout) = self.layout.get(w.id()){
+				// TODO add an error or similar here; every widget should have a layout
+				w.draw(layout,renderer); 
+			}else {
+				log::warn!("Widget has missing Layout")
+			}
+		});
+	}
 }

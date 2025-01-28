@@ -71,4 +71,8 @@ where
     fn children(&self) -> Vec<&dyn Widget> {
         vec![&self.child]
     }
+
+	fn process_key(&mut self,key:&winit::keyboard::Key) {
+		self.child.process_key(key);
+	}
 }

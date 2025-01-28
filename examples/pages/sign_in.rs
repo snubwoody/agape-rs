@@ -1,6 +1,7 @@
 use helium::{colors::tailwind_colors, events::EventContext, hex, vstack, widgets::*, App, Page};
 
 fn main() {
+	env_logger::init();
     let mut cx = EventContext::new();
     // TODO export hstack from widgets
 

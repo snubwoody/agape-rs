@@ -38,16 +38,11 @@ impl Widget for TextField {
     }
 
     fn tick(&mut self, elements: &[Element]) {
-        println!("Hi");
-
-        let colors = [BLUE100, RED100, GRAY100, GREEN100, INDIGO];
-
-        if let Some(&random_color) = colors.choose(&mut thread_rng()) {
-            self.background_color = random_color;
-        }
-		dbg!(self.background_color);
-        self.text.text.push('H');
     }
+
+	fn process_key(&mut self,key:&winit::keyboard::Key) {
+		dbg!(&key);
+	}
 
     fn layout(&self) -> Box<dyn crystal::Layout> {
         let child_layout = self.text.layout();

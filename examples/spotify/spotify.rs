@@ -1,17 +1,16 @@
 #![allow(non_snake_case)]
 use helium::{
-    app::App,
+    App,
     crystal::{AxisAlignment, LayoutSolver},
     events::EventContext,
     hstack,
-    page::Page,
+    Page,
     vstack,
     widgets::*,
     Color, Size, BLACK, WHITE,
 };
 use icon::feather_icons;
 use std::{
-    backtrace::Backtrace,
     env,
     fs::OpenOptions,
     io::{BufWriter, Write},

@@ -117,7 +117,7 @@ impl IconPipeline {
             height: image_data.dimensions().1 as f32,
         };
 
-        let vertices = Vertex::quad(size, icon.position, TRANSPARENT);
+        let vertices = Vertex::quad(size, icon.position, icon.color);
 
         let vertex_buffer = BufferBuilder::new()
             .label("Icon vertex buffer")

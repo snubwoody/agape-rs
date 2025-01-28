@@ -16,7 +16,6 @@ pub use button::*;
 pub use circle::*;
 pub use container::*;
 use crystal::Layout;
-use helium_renderer::Renderer;
 pub use hstack::*;
 pub use image::*;
 pub use rect::*;
@@ -24,11 +23,10 @@ pub use spacer::*;
 pub use text::*;
 pub use text_field::*;
 pub use vstack::*;
+use helium_renderer::Renderer;
 use crate::events::Element;
 
-/// The trait that all widgets must implement. Each `widget` must implement the build function
-/// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about
-/// the widget.
+/// The trait that all widgets must implement.
 pub trait Widget: WidgetIterator {
     /// Build the [`Widget`] into a primitive [`WidgetBody`] for
     /// rendering.
@@ -49,6 +47,10 @@ pub trait Widget: WidgetIterator {
 
     fn tick(&mut self, elements: &[Element]);
 
+	fn process_key(&mut self,key:&winit::keyboard::Key){
+		
+	}
+
 	/// Draw the [`Widget`] to the screen
     fn draw(&self,layout:&dyn Layout,renderer:&mut Renderer);
 
@@ -59,9 +61,10 @@ pub trait Widget: WidgetIterator {
         vec![]
     }
 
-    fn children_mut(&mut self) -> Vec<&mut dyn Widget> {
+    fn children_mut(&self) -> Vec<&mut dyn Widget> {
         vec![]
     }
+
 }
 
 pub struct WidgetIter<'a> {
@@ -72,8 +75,6 @@ impl<'a> Iterator for WidgetIter<'a> {
     type Item = &'a dyn Widget;
 
     fn next(&mut self) -> Option<Self::Item> {
-        // The order of the iterator doesn't really matter in this
-        // case, we just want to iterate over all the widgets
         if let Some(widget) = self.stack.pop() {
             self.stack.extend(widget.children());
             return Some(widget);
@@ -92,6 +93,7 @@ impl<T: Widget> WidgetIterator for T {
     }
 }
 
+// TODO replace this with modifiers?
 /// Implement common styling attributes
 #[macro_export]
 macro_rules! impl_style {

@@ -26,5 +26,4 @@ crystal = {path = "../crystal"}
 resvg = "0.44.0"
 usvg = "0.44.0"
 reqwest = {version = "0.12.12",features = ["blocking"]}
-rayon = "1.10.0"
 rand = "0.8.5"

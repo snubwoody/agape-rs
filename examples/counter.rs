@@ -1,4 +1,4 @@
-use helium::{app::App, events::EventContext, page::Page, widgets::*, BLACK};
+use helium::{App, events::EventContext, Page, widgets::*, BLACK};
 
 fn main() {
     env_logger::init();

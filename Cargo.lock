@@ -1404,7 +1404,6 @@ dependencies = [
  "log",
  "nanoid",
  "rand",
- "rayon",
  "reqwest",
  "resvg 0.44.0",
  "text-to-png",
