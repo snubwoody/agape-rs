@@ -110,8 +110,7 @@ impl Widget for TextField {
 		
 		renderer.draw([
 			helium_renderer::Text::new(&self.text)
-				.position(layout.position().x, layout.position().y)
-				.color(background_color)
+				.position(layout.position().x+16.0, layout.position().y+16.0) // TODO replace this with a layout
 		]);
 		
 		// self.text.draw(&*layout.children()[0], renderer);
@@ -144,7 +143,6 @@ mod tests{
 
 	#[test]
 	fn text_updates_on_key_input(){
-		
 		let mut text_field = TextField::new();
 		text_field.focused = true;
 
