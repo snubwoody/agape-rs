@@ -1,5 +1,5 @@
 use super::Widget;
-use crate::impl_widget;
+use crate::impl_layout;
 use crystal::{BoxSizing, EmptyLayout};
 use helium_core::color::Color;
 use image::GenericImageView;
@@ -93,7 +93,7 @@ impl Icon {
         self
     }
 
-    impl_widget!();
+    impl_layout!();
 }
 
 impl Widget for Icon {

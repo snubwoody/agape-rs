@@ -1,25 +1,54 @@
-use super::Widget;
-use crystal::{BlockLayout, Layout};
+use crate::impl_modifiers;
+
+use super::{Modifiers, Text, Widget};
+use crystal::{BlockLayout,Layout};
 use helium_core::color::Color;
 
-/// A simple button.
-#[derive(Debug, Default, Clone, PartialEq, Eq)]
+/// A `Button` wraps it's child and responds to different events such
+/// as `on_click` and `on_hover` events.
+/// # Example
+/// ```
+/// use helium::widgets::Button;
+/// 
+/// let button = Button::text("Click me");
+/// ```
+#[derive(Debug)]
 pub struct Button<W> {
     id: String,
     color: Color,
     padding: u32,
     corner_radius: u32,
     child: W,
+	modifiers:Modifiers
+}
+
+impl Button<Text> {
+	pub fn text(text:&str) -> Self {
+		Self {
+            id:nanoid::nanoid!(),
+            color: Color::Hex("#615fff"),
+            padding: 12,
+            corner_radius: 0,
+            child:Text::new(text),
+			modifiers:Modifiers::new()
+        }
+    }
+
+	pub fn font_color(mut self,color:Color) -> Self{
+		self.child.color = color;
+		self
+	}
 }
 
 impl<W: Widget> Button<W> {
     pub fn new(child: W) -> Self {
-        Self {
-            id: nanoid::nanoid!(),
+		Self {
+            id:nanoid::nanoid!(),
             color: Color::Hex("#615fff"),
             padding: 12,
             corner_radius: 0,
             child,
+			modifiers:Modifiers::new()
         }
     }
 
@@ -37,6 +66,8 @@ impl<W: Widget> Button<W> {
         self.corner_radius = corner_radius;
         self
     }
+
+	impl_modifiers!();
 }
 
 impl<W: Widget> Widget for Button<W> {
@@ -45,10 +76,10 @@ impl<W: Widget> Widget for Button<W> {
     }
 
     fn layout(&self) -> Box<dyn Layout> {
-        let child_layout = self.child.layout();
-        let mut layout = BlockLayout::new(child_layout);
-        layout.id = self.id.clone();
-        layout.padding = self.padding;
+		let mut layout = BlockLayout::new(self.child.layout());
+		layout.intrinsic_size = self.modifiers.intrinsic_size;
+		layout.id = self.id.clone();
+
         Box::new(layout)
     }
 

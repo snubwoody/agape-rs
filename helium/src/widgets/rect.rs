@@ -68,7 +68,7 @@ impl Rect {
         self
     }
 
-    // TODO replace with impl_widget!()
+    // TODO replace with impl_layout!()
     pub fn flex_width(mut self, factor: u8) -> Self {
         self.intrinsic_size.width = BoxSizing::Flex(factor);
         self

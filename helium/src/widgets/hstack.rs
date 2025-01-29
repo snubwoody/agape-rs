@@ -1,4 +1,4 @@
-use crate::{impl_style, impl_widget, widgets::Widget, Color};
+use crate::{impl_style, impl_layout, widgets::Widget, Color};
 use crystal::{AxisAlignment, HorizontalLayout, Layout};
 use helium_core::color::TRANSPARENT;
 use helium_renderer::Rect;
@@ -86,7 +86,7 @@ impl HStack {
 
 	
 
-    impl_widget!();
+    impl_layout!();
     impl_style!();
 }
 

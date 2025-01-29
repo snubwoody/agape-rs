@@ -1,5 +1,5 @@
 use super::Widget;
-use crate::impl_widget;
+use crate::impl_layout;
 use crystal::{BoxSizing, EmptyLayout};
 use image::{GenericImageView, ImageReader};
 use resvg::tiny_skia::Pixmap;
@@ -158,7 +158,7 @@ impl Image {
         })
     }
 
-    impl_widget!();
+    impl_layout!();
 }
 
 impl Widget for Image {
