@@ -1,7 +1,5 @@
 use super::Widget;
-use crate::{
-	Color
-};
+use crate::Color;
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use helium_core::color::WHITE;
 use nanoid::nanoid;
@@ -45,7 +43,7 @@ impl Rect {
     /// Rect::new(150.0,150.0)
     /// 	.on_hover(||println!("Hello world"));
     /// ```
-    pub fn on_hover(self,f: impl FnMut() + 'static) -> Self {
+    pub fn on_hover(self, f: impl FnMut() + 'static) -> Self {
         self
     }
 
@@ -58,7 +56,7 @@ impl Rect {
     /// Rect::new(150.0,150.0)
     /// 	.on_click(||println!("Hello world"));
     /// ```
-    pub fn on_click(self,f: impl FnMut() + 'static) -> Self {
+    pub fn on_click(self, f: impl FnMut() + 'static) -> Self {
         self
     }
 
@@ -93,11 +91,11 @@ impl Widget for Rect {
         Box::new(layout)
     }
 
-	fn draw(&self,layout:&dyn Layout, renderer:&mut helium_renderer::Renderer) {
-		renderer.draw([
-			helium_renderer::Rect::new(layout.size().width,layout.size().height)
-				.position(layout.position().x, layout.position().y)
-				.color(self.color)
-		]);
-	}
+    fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {
+        renderer.draw([
+            helium_renderer::Rect::new(layout.size().width, layout.size().height)
+                .position(layout.position().x, layout.position().y)
+                .color(self.color),
+        ]);
+    }
 }

@@ -166,27 +166,20 @@ impl Widget for Image {
         &self.id
     }
 
-    
-
     fn layout(&self) -> Box<dyn crystal::Layout> {
         Box::new(self.layout.clone())
     }
 
-	fn draw(&self,layout:&dyn crystal::Layout,renderer:&mut helium_renderer::Renderer) {
-		match &self.state {
+    fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
+        match &self.state {
             ImageState::Complete(image) => {
-				renderer.draw([
-					helium_renderer::Image::new(image.clone())
-						.position(layout.position().x, layout.position().y)
-				]);
-			},
+                renderer.draw([helium_renderer::Image::new(image.clone())
+                    .position(layout.position().x, layout.position().y)]);
+            }
             ImageState::Loading(_) => {
-                renderer.draw([
-					helium_renderer::Rect::default()
-						.position(layout.position().x, layout.position().y)
-				]);
+                renderer.draw([helium_renderer::Rect::default()
+                    .position(layout.position().x, layout.position().y)]);
             }
         }
-		
-	}
+    }
 }

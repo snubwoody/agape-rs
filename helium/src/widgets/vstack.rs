@@ -1,4 +1,4 @@
-use crate::{impl_style, impl_layout, widgets::Widget, Color};
+use crate::{impl_layout, impl_style, widgets::Widget, Color};
 use crystal::{AxisAlignment, Layout, VerticalLayout};
 use helium_core::color::TRANSPARENT;
 use helium_renderer::Rect;
@@ -129,14 +129,12 @@ impl Widget for VStack {
         Box::new(layout)
     }
 
-	fn draw(&self,layout:&dyn crystal::Layout,renderer:&mut helium_renderer::Renderer) {
-		renderer.draw([
-			Rect::new(layout.size().width, layout.size().height)
-				.position(layout.position().x, layout.position().y)
-				.color(self.color)
-				.corner_radius(self.corner_radius as f32)
-		]);
-	}
+    fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
+        renderer.draw([Rect::new(layout.size().width, layout.size().height)
+            .position(layout.position().x, layout.position().y)
+            .color(self.color)
+            .corner_radius(self.corner_radius as f32)]);
+    }
 
     fn children(&self) -> Vec<&dyn Widget> {
         self.children
@@ -145,9 +143,9 @@ impl Widget for VStack {
             .collect::<Vec<_>>()
     }
 
-	fn children_mut(&mut self) -> &mut [Box<dyn Widget>]{
-		self.children.as_mut_slice()
-	}
+    fn children_mut(&mut self) -> &mut [Box<dyn Widget>] {
+        self.children.as_mut_slice()
+    }
 }
 
 /// Creates an [`VStack`].  

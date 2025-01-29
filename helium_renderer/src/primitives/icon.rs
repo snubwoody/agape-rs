@@ -3,7 +3,7 @@ use helium_core::{color::BLACK, Color, Position};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Icon {
-	pub image: ::image::DynamicImage,
+    pub image: ::image::DynamicImage,
     pub position: Position,
     pub color: Color,
 }
@@ -11,13 +11,13 @@ pub struct Icon {
 impl Icon {
     pub fn new(image: ::image::DynamicImage) -> Self {
         Self {
-			image,
-			position:Position::default(),
-			color:BLACK
+            image,
+            position: Position::default(),
+            color: BLACK,
         }
     }
 
-    pub fn color(mut self, color:Color) -> Self {
+    pub fn color(mut self, color: Color) -> Self {
         self.color = color;
         self
     }

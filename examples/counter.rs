@@ -1,4 +1,4 @@
-use helium::{App, Page, widgets::*, BLACK};
+use helium::{widgets::*, App, Page, BLACK};
 
 fn main() {
     env_logger::init();
@@ -6,10 +6,7 @@ fn main() {
 }
 
 fn app() {
-
-    let main = Rect::new(150.0, 150.0)
-        .color(BLACK)
-        .corner_radius(24);
+    let main = Rect::new(150.0, 150.0).color(BLACK).corner_radius(24);
 
     let page = Page::new(main);
 

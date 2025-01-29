@@ -101,17 +101,13 @@ impl Widget for Icon {
         &self.id
     }
 
-    
-
     fn layout(&self) -> Box<dyn crystal::Layout> {
         Box::new(self.layout.clone())
     }
 
-	fn draw(&self,layout:&dyn crystal::Layout,renderer:&mut helium_renderer::Renderer) {
-		renderer.draw([
-			helium_renderer::Icon::new(self.image.clone())
-				.color(self.color)
-				.position(layout.position().x, layout.position().y)
-		]);
-	}
+    fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
+        renderer.draw([helium_renderer::Icon::new(self.image.clone())
+            .color(self.color)
+            .position(layout.position().x, layout.position().y)]);
+    }
 }

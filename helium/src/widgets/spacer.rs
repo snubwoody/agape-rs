@@ -23,8 +23,6 @@ impl Widget for Spacer {
         &self.id
     }
 
-    
-
     fn layout(&self) -> Box<dyn crystal::Layout> {
         let mut layout = EmptyLayout::new();
         layout.id = self.id.clone();
@@ -34,10 +32,8 @@ impl Widget for Spacer {
         Box::new(layout)
     }
 
-	fn draw(&self,layout:&dyn crystal::Layout,renderer:&mut helium_renderer::Renderer) {
-		renderer.draw([
-			Rect::new(layout.size().width, layout.size().height)
-				.position(layout.position().x, layout.position().y)
-		]);
-	}
+    fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
+        renderer.draw([Rect::new(layout.size().width, layout.size().height)
+            .position(layout.position().x, layout.position().y)]);
+    }
 }

@@ -63,8 +63,6 @@ impl Widget for Text {
         &self.id
     }
 
-    
-
     fn layout(&self) -> Box<dyn Layout> {
         // FIXME hopefully a temp fix because i don't know how to calculate the size before hand
         let text_renderer = text_to_png::TextRenderer::default();
@@ -72,7 +70,7 @@ impl Widget for Text {
         // Render the text as a png to get the size
         let text_image = text_renderer
             .render_text_to_png_data(self.text.clone(), self.font_size, "#000000")
-            .unwrap(); // FIXME don't unwrap 
+            .unwrap(); // FIXME don't unwrap
 
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size.width = BoxSizing::Fixed(text_image.size.width as f32);
@@ -82,12 +80,10 @@ impl Widget for Text {
         Box::new(layout)
     }
 
-	fn draw(&self,layout:&dyn Layout,renderer:&mut helium_renderer::Renderer) {
-		renderer.draw([
-			helium_renderer::Text::new(&self.text)
-				.position(layout.position().x, layout.position().y)
-				.font_size(self.font_size)
-				.color(self.color)
-		]);
-	}
+    fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {
+        renderer.draw([helium_renderer::Text::new(&self.text)
+            .position(layout.position().x, layout.position().y)
+            .font_size(self.font_size)
+            .color(self.color)]);
+    }
 }

@@ -3,15 +3,15 @@ use helium_core::Position;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Image {
-	pub image: ::image::DynamicImage,
+    pub image: ::image::DynamicImage,
     pub position: Position,
 }
 
 impl Image {
     pub fn new(image: ::image::DynamicImage) -> Self {
         Self {
-			image,
-			position:Position::default()
+            image,
+            position: Position::default(),
         }
     }
 

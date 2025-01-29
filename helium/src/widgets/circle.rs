@@ -29,8 +29,6 @@ impl Widget for Circle {
         &self.id
     }
 
-    
-
     fn layout(&self) -> Box<dyn Layout> {
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size.width = BoxSizing::Fixed(self.diameter as f32);
@@ -40,11 +38,9 @@ impl Widget for Circle {
         Box::new(layout)
     }
 
-	fn draw(&self,layout:&dyn Layout, renderer:&mut helium_renderer::Renderer) {
-		renderer.draw([
-			helium_renderer::Circle::new(layout.size().width)
-				.position(layout.position().x, layout.position().y)
-				.color(self.color)
-		]);
-	}
+    fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {
+        renderer.draw([helium_renderer::Circle::new(layout.size().width)
+            .position(layout.position().x, layout.position().y)
+            .color(self.color)]);
+    }
 }

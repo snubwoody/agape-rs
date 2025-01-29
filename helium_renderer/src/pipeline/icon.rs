@@ -7,7 +7,10 @@ use crate::{
     primitives::Icon,
     vertex::Vertex,
 };
-use helium_core::{color::{TRANSPARENT, WHITE}, Size};
+use helium_core::{
+    color::{TRANSPARENT, WHITE},
+    Size,
+};
 use std::rc::Rc;
 use wgpu::Extent3d;
 
@@ -112,7 +115,7 @@ impl IconPipeline {
         // Should hopefully replace this library eventually with something glyph based
         let image_data = icon.image.to_rgba8();
 
-		let size = Size {
+        let size = Size {
             width: image_data.dimensions().0 as f32,
             height: image_data.dimensions().1 as f32,
         };

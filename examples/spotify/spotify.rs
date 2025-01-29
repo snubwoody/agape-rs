@@ -1,12 +1,9 @@
 #![allow(non_snake_case)]
 use helium::{
-    App,
     crystal::{AxisAlignment, LayoutSolver},
-    hstack,
-    Page,
-    vstack,
+    hstack, vstack,
     widgets::*,
-    Color, Size, BLACK, WHITE,
+    App, Color, Page, Size, BLACK, WHITE,
 };
 use icon::feather_icons;
 use std::{
@@ -27,7 +24,7 @@ fn main() {
     );
     env_logger::init();
 
-	let announcements = Rect::new(0.0, 400.0)
+    let announcements = Rect::new(0.0, 400.0)
         .color(BACKGROUND)
         .flex_width(1)
         .corner_radius(24);

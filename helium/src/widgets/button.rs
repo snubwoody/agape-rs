@@ -1,7 +1,7 @@
 use crate::impl_modifiers;
 
 use super::{Modifiers, Text, Widget};
-use crystal::{BlockLayout,Layout};
+use crystal::{BlockLayout, Layout};
 use helium_core::color::Color;
 
 /// A `Button` wraps it's child and responds to different events such
@@ -9,7 +9,7 @@ use helium_core::color::Color;
 /// # Example
 /// ```
 /// use helium::widgets::Button;
-/// 
+///
 /// let button = Button::text("Click me");
 /// ```
 #[derive(Debug)]
@@ -19,36 +19,36 @@ pub struct Button<W> {
     padding: u32,
     corner_radius: u32,
     child: W,
-	modifiers:Modifiers
+    modifiers: Modifiers,
 }
 
 impl Button<Text> {
-	pub fn text(text:&str) -> Self {
-		Self {
-            id:nanoid::nanoid!(),
+    pub fn text(text: &str) -> Self {
+        Self {
+            id: nanoid::nanoid!(),
             color: Color::Hex("#615fff"),
             padding: 12,
             corner_radius: 0,
-            child:Text::new(text),
-			modifiers:Modifiers::new()
+            child: Text::new(text),
+            modifiers: Modifiers::new(),
         }
     }
 
-	pub fn font_color(mut self,color:Color) -> Self{
-		self.child.color = color;
-		self
-	}
+    pub fn font_color(mut self, color: Color) -> Self {
+        self.child.color = color;
+        self
+    }
 }
 
 impl<W: Widget> Button<W> {
     pub fn new(child: W) -> Self {
-		Self {
-            id:nanoid::nanoid!(),
+        Self {
+            id: nanoid::nanoid!(),
             color: Color::Hex("#615fff"),
             padding: 12,
             corner_radius: 0,
             child,
-			modifiers:Modifiers::new()
+            modifiers: Modifiers::new(),
         }
     }
 
@@ -67,7 +67,7 @@ impl<W: Widget> Button<W> {
         self
     }
 
-	impl_modifiers!();
+    impl_modifiers!();
 }
 
 impl<W: Widget> Widget for Button<W> {
@@ -76,9 +76,9 @@ impl<W: Widget> Widget for Button<W> {
     }
 
     fn layout(&self) -> Box<dyn Layout> {
-		let mut layout = BlockLayout::new(self.child.layout());
-		layout.intrinsic_size = self.modifiers.intrinsic_size;
-		layout.id = self.id.clone();
+        let mut layout = BlockLayout::new(self.child.layout());
+        layout.intrinsic_size = self.modifiers.intrinsic_size;
+        layout.id = self.id.clone();
 
         Box::new(layout)
     }
@@ -87,12 +87,12 @@ impl<W: Widget> Widget for Button<W> {
         vec![&self.child]
     }
 
-	fn draw(&self,layout:&dyn Layout, renderer:&mut helium_renderer::Renderer) {
-		renderer.draw([
-			helium_renderer::Rect::new(layout.size().width,layout.size().height)
-				.position(layout.position().x, layout.position().y)
-				.color(self.color)
-				.corner_radius(self.corner_radius as f32)
-		]);
-	}
+    fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {
+        renderer.draw([
+            helium_renderer::Rect::new(layout.size().width, layout.size().height)
+                .position(layout.position().x, layout.position().y)
+                .color(self.color)
+                .corner_radius(self.corner_radius as f32),
+        ]);
+    }
 }

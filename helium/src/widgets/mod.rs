@@ -5,18 +5,19 @@ mod button;
 mod circle;
 mod container;
 mod hstack;
+pub mod icon;
 mod image;
 mod rect;
 mod spacer;
 mod text;
 mod text_field;
 mod vstack;
-pub mod icon;
 pub use button::*;
 pub use circle::*;
 pub use container::*;
 use crystal::Layout;
 use helium_core::position::Bounds;
+use helium_renderer::Renderer;
 pub use hstack::*;
 pub use image::*;
 pub use rect::*;
@@ -24,7 +25,6 @@ pub use spacer::*;
 pub use text::*;
 pub use text_field::*;
 pub use vstack::*;
-use helium_renderer::Renderer;
 use winit::event::{ElementState, MouseButton, WindowEvent};
 
 /// The trait that all widgets must implement.
@@ -46,16 +46,16 @@ pub trait Widget: WidgetIterator {
         None
     }
 
-	fn process_key(&mut self,key:&winit::keyboard::Key){}
-	
-	fn click(&mut self){}
-	
-	/// Set the [`Widget`]'s focus state to false when the cursor clicks outside
-	/// the widget's bounds.
-	fn unfocus(&mut self){}
+    fn process_key(&mut self, key: &winit::keyboard::Key) {}
 
-	/// Draw the [`Widget`] to the screen
-    fn draw(&self,layout:&dyn Layout,renderer:&mut Renderer);
+    fn click(&mut self) {}
+
+    /// Set the [`Widget`]'s focus state to false when the cursor clicks outside
+    /// the widget's bounds.
+    fn unfocus(&mut self) {}
+
+    /// Draw the [`Widget`] to the screen
+    fn draw(&self, layout: &dyn Layout, renderer: &mut Renderer);
 
     // TODO maybe make a test macro to make sure all widgets
     // handle this right
@@ -64,67 +64,61 @@ pub trait Widget: WidgetIterator {
         vec![]
     }
 
-	fn children_mut(&mut self) -> &mut [Box<dyn Widget>]{
-		&mut []
-	}
-
+    fn children_mut(&mut self) -> &mut [Box<dyn Widget>] {
+        &mut []
+    }
 }
 
+impl dyn Widget {
+    fn dispatch_click(
+        &mut self,
+        mouse_pos: helium_core::Position,
+        state: &winit::event::ElementState,
+        button: &winit::event::MouseButton,
+    ) {
+        match button {
+            MouseButton::Left => match state {
+                ElementState::Pressed => {
+                    self.click();
+                }
+                _ => {}
+            },
+            _ => {}
+        }
+    }
 
-impl dyn Widget{
-	fn dispatch_click(
-		&mut self,
-		mouse_pos:helium_core::Position,
-		state:&winit::event::ElementState,
-		button:&winit::event::MouseButton
-	){
-		match button {
-			MouseButton::Left => {
-				match state {
-					ElementState::Pressed => {
-						self.click();
-					},
-					_ =>{}
-				}
-			},
-			_ => {}
-		}
-	}
+    pub(crate) fn dispatch_event(
+        &mut self,
+        mouse_pos: helium_core::Position,
+        layout_tree: &dyn Layout,
+        window_event: &WindowEvent,
+    ) {
+        // I feel like events might happen out of order because of winit's event loop but we shall find out
+        // FIXME don't unwrap this pls
+        let layout = layout_tree.get(self.id()).unwrap();
+        match window_event {
+            WindowEvent::KeyboardInput { event, .. } => match event.state {
+                ElementState::Pressed => {
+                    self.process_key(&event.logical_key);
+                }
+                ElementState::Released => {}
+            },
+            WindowEvent::MouseInput { state, button, .. } => {
+                let bounds = Bounds::new(layout.position(), layout.size());
 
-	pub(crate) fn dispatch_event(
-		&mut self,
-		mouse_pos:helium_core::Position,
-		layout_tree:&dyn Layout,
-		window_event:&WindowEvent
-	){
-		// I feel like events might happen out of order because of winit's event loop but we shall find out
-		// FIXME don't unwrap this pls
-		let layout = layout_tree.get(self.id()).unwrap();
-		match window_event {
-			WindowEvent::KeyboardInput { event,.. } => {
-				match event.state {
-					ElementState::Pressed => {
-						self.process_key(&event.logical_key);
-					},
-					ElementState::Released => {}
-				}
-			},
-			WindowEvent::MouseInput { state, button,.. } => {
-				let bounds = Bounds::new(layout.position(), layout.size());
+                if bounds.within(&mouse_pos) {
+                    self.dispatch_click(mouse_pos, state, button)
+                } else {
+                    self.unfocus();
+                }
+            }
+            _ => {}
+        }
 
-				if bounds.within(&mouse_pos){
-					self.dispatch_click(mouse_pos, state, button)
-				}else {
-					self.unfocus();
-				}
-			},
-			_ => {}
-		}
-
-		for child in self.children_mut(){
-			child.dispatch_event(mouse_pos,layout_tree,window_event);
-		}
-	}
+        for child in self.children_mut() {
+            child.dispatch_event(mouse_pos, layout_tree, window_event);
+        }
+    }
 }
 
 // TODO test this
@@ -155,15 +149,15 @@ impl<T: Widget> WidgetIterator for T {
     }
 }
 
-#[derive(Debug,Default,Clone, Copy,PartialEq, PartialOrd)]
-pub struct Modifiers{
-	intrinsic_size:crystal::IntrinsicSize
+#[derive(Debug, Default, Clone, Copy, PartialEq, PartialOrd)]
+pub struct Modifiers {
+    intrinsic_size: crystal::IntrinsicSize,
 }
 
-impl Modifiers{
-	pub fn new() -> Self{
-		Self::default()
-	}
+impl Modifiers {
+    pub fn new() -> Self {
+        Self::default()
+    }
 }
 
 // TODO replace this with modifiers?
