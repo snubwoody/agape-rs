@@ -5,6 +5,7 @@ pub mod error;
 pub mod widgets;
 pub use crystal;
 use crystal::LayoutSolver;
+pub(crate) use helium_renderer as renderer;
 pub use error::Error;
 pub use helium_core::color::*; 
 pub use helium_core::position::{Bounds, Position};

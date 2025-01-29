@@ -1,13 +1,13 @@
-use super::{Text, Widget};
-use crystal::{BlockLayout, BoxSizing, EmptyLayout, IntrinsicSize, Layout};
+use crate::colors::tailwind_colors::{NEUTRAL100, NEUTRAL200};
+use super::Widget;
+use crystal::{BoxSizing, EmptyLayout};
 use helium_core::color::Color;
 use helium_renderer::Rect;
-use wgpu::hal::auxil::db;
 
 /// Contains editable text
 pub struct TextField {
     id: String,
-    text: Option<Text>,
+    text: String,
 	focused:bool,
 	/// The background color when this widget is focused.
 	pub focus_background_color:Color,
@@ -19,10 +19,10 @@ impl TextField {
     pub fn new() -> Self {
         Self {
             id: nanoid::nanoid!(),
-            text: None,
+            text: String::default(),
 			focused:false,
-            focus_background_color: Color::default(),
-            background_color: Color::default(),
+            focus_background_color: NEUTRAL200,
+            background_color: NEUTRAL100,
 			corner_radius:12
         }
     }
@@ -68,32 +68,15 @@ impl Widget for TextField {
 
 		match key {
 			winit::keyboard::Key::Character(character) => {
-				match &self.text {
-					Some(text) => {
-						let mut content = String::from(&text.text);
-						content.push_str(&character);
-						self.text = Some(Text::new(&content))
-					},
-					None => {
-						self.text = Some(Text::new(&character))
-					}
-				}
+				self.text.push_str(&character);
 			},
 			winit::keyboard::Key::Named(named_key) => {
 				match named_key {
 					winit::keyboard::NamedKey::Backspace => {
-						if let Some(text) = &mut self.text {
-							if text.text.len() == 1{
-								self.text = None;
-								return;
-							}
-							text.text.pop(); // FIXME panics
-						};
+						self.text.pop();
 					},
 					winit::keyboard::NamedKey::Space => {
-						if let Some(text) = &mut self.text {
-							text.text.push_str(" ");
-						};
+						self.text.push_str(" ");
 					}
 					_ => {}
 				}
@@ -103,32 +86,17 @@ impl Widget for TextField {
 	}
 
     fn layout(&self) -> Box<dyn crystal::Layout> {
-		let child = match &self.text {
-			Some(text) => text.layout(),
-			None => {
-				let mut child_layout = EmptyLayout::new();
-				Box::new(child_layout)
-			}
-		};
-
-        let mut layout = BlockLayout::new(child);
+        let mut layout = EmptyLayout::new();
 		layout.id = self.id.clone();
 		layout.intrinsic_size.width = BoxSizing::Fixed(200.0);
-		layout.padding = 12;
+		layout.intrinsic_size.height = BoxSizing::Fixed(40.0);
         Box::new(layout)
     }
 
-	fn children(&self) -> Vec<&dyn Widget> {
-		match &self.text {
-			Some(text) => vec![text],
-			None => vec![]
-		}
-	}
-
 	fn draw(&self,layout:&dyn crystal::Layout,renderer:&mut helium_renderer::Renderer) {
 		let background_color = match self.focused{
-			true => self.background_color,
-			false => self.focus_background_color,
+			true => self.focus_background_color,
+			false => self.background_color,
 		};
 		
 		renderer.draw([
@@ -136,6 +104,16 @@ impl Widget for TextField {
 				.color(background_color)
 				.corner_radius(self.corner_radius as f32)
 		]);
+
+		// Empty text causes panics
+		if self.text.is_empty(){return}
+		
+		renderer.draw([
+			helium_renderer::Text::new(&self.text)
+				.position(layout.position().x, layout.position().y)
+				.color(background_color)
+		]);
+		
 		// self.text.draw(&*layout.children()[0], renderer);
 	}
 }
@@ -147,9 +125,28 @@ mod tests{
 	use winit::keyboard::{SmolStr,Key,NamedKey};
 
 	#[test]
+	fn does_not_update_when_not_focused(){
+		let mut text_field = TextField::new();
+
+		let keys = [
+			Key::Character(SmolStr::new("H")),
+			Key::Character(SmolStr::new("!")),
+			Key::Character(SmolStr::new("!")),
+		];
+
+
+		for key in keys{
+			text_field.process_key(&key);
+		}
+
+		assert_eq!(text_field.text,"")
+	}
+
+	#[test]
 	fn text_updates_on_key_input(){
 		
 		let mut text_field = TextField::new();
+		text_field.focused = true;
 
 		let keys = [
 			Key::Character(SmolStr::new("H")),
@@ -166,30 +163,44 @@ mod tests{
 			text_field.process_key(&key);
 		}
 
-		assert_eq!(text_field.text.unwrap().text,"Hi mom!")
+		assert_eq!(text_field.text,"Hi mom!")
 	}
 
 	#[test]
 	fn backspace_deletes_text(){
-		
 		let mut text_field = TextField::new();
-		text_field.text = Some(Text::new("Hello"));
-
+		text_field.text = String::from("Hello");
+		text_field.focused = true;
+		
 		let keys = [
 			Key::Named(NamedKey::Backspace),
 			Key::Named(NamedKey::Backspace)
 		];
+		
+		
+		for key in keys{
+			text_field.process_key(&key);
+		}
+		
+		assert_eq!(text_field.text,"Hel")
+	}
 
+	#[test]
+	fn space_key_adds_space(){
+		let mut text_field = TextField::new();
+		text_field.text = String::from("Hello");
+		text_field.focused = true;
+		
+		let keys = [
+			Key::Named(NamedKey::Backspace),
+			Key::Named(NamedKey::Space)
+		];
+			
 
 		for key in keys{
 			text_field.process_key(&key);
 		}
 
-		assert_eq!(text_field.text.unwrap().text,"Hel")
-	}
-
-	#[test]
-	fn space_key_adds_space(){
-		todo!()
+		assert_eq!(text_field.text,"Hell ")
 	}
 }

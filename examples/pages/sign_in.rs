@@ -29,7 +29,6 @@ fn InputField(label: &str) -> impl Widget {
     vstack! {
         Text::new(label),
 		TextField::new()
-			.background_color(tailwind_colors::NEUTRAL200),
     }
     .spacing(8)
 }
