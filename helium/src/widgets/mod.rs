@@ -46,11 +46,13 @@ pub trait Widget: WidgetIterator {
         None
     }
 
-	
-
 	fn process_key(&mut self,key:&winit::keyboard::Key){}
 	
-	fn process_click(&mut self){}
+	fn click(&mut self){}
+	
+	/// Set the [`Widget`]'s focus state to false when the cursor clicks outside
+	/// the widget's bounds.
+	fn unfocus(&mut self){}
 
 	/// Draw the [`Widget`] to the screen
     fn draw(&self,layout:&dyn Layout,renderer:&mut Renderer);
@@ -80,7 +82,7 @@ impl dyn Widget{
 			MouseButton::Left => {
 				match state {
 					ElementState::Pressed => {
-						self.process_click();
+						self.click();
 					},
 					_ =>{}
 				}
@@ -112,6 +114,8 @@ impl dyn Widget{
 
 				if bounds.within(&mouse_pos){
 					self.dispatch_click(mouse_pos, state, button)
+				}else {
+					self.unfocus();
 				}
 			},
 			_ => {}

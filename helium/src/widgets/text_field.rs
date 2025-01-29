@@ -8,6 +8,7 @@ use wgpu::hal::auxil::db;
 pub struct TextField {
     id: String,
     text: Option<Text>,
+	focused:bool,
 	/// The background color when this widget is focused.
 	pub focus_background_color:Color,
     pub background_color: Color,
@@ -19,6 +20,7 @@ impl TextField {
         Self {
             id: nanoid::nanoid!(),
             text: None,
+			focused:false,
             focus_background_color: Color::default(),
             background_color: Color::default(),
 			corner_radius:12
@@ -29,17 +31,21 @@ impl TextField {
         self
     }
 
+	/// Set the background color of the [`TextField`] when it is focused.
 	pub fn focus_background_color(mut self,focus_background_color:Color) -> Self{
 		self.focus_background_color = focus_background_color;
 		self
 	}
 	
+	/// Set the background color of the [`TextField`].
 	pub fn background_color(mut self,background_color:Color) -> Self{
 		self.background_color = background_color;
 		self
 	}
 
-    fn on_input(&mut self) {}
+    fn on_input(&mut self, f: impl FnMut(&str) + 'static) {
+
+	}
 }
 
 impl Widget for TextField {
@@ -47,11 +53,19 @@ impl Widget for TextField {
         &self.id
     }
 
-	fn process_click(&mut self) {
-		dbg!("Hi");
+	fn unfocus(&mut self) {
+		self.focused = false;
+	}
+
+	fn click(&mut self) {
+		self.focused = true;
 	}
 
 	fn process_key(&mut self,key:&winit::keyboard::Key) {
+		if !self.focused{
+			return;
+		}
+
 		match key {
 			winit::keyboard::Key::Character(character) => {
 				match &self.text {
@@ -112,10 +126,14 @@ impl Widget for TextField {
 	}
 
 	fn draw(&self,layout:&dyn crystal::Layout,renderer:&mut helium_renderer::Renderer) {
+		let background_color = match self.focused{
+			true => self.background_color,
+			false => self.focus_background_color,
+		};
 		
-		renderer.draw([ // TODO impl From<Layout>
+		renderer.draw([
 			Rect::from(layout)
-				.color(self.background_color)
+				.color(background_color)
 				.corner_radius(self.corner_radius as f32)
 		]);
 		// self.text.draw(&*layout.children()[0], renderer);
