@@ -2,7 +2,6 @@
 use helium::{
     App,
     crystal::{AxisAlignment, LayoutSolver},
-    events::EventContext,
     hstack,
     Page,
     vstack,
@@ -27,9 +26,8 @@ fn main() {
         "trace,wgpu_core=error,naga=warn,wgpu_hal=error,async_std=warn,reqwest=warn",
     );
     env_logger::init();
-    let cx = EventContext::new();
 
-    let announcements = Rect::new(0.0, 400.0)
+	let announcements = Rect::new(0.0, 400.0)
         .color(BACKGROUND)
         .flex_width(1)
         .corner_radius(24);
@@ -96,7 +94,7 @@ fn main() {
     writer.write(format!("{:#?}", layout).as_bytes()).unwrap();
     writer.flush().unwrap();
 
-    let home = Page::new(cx, home);
+    let home = Page::new(home);
 
     App::new().add_page(home).run().unwrap();
 }

@@ -1,7 +1,4 @@
 use super::{Text, Widget};
-use crate::{
-    events::Element,
-};
 use crystal::{BlockLayout, BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use helium_core::color::Color;
 use helium_renderer::Rect;
@@ -39,9 +36,6 @@ impl TextField {
 impl Widget for TextField {
     fn id(&self) -> &str {
         &self.id
-    }
-
-    fn tick(&mut self, elements: &[Element]) {
     }
 
 	fn process_key(&mut self,key:&winit::keyboard::Key) {
@@ -86,14 +80,14 @@ impl Widget for TextField {
 			Some(text) => text.layout(),
 			None => {
 				let mut child_layout = EmptyLayout::new();
-				child_layout.intrinsic_size.width = BoxSizing::Fixed(200.0);
-				child_layout.intrinsic_size.height = BoxSizing::Fixed(40.0);
 				Box::new(child_layout)
 			}
 		};
 
         let mut layout = BlockLayout::new(child);
 		layout.id = self.id.clone();
+		layout.intrinsic_size.width = BoxSizing::Fixed(200.0);
+		layout.padding = 12;
         Box::new(layout)
     }
 

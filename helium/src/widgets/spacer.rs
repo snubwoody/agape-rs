@@ -23,7 +23,7 @@ impl Widget for Spacer {
         &self.id
     }
 
-    fn tick(&mut self, elements: &[crate::events::Element]) {}
+    
 
     fn layout(&self) -> Box<dyn crystal::Layout> {
         let mut layout = EmptyLayout::new();

@@ -1,8 +1,7 @@
-use helium::{colors::tailwind_colors, events::EventContext, hex, vstack, widgets::*, App, Page};
+use helium::{colors::tailwind_colors, hex, vstack, widgets::*, App, Page};
 
 fn main() {
 	env_logger::init();
-    let mut cx = EventContext::new();
     // TODO export hstack from widgets
 
     let form = vstack! {
@@ -19,7 +18,7 @@ fn main() {
     .fill()
     .align_center();
 
-    let page = Page::new(cx, form);
+    let page = Page::new(form);
 
     App::new().add_page(page).run().unwrap();
 }

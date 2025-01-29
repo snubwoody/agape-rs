@@ -25,7 +25,6 @@ pub use text_field::*;
 pub use vstack::*;
 use helium_renderer::Renderer;
 use winit::event::{ElementState, WindowEvent};
-use crate::events::Element;
 
 /// The trait that all widgets must implement.
 pub trait Widget: WidgetIterator {
@@ -46,7 +45,7 @@ pub trait Widget: WidgetIterator {
         None
     }
 
-	fn dispatch_event(&mut self,window_event:&WindowEvent){
+	fn dispatch_event(&mut self,layout_tree:&dyn Layout,window_event:&WindowEvent){
 		match window_event {
 			WindowEvent::KeyboardInput { event,.. } => {
 				match event.state {
@@ -60,15 +59,13 @@ pub trait Widget: WidgetIterator {
 		}
 
 		for child in self.children_mut(){
-			child.dispatch_event(window_event);
+			child.dispatch_event(layout_tree,window_event);
 		}
 	}
 
-    fn tick(&mut self, elements: &[Element]);
-
-	fn process_key(&mut self,key:&winit::keyboard::Key){
-		
-	}
+	fn process_key(&mut self,key:&winit::keyboard::Key){}
+	
+	fn process_click(&mut self,key:&winit::keyboard::Key){}
 
 	/// Draw the [`Widget`] to the screen
     fn draw(&self,layout:&dyn Layout,renderer:&mut Renderer);

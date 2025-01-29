@@ -44,8 +44,6 @@ impl<W: Widget> Widget for Button<W> {
         &self.id
     }
 
-    fn tick(&mut self, elements: &[crate::events::Element]) {}
-
     fn layout(&self) -> Box<dyn Layout> {
         let child_layout = self.child.layout();
         let mut layout = BlockLayout::new(child_layout);

@@ -2,28 +2,24 @@
 //! the ui and uses the `crystal` crate for layout.
 pub mod colors;
 pub mod error;
-pub mod events;
 pub mod widgets;
 pub use crystal;
 use crystal::LayoutSolver;
 pub use error::Error;
-pub use helium_core::color::*; // TODO move the constants into their own module
+pub use helium_core::color::*; 
 pub use helium_core::position::{Bounds, Position};
 pub use helium_core::size::Size;
-pub use helium_macros::hex;
+pub use helium_macros::hex; // TODO move to colors mod
 pub use nanoid::nanoid;
-
 use std::time::{Duration, Instant};
-
 use helium_renderer::{Renderer, Text};
 use winit::{
     event::WindowEvent,
     event_loop::{ControlFlow, EventLoop},
     window::{Window, WindowBuilder},
 };
-use crate::events::{EventContext, EventManager};
-use crate::widgets::Widget;
-
+use widgets::Widget;
+// TODO re-export the winit event modules 
 
 /// [`App`]'s contain the whole program and are the point of entry for helium
 /// they are responsible for the overall management of rendering, resources,
@@ -93,7 +89,6 @@ impl App {
 					},
 					event => {
 						self.pages[self.index].dispatch_event(&event);
-						self.pages[self.index].handle(&event);
 						self.window.request_redraw();
 					},
 				},
@@ -109,42 +104,23 @@ impl App {
 pub struct Page {
     layout: Box<dyn crystal::Layout>,
     widget: Box<dyn Widget>,
-    events: EventManager,
 }
 
 impl Page {
-    pub fn new(cx: EventContext, widget: impl Widget + 'static) -> Self {
+    pub fn new(widget: impl Widget + 'static) -> Self {
         Self {
             layout: widget.layout(),
-            events: EventManager::new(cx, &*widget.layout()),
             widget: Box::new(widget),
         }
     }
 
-    fn handle(&mut self, event: &winit::event::WindowEvent) {
-        self.events.process(event, &*self.layout);
-        self.widget.tick(self.events.elements());
-    }
-	
     fn resize(&mut self, size:Size) {
         LayoutSolver::solve(&mut *self.layout,size);
     }
 
 	fn dispatch_event(&mut self,event: &winit::event::WindowEvent){
-		self.widget.dispatch_event(event);
+		self.widget.dispatch_event(&*self.layout,event);
 	}
-
-	fn process_key(&mut self,key_event:&winit::event::KeyEvent){
-		for child in self.widget.children_mut(){
-			child.process_key(&key_event.logical_key);
-		}
-		match key_event.state {
-			winit::event::ElementState::Pressed => {
-				self.widget.process_key(&key_event.logical_key);
-			}, 
-			_ => {}
-		}
-	}	
 
 	fn draw(&self, renderer:&mut Renderer,size:Size){
 		let mut layout = self.widget.layout();

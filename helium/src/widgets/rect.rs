@@ -1,6 +1,5 @@
 use super::Widget;
 use crate::{
-    events::{EventContext, EventFn},
 	Color
 };
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
@@ -46,8 +45,7 @@ impl Rect {
     /// Rect::new(150.0,150.0)
     /// 	.on_hover(||println!("Hello world"));
     /// ```
-    pub fn on_hover(self, cx: &mut EventContext, f: impl FnMut() + 'static) -> Self {
-        cx.add(EventFn::hover(&self.id, f));
+    pub fn on_hover(self,f: impl FnMut() + 'static) -> Self {
         self
     }
 
@@ -60,8 +58,7 @@ impl Rect {
     /// Rect::new(150.0,150.0)
     /// 	.on_click(||println!("Hello world"));
     /// ```
-    pub fn on_click(self, cx: &mut EventContext, f: impl FnMut() + 'static) -> Self {
-        cx.add(EventFn::click(&self.id, f));
+    pub fn on_click(self,f: impl FnMut() + 'static) -> Self {
         self
     }
 
@@ -87,8 +84,6 @@ impl Widget for Rect {
     fn id(&self) -> &str {
         &self.id
     }
-
-    fn tick(&mut self, elements: &[crate::events::Element]) {}
 
     fn layout(&self) -> Box<dyn Layout> {
         let mut layout = EmptyLayout::new();
