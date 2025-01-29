@@ -13,8 +13,7 @@ fn main() {
         Button::new(Text::new("Sign in"))
             .color(tailwind_colors::NEUTRAL200)
 			.corner_radius(12),
-        TextField::new()
-			.background_color(tailwind_colors::NEUTRAL200),
+        
     }
     .spacing(24)
     .fill()
@@ -29,9 +28,8 @@ fn main() {
 fn InputField(label: &str) -> impl Widget {
     vstack! {
         Text::new(label),
-        Rect::new(120.0,20.0).color(
-            tailwind_colors::NEUTRAL300
-        ).corner_radius(12),
+		TextField::new()
+			.background_color(tailwind_colors::NEUTRAL200),
     }
     .spacing(8)
 }

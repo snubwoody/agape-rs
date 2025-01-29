@@ -5,13 +5,13 @@ mod button;
 mod circle;
 mod container;
 mod hstack;
-pub mod icon;
 mod image;
 mod rect;
 mod spacer;
 mod text;
 mod text_field;
 mod vstack;
+pub mod icon;
 pub use button::*;
 pub use circle::*;
 pub use container::*;
@@ -24,6 +24,7 @@ pub use text::*;
 pub use text_field::*;
 pub use vstack::*;
 use helium_renderer::Renderer;
+use winit::event::{ElementState, WindowEvent};
 use crate::events::Element;
 
 /// The trait that all widgets must implement.
@@ -45,6 +46,24 @@ pub trait Widget: WidgetIterator {
         None
     }
 
+	fn dispatch_event(&mut self,window_event:&WindowEvent){
+		match window_event {
+			WindowEvent::KeyboardInput { event,.. } => {
+				match event.state {
+					ElementState::Pressed => {
+						self.process_key(&event.logical_key);
+					},
+					ElementState::Released => {}
+				}
+			},
+			_ => {}
+		}
+
+		for child in self.children_mut(){
+			child.dispatch_event(window_event);
+		}
+	}
+
     fn tick(&mut self, elements: &[Element]);
 
 	fn process_key(&mut self,key:&winit::keyboard::Key){
@@ -61,12 +80,13 @@ pub trait Widget: WidgetIterator {
         vec![]
     }
 
-    fn children_mut(&self) -> Vec<&mut dyn Widget> {
-        vec![]
-    }
+	fn children_mut(&mut self) -> &mut [Box<dyn Widget>]{
+		&mut []
+	}
 
 }
 
+// TODO test this
 pub struct WidgetIter<'a> {
     stack: Vec<&'a dyn Widget>,
 }

@@ -114,3 +114,57 @@ impl Widget for TextField {
 		// self.text.draw(&*layout.children()[0], renderer);
 	}
 }
+
+
+#[cfg(test)]
+mod tests{
+	use super::*;
+	use winit::keyboard::{SmolStr,Key,NamedKey};
+
+	#[test]
+	fn text_updates_on_key_input(){
+		
+		let mut text_field = TextField::new();
+
+		let keys = [
+			Key::Character(SmolStr::new("H")),
+			Key::Character(SmolStr::new("i")),
+			Key::Character(SmolStr::new(" ")),
+			Key::Character(SmolStr::new("m")),
+			Key::Character(SmolStr::new("o")),
+			Key::Character(SmolStr::new("m")),
+			Key::Character(SmolStr::new("!"))
+		];
+
+
+		for key in keys{
+			text_field.process_key(&key);
+		}
+
+		assert_eq!(text_field.text.unwrap().text,"Hi mom!")
+	}
+
+	#[test]
+	fn backspace_deletes_text(){
+		
+		let mut text_field = TextField::new();
+		text_field.text = Some(Text::new("Hello"));
+
+		let keys = [
+			Key::Named(NamedKey::Backspace),
+			Key::Named(NamedKey::Backspace)
+		];
+
+
+		for key in keys{
+			text_field.process_key(&key);
+		}
+
+		assert_eq!(text_field.text.unwrap().text,"Hel")
+	}
+
+	#[test]
+	fn space_key_adds_space(){
+		todo!()
+	}
+}

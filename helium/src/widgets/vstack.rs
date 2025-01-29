@@ -135,10 +135,6 @@ impl Widget for VStack {
         Box::new(layout)
     }
 
-	fn process_key(&mut self,key:&winit::keyboard::Key) {
-		self.children.iter_mut().for_each(|w|w.process_key(key))
-	}
-
 	fn draw(&self,layout:&dyn crystal::Layout,renderer:&mut helium_renderer::Renderer) {
 		renderer.draw([
 			Rect::new(layout.size().width, layout.size().height)
@@ -154,6 +150,10 @@ impl Widget for VStack {
             .map(|child| child.as_ref())
             .collect::<Vec<_>>()
     }
+
+	fn children_mut(&mut self) -> &mut [Box<dyn Widget>]{
+		self.children.as_mut_slice()
+	}
 }
 
 /// Creates an [`VStack`].  

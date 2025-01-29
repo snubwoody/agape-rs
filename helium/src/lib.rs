@@ -91,11 +91,8 @@ impl App {
 						// I think resizing already causes a redraw request but i'm not sure
 						self.window.request_redraw(); 
 					},
-					WindowEvent::KeyboardInput { event,..  } => {
-						self.pages[self.index].process_key(&event);
-						self.window.request_redraw();
-					}
 					event => {
+						self.pages[self.index].dispatch_event(&event);
 						self.pages[self.index].handle(&event);
 						self.window.request_redraw();
 					},
@@ -124,16 +121,23 @@ impl Page {
         }
     }
 
-    pub fn handle(&mut self, event: &winit::event::WindowEvent) {
+    fn handle(&mut self, event: &winit::event::WindowEvent) {
         self.events.process(event, &*self.layout);
         self.widget.tick(self.events.elements());
     }
 	
-    pub fn resize(&mut self, size:Size) {
+    fn resize(&mut self, size:Size) {
         LayoutSolver::solve(&mut *self.layout,size);
     }
 
-	pub fn process_key(&mut self,key_event:&winit::event::KeyEvent){
+	fn dispatch_event(&mut self,event: &winit::event::WindowEvent){
+		self.widget.dispatch_event(event);
+	}
+
+	fn process_key(&mut self,key_event:&winit::event::KeyEvent){
+		for child in self.widget.children_mut(){
+			child.process_key(&key_event.logical_key);
+		}
 		match key_event.state {
 			winit::event::ElementState::Pressed => {
 				self.widget.process_key(&key_event.logical_key);
@@ -142,7 +146,7 @@ impl Page {
 		}
 	}	
 
-	pub fn draw(&self, renderer:&mut Renderer,size:Size){
+	fn draw(&self, renderer:&mut Renderer,size:Size){
 		let mut layout = self.widget.layout();
 		LayoutSolver::solve(&mut *layout, size);
 

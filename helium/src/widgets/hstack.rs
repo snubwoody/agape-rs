@@ -84,6 +84,8 @@ impl HStack {
         self
     }
 
+	
+
     impl_widget!();
     impl_style!();
 }
@@ -139,16 +141,16 @@ impl Widget for HStack {
 		]);
 	}
 
-	fn process_key(&mut self,key:&winit::keyboard::Key) {
-		self.children.iter_mut().for_each(|w|w.process_key(key))
-	}
-
     fn children(&self) -> Vec<&dyn Widget> {
         self.children
             .iter()
             .map(|child| child.as_ref())
             .collect::<Vec<_>>()
     }
+
+	fn children_mut(&mut self) -> &mut [Box<dyn Widget>]{
+		self.children.as_mut_slice()
+	}
 }
 
 /// Creates an [`HStack`].  
