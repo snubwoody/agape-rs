@@ -18,6 +18,7 @@ fn main() {
     .fill()
     .align_center();
 
+
     let page = Page::new(form);
 
     App::new().add_page(page).run().unwrap();

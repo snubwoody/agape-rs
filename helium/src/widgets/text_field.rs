@@ -2,13 +2,16 @@ use super::{Text, Widget};
 use crystal::{BlockLayout, BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use helium_core::color::Color;
 use helium_renderer::Rect;
+use wgpu::hal::auxil::db;
 
 /// Contains editable text
 pub struct TextField {
     id: String,
     text: Option<Text>,
-    background_color: Color,
-	corner_radius:u32
+	/// The background color when this widget is focused.
+	pub focus_background_color:Color,
+    pub background_color: Color,
+	pub corner_radius:u32
 }
 
 impl TextField {
@@ -16,6 +19,7 @@ impl TextField {
         Self {
             id: nanoid::nanoid!(),
             text: None,
+            focus_background_color: Color::default(),
             background_color: Color::default(),
 			corner_radius:12
         }
@@ -25,6 +29,11 @@ impl TextField {
         self
     }
 
+	pub fn focus_background_color(mut self,focus_background_color:Color) -> Self{
+		self.focus_background_color = focus_background_color;
+		self
+	}
+	
 	pub fn background_color(mut self,background_color:Color) -> Self{
 		self.background_color = background_color;
 		self
@@ -37,6 +46,10 @@ impl Widget for TextField {
     fn id(&self) -> &str {
         &self.id
     }
+
+	fn process_click(&mut self) {
+		dbg!("Hi");
+	}
 
 	fn process_key(&mut self,key:&winit::keyboard::Key) {
 		match key {

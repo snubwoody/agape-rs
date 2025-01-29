@@ -16,6 +16,7 @@ pub use button::*;
 pub use circle::*;
 pub use container::*;
 use crystal::Layout;
+use helium_core::position::Bounds;
 pub use hstack::*;
 pub use image::*;
 pub use rect::*;
@@ -24,7 +25,7 @@ pub use text::*;
 pub use text_field::*;
 pub use vstack::*;
 use helium_renderer::Renderer;
-use winit::event::{ElementState, WindowEvent};
+use winit::event::{ElementState, MouseButton, WindowEvent};
 
 /// The trait that all widgets must implement.
 pub trait Widget: WidgetIterator {
@@ -45,27 +46,11 @@ pub trait Widget: WidgetIterator {
         None
     }
 
-	fn dispatch_event(&mut self,layout_tree:&dyn Layout,window_event:&WindowEvent){
-		match window_event {
-			WindowEvent::KeyboardInput { event,.. } => {
-				match event.state {
-					ElementState::Pressed => {
-						self.process_key(&event.logical_key);
-					},
-					ElementState::Released => {}
-				}
-			},
-			_ => {}
-		}
-
-		for child in self.children_mut(){
-			child.dispatch_event(layout_tree,window_event);
-		}
-	}
+	
 
 	fn process_key(&mut self,key:&winit::keyboard::Key){}
 	
-	fn process_click(&mut self,key:&winit::keyboard::Key){}
+	fn process_click(&mut self){}
 
 	/// Draw the [`Widget`] to the screen
     fn draw(&self,layout:&dyn Layout,renderer:&mut Renderer);
@@ -83,7 +68,63 @@ pub trait Widget: WidgetIterator {
 
 }
 
+
+impl dyn Widget{
+	fn dispatch_click(
+		&mut self,
+		mouse_pos:helium_core::Position,
+		state:&winit::event::ElementState,
+		button:&winit::event::MouseButton
+	){
+		match button {
+			MouseButton::Left => {
+				match state {
+					ElementState::Pressed => {
+						self.process_click();
+					},
+					_ =>{}
+				}
+			},
+			_ => {}
+		}
+	}
+
+	pub(crate) fn dispatch_event(
+		&mut self,
+		mouse_pos:helium_core::Position,
+		layout_tree:&dyn Layout,
+		window_event:&WindowEvent
+	){
+		// I feel like events might happen out of order because of winit's event loop but we shall find out
+		// FIXME don't unwrap this pls
+		let layout = layout_tree.get(self.id()).unwrap();
+		match window_event {
+			WindowEvent::KeyboardInput { event,.. } => {
+				match event.state {
+					ElementState::Pressed => {
+						self.process_key(&event.logical_key);
+					},
+					ElementState::Released => {}
+				}
+			},
+			WindowEvent::MouseInput { state, button,.. } => {
+				let bounds = Bounds::new(layout.position(), layout.size());
+
+				if bounds.within(&mouse_pos){
+					self.dispatch_click(mouse_pos, state, button)
+				}
+			},
+			_ => {}
+		}
+
+		for child in self.children_mut(){
+			child.dispatch_event(mouse_pos,layout_tree,window_event);
+		}
+	}
+}
+
 // TODO test this
+/// An iterator for the [`Widget`] tree.
 pub struct WidgetIter<'a> {
     stack: Vec<&'a dyn Widget>,
 }

@@ -102,6 +102,7 @@ impl App {
 }
 
 pub struct Page {
+	mouse_pos:Position,
     layout: Box<dyn crystal::Layout>,
     widget: Box<dyn Widget>,
 }
@@ -109,6 +110,7 @@ pub struct Page {
 impl Page {
     pub fn new(widget: impl Widget + 'static) -> Self {
         Self {
+			mouse_pos:Position::default(),
             layout: widget.layout(),
             widget: Box::new(widget),
         }
@@ -119,14 +121,20 @@ impl Page {
     }
 
 	fn dispatch_event(&mut self,event: &winit::event::WindowEvent){
-		self.widget.dispatch_event(&*self.layout,event);
+		match event {
+			WindowEvent::CursorMoved { position,.. } => self.mouse_pos = Position::from(*position),
+			_ => {}
+		}
+		self.widget.dispatch_event(self.mouse_pos,&*self.layout,event);
 	}
 
 	fn draw(&self, renderer:&mut Renderer,size:Size){
 		let mut layout = self.widget.layout();
 		LayoutSolver::solve(&mut *layout, size);
+		
 
 		self.widget.iter().for_each(|w|{
+			
 			if let Some(layout) = layout.get(w.id()){
 				// TODO add an error or similar here; every widget should have a layout
 				w.draw(layout,renderer); 
