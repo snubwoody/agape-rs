@@ -1,5 +1,4 @@
 use crate::impl_modifiers;
-
 use super::{Modifiers, Text, Widget};
 use crystal::{AxisAlignment, BlockLayout, Layout};
 use helium_core::color::Color;
