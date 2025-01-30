@@ -16,7 +16,7 @@ pub struct BlockLayout {
     pub constraints: BoxContraints,
     /// The main axis is the `x-axis`
     pub main_axis_alignment: AxisAlignment,
-    /// The main axis is the `y-axis`
+    /// The cross axis is the `y-axis`
     pub cross_axis_alignment: AxisAlignment,
     pub child: Box<dyn Layout>,
     pub errors: Vec<crate::LayoutError>,

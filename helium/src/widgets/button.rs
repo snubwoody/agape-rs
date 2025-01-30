@@ -1,7 +1,7 @@
 use crate::impl_modifiers;
 
 use super::{Modifiers, Text, Widget};
-use crystal::{BlockLayout, Layout};
+use crystal::{AxisAlignment, BlockLayout, Layout};
 use helium_core::color::Color;
 
 /// A `Button` wraps it's child and responds to different events such
@@ -78,6 +78,9 @@ impl<W: Widget> Widget for Button<W> {
     fn layout(&self) -> Box<dyn Layout> {
         let mut layout = BlockLayout::new(self.child.layout());
         layout.intrinsic_size = self.modifiers.intrinsic_size;
+		layout.padding = self.padding;
+		layout.main_axis_alignment = AxisAlignment::Center; // TODO expose this
+		layout.cross_axis_alignment = AxisAlignment::Center;
         layout.id = self.id.clone();
 
         Box::new(layout)
