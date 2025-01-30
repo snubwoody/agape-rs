@@ -1,5 +1,5 @@
 use helium_core::Size;
-use std::{io::Cursor, rc::Rc};
+use std::{io::Cursor, rc::Rc, time::Instant};
 use wgpu::Extent3d;
 use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, SwashCache};
 use image::{ImageBuffer, Rgba, RgbaImage};
@@ -14,10 +14,15 @@ use crate::{
 };
 
 // TODO replace text_to_png
+/// The pipeline that handles text rendering.
+/// It uses `cosmic_text` for text shaping, then rasterizes it to an image
+/// which is then written to a `Texture`.
 pub struct TextPipeline {
     pipeline: wgpu::RenderPipeline,
     layout: wgpu::BindGroupLayout,
     global: Rc<GlobalResources>,
+	font_system:FontSystem,
+	cache:SwashCache
 }
 
 impl TextPipeline {
@@ -26,6 +31,11 @@ impl TextPipeline {
         format: wgpu::TextureFormat,
         global: Rc<GlobalResources>,
     ) -> Self {
+		let mut font_system = FontSystem::new();
+		font_system.db_mut().load_system_fonts();
+		log::trace!("Loaded system fonts");
+		let mut cache = SwashCache::new();
+		
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("Text Shader Module"),
             source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/text.wgsl").into()),
@@ -98,41 +108,42 @@ impl TextPipeline {
         });
 
         Self {
+			font_system,
             pipeline,
             layout,
             global,
+			cache
         }
     }
 
 	/// Uses `comsic-text` to rasterize the font into a an image, which
 	/// will then be written to a `wgpu::Buffer`.
-	fn rasterize_text(&self) -> ImageBuffer<Rgba<u8>,Vec<u8>>{
-		let instant
-		let mut font_system = FontSystem::new();
-		font_system.db_mut().load_system_fonts();
-		log::trace!("Loaded system fonts");
-
-		let mut buffer = Buffer::new(&mut font_system, Metrics::new(16.0, 16.0*1.5));
-
+	fn rasterize_text(&mut self) -> ImageBuffer<Rgba<u8>,Vec<u8>>{
+		let instant = Instant::now();
+		let font_system = &mut self.font_system;
+		let cache = &mut self.cache;
+		
+		let mut buffer = Buffer::new(font_system, Metrics::new(16.0, 16.0*1.5));
+		
 		// TODO try to get the default font on each platform
 		// Just get any sans-serif font
 		let attrs = Attrs::new().family(cosmic_text::Family::SansSerif);
-		buffer.set_text(&mut font_system, "Please sign-in", attrs, cosmic_text::Shaping::Advanced);
-		let mut cache = SwashCache::new();
-
+		buffer.set_text(font_system, "Please sign-in", attrs, cosmic_text::Shaping::Advanced);
+		
 		let mut image = RgbaImage::new(200, 200);
-
-		buffer.shape_until_scroll(&mut font_system, false);
+		
+		buffer.shape_until_scroll(font_system, false);
 		buffer.draw(
-			&mut font_system, 
-			&mut cache, 
+			font_system, 
+			cache, 
 			cosmic_text::Color::rgb(0, 0, 0), 
 			|x,y,_,_,color|{
 				let pixel = image.get_pixel_mut(x as u32, y as u32);
 				*pixel = Rgba([color.r(),color.b(),color.g(),color.a()])
 			}
 		);
-
+		
+		log::trace!("Rendered text in: {:?}",instant.elapsed());
 		image
 	}
 
