@@ -1,7 +1,7 @@
 use helium_core::Size;
 use std::{io::Cursor, rc::Rc, time::Instant};
 use wgpu::{hal::auxil::db::{self, imgtec}, Extent3d};
-use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, SwashCache};
+use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, SwashCache, Weight};
 use image::{GenericImageView, ImageBuffer, Rgba, RgbaImage};
 use super::GlobalResources;
 use crate::{
@@ -133,8 +133,11 @@ impl TextPipeline {
 		);
 		
 		// TODO try to get the default font on each platform
+		// TODO expose font weight and other items
 		// Just get any sans-serif font
-		let attrs = Attrs::new().family(cosmic_text::Family::SansSerif);
+		let attrs = Attrs::new()
+			.family(cosmic_text::Family::SansSerif);
+
 		buffer.set_text(font_system, &text.text, attrs, cosmic_text::Shaping::Advanced);
 		
 		buffer.shape_until_scroll(font_system, false);
@@ -149,7 +152,6 @@ impl TextPipeline {
 
 		let [r,g,b,a] = text.color.to_rgba();
 		
-		// Add padding to prevent panics
 		// FIXME one of the sizes starts at 0 and one starts at 1 im not sure which
 		let mut image = RgbaImage::new(size.width as u32, size.height as u32);
 		buffer.set_size(font_system, Some(size.width), Some(size.height));

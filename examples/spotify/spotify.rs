@@ -15,10 +15,7 @@ const SPOTIFY_GREEN: Color = hex!("#3be477");
 
 // TODO theres some sizes that are making the icons pixelated, very weird
 fn main() {
-    env::set_var(
-        "RUST_LOG",
-        "trace,wgpu_core=error,naga=warn,wgpu_hal=error,async_std=warn,reqwest=warn",
-    );
+	std::env::set_var("RUST_LOG", "warn,helium_renderer=trace");
     env_logger::init();
 
     let announcements = Rect::new(0.0, 400.0)
