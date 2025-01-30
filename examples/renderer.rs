@@ -1,5 +1,4 @@
-use helium::BLACK;
-use helium_renderer::{Circle, Icon,Rect, Renderer, Text};
+use helium_renderer::{Renderer, Text};
 use winit::{event::WindowEvent, event_loop::EventLoop, window::WindowBuilder};
 
 #[tokio::main]
@@ -22,7 +21,8 @@ async fn main() {
                     renderer.resize(size.into());
                 }
                 WindowEvent::RedrawRequested => {
-                    renderer.draw([Text::new("Hello world")]);
+                    renderer.draw([Text::new("Hello world").font_size(24).line_height(2.0)]);
+                    renderer.draw([Text::new("Hi mom!").position(200.0, 200.0)]);
                     renderer.render();
                 }
                 event => {

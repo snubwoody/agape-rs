@@ -190,3 +190,60 @@ impl<'r> Renderer<'r> {
         output.present();
     }
 }
+
+#[cfg(test)]
+/// Set up the `wgpu::Device` and `wgpu::Queue` for testing
+pub(crate) async fn setup() -> (wgpu::Device, wgpu::Queue) {
+    use winit::platform::windows::EventLoopBuilderExtWindows;
+    use winit::window::WindowBuilder;
+	
+	let event_loop = winit::event_loop::EventLoopBuilder::new()
+        .with_any_thread(true)
+        .build()
+        .expect("Failed to create EventLoop");
+
+    let window = WindowBuilder::new()
+        .with_visible(false)
+        .build(&event_loop)
+        .expect("Failed to create window");
+
+    let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+        backends: wgpu::Backends::PRIMARY,
+        ..Default::default()
+    });
+
+    let surface = instance.create_surface(window).unwrap();
+
+    let adapter = instance
+        .request_adapter(&wgpu::RequestAdapterOptions {
+            power_preference: Default::default(),
+            compatible_surface: Some(&surface),
+            force_fallback_adapter: false,
+        })
+        .await
+        .unwrap();
+
+    let (device, queue) = adapter
+        .request_device(
+            &wgpu::DeviceDescriptor {
+                label: Some("Device/Queue"),
+                required_features: wgpu::Features::empty(),
+                ..Default::default()
+            },
+            None,
+        )
+        .await
+        .unwrap();
+
+    (device, queue)
+}
+
+#[cfg(test)]
+mod tests{
+    use super::*;
+
+	#[tokio::test]
+	async fn setup_works(){
+		let (_device,_queue) = setup().await;
+	}
+}

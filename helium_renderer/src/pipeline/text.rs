@@ -1,8 +1,8 @@
 use helium_core::Size;
 use std::{io::Cursor, rc::Rc, time::Instant};
-use wgpu::Extent3d;
+use wgpu::{hal::auxil::db::{self, imgtec}, Extent3d};
 use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, SwashCache};
-use image::{ImageBuffer, Rgba, RgbaImage};
+use image::{GenericImageView, ImageBuffer, Rgba, RgbaImage};
 use super::GlobalResources;
 use crate::{
     builders::{
@@ -34,7 +34,7 @@ impl TextPipeline {
 		let mut font_system = FontSystem::new();
 		font_system.db_mut().load_system_fonts();
 		log::trace!("Loaded system fonts");
-		let mut cache = SwashCache::new();
+		let cache = SwashCache::new();
 		
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("Text Shader Module"),
@@ -116,35 +116,59 @@ impl TextPipeline {
         }
     }
 
+	pub fn text_size(&self) -> Size{
+		todo!()
+	}
+
 	/// Uses `comsic-text` to rasterize the font into a an image, which
 	/// will then be written to a `wgpu::Buffer`.
-	fn rasterize_text(&mut self) -> ImageBuffer<Rgba<u8>,Vec<u8>>{
-		let instant = Instant::now();
+	fn rasterize_text(&mut self,text:&Text) -> (ImageBuffer<Rgba<u8>,Vec<u8>>,Size){
+		// FIXME there's some artifacts appearing on the texture.
 		let font_system = &mut self.font_system;
 		let cache = &mut self.cache;
 		
-		let mut buffer = Buffer::new(font_system, Metrics::new(16.0, 16.0*1.5));
+		let mut buffer = Buffer::new(
+			font_system, 
+			Metrics::new(text.font_size as f32, text.font_size as f32 * text.line_height)
+		);
 		
 		// TODO try to get the default font on each platform
 		// Just get any sans-serif font
 		let attrs = Attrs::new().family(cosmic_text::Family::SansSerif);
-		buffer.set_text(font_system, "Please sign-in", attrs, cosmic_text::Shaping::Advanced);
-		
-		let mut image = RgbaImage::new(200, 200);
+		buffer.set_text(font_system, &text.text, attrs, cosmic_text::Shaping::Advanced);
 		
 		buffer.shape_until_scroll(font_system, false);
+		let mut size = Size::default();
+		for run in buffer.layout_runs(){
+			size.width += size.width.max(run.line_w); // Get the max of all lines
+			size.height += run.line_height;
+		}
+
+		// Add padding to prevent clipping
+		size += 5.0;
+
+		let [r,g,b,a] = text.color.to_rgba();
+		
+		// Add padding to prevent panics
+		// FIXME one of the sizes starts at 0 and one starts at 1 im not sure which
+		let mut image = RgbaImage::new(size.width as u32, size.height as u32);
+		buffer.set_size(font_system, Some(size.width), Some(size.height));
+
 		buffer.draw(
 			font_system, 
 			cache, 
-			cosmic_text::Color::rgb(0, 0, 0), 
+			cosmic_text::Color::rgba(r, g, b,a), 
 			|x,y,_,_,color|{
-				let pixel = image.get_pixel_mut(x as u32, y as u32);
-				*pixel = Rgba([color.r(),color.b(),color.g(),color.a()])
+				let x = x as u32;
+				let y = y as u32;
+				if x < image.width() && y < image.height(){
+					let pixel = image.get_pixel_mut(x, y);
+					*pixel = Rgba([color.r(),color.b(),color.g(),color.a()])
+				}
 			}
 		);
-		
-		log::trace!("Rendered text in: {:?}",instant.elapsed());
-		image
+
+		(image,size)
 	}
 
     pub fn draw(
@@ -154,28 +178,9 @@ impl TextPipeline {
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
     ) {
-        let text_renderer = text_to_png::TextRenderer::default();
+		let (text_img,size) = self.rasterize_text(&text);
 
-        // Rasterize the text
-        // Should hopefully replace this library eventually with something glyph based
-        let text_image = text_renderer
-            .render_text_to_png_data(
-                text.text.clone(),
-                text.font_size,
-                text.color.into_hex_string().as_str(),
-            )
-            .unwrap();
-
-        // FIXME return these errors
-        let image = image::load(Cursor::new(text_image.data), image::ImageFormat::Png)
-            .unwrap()
-            .to_rgba8();
-
-        let size = Size {
-            width: 200.0,
-            height: 200.0,
-        };
-        let vertices = Vertex::quad(size, text.position, text.color);
+		let vertices = Vertex::quad(size, text.position, text.color);
 
         let vertex_buffer = BufferBuilder::new()
             .label("Text vertex buffer")
@@ -213,7 +218,7 @@ impl TextPipeline {
                 origin: wgpu::Origin3d::ZERO,
                 aspect: wgpu::TextureAspect::All,
             },
-            &self.rasterize_text(),
+            &text_img,
             wgpu::ImageDataLayout {
                 offset: 0,
                 bytes_per_row: Some(4 * size.width as u32),
@@ -231,37 +236,29 @@ impl TextPipeline {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use ab_glyph::{point, Font};
-    use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, Scroll, SwashCache};
-    use image::{RgbImage, Rgba, RgbaImage};
+	use super::*;
+    use crate::setup;
 
-	#[test]
-	fn draw_text(){
-		let mut font_system = FontSystem::new();
-		font_system.db_mut().load_system_fonts();
+	#[tokio::test]
+	async fn font_rasterizing(){
+		let (device,_) = setup().await;
+		let global = Rc::new(GlobalResources::new(&device, Size::default()));
+		let format = wgpu::TextureFormat::Rgba8Unorm;
+		
+		let mut pipeline = TextPipeline::new(&device, format, global);
+		let text_queue = [
+			Text::new("Hello world").line_height(20.0),
+			Text::new("Hello world").font_size(255),
+			Text::new("Hi mom!"),
+			Text::new("Click me please! You might get a treat")
+				.line_height(2.0)
+				.font_size(24),
+		];
 
-		let mut buffer = Buffer::new(&mut font_system, Metrics::new(16.0, 16.0*1.5));
-
-		let attrs = Attrs::new().family(cosmic_text::Family::SansSerif);
-		buffer.set_text(&mut font_system, "Please sign-in", attrs, cosmic_text::Shaping::Advanced);
-		let mut cache = SwashCache::new();
-
-		let mut image = RgbaImage::new(200, 200);
-
-		buffer.shape_until_scroll(&mut font_system, false);
-		buffer.draw(
-			&mut font_system, 
-			&mut cache, 
-			cosmic_text::Color::rgb(0, 0, 0), 
-			|x,y,_,_,color|{
-				let pixel = image.get_pixel_mut(x as u32, y as u32);
-				*pixel = Rgba([color.r(),color.b(),color.g(),color.a()])
-			}
-		);
-
-		image.save("text.png").unwrap();
+		for text in text_queue{
+			let (_image,_size) = pipeline.rasterize_text(&text);
+		}
 	}
 }

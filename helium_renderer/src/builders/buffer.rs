@@ -95,7 +95,7 @@ impl<'a> BufferBuilder<'a> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::builders::setup;
+    use crate::setup;
 
     #[tokio::test]
     async fn buffer_builder() {

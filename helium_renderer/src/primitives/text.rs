@@ -5,6 +5,9 @@ use helium_core::{Color, Position, Size};
 pub struct Text {
     pub text: String,
     pub font_size: u8,
+	/// The line height is a multiple of the font_size, e.g.
+	/// a line height of `1.0` with a font size of `16px` is `16px`.
+    pub line_height: f32,
     pub color: Color,
     pub position: Position,
 }
@@ -14,25 +17,8 @@ impl Text {
         Self {
             text: String::from(text),
             font_size: 16,
+			line_height:1.5,
             ..Default::default()
-        }
-    }
-
-    pub fn size(&self) -> Size {
-        let text_renderer = text_to_png::TextRenderer::default();
-
-        // Render the text as a png
-        let text_image = text_renderer
-            .render_text_to_png_data(
-                self.text.clone(),
-                self.font_size,
-                self.color.into_hex_string().as_str(),
-            )
-            .unwrap();
-
-        Size {
-            width: text_image.size.width as f32,
-            height: text_image.size.height as f32,
         }
     }
 
@@ -47,6 +33,15 @@ impl Text {
     /// Font size of 0 panics
     pub fn font_size(mut self, font_size: u8) -> Self {
         self.font_size = font_size;
+        self
+    }
+
+    /// Set the line height
+    ///
+	/// The line height is a multiple of the font_size, e.g.
+	/// a line height of `1.0` with a font size of `16px` is `16px`.
+    pub fn line_height(mut self, line_height: f32) -> Self {
+        self.line_height = line_height;
         self
     }
 
