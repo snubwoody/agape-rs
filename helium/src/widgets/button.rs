@@ -4,22 +4,35 @@ use super::{Modifiers, Text, Widget};
 use crystal::{AxisAlignment, BlockLayout, Layout};
 use helium_core::color::Color;
 
-/// A `Button` wraps it's child and responds to different events such
-/// as `on_click` and `on_hover` events.
-/// # Example
+/// A `Button` is a [`Widget`] that wraps another [`Widget`] and responds to different 
+/// events such as `on_click` and `on_hover` events.
+/// 
+/// The simplest way to create a button is to use `Button::text()`
 /// ```
 /// use helium::widgets::Button;
 ///
-/// let button = Button::text("Click me");
+/// let button = Button::text("Click me")
+/// 	.on_click(||println!("Clicked!"));
 /// ```
-#[derive(Debug)]
+/// 
+/// # Button wrapping a [`Widget`]
+/// ```
+/// use helium::{vstack,widgets::*};
+/// 
+/// let card = vstack!{
+/// 	Text::new("Header"),
+/// };
+/// 
+/// Button::new(card);
+/// ```
 pub struct Button<W> {
     id: String,
-    color: Color,
-    padding: u32,
-    corner_radius: u32,
+    pub color: Color,
+    pub padding: u32,
+    pub corner_radius: u32,
     child: W,
     modifiers: Modifiers,
+	on_click:Option<Box<dyn FnMut()>>
 }
 
 impl Button<Text> {
@@ -31,6 +44,7 @@ impl Button<Text> {
             corner_radius: 0,
             child: Text::new(text),
             modifiers: Modifiers::new(),
+			on_click:None
         }
     }
 
@@ -49,6 +63,7 @@ impl<W: Widget> Button<W> {
             corner_radius: 0,
             child,
             modifiers: Modifiers::new(),
+			on_click:None
         }
     }
 
@@ -56,6 +71,11 @@ impl<W: Widget> Button<W> {
         self.color = color;
         self
     }
+
+	pub fn on_click(mut self,f:impl FnMut() + 'static) -> Self{
+		self.on_click = Some(Box::new(f));
+		self
+	}
 
     pub fn padding(mut self, padding: u32) -> Self {
         self.padding = padding;
@@ -74,6 +94,12 @@ impl<W: Widget> Widget for Button<W> {
     fn id(&self) -> &str {
         &self.id
     }
+
+	fn click(&mut self) {
+		if let Some(func) = &mut self.on_click{
+			func()
+		}
+	}
 
     fn layout(&self) -> Box<dyn Layout> {
         let mut layout = BlockLayout::new(self.child.layout());

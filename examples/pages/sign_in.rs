@@ -20,6 +20,7 @@ fn main() -> Result<(), helium::Error> {
 }
 
 fn Form() -> impl Widget {
+
     vstack! {
         Text::new("Sign in")
 			.font_size(24),
@@ -29,6 +30,9 @@ fn Form() -> impl Widget {
 			.color(BLACK)
 			.font_color(tailwind_colors::NEUTRAL200)
 			.fill_width()
+			.on_click(||{
+				let num = 15.0;
+			})
 			.padding(12),
         Text::new("Forgot password?"),
     }

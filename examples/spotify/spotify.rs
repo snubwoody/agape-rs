@@ -1,9 +1,6 @@
 #![allow(non_snake_case)]
 use helium::{
-    crystal::{AxisAlignment, LayoutSolver},
-    hstack, vstack,
-    widgets::*,
-    App, Color, Page, Size, BLACK, WHITE,
+    crystal::{AxisAlignment, LayoutSolver}, hex, hstack, vstack, widgets::*, App, Color, Page, Size, BLACK, WHITE
 };
 use icon::feather_icons;
 use std::{
@@ -12,9 +9,9 @@ use std::{
     io::{BufWriter, Write},
 };
 
-const BACKGROUND: Color = Color::Hex("#121212");
-const GREY: Color = Color::Hex("#414141");
-const SPOTIFY_GREEN: Color = Color::Hex("#3be477");
+const BACKGROUND: Color = hex!("#121212");
+const GREY: Color = hex!("#414141");
+const SPOTIFY_GREEN: Color = hex!("#3be477");
 
 // TODO theres some sizes that are making the icons pixelated, very weird
 fn main() {
@@ -141,9 +138,9 @@ fn Sidebar() -> impl Widget {
 fn DiscoveryPlaylist() -> impl Widget {
     vstack! {
         Image::bytes(include_bytes!("COLOURS - PARTYNEXTDOOR.jpg"))
-        .unwrap()
-        .fixed_width(150.0)
-        .fixed_height(150.0),
+			.unwrap()
+			.fixed_width(150.0)
+			.fixed_height(150.0),
         Text::new("Daily mix")
     }
     .spacing(12)
