@@ -1,5 +1,5 @@
-use helium::{Position, BLACK};
-use helium_renderer::{Circle, Icon, Image, Rect, Renderer, Text};
+use helium::BLACK;
+use helium_renderer::{Circle, Icon,Rect, Renderer, Text};
 use winit::{event::WindowEvent, event_loop::EventLoop, window::WindowBuilder};
 
 #[tokio::main]
