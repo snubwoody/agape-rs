@@ -1,15 +1,15 @@
-use cosmic_text::{Attrs, FontSystem, Metrics, Shaping, SwashCache};
 use helium_core::Size;
 use std::{io::Cursor, rc::Rc};
 use wgpu::Extent3d;
-
+use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, SwashCache};
+use image::{ImageBuffer, Rgba, RgbaImage};
 use super::GlobalResources;
 use crate::{
     builders::{
         BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, TextureBuilder,
         VertexBufferLayoutBuilder,
     },
-    primitives::{Rect, Text},
+    primitives::Text,
     vertex::Vertex,
 };
 
@@ -104,6 +104,38 @@ impl TextPipeline {
         }
     }
 
+	/// Uses `comsic-text` to rasterize the font into a an image, which
+	/// will then be written to a `wgpu::Buffer`.
+	fn rasterize_text(&self) -> ImageBuffer<Rgba<u8>,Vec<u8>>{
+		let instant
+		let mut font_system = FontSystem::new();
+		font_system.db_mut().load_system_fonts();
+		log::trace!("Loaded system fonts");
+
+		let mut buffer = Buffer::new(&mut font_system, Metrics::new(16.0, 16.0*1.5));
+
+		// TODO try to get the default font on each platform
+		// Just get any sans-serif font
+		let attrs = Attrs::new().family(cosmic_text::Family::SansSerif);
+		buffer.set_text(&mut font_system, "Please sign-in", attrs, cosmic_text::Shaping::Advanced);
+		let mut cache = SwashCache::new();
+
+		let mut image = RgbaImage::new(200, 200);
+
+		buffer.shape_until_scroll(&mut font_system, false);
+		buffer.draw(
+			&mut font_system, 
+			&mut cache, 
+			cosmic_text::Color::rgb(0, 0, 0), 
+			|x,y,_,_,color|{
+				let pixel = image.get_pixel_mut(x as u32, y as u32);
+				*pixel = Rgba([color.r(),color.b(),color.g(),color.a()])
+			}
+		);
+
+		image
+	}
+
     pub fn draw(
         &mut self,
         text: &Text,
@@ -129,8 +161,8 @@ impl TextPipeline {
             .to_rgba8();
 
         let size = Size {
-            width: text_image.size.width as f32,
-            height: text_image.size.height as f32,
+            width: 200.0,
+            height: 200.0,
         };
         let vertices = Vertex::quad(size, text.position, text.color);
 
@@ -170,7 +202,7 @@ impl TextPipeline {
                 origin: wgpu::Origin3d::ZERO,
                 aspect: wgpu::TextureAspect::All,
             },
-            &image,
+            &self.rasterize_text(),
             wgpu::ImageDataLayout {
                 offset: 0,
                 bytes_per_row: Some(4 * size.width as u32),
@@ -186,4 +218,39 @@ impl TextPipeline {
 
         pass.draw(0..vertices.len() as u32, 0..1);
     }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use ab_glyph::{point, Font};
+    use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, Scroll, SwashCache};
+    use image::{RgbImage, Rgba, RgbaImage};
+
+	#[test]
+	fn draw_text(){
+		let mut font_system = FontSystem::new();
+		font_system.db_mut().load_system_fonts();
+
+		let mut buffer = Buffer::new(&mut font_system, Metrics::new(16.0, 16.0*1.5));
+
+		let attrs = Attrs::new().family(cosmic_text::Family::SansSerif);
+		buffer.set_text(&mut font_system, "Please sign-in", attrs, cosmic_text::Shaping::Advanced);
+		let mut cache = SwashCache::new();
+
+		let mut image = RgbaImage::new(200, 200);
+
+		buffer.shape_until_scroll(&mut font_system, false);
+		buffer.draw(
+			&mut font_system, 
+			&mut cache, 
+			cosmic_text::Color::rgb(0, 0, 0), 
+			|x,y,_,_,color|{
+				let pixel = image.get_pixel_mut(x as u32, y as u32);
+				*pixel = Rgba([color.r(),color.b(),color.g(),color.a()])
+			}
+		);
+
+		image.save("text.png").unwrap();
+	}
 }

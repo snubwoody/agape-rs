@@ -127,8 +127,6 @@ impl<'r> Renderer<'r> {
     }
 
     pub fn render(&mut self) {
-        let instant = std::time::Instant::now();
-
         let output = self.surface.get_current_texture().unwrap(); // TODO maybe handle this error
         let view = output
             .texture
@@ -190,22 +188,5 @@ impl<'r> Renderer<'r> {
 
         self.queue.submit(std::iter::once(encoder.finish()));
         output.present();
-
-        //log::trace!("Frame time: {:?}",instant.elapsed());
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn render_text() {
-		let font_data = include_bytes!("../fonts/Inter/Inter-VariableFont_slnt,wght.ttf") as &[u8];
-		let font = fontdue::Font::from_bytes(font_data, Default::default()).unwrap();
-		let (metric,bitmap) = font.rasterize('g', 16.0);
-		let image = image::load_from_memory(&bitmap).unwrap();
-		image.save("bitmap.png").unwrap();
-        dbg!(metric);
     }
 }
