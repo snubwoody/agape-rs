@@ -200,7 +200,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn create_renderer() {
-        todo!()
+    fn render_text() {
+		let font_data = include_bytes!("../fonts/Inter/Inter-VariableFont_slnt,wght.ttf") as &[u8];
+		let font = fontdue::Font::from_bytes(font_data, Default::default()).unwrap();
+		let (metric,bitmap) = font.rasterize('g', 16.0);
+		let image = image::load_from_memory(&bitmap).unwrap();
+		image.save("bitmap.png").unwrap();
+        dbg!(metric);
     }
 }
