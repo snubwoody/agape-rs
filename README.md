@@ -1,5 +1,6 @@
-# Helium-rs
+# helium
 Rust UI library built using `wgpu`.
+Helium is inspired by SwiftUI and Flutter and aims to be a fully featured rust gui library.
 
 ![](https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white)
 
