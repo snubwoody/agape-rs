@@ -17,4 +17,4 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Run tests
-      run: cargo test --verbose --no-fail-fast --ignored
+      run: cargo test --verbose --no-fail-fast -- --ignored
