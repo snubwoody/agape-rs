@@ -11,13 +11,11 @@ icon-sets = ["feather-icons"]
 image.workspace = true
 wgpu.workspace = true
 thiserror.workspace = true
-text-to-png = "0.2.0"
-winit = {version = "0.29",features = ["rwh_05"]}
-tokio = { version = "1.40.0", features = ["full"] }
-bytemuck = { version = "1.16", features = [ "derive" ] }
-env_logger = "0.11.5"
-log = "0.4.22"
-async-std = {version = "1.13.0",features = ["attributes"]}
+winit.workspace = true
+tokio.workspace = true
+bytemuck.workspace = true
+log.workspace = true
+async-std.workspace = true
 nanoid = "0.4.0"
 helium_core = {path = "../helium_core"}
 helium_macros = {path = "../helium_macros"}

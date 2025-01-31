@@ -9,7 +9,6 @@ crystal = {path = "../crystal"}
 wgpu.workspace = true
 thiserror.workspace = true
 tokio.workspace = true
-text-to-png.workspace = true
 winit.workspace = true
 bytemuck.workspace = true
 log.workspace = true
