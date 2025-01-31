@@ -1,6 +1,7 @@
 use super::Widget;
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::color::Color;
+use helium_renderer::IntoPrimitive;
 
 // TODO add editable() method?
 // TODO TextStyle struct
@@ -56,6 +57,12 @@ impl Text {
         self.font_size = size;
         self
     }
+
+	fn primitive(&self) -> helium_renderer::Text{
+		helium_renderer::Text::new(&self.text)
+            .font_size(self.font_size)
+            .color(self.color)
+	}
 }
 
 impl Widget for Text {
@@ -63,27 +70,20 @@ impl Widget for Text {
         &self.id
     }
 
-    fn layout(&self) -> Box<dyn Layout> {
-        // FIXME hopefully a temp fix because i don't know how to calculate the size before hand
-        let text_renderer = text_to_png::TextRenderer::default();
-
-        // Render the text as a png to get the size
-        let text_image = text_renderer
-            .render_text_to_png_data(self.text.clone(), self.font_size, "#000000")
-            .unwrap(); // FIXME don't unwrap
+    fn layout(&self,renderer:&mut helium_renderer::Renderer) -> Box<dyn Layout> {
+		let text = self.primitive();
+		let size = renderer.text_size(&text);
 
         let mut layout = EmptyLayout::new();
-        layout.intrinsic_size.width = BoxSizing::Fixed(text_image.size.width as f32);
-        layout.intrinsic_size.height = BoxSizing::Fixed(text_image.size.height as f32);
+        layout.intrinsic_size.width = BoxSizing::Fixed(size.width);
+        layout.intrinsic_size.height = BoxSizing::Fixed(size.height);
         layout.id = self.id.clone();
 
         Box::new(layout)
     }
 
     fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {
-        renderer.draw([helium_renderer::Text::new(&self.text)
-            .position(layout.position().x, layout.position().y)
-            .font_size(self.font_size)
-            .color(self.color)]);
+		let position = layout.position();
+        renderer.draw([self.primitive().position(position.x, position.y)]);
     }
 }

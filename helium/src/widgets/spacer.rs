@@ -3,7 +3,22 @@ use crystal::{BoxSizing, EmptyLayout};
 use helium_renderer::Rect;
 
 /// A [`Widget`] that fills up all the available space.  
-/// Note that `Spacer`'s have no effect when the parent `widget` has
+/// 
+/// The most common usage is to push [`Widget`]'s to the end of the
+/// parent.
+/// 
+/// ```
+/// use helium::{hstack,widgets::{Spacer,Text,Button}};
+/// 
+/// let navbar = hstack!{
+/// 	Text::new("Logo"),
+/// 	Text::new("Shop"),
+/// 	Text::new("Contact us"),
+/// 	Spacer::new(),
+/// 	Button::text("Cart"),
+/// }
+/// ```
+/// **Note** that `Spacer`'s have no effect when the parent `widget` has
 /// an intrinsic size of `Shrink`, because the parent will try to be
 /// as small as possible, hence the spacer will have 0 size.
 pub struct Spacer {
@@ -23,7 +38,7 @@ impl Widget for Spacer {
         &self.id
     }
 
-    fn layout(&self) -> Box<dyn crystal::Layout> {
+    fn layout(&self,_:&mut helium_renderer::Renderer) -> Box<dyn crystal::Layout> {
         let mut layout = EmptyLayout::new();
         layout.id = self.id.clone();
         layout.intrinsic_size.width = BoxSizing::Flex(1);

@@ -94,9 +94,9 @@ impl Widget for HStack {
         &self.id
     }
 
-    fn layout(&self) -> Box<dyn Layout> {
+    fn layout(&self,renderer:&mut helium_renderer::Renderer) -> Box<dyn Layout> {
         let children_layout: Vec<Box<dyn Layout>> =
-            self.children.iter().map(|widget| widget.layout()).collect();
+            self.children.iter().map(|widget| widget.layout(renderer)).collect();
 
         let HorizontalLayout {
             spacing,

@@ -100,8 +100,8 @@ impl<W: Widget> Widget for Button<W> {
 		}
 	}
 
-    fn layout(&self) -> Box<dyn Layout> {
-        let mut layout = BlockLayout::new(self.child.layout());
+    fn layout(&self,renderer:&mut helium_renderer::Renderer) -> Box<dyn Layout> {
+        let mut layout = BlockLayout::new(self.child.layout(renderer));
         layout.intrinsic_size = self.modifiers.intrinsic_size;
 		layout.padding = self.padding;
 		layout.main_axis_alignment = AxisAlignment::Center; // TODO expose this

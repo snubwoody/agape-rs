@@ -103,6 +103,10 @@ impl<'r> Renderer<'r> {
         }
     }
 
+	pub fn text_size(&mut self,text:&Text) -> Size{
+		self.text_pipeline.text_size(text)
+	}
+
     pub fn resize(&mut self, size: Size) {
         self.config.width = size.width as u32;
         self.config.height = size.height as u32;

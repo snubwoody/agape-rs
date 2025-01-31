@@ -10,7 +10,6 @@ pub use helium_core::color::*;
 pub use helium_core::position::{Bounds, Position};
 pub use helium_core::size::Size;
 pub use helium_macros::hex; // TODO move to colors mod
-pub(crate) use helium_renderer as renderer;
 use helium_renderer::{Renderer, Text};
 pub use nanoid::nanoid;
 use std::time::{Duration, Instant};
@@ -119,7 +118,8 @@ impl Page {
 
     fn dispatch_event(&mut self, event: &winit::event::WindowEvent) {
         match event {
-            WindowEvent::CursorMoved { position, .. } => self.mouse_pos = Position::from(*position),
+            WindowEvent::CursorMoved { position, .. } => 
+				self.mouse_pos = Position::from(*position),
             _ => {}
         }
         self.widget
@@ -132,10 +132,9 @@ impl Page {
 
         self.widget.iter().for_each(|w| {
             if let Some(layout) = layout.get(w.id()) {
-                // TODO add an error or similar here; every widget should have a layout
                 w.draw(layout, renderer);
             } else {
-                log::warn!("Widget has missing Layout")
+                log::warn!("Widget is missing it's Layout")
             }
         });
     }

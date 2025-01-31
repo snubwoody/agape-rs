@@ -116,8 +116,33 @@ impl TextPipeline {
         }
     }
 
-	pub fn text_size(&self) -> Size{
-		todo!()
+	pub fn text_size(&mut self,text: &Text) -> Size{
+		let font_system = &mut self.font_system;
+		
+		let mut buffer = Buffer::new(
+			font_system, 
+			Metrics::new(text.font_size as f32, text.font_size as f32 * text.line_height)
+		);
+		
+		// TODO try to get the default font on each platform
+		// TODO expose font weight and other items
+		// Just get any sans-serif font
+		let attrs = Attrs::new()
+			.family(cosmic_text::Family::SansSerif);
+
+		buffer.set_text(font_system, &text.text, attrs, cosmic_text::Shaping::Advanced);
+		
+		buffer.shape_until_scroll(font_system, false);
+		let mut size = Size::default();
+		for run in buffer.layout_runs(){
+			size.width += size.width.max(run.line_w); // Get the max of all lines
+			size.height += run.line_height;
+		}
+
+		// Add padding to prevent clipping
+		size += 5.0;
+
+		size
 	}
 
 	/// Uses `comsic-text` to rasterize the font into a an image, which
@@ -148,7 +173,7 @@ impl TextPipeline {
 		}
 
 		// Add padding to prevent clipping
-		size += 5.0;
+		size += 5.0; // TODO change to 1.0
 
 		let [r,g,b,a] = text.color.to_rgba();
 		

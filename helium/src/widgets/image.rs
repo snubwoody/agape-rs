@@ -166,7 +166,7 @@ impl Widget for Image {
         &self.id
     }
 
-    fn layout(&self) -> Box<dyn crystal::Layout> {
+    fn layout(&self,_:&mut helium_renderer::Renderer) -> Box<dyn crystal::Layout> {
         Box::new(self.layout.clone())
     }
 

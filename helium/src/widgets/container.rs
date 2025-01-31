@@ -47,8 +47,8 @@ where
         &self.id
     }
 
-    fn layout(&self) -> Box<dyn Layout> {
-        let child_layout = self.child.layout();
+    fn layout(&self,renderer:&mut helium_renderer::Renderer) -> Box<dyn Layout> {
+        let child_layout = self.child.layout(renderer);
         let mut layout = BlockLayout::new(child_layout);
         layout.id = self.id.clone();
         layout.padding = self.padding;

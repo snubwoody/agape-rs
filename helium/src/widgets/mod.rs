@@ -31,7 +31,7 @@ use winit::event::{ElementState, MouseButton, WindowEvent};
 pub trait Widget: WidgetIterator {
     /// Build the [`Widget`] into a primitive [`WidgetBody`] for
     /// rendering.
-    fn layout(&self) -> Box<dyn Layout>;
+    fn layout(&self,renderer: &mut Renderer) -> Box<dyn Layout>;
 
     /// Get the `id` of the [`Widget`]
     fn id(&self) -> &str;
