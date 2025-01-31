@@ -5,8 +5,8 @@ use helium_core::{Color, Position, Size};
 pub struct Text {
     pub text: String,
     pub font_size: u8,
-	/// The line height is a multiple of the font_size, e.g.
-	/// a line height of `1.0` with a font size of `16px` is `16px`.
+    /// The line height is a multiple of the font_size, e.g.
+    /// a line height of `1.0` with a font size of `16px` is `16px`.
     pub line_height: f32,
     pub color: Color,
     pub position: Position,
@@ -17,7 +17,7 @@ impl Text {
         Self {
             text: String::from(text),
             font_size: 16,
-			line_height:1.5,
+            line_height: 1.5,
             ..Default::default()
         }
     }
@@ -38,8 +38,8 @@ impl Text {
 
     /// Set the line height
     ///
-	/// The line height is a multiple of the font_size, e.g.
-	/// a line height of `1.0` with a font size of `16px` is `16px`.
+    /// The line height is a multiple of the font_size, e.g.
+    /// a line height of `1.0` with a font size of `16px` is `16px`.
     pub fn line_height(mut self, line_height: f32) -> Self {
         self.line_height = line_height;
         self

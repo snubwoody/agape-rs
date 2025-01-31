@@ -83,7 +83,7 @@ impl Widget for Rect {
         &self.id
     }
 
-    fn layout(&self,_:&mut helium_renderer::Renderer) -> Box<dyn Layout> {
+    fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size = self.intrinsic_size;
         layout.id = self.id.clone();

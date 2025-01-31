@@ -1,6 +1,9 @@
 #![allow(non_snake_case)]
 use helium::{
-    crystal::{AxisAlignment, LayoutSolver}, hex, hstack, vstack, widgets::*, App, Color, Page, Size, BLACK, WHITE
+    crystal::{AxisAlignment, LayoutSolver},
+    hex, hstack, vstack,
+    widgets::*,
+    App, Color, Page, Size, BLACK, WHITE,
 };
 use icon::feather_icons;
 use std::{
@@ -15,8 +18,8 @@ const SPOTIFY_GREEN: Color = hex!("#3be477");
 
 // TODO theres some sizes that are making the icons pixelated, very weird
 #[tokio::main]
-async fn main() -> Result<(),helium::Error> {
-	std::env::set_var("RUST_LOG", "warn,helium_renderer=trace");
+async fn main() -> Result<(), helium::Error> {
+    std::env::set_var("RUST_LOG", "warn,helium_renderer=trace");
     env_logger::init();
 
     let announcements = Rect::new(0.0, 400.0)
@@ -71,11 +74,11 @@ async fn main() -> Result<(),helium::Error> {
     .fill_height()
     .fill_width();
 
-    let mut app =App::new();
-	app.add_page(home);
-	app.run().await?;
+    let mut app = App::new();
+    app.add_page(home);
+    app.run().await?;
 
-	Ok(())
+    Ok(())
 }
 
 fn Sidebar() -> impl Widget {
@@ -123,9 +126,9 @@ fn Sidebar() -> impl Widget {
 fn DiscoveryPlaylist() -> impl Widget {
     vstack! {
         Image::bytes(include_bytes!("COLOURS - PARTYNEXTDOOR.jpg"))
-			.unwrap()
-			.fixed_width(150.0)
-			.fixed_height(150.0),
+            .unwrap()
+            .fixed_width(150.0)
+            .fixed_height(150.0),
         Text::new("Daily mix")
     }
     .spacing(12)

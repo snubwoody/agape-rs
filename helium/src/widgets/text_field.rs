@@ -1,5 +1,8 @@
 use super::{Modifiers, Widget};
-use crate::{colors::tailwind_colors::{NEUTRAL100, NEUTRAL200}, impl_modifiers};
+use crate::{
+    colors::tailwind_colors::{NEUTRAL100, NEUTRAL200},
+    impl_modifiers,
+};
 use crystal::{BoxSizing, EmptyLayout};
 use helium_core::color::Color;
 use helium_renderer::Rect;
@@ -13,7 +16,7 @@ pub struct TextField {
     pub focus_background_color: Color,
     pub background_color: Color,
     pub corner_radius: u32,
-	modifiers:Modifiers
+    modifiers: Modifiers,
 }
 
 impl TextField {
@@ -25,7 +28,7 @@ impl TextField {
             focus_background_color: NEUTRAL200,
             background_color: NEUTRAL100,
             corner_radius: 0,
-			modifiers:Modifiers::new()
+            modifiers: Modifiers::new(),
         }
     }
 
@@ -33,10 +36,10 @@ impl TextField {
         self
     }
 
-	pub fn corner_radius(mut self,corner_radius:u32) -> Self{
-		self.corner_radius = corner_radius;
-		self
-	}
+    pub fn corner_radius(mut self, corner_radius: u32) -> Self {
+        self.corner_radius = corner_radius;
+        self
+    }
 
     /// Set the background color of the [`TextField`] when it is focused.
     pub fn focus_background_color(mut self, focus_background_color: Color) -> Self {
@@ -52,7 +55,7 @@ impl TextField {
 
     fn on_input(&mut self, f: impl FnMut(&str) + 'static) {}
 
-	impl_modifiers!();
+    impl_modifiers!();
 }
 
 impl Widget for TextField {
@@ -90,10 +93,10 @@ impl Widget for TextField {
         }
     }
 
-    fn layout(&self,_:&mut helium_renderer::Renderer) -> Box<dyn crystal::Layout> {
+    fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn crystal::Layout> {
         let mut layout = EmptyLayout::new();
         layout.id = self.id.clone();
-		layout.intrinsic_size = self.modifiers.intrinsic_size;
+        layout.intrinsic_size = self.modifiers.intrinsic_size;
         Box::new(layout)
     }
 

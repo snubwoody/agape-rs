@@ -149,8 +149,8 @@ impl<'b> BindGroupBuilder<'b> {
 #[cfg(test)]
 mod tests {
     use super::*;
-	use crate::setup;
     use crate::builders::BufferBuilder;
+    use crate::setup;
 
     #[tokio::test]
     async fn bind_group_layout_builder() {

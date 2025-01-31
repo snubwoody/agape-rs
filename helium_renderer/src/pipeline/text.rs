@@ -1,8 +1,3 @@
-use helium_core::Size;
-use std::{io::Cursor, rc::Rc, time::Instant};
-use wgpu::{hal::auxil::db::{self, imgtec}, Extent3d};
-use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, SwashCache, Weight};
-use image::{GenericImageView, ImageBuffer, Rgba, RgbaImage};
 use super::GlobalResources;
 use crate::{
     builders::{
@@ -11,6 +6,14 @@ use crate::{
     },
     primitives::Text,
     vertex::Vertex,
+};
+use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, SwashCache, Weight};
+use helium_core::Size;
+use image::{GenericImageView, ImageBuffer, Rgba, RgbaImage};
+use std::{io::Cursor, rc::Rc, time::Instant};
+use wgpu::{
+    hal::auxil::db::{self, imgtec},
+    Extent3d,
 };
 
 // TODO replace text_to_png
@@ -21,8 +24,8 @@ pub struct TextPipeline {
     pipeline: wgpu::RenderPipeline,
     layout: wgpu::BindGroupLayout,
     global: Rc<GlobalResources>,
-	font_system:FontSystem,
-	cache:SwashCache
+    font_system: FontSystem,
+    cache: SwashCache,
 }
 
 impl TextPipeline {
@@ -31,11 +34,11 @@ impl TextPipeline {
         format: wgpu::TextureFormat,
         global: Rc<GlobalResources>,
     ) -> Self {
-		let mut font_system = FontSystem::new();
-		font_system.db_mut().load_system_fonts();
-		log::trace!("Loaded system fonts");
-		let cache = SwashCache::new();
-		
+        let mut font_system = FontSystem::new();
+        font_system.db_mut().load_system_fonts();
+        log::trace!("Loaded system fonts");
+        let cache = SwashCache::new();
+
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("Text Shader Module"),
             source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/text.wgsl").into()),
@@ -108,95 +111,109 @@ impl TextPipeline {
         });
 
         Self {
-			font_system,
+            font_system,
             pipeline,
             layout,
             global,
-			cache
+            cache,
         }
     }
 
-	pub fn text_size(&mut self,text: &Text) -> Size{
-		let font_system = &mut self.font_system;
-		
-		let mut buffer = Buffer::new(
-			font_system, 
-			Metrics::new(text.font_size as f32, text.font_size as f32 * text.line_height)
-		);
-		
-		// TODO try to get the default font on each platform
-		// TODO expose font weight and other items
-		// Just get any sans-serif font
-		let attrs = Attrs::new()
-			.family(cosmic_text::Family::SansSerif);
+    pub fn text_size(&mut self, text: &Text) -> Size {
+        let font_system = &mut self.font_system;
 
-		buffer.set_text(font_system, &text.text, attrs, cosmic_text::Shaping::Advanced);
-		
-		buffer.shape_until_scroll(font_system, false);
-		let mut size = Size::default();
-		for run in buffer.layout_runs(){
-			size.width += size.width.max(run.line_w); // Get the max of all lines
-			size.height += run.line_height;
-		}
+        let mut buffer = Buffer::new(
+            font_system,
+            Metrics::new(
+                text.font_size as f32,
+                text.font_size as f32 * text.line_height,
+            ),
+        );
 
-		// Add padding to prevent clipping
-		size += 1.0;
+        // TODO try to get the default font on each platform
+        // TODO expose font weight and other items
+        // Just get any sans-serif font
+        let attrs = Attrs::new().family(cosmic_text::Family::SansSerif);
 
-		size
-	}
+        buffer.set_text(
+            font_system,
+            &text.text,
+            attrs,
+            cosmic_text::Shaping::Advanced,
+        );
 
-	/// Uses `comsic-text` to rasterize the font into a an image, which
-	/// will then be written to a `wgpu::Buffer`.
-	fn rasterize_text(&mut self,text:&Text) -> (ImageBuffer<Rgba<u8>,Vec<u8>>,Size){
-		// FIXME there's some artifacts appearing on the texture.
-		let font_system = &mut self.font_system;
-		let cache = &mut self.cache;
-		
-		let mut buffer = Buffer::new(
-			font_system, 
-			Metrics::new(text.font_size as f32, text.font_size as f32 * text.line_height)
-		);
-		
-		// TODO try to get the default font on each platform
-		// TODO expose font weight and other items
-		// Just get any sans-serif font
-		let attrs = Attrs::new()
-			.family(cosmic_text::Family::SansSerif);
+        buffer.shape_until_scroll(font_system, false);
+        let mut size = Size::default();
+        for run in buffer.layout_runs() {
+            size.width += size.width.max(run.line_w); // Get the max of all lines
+            size.height += run.line_height;
+        }
 
-		buffer.set_text(font_system, &text.text, attrs, cosmic_text::Shaping::Advanced);
-		
-		buffer.shape_until_scroll(font_system, false);
-		let mut size = Size::default();
-		for run in buffer.layout_runs(){
-			size.width += size.width.max(run.line_w); // Get the max of all lines
-			size.height += run.line_height;
-		}
+        // Add padding to prevent clipping
+        size += 1.0;
 
-		// Add padding to prevent clipping
-		size += 1.0; // TODO change to 1.0
+        size
+    }
 
-		let [r,g,b,a] = text.color.to_rgba();
-		
-		// FIXME one of the sizes starts at 0 and one starts at 1 im not sure which
-		let mut image = RgbaImage::new(size.width as u32, size.height as u32);
-		buffer.set_size(font_system, Some(size.width), Some(size.height));
+    /// Uses `comsic-text` to rasterize the font into a an image, which
+    /// will then be written to a `wgpu::Buffer`.
+    fn rasterize_text(&mut self, text: &Text) -> (ImageBuffer<Rgba<u8>, Vec<u8>>, Size) {
+        // FIXME there's some artifacts appearing on the texture.
+        let font_system = &mut self.font_system;
+        let cache = &mut self.cache;
 
-		buffer.draw(
-			font_system, 
-			cache, 
-			cosmic_text::Color::rgba(r, g, b,a), 
-			|x,y,_,_,color|{
-				let x = x as u32;
-				let y = y as u32;
-				if x < image.width() && y < image.height(){
-					let pixel = image.get_pixel_mut(x, y);
-					*pixel = Rgba([color.r(),color.b(),color.g(),color.a()])
-				}
-			}
-		);
+        let mut buffer = Buffer::new(
+            font_system,
+            Metrics::new(
+                text.font_size as f32,
+                text.font_size as f32 * text.line_height,
+            ),
+        );
 
-		(image,size)
-	}
+        // TODO try to get the default font on each platform
+        // TODO expose font weight and other items
+        // Just get any sans-serif font
+        let attrs = Attrs::new().family(cosmic_text::Family::SansSerif);
+
+        buffer.set_text(
+            font_system,
+            &text.text,
+            attrs,
+            cosmic_text::Shaping::Advanced,
+        );
+
+        buffer.shape_until_scroll(font_system, false);
+        let mut size = Size::default();
+        for run in buffer.layout_runs() {
+            size.width += size.width.max(run.line_w); // Get the max of all lines
+            size.height += run.line_height;
+        }
+
+        // Add padding to prevent clipping
+        size += 1.0; // TODO change to 1.0
+
+        let [r, g, b, a] = text.color.to_rgba();
+
+        // FIXME one of the sizes starts at 0 and one starts at 1 im not sure which
+        let mut image = RgbaImage::new(size.width as u32, size.height as u32);
+        buffer.set_size(font_system, Some(size.width), Some(size.height));
+
+        buffer.draw(
+            font_system,
+            cache,
+            cosmic_text::Color::rgba(r, g, b, a),
+            |x, y, _, _, color| {
+                let x = x as u32;
+                let y = y as u32;
+                if x < image.width() && y < image.height() {
+                    let pixel = image.get_pixel_mut(x, y);
+                    *pixel = Rgba([color.r(), color.b(), color.g(), color.a()])
+                }
+            },
+        );
+
+        (image, size)
+    }
 
     pub fn draw(
         &mut self,
@@ -205,9 +222,9 @@ impl TextPipeline {
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
     ) {
-		let (text_img,size) = self.rasterize_text(&text);
+        let (text_img, size) = self.rasterize_text(&text);
 
-		let vertices = Vertex::quad(size, text.position, text.color);
+        let vertices = Vertex::quad(size, text.position, text.color);
 
         let vertex_buffer = BufferBuilder::new()
             .label("Text vertex buffer")
@@ -265,27 +282,27 @@ impl TextPipeline {
 
 #[cfg(test)]
 mod tests {
-	use super::*;
+    use super::*;
     use crate::setup;
 
-	#[tokio::test]
-	async fn font_rasterizing(){
-		let (device,_) = setup().await;
-		let global = Rc::new(GlobalResources::new(&device, Size::default()));
-		let format = wgpu::TextureFormat::Rgba8Unorm;
-		
-		let mut pipeline = TextPipeline::new(&device, format, global);
-		let text_queue = [
-			Text::new("Hello world").line_height(20.0),
-			Text::new("Hello world").font_size(255),
-			Text::new("Hi mom!"),
-			Text::new("Click me please! You might get a treat")
-				.line_height(2.0)
-				.font_size(24),
-		];
+    #[tokio::test]
+    async fn font_rasterizing() {
+        let (device, _) = setup().await;
+        let global = Rc::new(GlobalResources::new(&device, Size::default()));
+        let format = wgpu::TextureFormat::Rgba8Unorm;
 
-		for text in text_queue{
-			let (_image,_size) = pipeline.rasterize_text(&text);
-		}
-	}
+        let mut pipeline = TextPipeline::new(&device, format, global);
+        let text_queue = [
+            Text::new("Hello world").line_height(20.0),
+            Text::new("Hello world").font_size(255),
+            Text::new("Hi mom!"),
+            Text::new("Click me please! You might get a treat")
+                .line_height(2.0)
+                .font_size(24),
+        ];
+
+        for text in text_queue {
+            let (_image, _size) = pipeline.rasterize_text(&text);
+        }
+    }
 }

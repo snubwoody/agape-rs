@@ -1,6 +1,7 @@
 //! [`Widget`]'s describe what you want to present onto the screen. Helium tries to provide
 //! as many [`Widget`]'s as possible for various uses such as [`Text`],[`Button`],[`HStack`]
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
+mod _await;
 mod button;
 mod circle;
 mod container;
@@ -12,6 +13,7 @@ mod spacer;
 mod text;
 mod text_field;
 mod vstack;
+pub use _await::*;
 pub use button::*;
 pub use circle::*;
 pub use container::*;
@@ -31,7 +33,7 @@ use winit::event::{ElementState, MouseButton, WindowEvent};
 pub trait Widget: WidgetIterator {
     /// Build the [`Widget`] into a primitive [`WidgetBody`] for
     /// rendering.
-    fn layout(&self,renderer: &mut Renderer) -> Box<dyn Layout>;
+    fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout>;
 
     /// Get the `id` of the [`Widget`]
     fn id(&self) -> &str;

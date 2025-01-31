@@ -58,11 +58,11 @@ impl Text {
         self
     }
 
-	fn primitive(&self) -> helium_renderer::Text{
-		helium_renderer::Text::new(&self.text)
+    fn primitive(&self) -> helium_renderer::Text {
+        helium_renderer::Text::new(&self.text)
             .font_size(self.font_size)
             .color(self.color)
-	}
+    }
 }
 
 impl Widget for Text {
@@ -70,9 +70,9 @@ impl Widget for Text {
         &self.id
     }
 
-    fn layout(&self,renderer:&mut helium_renderer::Renderer) -> Box<dyn Layout> {
-		let text = self.primitive();
-		let size = renderer.text_size(&text);
+    fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
+        let text = self.primitive();
+        let size = renderer.text_size(&text);
 
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size.width = BoxSizing::Fixed(size.width);
@@ -83,7 +83,7 @@ impl Widget for Text {
     }
 
     fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {
-		let position = layout.position();
+        let position = layout.position();
         renderer.draw([self.primitive().position(position.x, position.y)]);
     }
 }

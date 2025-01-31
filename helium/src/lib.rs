@@ -50,10 +50,10 @@ impl App {
         }
     }
 
-    pub fn add_page(&mut self, widget:impl Widget + 'static) {
-		// Create a temp renderer for initial layout
-		let mut renderer = async_std::task::block_on(Renderer::new(&self.window));
-        self.pages.push(Page::new(widget,&mut renderer));
+    pub fn add_page(&mut self, widget: impl Widget + 'static) {
+        // Create a temp renderer for initial layout
+        let mut renderer = async_std::task::block_on(Renderer::new(&self.window));
+        self.pages.push(Page::new(widget, &mut renderer));
     }
 
     // FIXME app panics if there are no views
@@ -78,7 +78,7 @@ impl App {
                         renderer.render();
                     }
                     WindowEvent::Resized(window_size) => {
-						size = window_size.into();
+                        size = window_size.into();
                         self.pages[self.index].resize(Size::from(window_size));
                         renderer.resize(window_size.into());
                         // I think resizing already causes a redraw request but i'm not sure
@@ -90,8 +90,8 @@ impl App {
                     }
                 },
                 _ => {
-					self.window.request_redraw();
-				}
+                    self.window.request_redraw();
+                }
             }
             previous_duration = instant.elapsed();
         })?;
@@ -107,7 +107,7 @@ pub struct Page {
 }
 
 impl Page {
-    pub fn new(widget: impl Widget + 'static,renderer: &mut Renderer) -> Self {
+    pub fn new(widget: impl Widget + 'static, renderer: &mut Renderer) -> Self {
         Self {
             mouse_pos: Position::default(),
             layout: widget.layout(renderer),
@@ -121,8 +121,7 @@ impl Page {
 
     fn dispatch_event(&mut self, event: &winit::event::WindowEvent) {
         match event {
-            WindowEvent::CursorMoved { position, .. } => 
-				self.mouse_pos = Position::from(*position),
+            WindowEvent::CursorMoved { position, .. } => self.mouse_pos = Position::from(*position),
             _ => {}
         }
         self.widget

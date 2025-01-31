@@ -103,9 +103,9 @@ impl<'r> Renderer<'r> {
         }
     }
 
-	pub fn text_size(&mut self,text:&Text) -> Size{
-		self.text_pipeline.text_size(text)
-	}
+    pub fn text_size(&mut self, text: &Text) -> Size {
+        self.text_pipeline.text_size(text)
+    }
 
     pub fn resize(&mut self, size: Size) {
         self.config.width = size.width as u32;
@@ -200,8 +200,8 @@ impl<'r> Renderer<'r> {
 pub(crate) async fn setup() -> (wgpu::Device, wgpu::Queue) {
     use winit::platform::windows::EventLoopBuilderExtWindows;
     use winit::window::WindowBuilder;
-	
-	let event_loop = winit::event_loop::EventLoopBuilder::new()
+
+    let event_loop = winit::event_loop::EventLoopBuilder::new()
         .with_any_thread(true)
         .build()
         .expect("Failed to create EventLoop");
@@ -243,11 +243,11 @@ pub(crate) async fn setup() -> (wgpu::Device, wgpu::Queue) {
 }
 
 #[cfg(test)]
-mod tests{
+mod tests {
     use super::*;
 
-	#[tokio::test]
-	async fn setup_works(){
-		let (_device,_queue) = setup().await;
-	}
+    #[tokio::test]
+    async fn setup_works() {
+        let (_device, _queue) = setup().await;
+    }
 }

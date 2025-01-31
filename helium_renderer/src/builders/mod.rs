@@ -6,4 +6,3 @@ pub use bind_group::*;
 pub use buffer::*;
 pub use texture::*;
 pub use vertex::*;
-
