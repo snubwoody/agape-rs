@@ -12,9 +12,10 @@ fn main() -> Result<(), helium::Error> {
     .fill()
     .align_center();
 
-    let page = Page::new(body);
 
-    App::new().add_page(page).run()?;
+    let mut app = App::new();
+	app.add_page(body);
+	app.run()?;
 
     Ok(())
 }

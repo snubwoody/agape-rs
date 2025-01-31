@@ -50,9 +50,10 @@ impl App {
         }
     }
 
-    pub fn add_page(mut self, page: Page) -> Self {
-        self.pages.push(page);
-        self
+    pub fn add_page(&mut self, widget:impl Widget + 'static) {
+		// Create a temp renderer for initial layout
+		let mut renderer = async_std::task::block_on(Renderer::new(&self.window));
+        self.pages.push(Page::new(widget,&mut renderer));
     }
 
     // FIXME app panics if there are no views
@@ -104,10 +105,10 @@ pub struct Page {
 }
 
 impl Page {
-    pub fn new(widget: impl Widget + 'static) -> Self {
+    pub fn new(widget: impl Widget + 'static,renderer: &mut Renderer) -> Self {
         Self {
             mouse_pos: Position::default(),
-            layout: widget.layout(),
+            layout: widget.layout(renderer),
             widget: Box::new(widget),
         }
     }
@@ -127,7 +128,7 @@ impl Page {
     }
 
     fn draw(&self, renderer: &mut Renderer, size: Size) {
-        let mut layout = self.widget.layout();
+        let mut layout = self.widget.layout(renderer);
         LayoutSolver::solve(&mut *layout, size);
 
         self.widget.iter().for_each(|w| {

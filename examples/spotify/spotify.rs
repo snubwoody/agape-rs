@@ -70,24 +70,9 @@ fn main() {
     .fill_height()
     .fill_width();
 
-    let mut layout = home.layout();
-    LayoutSolver::solve(&mut *layout, Size::new(500.0, 500.0));
-
-    // TODO im probably going to be using this a lot so probs just make it a function
-    // maybe LayoutSolver::solve_and_write(path:&str)
-    let file = OpenOptions::new()
-        .write(true)
-        .read(true)
-        .open("C:/Users/wakun/Projects/Tools/Rust-UI/examples/temp/layout.txt")
-        .unwrap();
-    let mut writer = BufWriter::new(file);
-
-    writer.write(format!("{:#?}", layout).as_bytes()).unwrap();
-    writer.flush().unwrap();
-
-    let home = Page::new(home);
-
-    App::new().add_page(home).run().unwrap();
+    let mut app =App::new();
+	app.add_page(home);
+	app.run().unwrap();
 }
 
 fn Sidebar() -> impl Widget {

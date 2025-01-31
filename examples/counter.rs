@@ -8,7 +8,9 @@ fn main() {
 fn app() {
     let main = Rect::new(150.0, 150.0).color(BLACK).corner_radius(24);
 
-    let page = Page::new(main);
 
-    App::new().add_page(page).run().unwrap();
+    let mut app = App::new();
+	app.add_page(main);
+	
+	app.run().unwrap();
 }
