@@ -89,7 +89,9 @@ impl App {
                         self.window.request_redraw();
                     }
                 },
-                _ => {}
+                _ => {
+					self.window.request_redraw();
+				}
             }
             previous_duration = instant.elapsed();
         })?;
