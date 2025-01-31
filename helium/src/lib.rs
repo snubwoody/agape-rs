@@ -21,8 +21,8 @@ use winit::{
 };
 // TODO re-export the winit event modules
 
-/// [`App`]'s contain the whole program and are the point of entry for helium
-/// they are responsible for the overall management of rendering, resources,
+/// An [`App`]'s is the point of entry for your program they are responsible
+/// for the overall management of rendering, resources,
 /// [`Widget`]'s etc.
 pub struct App {
     event_loop: EventLoop<()>,
@@ -57,10 +57,10 @@ impl App {
     }
 
     // FIXME app panics if there are no views
-    pub fn run(mut self) -> Result<(), crate::Error> {
+    pub async fn run(mut self) -> Result<(), crate::Error> {
         self.window.set_visible(true);
 
-        let mut renderer = async_std::task::block_on(Renderer::new(&self.window));
+        let mut renderer = Renderer::new(&self.window).await;
         log::info!("Running app");
 
         // Not quite sure how accurate this is
@@ -78,7 +78,7 @@ impl App {
                         renderer.render();
                     }
                     WindowEvent::Resized(window_size) => {
-                        size = window_size.into();
+						size = window_size.into();
                         self.pages[self.index].resize(Size::from(window_size));
                         renderer.resize(window_size.into());
                         // I think resizing already causes a redraw request but i'm not sure

@@ -14,7 +14,8 @@ const GREY: Color = hex!("#414141");
 const SPOTIFY_GREEN: Color = hex!("#3be477");
 
 // TODO theres some sizes that are making the icons pixelated, very weird
-fn main() {
+#[tokio::main]
+async fn main() -> Result<(),helium::Error> {
 	std::env::set_var("RUST_LOG", "warn,helium_renderer=trace");
     env_logger::init();
 
@@ -72,7 +73,9 @@ fn main() {
 
     let mut app =App::new();
 	app.add_page(home);
-	app.run().unwrap();
+	app.run().await?;
+
+	Ok(())
 }
 
 fn Sidebar() -> impl Widget {

@@ -1,7 +1,8 @@
 #![allow(non_snake_case)]
 use helium::{colors::tailwind_colors, vstack, widgets::*, App, Page, BLACK, WHITE};
 
-fn main() -> Result<(), helium::Error> {
+#[tokio::main]
+async fn main() -> Result<(), helium::Error> {
 	// TODO add underlines
     env_logger::init();
     // TODO export hstack from widgets
@@ -15,7 +16,7 @@ fn main() -> Result<(), helium::Error> {
 
     let mut app = App::new();
 	app.add_page(body);
-	app.run()?;
+	app.run().await?;
 
     Ok(())
 }
