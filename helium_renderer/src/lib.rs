@@ -28,7 +28,7 @@ pub struct Renderer<'r> {
 
 impl<'r> Renderer<'r> {
     pub async fn new(window: &'r Window) -> Self {
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
             backends: wgpu::Backends::PRIMARY,
             ..Default::default()
         });
@@ -211,7 +211,7 @@ pub(crate) async fn setup() -> (wgpu::Device, wgpu::Queue) {
         .build(&event_loop)
         .expect("Failed to create window");
 
-    let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+    let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
         backends: wgpu::Backends::PRIMARY,
         ..Default::default()
     });
