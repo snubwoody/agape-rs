@@ -33,7 +33,7 @@ fn vs_main(in:VertexInput) -> VertexOutput {
 	var pos = screen_to_ndc(in.position);
 	
 	out.color = in.color;
-	out.uv = in.uv;
+	out.uv = in.uv * vec2(0.5);
 	out.position = vec4<f32>(pos,1.0,1.0);
 	return out;
 }
