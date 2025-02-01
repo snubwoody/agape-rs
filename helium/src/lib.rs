@@ -5,7 +5,7 @@ pub mod error;
 pub mod widgets;
 pub use crystal;
 use crystal::LayoutSolver;
-pub use error::Error;
+pub use error::{Error,Result};
 pub use helium_core::color::*;
 pub use helium_core::position::{Bounds, Position};
 pub use helium_core::size::Size;
@@ -57,7 +57,7 @@ impl App {
     }
 
     // FIXME app panics if there are no views
-    pub async fn run(mut self) -> Result<(), crate::Error> {
+    pub async fn run(mut self) -> Result<()> {
         self.window.set_visible(true);
 
         let mut renderer = Renderer::new(&self.window).await;

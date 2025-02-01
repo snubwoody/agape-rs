@@ -74,7 +74,6 @@ pub trait Widget: WidgetIterator {
 impl dyn Widget {
     fn dispatch_click(
         &mut self,
-        mouse_pos: helium_core::Position,
         state: &winit::event::ElementState,
         button: &winit::event::MouseButton,
     ) {
@@ -109,7 +108,7 @@ impl dyn Widget {
                 let bounds = Bounds::new(layout.position(), layout.size());
 
                 if bounds.within(&mouse_pos) {
-                    self.dispatch_click(mouse_pos, state, button)
+                    self.dispatch_click(state, button)
                 } else {
                     self.unfocus();
                 }

@@ -1,9 +1,7 @@
 use super::Widget;
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::color::Color;
-use helium_renderer::IntoPrimitive;
 
-// TODO add editable() method?
 // TODO TextStyle struct
 /// A [`Widget`] for displaying text onto the screen.
 ///
@@ -13,7 +11,7 @@ use helium_renderer::IntoPrimitive;
 ///
 /// Text::new("Hello world");
 /// ```
-#[derive(Debug, Clone, PartialEq, PartialOrd, Hash)]
+#[derive(Debug, Clone, Hash)]
 pub struct Text {
     id: String,
     pub text: String,

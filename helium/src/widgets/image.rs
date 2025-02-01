@@ -1,5 +1,5 @@
 use super::Widget;
-use crate::impl_layout;
+use crate::{impl_layout, Result};
 use crystal::{BoxSizing, EmptyLayout};
 use image::{GenericImageView, ImageReader};
 use resvg::tiny_skia::Pixmap;
@@ -123,26 +123,28 @@ impl Image {
     /// This method of creating an image *is* working, however it is currently
     /// blocking which is quite noticeable when loading multiple images. Currently
     /// exploring ways to provide non-blocking ways of loading data.
-    pub fn url(url: &str) -> Self {
+    pub fn url(url: &str) -> Result<Self> {
         let id = nanoid::nanoid!();
 
-        let img = reqwest::blocking::get(url).unwrap().bytes().unwrap();
-        let image = image::load_from_memory(&img).unwrap();
+        let img = reqwest::blocking::get(url)?.bytes()?;
+        let image = image::load_from_memory(&img)?;
 
         let mut layout = EmptyLayout::new();
         layout.id = id.clone();
         layout.intrinsic_size.width = BoxSizing::Fixed(image.dimensions().0 as f32);
         layout.intrinsic_size.height = BoxSizing::Fixed(image.dimensions().1 as f32);
 
-        Self {
-            id,
-            state: ImageState::Complete(image),
-            layout,
-        }
+        Ok(
+			Self {
+				id,
+				state: ImageState::Complete(image),
+				layout,
+			}
+		)
     }
 
     /// Create an [`Image`] from raw bytes
-    pub fn bytes(bytes: &[u8]) -> Result<Self, image::ImageError> {
+    pub fn bytes(bytes: &[u8]) -> Result<Self> {
         let id = nanoid::nanoid!();
         let image = image::load_from_memory(bytes)?;
 
