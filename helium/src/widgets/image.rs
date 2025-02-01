@@ -11,7 +11,6 @@ enum ImageState {
     Complete(image::DynamicImage),
 }
 
-/// An Image.  
 #[derive(Debug, Clone, PartialEq)]
 pub struct Image {
     id: String,
@@ -21,6 +20,7 @@ pub struct Image {
 
 // FIXME return all the errors from the methods
 impl Image {
+	// TODO add new constructor that takes in an image
     pub fn file(path: &str) -> Self {
         let id = nanoid::nanoid!();
         // TODO handle the error

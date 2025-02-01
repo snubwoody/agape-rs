@@ -1,4 +1,6 @@
-use helium_renderer::{Renderer, Text};
+use std::time::Instant;
+
+use helium_renderer::{Image, Renderer, Text};
 use winit::{event::WindowEvent, event_loop::EventLoop, window::WindowBuilder};
 
 #[tokio::main]
@@ -20,11 +22,7 @@ async fn main() {
                 WindowEvent::Resized(size) => {
                     renderer.resize(size.into());
                 }
-                WindowEvent::RedrawRequested => {
-                    renderer.draw([Text::new("Hello world").font_size(24).line_height(2.0)]);
-                    renderer.draw([Text::new("Hi mom!").position(200.0, 200.0)]);
-                    renderer.render();
-                }
+                WindowEvent::RedrawRequested => draw(&mut renderer),
                 event => {
                     window.request_redraw();
                 }
@@ -32,4 +30,15 @@ async fn main() {
             _ => {}
         })
         .expect("Event loop error occured");
+}
+
+fn draw(renderer:&mut Renderer){
+	let instant = Instant::now();
+	let image = image::load_from_memory(include_bytes!("spotify/COLOURS - PARTYNEXTDOOR.jpg")).unwrap();
+	renderer.draw([
+		Image::new(image)
+			.size(250.0, 250.0)
+	]);
+	renderer.render();
+	println!("{:?}",instant.elapsed())
 }

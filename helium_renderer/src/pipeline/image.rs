@@ -7,17 +7,17 @@ use crate::{
     primitives::Image,
     vertex::Vertex,
 };
-use helium_core::{
-    color::{TRANSPARENT, WHITE},
-    Size,
-};
-use std::rc::Rc;
+use helium_core::{color::TRANSPARENT,Size};
+use image::imageops::FilterType;
+use std::{num::NonZeroU32, rc::Rc, time::Instant};
 use wgpu::Extent3d;
 
 pub struct ImagePipeline {
     pipeline: wgpu::RenderPipeline,
     layout: wgpu::BindGroupLayout,
     global: Rc<GlobalResources>,
+	texture: wgpu::Texture,
+	image_cache: Option<image::DynamicImage>
 }
 
 impl ImagePipeline {
@@ -97,38 +97,33 @@ impl ImagePipeline {
             cache: None,
         });
 
+		let texture = TextureBuilder::new()
+            .label("Image texture")
+            .size(Size::new(1000.0, 1000.0))
+            .dimension(wgpu::TextureDimension::D2)
+            .format(wgpu::TextureFormat::Rgba8UnormSrgb)
+            .usage(wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST)
+            .build(device);
+
         Self {
             pipeline,
             layout,
             global,
+			texture,
+			image_cache:None
         }
     }
-
+	
     pub fn draw(
-        &mut self,
+		&mut self,
         image: &Image,
         queue: &wgpu::Queue,
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
     ) {
-        // Rasterize the text
-        // Should hopefully replace this library eventually with something glyph based
-        let image_data = image.image.to_rgba8();
+		let size = Size::new(image.image.width() as f32, image.image.height() as f32);
 
-        let size = Size {
-            width: image_data.dimensions().0 as f32,
-            height: image_data.dimensions().1 as f32,
-        };
-
-        let vertices = Vertex::quad(size, image.position, TRANSPARENT);
-
-        let vertex_buffer = BufferBuilder::new()
-            .label("Image vertex buffer")
-            .vertex()
-            .init(&vertices)
-            .build(device);
-
-        let texture = TextureBuilder::new()
+		let texture = TextureBuilder::new()
             .label("Image texture")
             .size(size)
             .dimension(wgpu::TextureDimension::D2)
@@ -136,24 +131,37 @@ impl ImagePipeline {
             .usage(wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST)
             .build(device);
 
-        let texture_view = texture.create_view(&Default::default());
-        let sampler = device.create_sampler(&Default::default());
+        let image_data = image
+			.image
+			//.resize(size.width as u32, size.height as u32, FilterType::Nearest)
+			.to_rgba8();
+		
+		let vertices = Vertex::quad(size, image.position, TRANSPARENT);
 
+        let vertex_buffer = BufferBuilder::new()
+            .label("Image vertex buffer")
+            .vertex()
+            .init(&vertices)
+            .build(device);
+
+		let texture_view = texture.create_view(&Default::default());
+        let sampler = device.create_sampler(&Default::default());
+		
         let bind_group = BindGroupBuilder::new()
-            .label("Image bind group")
-            .texture_view(&texture_view)
+		.label("Image bind group")
+		.texture_view(&texture_view)
             .sampler(&sampler)
             .build(&self.layout, device);
-
-        let size = Extent3d {
-            width: size.width as u32,
+		
+		let size = Extent3d {
+			width: size.width as u32,
             height: size.height as u32,
             depth_or_array_layers: 1,
         };
-
+		
         queue.write_texture(
-            wgpu::TexelCopyTextureInfo {
-                texture: &texture,
+			wgpu::TexelCopyTextureInfo {
+				texture: &texture,
                 mip_level: 0,
                 origin: wgpu::Origin3d::ZERO,
                 aspect: wgpu::TextureAspect::All,
@@ -166,12 +174,12 @@ impl ImagePipeline {
             },
             size,
         );
-
+		
         pass.set_pipeline(&self.pipeline);
         pass.set_bind_group(0, self.global.window_bind_group(), &[]);
         pass.set_bind_group(1, &bind_group, &[]);
         pass.set_vertex_buffer(0, vertex_buffer.slice(..));
-
+		
         pass.draw(0..vertices.len() as u32, 0..1);
     }
 }

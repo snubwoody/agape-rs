@@ -36,7 +36,7 @@ impl TextPipeline {
     ) -> Self {
         let mut font_system = FontSystem::new();
         font_system.db_mut().load_system_fonts();
-        log::trace!("Loaded system fonts");
+        log::info!("Loaded system fonts");
         let cache = SwashCache::new();
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {

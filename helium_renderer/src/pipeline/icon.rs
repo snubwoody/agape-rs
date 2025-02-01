@@ -111,8 +111,6 @@ impl IconPipeline {
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
     ) {
-        // Rasterize the text
-        // Should hopefully replace this library eventually with something glyph based
         let image_data = icon.image.to_rgba8();
 
         let size = Size {
