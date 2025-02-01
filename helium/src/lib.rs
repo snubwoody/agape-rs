@@ -90,6 +90,7 @@ impl App {
                     }
                 },
                 _ => {
+					self.pages[self.index].update();
                     self.window.request_redraw();
                 }
             }
@@ -114,6 +115,10 @@ impl Page {
             widget: Box::new(widget),
         }
     }
+
+	fn update(&mut self){
+		self.widget.update();
+	}
 
     fn resize(&mut self, size: Size) {
         LayoutSolver::solve(&mut *self.layout, size);

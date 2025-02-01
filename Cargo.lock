@@ -896,6 +896,7 @@ dependencies = [
  "helium_renderer",
  "image",
  "log",
+ "reqwest",
  "tokio",
  "winit",
 ]

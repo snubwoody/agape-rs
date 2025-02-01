@@ -74,6 +74,12 @@ impl HStack {
         self
     }
 
+	pub fn align_center(mut self) -> Self {
+        self.layout.main_axis_alignment = AxisAlignment::Center;
+        self.layout.cross_axis_alignment = AxisAlignment::Center;
+        self
+    }
+
     pub fn main_axis_alignment(mut self, alignment: AxisAlignment) -> Self {
         self.layout.main_axis_alignment = alignment;
         self

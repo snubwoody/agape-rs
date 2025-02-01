@@ -12,6 +12,7 @@ tokio.workspace = true
 dotenv = "0.15.0"
 winit.workspace = true
 image.workspace = true
+reqwest = {version = "0.12.12",features = ["blocking","stream","json"]}
 
 [[example]]
 name = "counter"
