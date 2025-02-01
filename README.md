@@ -6,7 +6,7 @@ Helium is inspired by SwiftUI and Flutter and aims to be a fully featured rust g
 
 ![example workflow](https://github.com/snubwoody/Helium/actions/workflows/rust.yml/badge.svg?branch=main)
 
-## Getting started
+## Quick start
 
 ```rust
 use helium::{
@@ -25,4 +25,14 @@ fn main(){
 }
 ```
 
+# Support
 
+
+|Platform|Status|
+|--|--|
+|Windows|Yes|
+|MacOS|Assumed|
+|Linux|Assumed|
+|Web|Planned|
+|Android|Planned|
+|IOS|Planned|
