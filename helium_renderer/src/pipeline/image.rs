@@ -121,11 +121,12 @@ impl ImagePipeline {
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
     ) {
-		let size = Size::new(image.image.width() as f32, image.image.height() as f32);
+		let quad_size = image.size;
+		let image_size = Size::new(image.image.width() as f32, image.image.height() as f32);
 
 		let texture = TextureBuilder::new()
             .label("Image texture")
-            .size(size)
+            .size(image_size)
             .dimension(wgpu::TextureDimension::D2)
             .format(wgpu::TextureFormat::Rgba8UnormSrgb)
             .usage(wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST)
@@ -136,7 +137,7 @@ impl ImagePipeline {
 			//.resize(size.width as u32, size.height as u32, FilterType::Nearest)
 			.to_rgba8();
 		
-		let vertices = Vertex::quad(size, image.position, TRANSPARENT);
+		let vertices = Vertex::quad(quad_size, image.position, TRANSPARENT);
 
         let vertex_buffer = BufferBuilder::new()
             .label("Image vertex buffer")
@@ -154,8 +155,8 @@ impl ImagePipeline {
             .build(&self.layout, device);
 		
 		let size = Extent3d {
-			width: size.width as u32,
-            height: size.height as u32,
+			width: image_size.width as u32,
+            height: image_size.height as u32,
             depth_or_array_layers: 1,
         };
 		
