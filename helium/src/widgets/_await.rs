@@ -4,7 +4,27 @@ use crystal::Layout;
 use tokio::sync::mpsc::{self, Receiver};
 use super::Widget;
 
-/// Loads data in the background
+/// A [`Widget`] that runs a [`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) in 
+/// the background allowing you to display a `Widget` while the future is still pending. When the 
+/// future has completed the completed `Widget` will be displayed instead.
+/// 
+/// # Example
+/// 
+/// ```
+/// use helium::widgets::{Await,Text};
+/// use std::time::Duration;
+/// 
+/// #[tokio::main]
+/// async fn main(){
+/// 	let future = async move{
+/// 		tokio::time::sleep(Duration::from_millis(50)).await;
+/// 		// Futures must return a widget
+/// 		return Text::new("Loaded data!");
+/// 	};
+/// 	
+/// 	let _await = Await::new(future,Text::new("Loading data"));
+/// }
+/// ```
 pub struct Await<P, C> {
 	/// The widget that is displayed while the future is not
 	/// ready
@@ -19,6 +39,30 @@ impl<P, C> Await<P, C>
 where
 	C: Widget + Send + 'static
 {
+	/// Receives a [`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) that is 
+	/// run in the background, allowing you to display a `pending` [`Widget`] while the future 
+	/// loads. The future must return a `Widget` which will be displayed once the future is 
+	/// complete.
+	/// The provided future will start running immediately, sometimes you might only see the 
+	/// completed state, if it completes quick enough.
+	/// 
+	/// # Example
+	/// 
+	/// ```
+	/// use helium::widgets::{Await,Text};
+	/// use std::time::Duration;
+	/// 
+	/// #[tokio::main]
+	/// async fn main(){
+	/// 	let future = async move{
+	/// 		tokio::time::sleep(Duration::from_millis(50)).await;
+	/// 		// Futures must return a widget
+	/// 		return Text::new("Loaded data!");
+	/// 	};
+	/// 	
+	/// 	let _await = Await::new(future,Text::new("Loading data"));
+	/// }
+	/// ```
     pub fn new<F>(future:F,pending:P) -> Self 
 	where F: Future<Output = C> + Send + 'static
 	{
@@ -42,6 +86,7 @@ where
 		}
     }
 
+	/// Continuously check if the receiver has new messages
     pub fn poll(&mut self) {
 		match self.rx.try_recv(){
 			Ok(widget) => {
@@ -93,20 +138,7 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn stream() {
-		let future = async move {
-			let url =
-			"https://m.media-amazon.com/images/I/81qJ1ui8bzL._AC_UF1000,1000_QL80_.jpg";
-			let response = reqwest::get(url).await.unwrap();
-			response.bytes().await.unwrap();
-			return Text::new("Hi");
-		};
-		
-		let mut image = Await::new(future, Text::new("Loading"));
-
-		for _ in 0..10{
-			image.poll();
-			tokio::time::sleep(Duration::from_millis(200)).await;
-		}
+    async fn await_works() {
+		todo!()
     }
 }
