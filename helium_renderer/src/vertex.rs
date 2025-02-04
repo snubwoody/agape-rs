@@ -36,7 +36,7 @@ impl Vertex {
         }
     }
 
-    /// Creates a `Vec` of `Vertices` in a quad layout.
+    /// Creates a `Vec` of 6 `Vertices` in a quad layout.
     ///
     /// # Example
     /// ```

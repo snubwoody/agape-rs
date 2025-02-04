@@ -20,7 +20,7 @@ pub struct Image {
 
 // FIXME return all the errors from the methods
 impl Image {
-	// TODO add new constructor that takes in an image
+    // TODO add new constructor that takes in an image
     pub fn file(path: &str) -> Self {
         let id = nanoid::nanoid!();
         // TODO handle the error
@@ -134,13 +134,11 @@ impl Image {
         layout.intrinsic_size.width = BoxSizing::Fixed(image.dimensions().0 as f32);
         layout.intrinsic_size.height = BoxSizing::Fixed(image.dimensions().1 as f32);
 
-        Ok(
-			Self {
-				id,
-				state: ImageState::Complete(image),
-				layout,
-			}
-		)
+        Ok(Self {
+            id,
+            state: ImageState::Complete(image),
+            layout,
+        })
     }
 
     /// Create an [`Image`] from raw bytes
@@ -175,9 +173,9 @@ impl Widget for Image {
     fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
         match &self.state {
             ImageState::Complete(image) => {
-                renderer.draw([helium_renderer::Image::new(image.clone())
+                renderer.draw([helium_renderer::Image::new(image.to_rgba8().clone())
                     .position(layout.position().x, layout.position().y)
-					.size(layout.size().width, layout.size().height)]);
+                    .size(layout.size().width, layout.size().height)]);
             }
             ImageState::Loading(_) => {
                 renderer.draw([helium_renderer::Rect::default()

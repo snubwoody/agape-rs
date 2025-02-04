@@ -7,7 +7,7 @@ use crate::{
     primitives::Image,
     vertex::Vertex,
 };
-use helium_core::{color::TRANSPARENT,Size};
+use helium_core::{color::TRANSPARENT, Size};
 use image::imageops::FilterType;
 use std::{num::NonZeroU32, rc::Rc, time::Instant};
 use wgpu::Extent3d;
@@ -16,8 +16,9 @@ pub struct ImagePipeline {
     pipeline: wgpu::RenderPipeline,
     layout: wgpu::BindGroupLayout,
     global: Rc<GlobalResources>,
-	texture: wgpu::Texture,
-	image_cache: Option<image::DynamicImage>
+    texture: wgpu::Texture,
+    sampler: wgpu::Sampler,
+    image_cache: Option<image::DynamicImage>,
 }
 
 impl ImagePipeline {
@@ -97,7 +98,7 @@ impl ImagePipeline {
             cache: None,
         });
 
-		let texture = TextureBuilder::new()
+        let texture = TextureBuilder::new()
             .label("Image texture")
             .size(Size::new(1000.0, 1000.0))
             .dimension(wgpu::TextureDimension::D2)
@@ -105,85 +106,128 @@ impl ImagePipeline {
             .usage(wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST)
             .build(device);
 
+        let sampler = device.create_sampler(&Default::default());
+
         Self {
             pipeline,
             layout,
             global,
-			texture,
-			image_cache:None
+            texture,
+            sampler,
+            image_cache: None,
         }
     }
-	
+
     pub fn draw(
-		&mut self,
+        &mut self,
         image: &Image,
         queue: &wgpu::Queue,
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
     ) {
-		let instant = Instant::now();
-		let quad_size = image.size;
-		let image_size = Size::new(image.image.width() as f32, image.image.height() as f32);
-		
-		let data_instant = Instant::now();
+        let instant = Instant::now();
+        let quad_size = image.size;
+        let image_size = Size::new(image.data.width() as f32, image.data.height() as f32);
+
         let image_data = &image.data;
-		log::trace!("Image data: {:?}",data_instant.elapsed());
-		
-		let vertices = Vertex::quad(quad_size, image.position, TRANSPARENT);
-		
-		
+
+        let vertices = Vertex::quad(quad_size, image.position, TRANSPARENT);
+
+        // HERE
         let vertex_buffer = BufferBuilder::new()
             .label("Image vertex buffer")
             .vertex()
             .init(&vertices)
             .build(device);
-		
-		let instant1 = Instant::now();
-		let texture_view = self.texture.create_view(&Default::default());
-        let sampler = device.create_sampler(&Default::default());
-		log::trace!("Created sampler and texture view in: {:?}",instant1.elapsed());
-		
-		let bg_instant = Instant::now();
+
+        // HERE
+        let texture_view = self.texture.create_view(&Default::default());
+
+        // HERE
         let bind_group = BindGroupBuilder::new()
-			.label("Image bind group")
-			.texture_view(&texture_view)
-            .sampler(&sampler)
+            .label("Image bind group")
+            .texture_view(&texture_view)
+            .sampler(&self.sampler)
             .build(&self.layout, device);
-		log::trace!("Created bind group in: {:?}",bg_instant.elapsed());
-		
-		let size = Extent3d {
-			width: image_size.width as u32,
+
+        let size = Extent3d {
+            width: image_size.width as u32,
             height: image_size.height as u32,
             depth_or_array_layers: 1,
         };
-		
-		let texture_instant = Instant::now();
+
+        // HERE
         queue.write_texture(
-			wgpu::TexelCopyTextureInfo {
-				texture: &self.texture,
+            wgpu::TexelCopyTextureInfo {
+                texture: &self.texture,
                 mip_level: 0,
                 origin: wgpu::Origin3d::ZERO,
                 aspect: wgpu::TextureAspect::All,
             },
             &image_data,
             wgpu::TexelCopyBufferLayout {
-				offset: 0,
+                offset: 0,
                 bytes_per_row: Some(4 * size.width as u32),
                 rows_per_image: Some(size.height as u32),
             },
             size,
         );
-		log::trace!("Texture write: {:?}",texture_instant.elapsed());
-		
-		
-		let drawing_instant = Instant::now();
+
         pass.set_pipeline(&self.pipeline);
         pass.set_bind_group(0, self.global.window_bind_group(), &[]);
         pass.set_bind_group(1, &bind_group, &[]);
         pass.set_vertex_buffer(0, vertex_buffer.slice(..));
         pass.draw(0..vertices.len() as u32, 0..1);
-		log::trace!("Drawing total: {:?}",drawing_instant.elapsed());
-		
-		log::trace!("Image pipeline total: {:?}",instant.elapsed());
+
+        log::trace!("Image pipeline total: {:?}", instant.elapsed());
+    }
+}
+
+struct ImageResource {
+    vertices: Vec<Vertex>,
+    vertex_buffer: wgpu::Buffer,
+    bind_group: wgpu::BindGroup,
+}
+
+impl ImageResource {
+    fn new(
+        image: &Image,
+        texture: &wgpu::Texture,
+        sampler: &wgpu::Sampler,
+        layout: &wgpu::BindGroupLayout,
+        device: &wgpu::Device,
+    ) -> Self {
+        let quad_size = image.size;
+        let image_size = Size::new(image.data.width() as f32, image.data.height() as f32);
+
+        let image_data = &image.data;
+
+        let vertices = Vertex::quad(quad_size, image.position, TRANSPARENT);
+
+        let vertex_buffer = BufferBuilder::new()
+            .label("Image vertex buffer")
+            .vertex()
+            .init(&vertices)
+            .build(device);
+
+        let texture_view = texture.create_view(&Default::default());
+
+        let bind_group = BindGroupBuilder::new()
+            .label("Image bind group")
+            .texture_view(&texture_view)
+            .sampler(sampler)
+            .build(layout, device);
+
+        let size = Extent3d {
+            width: image_size.width as u32,
+            height: image_size.height as u32,
+            depth_or_array_layers: 1,
+        };
+
+        Self {
+            vertices,
+            vertex_buffer,
+            bind_group,
+        }
     }
 }

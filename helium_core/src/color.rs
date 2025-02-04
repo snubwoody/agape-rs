@@ -1,11 +1,11 @@
 use crate::map;
 
-pub const BLACK: Color = Color::Rgb(0, 0, 0);
 pub const WHITE: Color = Color::Rgb(255, 255, 255);
+pub const BLACK: Color = Color::Rgb(0, 0, 0);
+pub const RED: Color = Color::Rgb(255, 0, 0);
+pub const GREEN: Color = Color::Rgb(0, 255, 0);
+pub const BLUE: Color = Color::Rgb(0, 0, 255);
 pub const AMBER: Color = Color::Rgb(245, 158, 11);
-pub const GREEN: Color = Color::Rgb(34, 197, 94);
-pub const BLUE: Color = Color::Rgb(0, 0, 254);
-pub const RED: Color = Color::Rgb(255, 10, 94);
 pub const TEAL: Color = Color::Rgb(20, 184, 166);
 pub const INDIGO: Color = Color::Rgb(99, 102, 241);
 pub const PINK: Color = Color::Rgb(236, 72, 153);

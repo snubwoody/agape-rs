@@ -48,9 +48,9 @@ pub trait Widget: WidgetIterator {
         None
     }
 
-	/// Runs every frame allowing [`Widget`]'s to manage any
-	/// state they may have
-	fn tick(&mut self){}
+    /// Runs every frame allowing [`Widget`]'s to manage any
+    /// state they may have
+    fn tick(&mut self) {}
 
     fn process_key(&mut self, key: &winit::keyboard::Key) {}
 
@@ -76,12 +76,12 @@ pub trait Widget: WidgetIterator {
 }
 
 impl dyn Widget {
-	pub fn update(&mut self){
-		self.tick();
-		for child in self.children_mut(){
-			child.tick();
-		}
-	}
+    pub fn update(&mut self) {
+        self.tick();
+        for child in self.children_mut() {
+            child.tick();
+        }
+    }
 
     fn dispatch_click(
         &mut self,
@@ -106,29 +106,28 @@ impl dyn Widget {
         window_event: &WindowEvent,
     ) {
         // I feel like events might happen out of order because of winit's event loop but we shall find out
-		if let Some(layout) = layout_tree.get(self.id()){
-			match window_event {
-				WindowEvent::KeyboardInput { event, .. } => match event.state {
-					ElementState::Pressed => {
-						self.process_key(&event.logical_key);
-					}
-					ElementState::Released => {}
-				},
-				WindowEvent::MouseInput { state, button, .. } => {
-					let bounds = Bounds::new(layout.position(), layout.size());
-	
-					if bounds.within(&mouse_pos) {
-						self.dispatch_click(state, button)
-					} else {
-						self.unfocus();
-					}
-				}
-				_ => {}
-			}
-		}else {
-			log::warn!("Widget: {} is missing a Layout",self.id())
-		}
-        
+        if let Some(layout) = layout_tree.get(self.id()) {
+            match window_event {
+                WindowEvent::KeyboardInput { event, .. } => match event.state {
+                    ElementState::Pressed => {
+                        self.process_key(&event.logical_key);
+                    }
+                    ElementState::Released => {}
+                },
+                WindowEvent::MouseInput { state, button, .. } => {
+                    let bounds = Bounds::new(layout.position(), layout.size());
+
+                    if bounds.within(&mouse_pos) {
+                        self.dispatch_click(state, button)
+                    } else {
+                        self.unfocus();
+                    }
+                }
+                _ => {}
+            }
+        } else {
+            log::warn!("Widget: {} is missing a Layout", self.id())
+        }
 
         for child in self.children_mut() {
             child.dispatch_event(mouse_pos, layout_tree, window_event);

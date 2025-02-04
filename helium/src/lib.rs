@@ -5,7 +5,7 @@ pub mod error;
 pub mod widgets;
 pub use crystal;
 use crystal::LayoutSolver;
-pub use error::{Error,Result};
+pub use error::{Error, Result};
 pub use helium_core::color::*;
 pub use helium_core::position::{Bounds, Position};
 pub use helium_core::size::Size;
@@ -90,7 +90,7 @@ impl App {
                     }
                 },
                 _ => {
-					self.pages[self.index].update();
+                    self.pages[self.index].update();
                     self.window.request_redraw();
                 }
             }
@@ -116,9 +116,9 @@ impl Page {
         }
     }
 
-	fn update(&mut self){
-		self.widget.update();
-	}
+    fn update(&mut self) {
+        self.widget.update();
+    }
 
     fn resize(&mut self, size: Size) {
         LayoutSolver::solve(&mut *self.layout, size);
