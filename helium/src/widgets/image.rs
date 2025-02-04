@@ -176,7 +176,8 @@ impl Widget for Image {
         match &self.state {
             ImageState::Complete(image) => {
                 renderer.draw([helium_renderer::Image::new(image.clone())
-                    .position(layout.position().x, layout.position().y)]);
+                    .position(layout.position().x, layout.position().y)
+					.size(layout.size().width, layout.size().height)]);
             }
             ImageState::Loading(_) => {
                 renderer.draw([helium_renderer::Rect::default()

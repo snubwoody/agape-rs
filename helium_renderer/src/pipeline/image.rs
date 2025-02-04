@@ -121,38 +121,35 @@ impl ImagePipeline {
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
     ) {
+		let instant = Instant::now();
 		let quad_size = image.size;
 		let image_size = Size::new(image.image.width() as f32, image.image.height() as f32);
-
-		let texture = TextureBuilder::new()
-            .label("Image texture")
-            .size(image_size)
-            .dimension(wgpu::TextureDimension::D2)
-            .format(wgpu::TextureFormat::Rgba8UnormSrgb)
-            .usage(wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST)
-            .build(device);
-
-        let image_data = image
-			.image
-			//.resize(size.width as u32, size.height as u32, FilterType::Nearest)
-			.to_rgba8();
+		
+		let data_instant = Instant::now();
+        let image_data = &image.data;
+		log::trace!("Image data: {:?}",data_instant.elapsed());
 		
 		let vertices = Vertex::quad(quad_size, image.position, TRANSPARENT);
-
+		
+		
         let vertex_buffer = BufferBuilder::new()
             .label("Image vertex buffer")
             .vertex()
             .init(&vertices)
             .build(device);
-
-		let texture_view = texture.create_view(&Default::default());
-        let sampler = device.create_sampler(&Default::default());
 		
+		let instant1 = Instant::now();
+		let texture_view = self.texture.create_view(&Default::default());
+        let sampler = device.create_sampler(&Default::default());
+		log::trace!("Created sampler and texture view in: {:?}",instant1.elapsed());
+		
+		let bg_instant = Instant::now();
         let bind_group = BindGroupBuilder::new()
-		.label("Image bind group")
-		.texture_view(&texture_view)
+			.label("Image bind group")
+			.texture_view(&texture_view)
             .sampler(&sampler)
             .build(&self.layout, device);
+		log::trace!("Created bind group in: {:?}",bg_instant.elapsed());
 		
 		let size = Extent3d {
 			width: image_size.width as u32,
@@ -160,27 +157,33 @@ impl ImagePipeline {
             depth_or_array_layers: 1,
         };
 		
+		let texture_instant = Instant::now();
         queue.write_texture(
 			wgpu::TexelCopyTextureInfo {
-				texture: &texture,
+				texture: &self.texture,
                 mip_level: 0,
                 origin: wgpu::Origin3d::ZERO,
                 aspect: wgpu::TextureAspect::All,
             },
             &image_data,
             wgpu::TexelCopyBufferLayout {
-                offset: 0,
+				offset: 0,
                 bytes_per_row: Some(4 * size.width as u32),
                 rows_per_image: Some(size.height as u32),
             },
             size,
         );
+		log::trace!("Texture write: {:?}",texture_instant.elapsed());
 		
+		
+		let drawing_instant = Instant::now();
         pass.set_pipeline(&self.pipeline);
         pass.set_bind_group(0, self.global.window_bind_group(), &[]);
         pass.set_bind_group(1, &bind_group, &[]);
         pass.set_vertex_buffer(0, vertex_buffer.slice(..));
-		
         pass.draw(0..vertices.len() as u32, 0..1);
+		log::trace!("Drawing total: {:?}",drawing_instant.elapsed());
+		
+		log::trace!("Image pipeline total: {:?}",instant.elapsed());
     }
 }

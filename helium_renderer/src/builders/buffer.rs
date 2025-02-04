@@ -46,11 +46,13 @@ impl<'a> BufferBuilder<'a> {
         self
     }
 
+	/// Set the buffer usage to `BufferUsages::COPY_DST`.
     pub fn copy_dst(mut self) -> Self {
         self.buffer_usages |= wgpu::BufferUsages::COPY_DST;
         self
     }
 
+	/// Set the buffer usage to `BufferUsages::VERTEX`.
     pub fn vertex(mut self) -> Self {
         self.buffer_usages |= wgpu::BufferUsages::VERTEX;
         self

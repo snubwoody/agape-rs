@@ -1,17 +1,23 @@
 use super::{IntoPrimitive, Primitive};
 use helium_core::{Position,Size};
+use image::{ImageBuffer, Rgba};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Image {
     pub image: ::image::DynamicImage,
+	/// The size of th
 	pub size: Size,
+	pub data: ImageBuffer<Rgba<u8>,Vec<u8>>,
     pub position: Position,
 }
 
 impl Image {
     pub fn new(image: ::image::DynamicImage) -> Self {
-        Self {
+		let data = image.to_rgba8();
+        
+		Self {
             image,
+			data,
 			size:Size::unit(1.0),
             position: Position::default(),
         }

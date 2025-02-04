@@ -9,7 +9,7 @@ use pipeline::{
     CirclePipeline, GlobalResources, IconPipeline, ImagePipeline, RectPipeline, TextPipeline,
 };
 pub use primitives::*;
-use std::rc::Rc;
+use std::{rc::Rc, time::Instant};
 use winit::window::Window;
 
 pub struct Renderer<'r> {
@@ -131,25 +131,26 @@ impl<'r> Renderer<'r> {
     }
 
     pub fn render(&mut self) {
+		let instant = Instant::now();
         let output = self.surface.get_current_texture().unwrap(); // TODO maybe handle this error
         let view = output
-            .texture
-            .create_view(&wgpu::TextureViewDescriptor::default());
+		.texture
+		.create_view(&wgpu::TextureViewDescriptor::default());
 
-        let mut encoder = self
-            .device
+	let mut encoder = self
+	.device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("Render encoder"),
+				label: Some("Render encoder"),
             });
-
+			
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("Render Pass"),
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                 view: &view,
                 resolve_target: None,
                 ops: wgpu::Operations {
-                    load: wgpu::LoadOp::Clear(wgpu::Color {
-                        r: 1.0,
+					load: wgpu::LoadOp::Clear(wgpu::Color {
+						r: 1.0,
                         g: 1.0,
                         b: 1.0,
                         a: 1.0,
@@ -161,16 +162,17 @@ impl<'r> Renderer<'r> {
             occlusion_query_set: None,
             timestamp_writes: None,
         });
-
+		
+		let draw_instant = Instant::now();
         for primitive in self.draw_queue.drain(..) {
             match primitive {
                 Primitive::Rect(rect) => {
                     self.rect_pipeline
                         .draw(&rect, &self.device, &mut render_pass);
-                }
+				}
                 Primitive::Circle(circle) => {
-                    self.circle_pipeline
-                        .draw(&circle, &self.device, &mut render_pass);
+					self.circle_pipeline
+					.draw(&circle, &self.device, &mut render_pass);
                 }
                 Primitive::Text(text) => {
                     self.text_pipeline
@@ -186,12 +188,14 @@ impl<'r> Renderer<'r> {
                 }
             }
         }
+		log::trace!("Drew primitives in: {:?}",draw_instant.elapsed());
 
         // Drop the render pass because it borrows encoder mutably
         std::mem::drop(render_pass);
 
         self.queue.submit(std::iter::once(encoder.finish()));
         output.present();
+		log::trace!("Rendered in: {:?}",instant.elapsed());
     }
 }
 
