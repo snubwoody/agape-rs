@@ -25,7 +25,7 @@ async fn main() {
 	let images = [
         Image::new(image1.to_rgba8()).size(250.0, 250.0),
         Image::new(image2.to_rgba8())
-            .size(250.0, 250.0)
+            .size(750.0,750.0)
             .position(300.0, 0.0),
         Image::new(image2.to_rgba8())
             .size(250.0, 250.0)

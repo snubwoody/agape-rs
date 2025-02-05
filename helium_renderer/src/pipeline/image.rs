@@ -131,7 +131,7 @@ impl ImagePipeline {
         let image_size = Size::new(image.data.width() as f32, image.data.height() as f32);
 
         let image_data = &image.data;
-		self.atlas.get(image);
+		self.atlas.get(image,queue);
 
         let vertices = Vertex::quad(quad_size, image.position, TRANSPARENT);
 
@@ -143,7 +143,7 @@ impl ImagePipeline {
             .build(device);
 
         // HERE
-        let texture_view = self.texture.create_view(&Default::default());
+        let texture_view = self.atlas.texture.create_view(&Default::default());
 
         // HERE
         let bind_group = BindGroupBuilder::new()
@@ -158,22 +158,22 @@ impl ImagePipeline {
             depth_or_array_layers: 1,
         };
 
-        // HERE
-        queue.write_texture(
-            wgpu::TexelCopyTextureInfo {
-                texture: &self.texture,
-                mip_level: 0,
-                origin: wgpu::Origin3d::ZERO,
-                aspect: wgpu::TextureAspect::All,
-            },
-            &image_data,
-            wgpu::TexelCopyBufferLayout {
-                offset: 0,
-                bytes_per_row: Some(4 * size.width as u32),
-                rows_per_image: Some(size.height as u32),
-            },
-            size,
-        );
+        // // HERE
+        // queue.write_texture(
+        //     wgpu::TexelCopyTextureInfo {
+        //         texture: &self.texture,
+        //         mip_level: 0,
+        //         origin: wgpu::Origin3d::ZERO,
+        //         aspect: wgpu::TextureAspect::All,
+        //     },
+        //     &image_data,
+        //     wgpu::TexelCopyBufferLayout {
+        //         offset: 0,
+        //         bytes_per_row: Some(4 * size.width as u32),
+        //         rows_per_image: Some(size.height as u32),
+        //     },
+        //     size,
+        // );
 
         pass.set_pipeline(&self.pipeline);
         pass.set_bind_group(0, self.global.window_bind_group(), &[]);
@@ -193,8 +193,8 @@ struct TextureAtlas{
 impl TextureAtlas {
 	fn new(device:&wgpu::Device) -> Self{
 		let texture = TextureBuilder::new()
-            .label("Image texture")
-            .size(Size::new(1000.0, 1000.0))
+            .label("Texture Atlas")
+            .size(Size::new(6000.0, 6000.0))
             .dimension(wgpu::TextureDimension::D2)
             .format(wgpu::TextureFormat::Rgba8UnormSrgb)
             .usage(wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST)
@@ -206,13 +206,38 @@ impl TextureAtlas {
 		}
 	}
 
-	pub fn get(&mut self,image:&Image){
+	pub fn get(&mut self,image:&Image,queue:&wgpu::Queue){
 		for data in &self.images{
 			if *data == image.data{
 				log::trace!("Hit");
 				return;
 			}
 		}
+		
+		
+        let size = Extent3d {
+			width: image.data.width(),
+            height: image.data.height(),
+            depth_or_array_layers: 1,
+        };
+
+		// HERE
+        queue.write_texture(
+            wgpu::TexelCopyTextureInfo {
+                texture: &self.texture,
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
+            &image.data,
+            wgpu::TexelCopyBufferLayout {
+                offset: 0,
+                bytes_per_row: Some(4 * size.width as u32),
+                rows_per_image: Some(size.height as u32),
+            },
+            size,
+        );
+
 		self.images.push(image.data.clone());
 	}
 }
