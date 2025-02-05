@@ -120,9 +120,9 @@ impl ImagePipeline {
         let quad_size = image.size;
         let image_size = Size::new(image.data.width() as f32, image.data.height() as f32);
 
-		self.atlas.get(image,queue);
+		let uv = self.atlas.get(image,queue);
 
-        let vertices = Vertex::quad(quad_size, image.position, TRANSPARENT);
+        let vertices = Vertex::quad_with_uv(quad_size, image.position, TRANSPARENT,uv);
 
         // HERE
         let vertex_buffer = BufferBuilder::new()
@@ -132,6 +132,7 @@ impl ImagePipeline {
             .build(device);
 
         // HERE
+		// TODO move this to and maybe buffer into constructor
         let texture_view = self.atlas.texture.create_view(&Default::default());
 
         // HERE
@@ -154,34 +155,37 @@ impl ImagePipeline {
 struct TextureAtlas{
 	/// The position of the next image
 	offset:Position,
+	size:Size,
 	texture: wgpu::Texture,
-	images:Vec<ImageBuffer<Rgba<u8>, Vec<u8>>>,
+	images: Vec<CachedImage>,
 }
 
 impl TextureAtlas {
 	fn new(device:&wgpu::Device) -> Self{
 		// TODO add atlas size param
 		// TODO add max texture and image size option
+		let size = Size::new(6000.0, 6000.0);
 		let texture = TextureBuilder::new()
             .label("Texture Atlas")
-            .size(Size::new(6000.0, 6000.0))
+            .size(size)
             .dimension(wgpu::TextureDimension::D2)
             .format(wgpu::TextureFormat::Rgba8UnormSrgb)
             .usage(wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST)
             .build(device);
 
 		Self { 
+			size,
 			offset:Position::default(),
 			texture,
 			images:vec![]
 		}
 	}
 
-	pub fn get(&mut self,image:&Image,queue:&wgpu::Queue){
+	pub fn get(&mut self,image:&Image,queue:&wgpu::Queue) -> [[f32;2];4]{
 		// Check if image already exists
-		for data in &self.images{
-			if *data == image.data{
-				return;
+		for cached_image in &self.images{
+			if cached_image.image == image.data{
+				return cached_image.uv(self.size)
 			}
 		}
 		
@@ -196,6 +200,10 @@ impl TextureAtlas {
 			y:self.offset.y as u32,
 			z:0,
 		};
+		
+		let cached_image = CachedImage::new(self.offset, image.data.clone());
+		let uv = cached_image.uv(self.size);
+		self.images.push(cached_image);
 
 		// TODO check for verical offset
 		self.offset.x += size.width as f32;
@@ -216,7 +224,54 @@ impl TextureAtlas {
             size,
         );
 
-		self.images.push(image.data.clone());
+		uv
+	}
+}
+
+/// An image from the [`TextureAtlas`]
+#[derive(PartialEq,Clone)]
+struct CachedImage{
+	/// The position of the image in the [`TextureAtlas`]
+	location:Position,
+	image:ImageBuffer<Rgba<u8>, Vec<u8>>,
+}
+
+impl CachedImage{
+	fn new(location:Position,image:ImageBuffer<Rgba<u8>,Vec<u8>>) -> Self{
+		Self{
+			location,
+			image
+		}
+	}
+
+	/// Get the uv coordinates for the image
+	fn uv(&self,atlas_size:Size) -> [[f32;2];4]{
+		let size = Size::new(self.image.width() as f32, self.image.height() as f32);
+
+		let top_left = [ 
+			self.location.x / atlas_size.width,
+			self.location.y / atlas_size.height,
+		];
+
+		let top_right = [ 
+			(self.location.x + size.width) / atlas_size.width,
+			self.location.y / atlas_size.height,
+		];
+
+		let bottom_right = [ 
+			(self.location.x + size.width) / atlas_size.width,
+			(self.location.y + size.height) / atlas_size.height,
+		];
+
+		let bottom_left = [ 
+			self.location.x  / atlas_size.width,
+			(self.location.y + size.height) / atlas_size.height,
+		];
+
+		/// uv's are defined clockwise
+		let uv = [top_left,top_right,bottom_right,bottom_left];
+
+		uv
 	}
 }
 
