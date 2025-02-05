@@ -8,8 +8,8 @@ use crate::{
     vertex::Vertex,
 };
 use helium_core::{color::TRANSPARENT, Size};
-use image::imageops::FilterType;
-use std::{num::NonZeroU32, rc::Rc, time::Instant};
+use image::{ImageBuffer, Rgba};
+use std::{rc::Rc, time::Instant};
 use wgpu::Extent3d;
 
 pub struct ImagePipeline {
@@ -18,7 +18,7 @@ pub struct ImagePipeline {
     global: Rc<GlobalResources>,
     texture: wgpu::Texture,
     sampler: wgpu::Sampler,
-    image_cache: Option<image::DynamicImage>,
+	atlas:TextureAtlas,
 }
 
 impl ImagePipeline {
@@ -107,6 +107,7 @@ impl ImagePipeline {
             .build(device);
 
         let sampler = device.create_sampler(&Default::default());
+		let atlas = TextureAtlas::new(device);
 
         Self {
             pipeline,
@@ -114,7 +115,7 @@ impl ImagePipeline {
             global,
             texture,
             sampler,
-            image_cache: None,
+			atlas,
         }
     }
 
@@ -130,6 +131,7 @@ impl ImagePipeline {
         let image_size = Size::new(image.data.width() as f32, image.data.height() as f32);
 
         let image_data = &image.data;
+		self.atlas.get(image);
 
         let vertices = Vertex::quad(quad_size, image.position, TRANSPARENT);
 
@@ -183,51 +185,34 @@ impl ImagePipeline {
     }
 }
 
-struct ImageResource {
-    vertices: Vec<Vertex>,
-    vertex_buffer: wgpu::Buffer,
-    bind_group: wgpu::BindGroup,
+struct TextureAtlas{
+	texture: wgpu::Texture,
+	images:Vec<ImageBuffer<Rgba<u8>, Vec<u8>>>,
 }
 
-impl ImageResource {
-    fn new(
-        image: &Image,
-        texture: &wgpu::Texture,
-        sampler: &wgpu::Sampler,
-        layout: &wgpu::BindGroupLayout,
-        device: &wgpu::Device,
-    ) -> Self {
-        let quad_size = image.size;
-        let image_size = Size::new(image.data.width() as f32, image.data.height() as f32);
-
-        let image_data = &image.data;
-
-        let vertices = Vertex::quad(quad_size, image.position, TRANSPARENT);
-
-        let vertex_buffer = BufferBuilder::new()
-            .label("Image vertex buffer")
-            .vertex()
-            .init(&vertices)
+impl TextureAtlas {
+	fn new(device:&wgpu::Device) -> Self{
+		let texture = TextureBuilder::new()
+            .label("Image texture")
+            .size(Size::new(1000.0, 1000.0))
+            .dimension(wgpu::TextureDimension::D2)
+            .format(wgpu::TextureFormat::Rgba8UnormSrgb)
+            .usage(wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST)
             .build(device);
 
-        let texture_view = texture.create_view(&Default::default());
+		Self { 
+			texture,
+			images:vec![]
+		}
+	}
 
-        let bind_group = BindGroupBuilder::new()
-            .label("Image bind group")
-            .texture_view(&texture_view)
-            .sampler(sampler)
-            .build(layout, device);
-
-        let size = Extent3d {
-            width: image_size.width as u32,
-            height: image_size.height as u32,
-            depth_or_array_layers: 1,
-        };
-
-        Self {
-            vertices,
-            vertex_buffer,
-            bind_group,
-        }
-    }
+	pub fn get(&mut self,image:&Image){
+		for data in &self.images{
+			if *data == image.data{
+				log::trace!("Hit");
+				return;
+			}
+		}
+		self.images.push(image.data.clone());
+	}
 }
