@@ -7,7 +7,7 @@ use crate::{
     primitives::Image,
     vertex::Vertex,
 };
-use helium_core::{color::TRANSPARENT, Size};
+use helium_core::{color::TRANSPARENT, Size,Position};
 use image::{ImageBuffer, Rgba};
 use std::{rc::Rc, time::Instant};
 use wgpu::Extent3d;
@@ -152,12 +152,15 @@ impl ImagePipeline {
 }
 
 struct TextureAtlas{
+	/// The position of the next image
+	offset:Position,
 	texture: wgpu::Texture,
 	images:Vec<ImageBuffer<Rgba<u8>, Vec<u8>>>,
 }
 
 impl TextureAtlas {
 	fn new(device:&wgpu::Device) -> Self{
+		// TODO add atlas size param
 		// TODO add max texture and image size option
 		let texture = TextureBuilder::new()
             .label("Texture Atlas")
@@ -168,6 +171,7 @@ impl TextureAtlas {
             .build(device);
 
 		Self { 
+			offset:Position::default(),
 			texture,
 			images:vec![]
 		}
@@ -181,19 +185,26 @@ impl TextureAtlas {
 			}
 		}
 		
-		
         let size = Extent3d {
 			width: image.data.width(),
             height: image.data.height(),
             depth_or_array_layers: 1,
         };
 
+		let origin = wgpu::Origin3d{
+			x:self.offset.x as u32,
+			y:self.offset.y as u32,
+			z:0,
+		};
+
+		// TODO check for verical offset
+		self.offset.x += size.width as f32;
 		
         queue.write_texture(
             wgpu::TexelCopyTextureInfo {
                 texture: &self.texture,
                 mip_level: 0,
-                origin: wgpu::Origin3d::ZERO,
+                origin,
                 aspect: wgpu::TextureAspect::All,
             },
             &image.data,
@@ -207,4 +218,9 @@ impl TextureAtlas {
 
 		self.images.push(image.data.clone());
 	}
+}
+
+#[cfg(test)]
+mod test{
+
 }

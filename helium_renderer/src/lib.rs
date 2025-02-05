@@ -8,6 +8,7 @@ use helium_core::Size;
 use pipeline::{
     CirclePipeline, GlobalResources, IconPipeline, ImagePipeline, RectPipeline, TextPipeline,
 };
+pub use vertex::Vertex;
 pub use primitives::*;
 use std::{rc::Rc, time::Instant};
 use winit::window::Window;
