@@ -129,10 +129,6 @@ impl Layout for BlockLayout {
         self.constraints.min_width = width;
     }
 
-    fn sort_children(&mut self) {
-        // self.child.sort_children();
-    }
-
     fn collect_errors(&mut self) -> Vec<crate::LayoutError> {
         self.errors
             .drain(..)

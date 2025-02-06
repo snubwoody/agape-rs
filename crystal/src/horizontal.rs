@@ -197,12 +197,6 @@ impl Layout for HorizontalLayout {
             .collect::<Vec<_>>()
     }
 
-    fn sort_children(&mut self) {
-        // self.children.sort_by(|a,b|
-        // 	a.intrinsic_size().width.partial_cmp(&b.intrinsic_size().width).unwrap()
-        // );
-    }
-
     fn iter(&self) -> crate::LayoutIter {
         LayoutIter { stack: vec![self] }
     }

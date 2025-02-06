@@ -77,8 +77,6 @@ impl Layout for EmptyLayout {
         self.constraints.min_width = width;
     }
 
-    fn sort_children(&mut self) {}
-
     fn collect_errors(&mut self) -> Vec<crate::LayoutError> {
         self.errors.drain(..).collect::<Vec<_>>()
     }
@@ -88,8 +86,6 @@ impl Layout for EmptyLayout {
     }
 
     fn solve_min_constraints(&mut self) -> (f32, f32) {
-        // The sum of the size of all the children with fixed sizes
-
         match self.intrinsic_size.width {
             BoxSizing::Fixed(width) => {
                 self.constraints.min_width = width;
@@ -109,8 +105,7 @@ impl Layout for EmptyLayout {
         (self.constraints.min_width, self.constraints.min_height)
     }
 
-    fn solve_max_contraints(&mut self, space: Size) { /* No children to solve for */
-    }
+    fn solve_max_contraints(&mut self, _space: Size) {/* No children to solve for */}
 
     fn update_size(&mut self) {
         match self.intrinsic_size.width {

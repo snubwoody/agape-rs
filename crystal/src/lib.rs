@@ -85,13 +85,11 @@ pub trait Layout: Debug + Send + Sync {
     /// Collect all the errors from the error stack
     fn collect_errors(&mut self) -> Vec<LayoutError>;
 
-    /// Sort the children based on their intrinsic sizing, [`HorizontalLayout`]'s are ordered
-    /// based on the children's `intrinsic width` and [`VerticalLayout`]'s are ordered based on their
-    /// children's `intrinsic height`.
-    #[deprecated = "Was not working as intended"]
-    fn sort_children(&mut self); // FIXME remove this
 
+	/// Get the `id` of the [`Layout`]
     fn id(&self) -> &str;
+
+	/// Get the [`BoxConstraints`] of the [`Layout`]
     fn constraints(&self) -> BoxContraints;
     fn intrinsic_size(&self) -> IntrinsicSize;
     fn size(&self) -> Size;

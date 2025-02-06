@@ -197,12 +197,6 @@ impl Layout for VerticalLayout {
         LayoutIter { stack: vec![self] }
     }
 
-    fn sort_children(&mut self) {
-        // self.children.sort_by(|a,b|
-        // 	a.intrinsic_size().height.partial_cmp(&b.intrinsic_size().height).unwrap()
-        // );
-    }
-
     fn solve_min_constraints(&mut self) -> (f32, f32) {
         // The sum of the size of all the children with fixed sizes
         let mut fixed_sum = self.fixed_size_sum();
