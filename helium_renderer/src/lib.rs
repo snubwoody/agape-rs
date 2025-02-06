@@ -10,7 +10,7 @@ use pipeline::{
 };
 pub use vertex::Vertex;
 pub use primitives::*;
-use std::{rc::Rc, time::Instant};
+use std::{rc::Rc, time::{Duration, Instant}};
 use winit::window::Window;
 
 pub struct Renderer<'r> {
@@ -164,39 +164,63 @@ impl<'r> Renderer<'r> {
             timestamp_writes: None,
         });
 
-        let draw_instant = Instant::now();
+		// TODO maybe return these?
+		let mut rect_trace = Duration::new(0, 0);
+		let mut circle_trace = Duration::new(0, 0);
+		let mut text_trace = Duration::new(0, 0);
+		let mut icon_trace = Duration::new(0, 0);
+		let mut image_trace = Duration::new(0, 0);
+
         for primitive in self.draw_queue.drain(..) {
             match primitive {
                 Primitive::Rect(rect) => {
+					let instant = Instant::now();
                     self.rect_pipeline
-                        .draw(&rect, &self.device, &mut render_pass);
+						.draw(&rect, &self.device, &mut render_pass);
+					rect_trace += instant.elapsed();
                 }
                 Primitive::Circle(circle) => {
+					let instant = Instant::now();
                     self.circle_pipeline
-                        .draw(&circle, &self.device, &mut render_pass);
+						.draw(&circle, &self.device, &mut render_pass);
+					circle_trace += instant.elapsed();
                 }
                 Primitive::Text(text) => {
+					let instant = Instant::now();
                     self.text_pipeline
                         .draw(&text, &self.queue, &self.device, &mut render_pass);
+					text_trace += instant.elapsed();
                 }
                 Primitive::Image(image) => {
+					let instant = Instant::now();
                     self.image_pipeline
                         .draw(&image, &self.queue, &self.device, &mut render_pass);
+					image_trace += instant.elapsed();
                 }
                 Primitive::Icon(icon) => {
+					let instant = Instant::now();
                     self.icon_pipeline
                         .draw(&icon, &self.queue, &self.device, &mut render_pass);
+					icon_trace += instant.elapsed();
                 }
             }
         }
-        log::trace!("Drew primitives in: {:?}", draw_instant.elapsed());
 
         // Drop the render pass because it borrows encoder mutably
         std::mem::drop(render_pass);
 
         self.queue.submit(std::iter::once(encoder.finish()));
         output.present();
-        log::trace!("Rendered in: {:?}", instant.elapsed());
+
+		let mut trace = format!("\nFrame time: {:?}\n",instant.elapsed());
+		trace += "Trace\n";
+		trace += &format!("Icon Pipeline: {icon_trace:?}\n");
+		trace += &format!("Image Pipeline: {image_trace:?}\n");
+		trace += &format!("Text Pipeline: {text_trace:?}\n");
+		trace += &format!("Rect Pipeline: {rect_trace:?}\n");
+		trace += &format!("Circle Pipeline: {circle_trace:?}\n");
+
+		log::trace!("{trace}");
     }
 }
 

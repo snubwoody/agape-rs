@@ -18,6 +18,8 @@ pub struct ImagePipeline {
     global: Rc<GlobalResources>,
     sampler: wgpu::Sampler,
 	atlas:TextureAtlas,
+	bind_group: wgpu::BindGroup,
+	view: wgpu::TextureView
 }
 
 impl ImagePipeline {
@@ -100,12 +102,22 @@ impl ImagePipeline {
         let sampler = device.create_sampler(&Default::default());
 		let atlas = TextureAtlas::new(device);
 
+        let view = atlas.texture.create_view(&Default::default());
+		
+        let bind_group = BindGroupBuilder::new()
+            .label("Image atlas bind group")
+            .texture_view(&view)
+            .sampler(&sampler)
+            .build(&layout, device);
+
         Self {
             pipeline,
             layout,
             global,
             sampler,
 			atlas,
+			bind_group,
+			view
         }
     }
 
@@ -116,39 +128,21 @@ impl ImagePipeline {
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
     ) {
-        let instant = Instant::now();
         let quad_size = image.size;
-        let image_size = Size::new(image.data.width() as f32, image.data.height() as f32);
 
 		let uv = self.atlas.get(image,queue);
-
         let vertices = Vertex::quad_with_uv(quad_size, image.position, TRANSPARENT,uv);
-
-        // HERE
         let vertex_buffer = BufferBuilder::new()
             .label("Image vertex buffer")
             .vertex()
             .init(&vertices)
             .build(device);
 
-        // HERE
-		// TODO move this to and maybe buffer into constructor
-        let texture_view = self.atlas.texture.create_view(&Default::default());
-
-        // HERE
-        let bind_group = BindGroupBuilder::new()
-            .label("Image bind group")
-            .texture_view(&texture_view)
-            .sampler(&self.sampler)
-            .build(&self.layout, device);
-
         pass.set_pipeline(&self.pipeline);
         pass.set_bind_group(0, self.global.window_bind_group(), &[]);
-        pass.set_bind_group(1, &bind_group, &[]);
+        pass.set_bind_group(1, &self.bind_group, &[]);
         pass.set_vertex_buffer(0, vertex_buffer.slice(..));
         pass.draw(0..vertices.len() as u32, 0..1);
-
-        log::trace!("Image pipeline total: {:?}", instant.elapsed());
     }
 }
 
@@ -164,7 +158,7 @@ impl TextureAtlas {
 	fn new(device:&wgpu::Device) -> Self{
 		// TODO add atlas size param
 		// TODO add max texture and image size option
-		let size = Size::new(6000.0, 6000.0);
+		let size = Size::new(2048.0, 2048.0);
 		let texture = TextureBuilder::new()
             .label("Texture Atlas")
             .size(size)
@@ -182,7 +176,6 @@ impl TextureAtlas {
 	}
 
 	pub fn get(&mut self,image:&Image,queue:&wgpu::Queue) -> [[f32;2];4]{
-		// Check if image already exists
 		for cached_image in &self.images{
 			if cached_image.image == image.data{
 				return cached_image.uv(self.size)
@@ -268,7 +261,7 @@ impl CachedImage{
 			(self.location.y + size.height) / atlas_size.height,
 		];
 
-		/// uv's are defined clockwise
+		// uv's are defined clockwise
 		let uv = [top_left,top_right,bottom_right,bottom_left];
 
 		uv
