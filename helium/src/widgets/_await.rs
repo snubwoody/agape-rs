@@ -55,7 +55,7 @@ where
     /// #[tokio::main]
     /// async fn main(){
     /// 	let future = async move{
-    /// 		tokio::time::sleep(Duration::from_millis(50)).await;
+    /// 		tokio::time::sleep(Duration::from_millis(2)).await;
     /// 		// Futures must return a widget
     /// 		return Text::new("Loaded data!");
     /// 	};
@@ -130,14 +130,3 @@ where
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::widgets::Text;
-    use std::time::Duration;
-
-    #[tokio::test]
-    async fn await_works() {
-        todo!()
-    }
-}

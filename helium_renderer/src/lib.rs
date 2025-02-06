@@ -220,7 +220,7 @@ impl<'r> Renderer<'r> {
 		trace += &format!("Rect Pipeline: {rect_trace:?}\n");
 		trace += &format!("Circle Pipeline: {circle_trace:?}\n");
 
-		log::trace!("{trace}");
+		//log::trace!("{trace}");
     }
 }
 

@@ -4,7 +4,7 @@ use crate::{
 use helium_core::{position::Position, size::Size};
 
 // TODO add example
-/// A [`HorizontalLayout`] sizes and position it's children horizontally, of course.
+/// A [`HorizontalLayout`] arranges it's children horizontally.
 #[derive(Default, Debug)]
 pub struct HorizontalLayout {
     pub id: String,

@@ -4,7 +4,7 @@ use helium_renderer::Rect;
 
 /// A [`Widget`] that fills up all the available space.  
 ///
-/// The most common usage is to push [`Widget`]'s to the end of the
+/// The most common usage is to push [`Widget`]'s to the end of it's
 /// parent.
 ///
 /// ```
@@ -16,11 +16,11 @@ use helium_renderer::Rect;
 /// 	Text::new("Contact us"),
 /// 	Spacer::new(),
 /// 	Button::text("Cart"),
-/// }
+/// };
 /// ```
 /// **Note** that `Spacer`'s have no effect when the parent `widget` has
 /// an intrinsic size of `Shrink`, because the parent will try to be
-/// as small as possible, hence the spacer will have 0 size.
+/// as small as possible, hence the spacer will have a size of 0.
 pub struct Spacer {
     id: String,
 }

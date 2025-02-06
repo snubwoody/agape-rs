@@ -119,8 +119,9 @@ pub trait Layout: Debug + Send + Sync {
     }
 }
 
+/// An `Iterator` over `&dyn Layout`
 pub struct LayoutIter<'a> {
-    stack: Vec<&'a dyn Layout>, // TODO unnecessary box and maybe make it a provided trait
+    stack: Vec<&'a dyn Layout>,
 }
 
 impl<'a> Iterator for LayoutIter<'a> {
@@ -200,10 +201,8 @@ pub struct IntrinsicSize {
 mod test {
     use super::*;
 
-    // FIXME
     #[test]
-    fn test_horizontal_and_empty_layout() {
-        // TODO split this into a smaller function that tests flex layouts have 0 size
+    fn horizontal_and_empty_layout() {
         let window = Size::new(1000.0, 1000.0);
 
         let mut child_1 = EmptyLayout::new();

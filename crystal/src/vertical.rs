@@ -5,9 +5,7 @@ use helium_core::{position::Position, size::Size};
 use std::f32::INFINITY;
 
 // TODO if min width is larger than max width then it's an overflow
-/// A [`VerticalLayout`] sizes and position it's children horizontally, of course, the `Flex`
-/// attribute means a layout node will fill it's widget, however the flex factor only works in
-/// the x-axis, in the y-axis all nodes will fill the parent and will be the same height.
+/// A [`Layout`] that arranges it's children vertically.
 #[derive(Default, Debug)]
 pub struct VerticalLayout {
     pub id: String,
@@ -15,6 +13,7 @@ pub struct VerticalLayout {
     pub position: Position,
     pub spacing: u32,
     pub padding: u32,
+	pub scroll_offset: f32,
     pub intrinsic_size: IntrinsicSize,
     // TODO i'm thinking of adding user constraints as well so that people can define their own
     // constraints
@@ -36,10 +35,19 @@ impl VerticalLayout {
         self.children.push(Box::new(child));
     }
 
+	pub fn add_children<I>(&mut self, children: I)
+    where
+        I: IntoIterator<Item: Layout + 'static>,
+    {
+        for child in children {
+            self.children.push(Box::new(child));
+        }
+    }
+
     fn fixed_size_sum(&self) -> Size {
         let mut sum = Size::default();
 
-        for (i, child) in self.children.iter().enumerate() {
+        for (_, child) in self.children.iter().enumerate() {
             match child.intrinsic_size().width {
                 BoxSizing::Fixed(width) => {
                     sum.width = sum.width.max(width);

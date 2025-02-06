@@ -3,7 +3,7 @@ use crate::{
 };
 use helium_core::{position::Position, size::Size};
 
-/// A [`BlockLayout`] is a layout that only has one child.
+/// A [`Layout`] that only has one child.
 #[derive(Debug)]
 pub struct BlockLayout {
     pub id: String,

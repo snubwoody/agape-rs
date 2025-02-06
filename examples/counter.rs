@@ -1,18 +1,37 @@
-use std::time::Duration;
-
-use helium::{hstack, widgets::*, App};
+use helium::{vstack, widgets::*, App, BLACK};
 
 #[tokio::main]
 async fn main() -> Result<(), helium::Error> {
     std::env::set_var("RUST_LOG", "warn,helium=trace");
     env_logger::init();
-    let load_data = async {
-        tokio::time::sleep(Duration::from_secs(6)).await;
-        Text::new("Loaded")
-    };
-    let main = hstack! {
-        Await::new(load_data, Text::new("Loading"))
+	// Add list view
+	
+    let main = vstack! {
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
     }
+	.spacing(24)
     .fill()
     .align_center();
 
