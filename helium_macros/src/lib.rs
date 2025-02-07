@@ -3,8 +3,7 @@ use proc_macro2::{Literal, Span};
 use quote::quote;
 use std::{fs, path::Path};
 
-/// A hex color, this macro panics if an invalid hex color is used. Three letter
-/// hex colors are not supported neither are hex colors with an alpha attribute.
+/// A macro for using compile time verified hex colors.
 #[proc_macro]
 pub fn hex(item: TokenStream) -> TokenStream {
     let s = item.to_string().replace("\"", "");

@@ -1,5 +1,4 @@
-//! A gui library built using `wgpu`. It uses an entirely custom renderer for drawing
-//! the ui and uses the `crystal` crate for layout.
+#![doc = include_str!("../../README.md")]
 pub mod colors;
 pub mod error;
 pub mod widgets;

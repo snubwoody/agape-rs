@@ -1,4 +1,4 @@
-use helium::{vstack, widgets::*, App, BLACK};
+use helium::{crystal::AxisAlignment, vstack, widgets::*, App, BLACK};
 
 #[tokio::main]
 async fn main() -> Result<(), helium::Error> {
@@ -33,7 +33,7 @@ async fn main() -> Result<(), helium::Error> {
     }
 	.spacing(24)
     .fill()
-    .align_center();
+    .cross_axis_alignment(AxisAlignment::Center);
 
     let mut app = App::new();
     app.add_page(main);

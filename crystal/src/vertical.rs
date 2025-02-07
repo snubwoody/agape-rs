@@ -3,7 +3,7 @@ use crate::{
 };
 use helium_core::{position::Position, size::Size};
 use std::f32::INFINITY;
-
+// TODO maybe make some items private
 // TODO if min width is larger than max width then it's an overflow
 /// A [`Layout`] that arranges it's children vertically.
 #[derive(Default, Debug)]
@@ -69,10 +69,17 @@ impl VerticalLayout {
         sum
     }
 
+	pub fn scroll(&mut self,offset:f32){
+		self.scroll_offset = offset;
+		dbg!(&self.errors);
+	}
+
+	/// Align the children on the main axis at the start
     fn align_main_axis_start(&mut self) {
         let mut y = self.position.y;
         y += self.padding as f32;
-
+		y += self.scroll_offset;
+		
         for child in &mut self.children {
             child.set_y(y);
             y += child.size().height + self.spacing as f32;
@@ -81,24 +88,27 @@ impl VerticalLayout {
 
     /// Align the children on the main axis in the center
     fn align_main_axis_center(&mut self) {
-        // TODO handle overflow
+		// TODO handle overflow
         let mut height_sum = self
-            .children
-            .iter()
+			.children
+			.iter()
             .map(|child| child.size().height)
             .sum::<f32>();
-        height_sum += (self.spacing * (self.children.len() as u32 - 1)) as f32;
-        let mut center_start = self.position.y + (self.size.height - height_sum) / 2.0;
 
+		height_sum += (self.spacing * (self.children.len() as u32 - 1)) as f32;
+        let mut center_start = self.position.y + (self.size.height - height_sum) / 2.0;
+		center_start += self.scroll_offset;
+		
         for child in &mut self.children {
-            child.set_y(center_start);
+			child.set_y(center_start);
             center_start += child.size().height + self.spacing as f32;
         }
     }
-
+	
     fn align_main_axis_end(&mut self) {
         let mut y = self.position.y + self.size.height;
         y -= self.padding as f32;
+		y += self.scroll_offset;
 
         for child in self.children.iter_mut().rev() {
             child.set_y(y);
@@ -198,15 +208,11 @@ impl Layout for VerticalLayout {
     }
 
     fn solve_min_constraints(&mut self) -> (f32, f32) {
-        // The sum of the size of all the children with fixed sizes
-        let mut fixed_sum = self.fixed_size_sum();
-        fixed_sum += self.padding as f32 * 2.0;
-
         let mut child_constraint_sum = Size::default();
         for child in &mut self.children {
             let (min_width, min_height) = child.solve_min_constraints();
             child_constraint_sum.height += min_height;
-            child_constraint_sum.height += self.spacing as f32; // Not sure about this
+            child_constraint_sum.height += self.spacing as f32;
             child_constraint_sum.width = child_constraint_sum.width.max(min_width);
         }
         child_constraint_sum += self.padding as f32 * 2.0;
@@ -240,7 +246,7 @@ impl Layout for VerticalLayout {
         (self.constraints.min_width, self.constraints.min_height)
     }
 
-    fn solve_max_contraints(&mut self, space: Size) {
+    fn solve_max_contraints(&mut self, _space: Size) {
         // Sum up all the flex factors
         let flex_total: u8 = self
             .children
@@ -381,8 +387,15 @@ mod test {
     use super::*;
     use crate::{BlockLayout, EmptyLayout, LayoutSolver};
 
+	#[test]
+	fn overflow_error(){
+		let window = Size::unit(500.0);
+		let root = VerticalLayout::new();
+		
+	}
+
     #[test]
-    fn test_vertical_layout() {
+    fn vertical_layout() {
         let window = Size::new(800.0, 800.0);
         let mut root = VerticalLayout::new();
         let mut child_1 = VerticalLayout::new();
@@ -435,7 +448,7 @@ mod test {
     }
 
     #[test]
-    fn test_flex_sizing() {
+    fn flex_sizing() {
         let window = Size::new(800.0, 800.0);
         let mut root = VerticalLayout::new();
         let mut child_1 = VerticalLayout::new();
@@ -462,7 +475,7 @@ mod test {
     }
 
     #[test]
-    fn test_flex_with_shrink() {
+    fn flex_with_shrink() {
         let window = Size::new(800.0, 800.0);
         let padding = 24;
         let spacing = 45;
@@ -509,7 +522,7 @@ mod test {
 
     // TODO test flex grow inside flex shrink
     #[test]
-    fn test_flex_factor() {
+    fn flex_factor() {
         let window = Size::new(800.0, 400.0);
         let mut node = VerticalLayout::new();
         let mut child_node_1 = VerticalLayout::new();

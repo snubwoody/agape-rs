@@ -202,12 +202,9 @@ impl Layout for HorizontalLayout {
     }
 
     fn solve_min_constraints(&mut self) -> (f32, f32) {
-        let mut fixed_sum = self.fixed_size_sum();
-        fixed_sum += self.padding as f32 * 2.0;
-
         let mut child_constraint_sum = Size::default();
 
-        for child in &mut self.children {
+		for child in &mut self.children {
             let (min_width, min_height) = child.solve_min_constraints();
             child_constraint_sum.width += min_width;
             child_constraint_sum.width += self.spacing as f32; // Not sure about this
@@ -242,7 +239,7 @@ impl Layout for HorizontalLayout {
         (self.constraints.min_width, self.constraints.min_height)
     }
 
-    fn solve_max_contraints(&mut self, space: Size) {
+    fn solve_max_contraints(&mut self, _space: Size) {
         // Sum up all the flex factors
         let flex_total: u8 = self
             .children

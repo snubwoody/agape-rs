@@ -123,7 +123,9 @@ impl dyn Widget {
                         self.unfocus();
                     }
                 }
-                _ => {}
+                event => {
+					//dbg!(&event);
+				}
             }
         } else {
             log::warn!("Widget: {} is missing a Layout", self.id())
