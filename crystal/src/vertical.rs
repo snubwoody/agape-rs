@@ -1,5 +1,5 @@
 use crate::{
-    AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter,
+    error::OverflowAxis, AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter
 };
 use helium_core::{position::Position, size::Size};
 use std::f32::INFINITY;
@@ -355,6 +355,25 @@ impl Layout for VerticalLayout {
         for child in &mut self.children {
             child.update_size();
         }
+
+		let width_sum:f32 = self.children.iter().map(|child|child.size().width).sum();
+		let height_sum:f32 = self.children.iter().map(|child|child.size().height).sum();
+
+		let main_axis_error = LayoutError::overflow(&self.id, OverflowAxis::MainAxis); 
+		let cross_axis_error = LayoutError::overflow(&self.id, OverflowAxis::CrossAxis); 
+		
+		// Prevent duplicate errors
+		if !self.errors.contains(&main_axis_error){
+			if width_sum > self.size.width{
+				self.errors.push(main_axis_error);
+			}
+		}
+
+		if !self.errors.contains(&cross_axis_error){
+			if height_sum > self.size.height{
+				self.errors.push(cross_axis_error);
+			}
+		}
     }
 
     fn position_children(&mut self) {
@@ -390,8 +409,51 @@ mod test {
 	#[test]
 	fn overflow_error(){
 		let window = Size::unit(500.0);
-		let root = VerticalLayout::new();
 		
+		let mut root = VerticalLayout::new();
+		root.intrinsic_size = IntrinsicSize{
+			width: BoxSizing::Fixed(0.0),
+			height: BoxSizing::Fixed(0.0),
+		};
+
+		let mut child = EmptyLayout::new();
+		child.intrinsic_size = IntrinsicSize{
+			width:BoxSizing::Fixed(200.0),
+			height:BoxSizing::Fixed(200.0),
+		};
+
+		root.add_child(child);
+		
+		LayoutSolver::solve(&mut root, window);
+
+		assert!(root.errors.contains(&LayoutError::overflow("", OverflowAxis::MainAxis)));
+		assert!(root.errors.contains(&LayoutError::overflow("", OverflowAxis::CrossAxis)));
+	}
+
+	#[test]
+	fn no_duplicate_overflow_error(){
+		let window = Size::unit(500.0);
+		
+		let mut root = VerticalLayout::new();
+		root.intrinsic_size = IntrinsicSize{
+			width: BoxSizing::Fixed(0.0),
+			..Default::default()
+		};
+
+		let mut child = EmptyLayout::new();
+		child.intrinsic_size = IntrinsicSize{
+			width:BoxSizing::Fixed(200.0),
+			height:BoxSizing::Fixed(200.0),
+		};
+
+		root.add_child(child);
+		
+		LayoutSolver::solve(&mut root, window);
+		LayoutSolver::solve(&mut root, window);
+		LayoutSolver::solve(&mut root, window);
+		LayoutSolver::solve(&mut root, window);
+
+		assert_eq!(root.errors.len(),1);
 	}
 
     #[test]

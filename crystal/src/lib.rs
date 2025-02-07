@@ -29,7 +29,8 @@ impl LayoutSolver {
 
         // TODO add a push error function that checks for equality so that we don't have duplicate errors
         // or maybe just clear the error stack every frame
-        root.collect_errors()
+        //root.collect_errors()
+		vec![]
     }
 }
 
