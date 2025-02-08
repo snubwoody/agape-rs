@@ -1,35 +1,28 @@
-use crystal::{AxisAlignment, EmptyLayout, LayoutSolver, Position, Size, VerticalLayout};
-
+use crystal::{AxisAlignment, BoxSizing, EmptyLayout, LayoutSolver, Size, VerticalLayout};
 
 #[test]
 fn scrolling(){
+	let mut child = EmptyLayout::new();
+	child.intrinsic_size.height = BoxSizing::Fixed(200.0);
 	let children = vec![
-		EmptyLayout::new(),
-		EmptyLayout::new(),
-		EmptyLayout::new(),
-		EmptyLayout::new(),
-		EmptyLayout::new(),
+		child.clone(),
+		child.clone(),
+		child.clone(),
+		child.clone(),
+		child.clone(),
+		child
 	];
 
 	let scroll_offset = 100.0;
-	let mut layout = VerticalLayout::new();
-	layout.scroll_offset = scroll_offset;
-	layout.add_children(children);
+	let mut root = VerticalLayout::new();
+	root.intrinsic_size.height = BoxSizing::Fixed(200.0);
+	root.scroll(scroll_offset);
+	root.add_children(children);
 
-	let window = Size::new(400.0, 400.0);
+	let window = Size::unit(400.0);
 
-	// Test scrolling for every main_axis_alignment
-	LayoutSolver::solve(&mut layout, window);
-	assert_eq!(layout.children[0].position().y,scroll_offset);
-	
-	layout.main_axis_alignment = AxisAlignment::Center;
-	LayoutSolver::solve(&mut layout, window);
-	assert_eq!(layout.children[0].position().y,scroll_offset);
-	
-	layout.main_axis_alignment = AxisAlignment::End;
-	LayoutSolver::solve(&mut layout, window);
-	assert_eq!(layout.children[0].position().y,scroll_offset);
-
+	LayoutSolver::solve(&mut root, window);
+	assert_eq!(root.children[0].position().y,scroll_offset);
 }
 
 #[test]

@@ -48,19 +48,19 @@ impl VerticalLayout {
 
 	/// Returns `true` if a [`VerticalLayout`]'s children are overflowing.
 	pub fn overflow(&self) -> bool{
-		self.overflow_main_axis() || self.overflow_cross_axis()
+		self.main_axis_overflow() || self.cross_axis_overflow()
 	}
 
 	/// Returns `true` if a [`VerticalLayout`]'s children are overflowing it's main-axis
 	/// (y-axis).
-	pub fn overflow_main_axis(&self) -> bool{
+	pub fn main_axis_overflow(&self) -> bool{
 		self.errors.contains(&LayoutError::overflow(&self.id, OverflowAxis::MainAxis))
 	}
 
 	/// Returns `true` if a [`VerticalLayout`]'s children are overflowing it's cross-axis
 	/// (x-axis).
-	pub fn overflow_cross_axis(&self) -> bool{
-		self.errors.contains(&LayoutError::overflow(&self.id, OverflowAxis::MainAxis))
+	pub fn cross_axis_overflow(&self) -> bool{
+		self.errors.contains(&LayoutError::overflow(&self.id, OverflowAxis::CrossAxis))
 	}
 
     fn fixed_size_sum(&self) -> Size {
@@ -90,14 +90,12 @@ impl VerticalLayout {
 
 	pub fn scroll(&mut self,offset:f32){
 		self.scroll_offset = offset;
-		dbg!(&self.errors);
 	}
 
 	/// Align the children on the main axis at the start
     fn align_main_axis_start(&mut self) {
         let mut y = self.position.y;
         y += self.padding as f32;
-		y += self.scroll_offset;
 		
         for child in &mut self.children {
             child.set_y(y);
@@ -116,8 +114,7 @@ impl VerticalLayout {
 
 		height_sum += (self.spacing * (self.children.len() as u32 - 1)) as f32;
         let mut center_start = self.position.y + (self.size.height - height_sum) / 2.0;
-		center_start += self.scroll_offset;
-		
+
         for child in &mut self.children {
 			child.set_y(center_start);
             center_start += child.size().height + self.spacing as f32;
@@ -127,7 +124,6 @@ impl VerticalLayout {
     fn align_main_axis_end(&mut self) {
         let mut y = self.position.y + self.size.height;
         y -= self.padding as f32;
-		y += self.scroll_offset;
 
         for child in self.children.iter_mut().rev() {
             child.set_y(y);
@@ -311,7 +307,6 @@ impl Layout for VerticalLayout {
         for (_, child) in self.children.iter_mut().enumerate() {
             match child.intrinsic_size().width {
                 BoxSizing::Flex(_) => {
-                    // The child fills the parent width
                     child.set_max_width(available_width);
                 }
                 BoxSizing::Shrink => {
@@ -326,16 +321,11 @@ impl Layout for VerticalLayout {
                 BoxSizing::Flex(factor) => {
                     let grow_factor = factor as f32 / flex_total as f32;
                     child.set_max_height(grow_factor * available_height);
-
-                    // TODO replace with custom err
-                    assert_ne!(grow_factor, INFINITY);
                 }
                 BoxSizing::Fixed(height) => {
                     child.set_max_height(height);
-                    //available_height -= height;
                 }
                 BoxSizing::Shrink => {
-                    //available_height -= child.constraints().min_height
                 }
             }
 
@@ -383,15 +373,15 @@ impl Layout for VerticalLayout {
 		let cross_axis_error = LayoutError::overflow(&self.id, OverflowAxis::CrossAxis); 
 		
 		// Prevent duplicate errors
-		if !self.errors.contains(&main_axis_error){
+		if !self.errors.contains(&cross_axis_error){
 			if width_sum > self.size.width{
-				self.errors.push(main_axis_error);
+				self.errors.push(cross_axis_error);
 			}
 		}
 
-		if !self.errors.contains(&cross_axis_error){
+		if !self.errors.contains(&main_axis_error){
 			if height_sum > self.size.height{
-				self.errors.push(cross_axis_error);
+				self.errors.push(main_axis_error);
 			}
 		}
     }
@@ -409,7 +399,15 @@ impl Layout for VerticalLayout {
             AxisAlignment::End => self.align_cross_axis_end(),
         }
 
+		let overflow = self.main_axis_overflow();
+
         for child in &mut self.children {
+			// Only scroll if children are overflowing
+			if overflow{
+				let y = child.position().y;
+				child.set_y(y + self.scroll_offset);
+			}
+
             if child.position().y > self.position.y + self.size.height {
                 self.errors.push(LayoutError::OutOfBounds {
                     parent_id: self.id.clone(),
@@ -445,8 +443,55 @@ mod test {
 		root.add_child(child);
 		
 		LayoutSolver::solve(&mut root, window);
-		assert!(root.overflow_main_axis());
-		assert!(root.overflow_cross_axis());
+		assert!(root.main_axis_overflow());
+		assert!(root.cross_axis_overflow());
+	}
+
+	#[test]
+	fn cross_axis_overflow(){
+		let window = Size::unit(500.0);
+		
+		let mut root = VerticalLayout::new();
+		root.intrinsic_size = IntrinsicSize{
+			width: BoxSizing::Fixed(0.0),
+			..Default::default()
+		};
+
+		let mut child = EmptyLayout::new();
+		child.intrinsic_size = IntrinsicSize{
+			width:BoxSizing::Fixed(200.0),
+			..Default::default()
+		};
+
+		root.add_child(child);
+		
+		LayoutSolver::solve(&mut root, window);
+		dbg!(&root);
+		assert!(!root.main_axis_overflow());
+		assert!(root.cross_axis_overflow());
+	}
+
+	#[test]
+	fn main_axis_overflow(){
+		let window = Size::unit(500.0);
+		
+		let mut root = VerticalLayout::new();
+		root.intrinsic_size = IntrinsicSize{
+			height: BoxSizing::Fixed(0.0),
+			..Default::default()
+		};
+
+		let mut child = EmptyLayout::new();
+		child.intrinsic_size = IntrinsicSize{
+			height:BoxSizing::Fixed(200.0),
+			..Default::default()
+		};
+
+		root.add_child(child);
+		
+		LayoutSolver::solve(&mut root, window);
+		assert!(root.main_axis_overflow());
+		assert!(!root.cross_axis_overflow());
 	}
 
 	#[test]
