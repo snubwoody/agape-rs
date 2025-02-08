@@ -124,6 +124,8 @@ pub enum LayoutType {
 /// Decribes the size a [`Layout`] will try to be.
 #[derive(Debug, Clone, Copy, Default, PartialEq, PartialOrd)]
 pub enum BoxSizing {
+    /// The [`Layout`] will be a fixed size regardless of any other conditions, this can often 
+	/// cause overflow if not used wisely.
     Fixed(f32),
     /// Tries to be as small as possible
     #[default]

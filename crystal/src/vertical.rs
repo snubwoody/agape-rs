@@ -20,17 +20,19 @@ pub struct VerticalLayout {
     pub children: Vec<Box<dyn Layout>>,
     /// The main axis is the `y-axis`
     pub main_axis_alignment: AxisAlignment,
-    /// The main axis is the `x-axis`
+    /// The cross axis is the `x-axis`
     pub cross_axis_alignment: AxisAlignment,
     pub constraints: BoxContraints,
     pub errors: Vec<crate::LayoutError>,
 }
 
 impl VerticalLayout {
+	/// Creates a new [`VerticalLayout`].
     pub fn new() -> Self {
         Self::default()
     }
 
+	/// Add a child [`Layout`] to the `VerticalLayout`
     pub fn add_child(&mut self, child: impl Layout + 'static) {
         self.children.push(Box::new(child));
     }
@@ -43,6 +45,23 @@ impl VerticalLayout {
             self.children.push(Box::new(child));
         }
     }
+
+	/// Returns `true` if a [`VerticalLayout`]'s children are overflowing.
+	pub fn overflow(&self) -> bool{
+		self.overflow_main_axis() || self.overflow_cross_axis()
+	}
+
+	/// Returns `true` if a [`VerticalLayout`]'s children are overflowing it's main-axis
+	/// (y-axis).
+	pub fn overflow_main_axis(&self) -> bool{
+		self.errors.contains(&LayoutError::overflow(&self.id, OverflowAxis::MainAxis))
+	}
+
+	/// Returns `true` if a [`VerticalLayout`]'s children are overflowing it's cross-axis
+	/// (x-axis).
+	pub fn overflow_cross_axis(&self) -> bool{
+		self.errors.contains(&LayoutError::overflow(&self.id, OverflowAxis::MainAxis))
+	}
 
     fn fixed_size_sum(&self) -> Size {
         let mut sum = Size::default();
@@ -356,6 +375,7 @@ impl Layout for VerticalLayout {
             child.update_size();
         }
 
+		// TODO check for padding and spacing
 		let width_sum:f32 = self.children.iter().map(|child|child.size().width).sum();
 		let height_sum:f32 = self.children.iter().map(|child|child.size().height).sum();
 
@@ -425,9 +445,8 @@ mod test {
 		root.add_child(child);
 		
 		LayoutSolver::solve(&mut root, window);
-
-		assert!(root.errors.contains(&LayoutError::overflow("", OverflowAxis::MainAxis)));
-		assert!(root.errors.contains(&LayoutError::overflow("", OverflowAxis::CrossAxis)));
+		assert!(root.overflow_main_axis());
+		assert!(root.overflow_cross_axis());
 	}
 
 	#[test]

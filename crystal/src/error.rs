@@ -1,6 +1,3 @@
-
-use std::fmt::write;
-
 use thiserror::Error;
 
 #[derive(Debug,Clone,PartialEq, Eq, PartialOrd, Ord)]
@@ -19,7 +16,8 @@ impl std::fmt::Display for OverflowAxis {
 pub enum LayoutError {
     #[error("Widget(id:{child_id}) is out of it's parent's (id:{parent_id}) bounds")]
     OutOfBounds { parent_id: String, child_id: String },
-    #[error("Widget(id:{id})'s children have overflown in the {axis}")]
+
+	#[error("Widget(id:{id})'s children have overflown in the {axis}")]
     Overflow{
 		id: String,
 		axis: OverflowAxis,
