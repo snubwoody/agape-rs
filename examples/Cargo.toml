@@ -19,6 +19,10 @@ name = "counter"
 path = "counter.rs"
 
 [[example]]
+name = "scroll"
+path = "scroll.rs"
+
+[[example]]
 name = "spotify"
 path = "spotify/spotify.rs"
 
