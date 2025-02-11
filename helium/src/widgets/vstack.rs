@@ -37,6 +37,8 @@ pub struct VStack {
     color: Color,
     layout: VerticalLayout,
     corner_radius: u32,
+	/// Whether the `VStack` should be scrollable, false by default
+	scollable:bool
 }
 
 impl VStack {
@@ -47,6 +49,7 @@ impl VStack {
             children: vec![],
             layout: VerticalLayout::new(),
             corner_radius: 0,
+			scollable: false
         }
     }
 
@@ -74,6 +77,12 @@ impl VStack {
         self
     }
 
+	/// Enable scrolling
+	pub fn scrollable(mut self) -> Self{
+		self.scollable = true;
+		self
+	}
+
     pub fn align_center(mut self) -> Self {
         self.layout.main_axis_alignment = AxisAlignment::Center;
         self.layout.cross_axis_alignment = AxisAlignment::Center;
@@ -100,6 +109,8 @@ impl Widget for VStack {
     }
 
 	fn scroll(&mut self,delta:crystal::Position) {
+		if !self.scollable {return}
+
 		// The delta is usally really small values so we must scale it
 		let scroll_speed = 5.0;
 		self.layout.scroll(delta.y * scroll_speed);
