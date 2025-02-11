@@ -11,13 +11,13 @@ pub struct Image {
 
 impl Image {
     pub fn new(data: ::image::ImageBuffer<Rgba<u8>, Vec<u8>>) -> Self {
-		// TODO get the size of the image and make it a u8 max?
-		let width = data.width();
-		let height = data.height();
-		let size = Size{
-			width:width as f32,
-			height:height as f32
-		};
+        // TODO get the size of the image and make it a u8 max?
+        let width = data.width();
+        let height = data.height();
+        let size = Size {
+            width: width as f32,
+            height: height as f32,
+        };
         Self {
             data,
             size,

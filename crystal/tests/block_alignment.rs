@@ -1,6 +1,5 @@
 use crystal::{
-    AxisAlignment, BlockLayout, BoxSizing, EmptyLayout, IntrinsicSize,
-    LayoutSolver, Position, Size,
+    AxisAlignment, BlockLayout, BoxSizing, EmptyLayout, IntrinsicSize, LayoutSolver, Position, Size,
 };
 
 #[test]

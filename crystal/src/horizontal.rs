@@ -204,7 +204,7 @@ impl Layout for HorizontalLayout {
     fn solve_min_constraints(&mut self) -> (f32, f32) {
         let mut child_constraint_sum = Size::default();
 
-		for child in &mut self.children {
+        for child in &mut self.children {
             let (min_width, min_height) = child.solve_min_constraints();
             child_constraint_sum.width += min_width;
             child_constraint_sum.width += self.spacing as f32; // Not sure about this

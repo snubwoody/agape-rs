@@ -14,18 +14,14 @@ async fn main() {
 
     let mut renderer = Renderer::new(&window).await;
 
-    let image1 =
-        load_from_memory(include_bytes!("spotify/COLOURS - PARTYNEXTDOOR.jpg"))
-		.unwrap();
-    
-	let image2 =
-        load_from_memory(include_bytes!("spotify/Drake_-_So_Far_Gone_cover.png"))
-		.unwrap();
+    let image1 = load_from_memory(include_bytes!("spotify/COLOURS - PARTYNEXTDOOR.jpg")).unwrap();
 
-	let images = [
+    let image2 = load_from_memory(include_bytes!("spotify/Drake_-_So_Far_Gone_cover.png")).unwrap();
+
+    let images = [
         Image::new(image1.to_rgba8()).size(250.0, 250.0),
         Image::new(image2.to_rgba8())
-            .size(250.0,250.0)
+            .size(250.0, 250.0)
             .position(300.0, 0.0),
         Image::new(image2.to_rgba8())
             .size(250.0, 250.0)
@@ -42,13 +38,12 @@ async fn main() {
                     renderer.resize(size.into());
                 }
                 WindowEvent::RedrawRequested => {
-			    	let instant = Instant::now();
+                    let instant = Instant::now();
 
-					renderer.draw(images.clone());
-					renderer.render();
-				    println!("Draw call {:?}", instant.elapsed())
-
-				},
+                    renderer.draw(images.clone());
+                    renderer.render();
+                    println!("Draw call {:?}", instant.elapsed())
+                }
                 _ => {
                     window.request_redraw();
                 }
@@ -57,4 +52,3 @@ async fn main() {
         })
         .expect("Event loop error occured");
 }
-

@@ -23,7 +23,7 @@ impl Image {
     // TODO add new constructor that takes in an image
     // TODO add bytes() method
     pub fn file(path: &str) -> Self {
-		// TODO make this async
+        // TODO make this async
         let id = nanoid::nanoid!();
         // TODO handle the error
         let image = ImageReader::open(path).unwrap().decode().unwrap();

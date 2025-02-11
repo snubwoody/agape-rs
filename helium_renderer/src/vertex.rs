@@ -69,13 +69,13 @@ impl Vertex {
         return vec![vertex1, vertex2, vertex3, vertex4, vertex5, vertex6];
     }
 
-    /// Creates a `Vec` of 6 `Vertices` in a quad layout allowing you to specify 
-	/// uv coordinates.
-	/// The uv's are defined clockwise
-	/// - \[0\] - Top left
-	/// - \[1\] - Top right
-	/// - \[2\] - Bottom right
-	/// - \[3\] - Bottom left
+    /// Creates a `Vec` of 6 `Vertices` in a quad layout allowing you to specify
+    /// uv coordinates.
+    /// The uv's are defined clockwise
+    /// - \[0\] - Top left
+    /// - \[1\] - Top right
+    /// - \[2\] - Bottom right
+    /// - \[3\] - Bottom left
     ///
     /// # Example
     /// ```
@@ -86,17 +86,17 @@ impl Vertex {
     /// let position = Position::default();
     /// let color = Color::default();
     /// let uv = [
-	/// 	[0.0,0.0], // Top left
-	/// 	[1.0,0.0], // Top right
-	/// 	[1.0,1.0], // Bottom right
-	/// 	[0.0,1.0], // Bottom left
-	/// ];
+    /// 	[0.0,0.0], // Top left
+    /// 	[1.0,0.0], // Top right
+    /// 	[1.0,1.0], // Bottom right
+    /// 	[0.0,1.0], // Bottom left
+    /// ];
     /// let vertices = Vertex::quad_with_uv(
-	/// 	size,
-	/// 	position,
-	/// 	color,
-	/// 	uv
-	/// );
+    /// 	size,
+    /// 	position,
+    /// 	color,
+    /// 	uv
+    /// );
     ///
     /// assert_eq!(vertices[0].position[0],position.x);
     /// assert_eq!(vertices[5].position[0],position.x + size.width);
@@ -104,11 +104,11 @@ impl Vertex {
     /// assert_eq!(vertices[5].uv,uv[2]);
     /// ```
     pub fn quad_with_uv(
-		size: Size, 
-		position: Position, 
-		color: Color,
-		uv: [[f32; 2];4]
-	) -> Vec<Self> {
+        size: Size,
+        position: Position,
+        color: Color,
+        uv: [[f32; 2]; 4],
+    ) -> Vec<Self> {
         let color = color.normalize();
         let width = size.width;
         let height = size.height;

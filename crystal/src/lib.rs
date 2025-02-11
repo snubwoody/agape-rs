@@ -30,7 +30,7 @@ impl LayoutSolver {
         // TODO add a push error function that checks for equality so that we don't have duplicate errors
         // or maybe just clear the error stack every frame
         //root.collect_errors()
-		vec![]
+        vec![]
     }
 }
 
@@ -49,23 +49,22 @@ pub trait Layout: Debug + Send + Sync {
     /// Collect all the errors from the error stack
     fn collect_errors(&mut self) -> Vec<LayoutError>;
 
-
-	/// Get the `id` of the [`Layout`]
+    /// Get the `id` of the [`Layout`]
     fn id(&self) -> &str;
 
-	/// Get the [`BoxConstraints`] of the [`Layout`]
+    /// Get the [`BoxConstraints`] of the [`Layout`]
     fn constraints(&self) -> BoxContraints;
 
-	/// Get the [`IntrinsicSize`] of the [`Layout`]
+    /// Get the [`IntrinsicSize`] of the [`Layout`]
     fn intrinsic_size(&self) -> IntrinsicSize;
-	
-	/// Get the `Size` of the [`Layout`]
+
+    /// Get the `Size` of the [`Layout`]
     fn size(&self) -> Size;
-	
-	/// Get the `Position` of the [`Layout`]
+
+    /// Get the `Position` of the [`Layout`]
     fn position(&self) -> Position;
-    
-	fn children(&self) -> &[Box<dyn Layout>];
+
+    fn children(&self) -> &[Box<dyn Layout>];
 
     fn set_max_width(&mut self, width: f32);
     fn set_max_height(&mut self, height: f32);
@@ -124,8 +123,8 @@ pub enum LayoutType {
 /// Decribes the size a [`Layout`] will try to be.
 #[derive(Debug, Clone, Copy, Default, PartialEq, PartialOrd)]
 pub enum BoxSizing {
-    /// The [`Layout`] will be a fixed size regardless of any other conditions, this can often 
-	/// cause overflow if not used wisely.
+    /// The [`Layout`] will be a fixed size regardless of any other conditions, this can often
+    /// cause overflow if not used wisely.
     Fixed(f32),
     /// Tries to be as small as possible
     #[default]

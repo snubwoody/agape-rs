@@ -1,7 +1,7 @@
 use crate::{
     AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter,
 };
-use helium_core::{Position,Size};
+use helium_core::{Position, Size};
 
 /// A [`Layout`] that only has one child.
 #[derive(Debug)]

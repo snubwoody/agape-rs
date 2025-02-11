@@ -7,7 +7,7 @@ use crate::{
     primitives::Image,
     vertex::Vertex,
 };
-use helium_core::{colors::TRANSPARENT, Size,Position};
+use helium_core::{colors::TRANSPARENT, Position, Size};
 use image::{ImageBuffer, Rgba};
 use std::rc::Rc;
 use wgpu::Extent3d;
@@ -17,9 +17,9 @@ pub struct ImagePipeline {
     layout: wgpu::BindGroupLayout,
     global: Rc<GlobalResources>,
     sampler: wgpu::Sampler,
-	atlas:TextureAtlas,
-	bind_group: wgpu::BindGroup,
-	view: wgpu::TextureView
+    atlas: TextureAtlas,
+    bind_group: wgpu::BindGroup,
+    view: wgpu::TextureView,
 }
 
 impl ImagePipeline {
@@ -100,10 +100,10 @@ impl ImagePipeline {
         });
 
         let sampler = device.create_sampler(&Default::default());
-		let atlas = TextureAtlas::new(device);
+        let atlas = TextureAtlas::new(device);
 
         let view = atlas.texture.create_view(&Default::default());
-		
+
         let bind_group = BindGroupBuilder::new()
             .label("Image atlas bind group")
             .texture_view(&view)
@@ -115,9 +115,9 @@ impl ImagePipeline {
             layout,
             global,
             sampler,
-			atlas,
-			bind_group,
-			view
+            atlas,
+            bind_group,
+            view,
         }
     }
 
@@ -130,8 +130,8 @@ impl ImagePipeline {
     ) {
         let quad_size = image.size;
 
-		let uv = self.atlas.get(image,queue);
-        let vertices = Vertex::quad_with_uv(quad_size, image.position, TRANSPARENT,uv);
+        let uv = self.atlas.get(image, queue);
+        let vertices = Vertex::quad_with_uv(quad_size, image.position, TRANSPARENT, uv);
         let vertex_buffer = BufferBuilder::new()
             .label("Image vertex buffer")
             .vertex()
@@ -146,20 +146,20 @@ impl ImagePipeline {
     }
 }
 
-struct TextureAtlas{
-	/// The position of the next image
-	offset:Position,
-	size:Size,
-	texture: wgpu::Texture,
-	images: Vec<CachedImage>,
+struct TextureAtlas {
+    /// The position of the next image
+    offset: Position,
+    size: Size,
+    texture: wgpu::Texture,
+    images: Vec<CachedImage>,
 }
 
 impl TextureAtlas {
-	fn new(device:&wgpu::Device) -> Self{
-		// TODO add atlas size param
-		// TODO add max texture and image size option
-		let size = Size::new(2048.0, 2048.0);
-		let texture = TextureBuilder::new()
+    fn new(device: &wgpu::Device) -> Self {
+        // TODO add atlas size param
+        // TODO add max texture and image size option
+        let size = Size::new(2048.0, 2048.0);
+        let texture = TextureBuilder::new()
             .label("Texture Atlas")
             .size(size)
             .dimension(wgpu::TextureDimension::D2)
@@ -167,40 +167,40 @@ impl TextureAtlas {
             .usage(wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST)
             .build(device);
 
-		Self { 
-			size,
-			offset:Position::default(),
-			texture,
-			images:vec![]
-		}
-	}
+        Self {
+            size,
+            offset: Position::default(),
+            texture,
+            images: vec![],
+        }
+    }
 
-	pub fn get(&mut self,image:&Image,queue:&wgpu::Queue) -> [[f32;2];4]{
-		for cached_image in &self.images{
-			if cached_image.image == image.data{
-				return cached_image.uv(self.size)
-			}
-		}
-		
+    pub fn get(&mut self, image: &Image, queue: &wgpu::Queue) -> [[f32; 2]; 4] {
+        for cached_image in &self.images {
+            if cached_image.image == image.data {
+                return cached_image.uv(self.size);
+            }
+        }
+
         let size = Extent3d {
-			width: image.data.width(),
+            width: image.data.width(),
             height: image.data.height(),
             depth_or_array_layers: 1,
         };
 
-		let origin = wgpu::Origin3d{
-			x:self.offset.x as u32,
-			y:self.offset.y as u32,
-			z:0,
-		};
-		
-		let cached_image = CachedImage::new(self.offset, image.data.clone());
-		let uv = cached_image.uv(self.size);
-		self.images.push(cached_image);
+        let origin = wgpu::Origin3d {
+            x: self.offset.x as u32,
+            y: self.offset.y as u32,
+            z: 0,
+        };
 
-		// TODO check for verical offset
-		self.offset.x += size.width as f32;
-		
+        let cached_image = CachedImage::new(self.offset, image.data.clone());
+        let uv = cached_image.uv(self.size);
+        self.images.push(cached_image);
+
+        // TODO check for verical offset
+        self.offset.x += size.width as f32;
+
         queue.write_texture(
             wgpu::TexelCopyTextureInfo {
                 texture: &self.texture,
@@ -217,58 +217,53 @@ impl TextureAtlas {
             size,
         );
 
-		uv
-	}
+        uv
+    }
 }
 
 /// An image from the [`TextureAtlas`]
-#[derive(PartialEq,Clone)]
-struct CachedImage{
-	/// The position of the image in the [`TextureAtlas`]
-	location:Position,
-	image:ImageBuffer<Rgba<u8>, Vec<u8>>,
+#[derive(PartialEq, Clone)]
+struct CachedImage {
+    /// The position of the image in the [`TextureAtlas`]
+    location: Position,
+    image: ImageBuffer<Rgba<u8>, Vec<u8>>,
 }
 
-impl CachedImage{
-	fn new(location:Position,image:ImageBuffer<Rgba<u8>,Vec<u8>>) -> Self{
-		Self{
-			location,
-			image
-		}
-	}
+impl CachedImage {
+    fn new(location: Position, image: ImageBuffer<Rgba<u8>, Vec<u8>>) -> Self {
+        Self { location, image }
+    }
 
-	/// Get the uv coordinates for the image
-	fn uv(&self,atlas_size:Size) -> [[f32;2];4]{
-		let size = Size::new(self.image.width() as f32, self.image.height() as f32);
+    /// Get the uv coordinates for the image
+    fn uv(&self, atlas_size: Size) -> [[f32; 2]; 4] {
+        let size = Size::new(self.image.width() as f32, self.image.height() as f32);
 
-		let top_left = [ 
-			self.location.x / atlas_size.width,
-			self.location.y / atlas_size.height,
-		];
+        let top_left = [
+            self.location.x / atlas_size.width,
+            self.location.y / atlas_size.height,
+        ];
 
-		let top_right = [ 
-			(self.location.x + size.width) / atlas_size.width,
-			self.location.y / atlas_size.height,
-		];
+        let top_right = [
+            (self.location.x + size.width) / atlas_size.width,
+            self.location.y / atlas_size.height,
+        ];
 
-		let bottom_right = [ 
-			(self.location.x + size.width) / atlas_size.width,
-			(self.location.y + size.height) / atlas_size.height,
-		];
+        let bottom_right = [
+            (self.location.x + size.width) / atlas_size.width,
+            (self.location.y + size.height) / atlas_size.height,
+        ];
 
-		let bottom_left = [ 
-			self.location.x  / atlas_size.width,
-			(self.location.y + size.height) / atlas_size.height,
-		];
+        let bottom_left = [
+            self.location.x / atlas_size.width,
+            (self.location.y + size.height) / atlas_size.height,
+        ];
 
-		// uv's are defined clockwise
-		let uv = [top_left,top_right,bottom_right,bottom_left];
+        // uv's are defined clockwise
+        let uv = [top_left, top_right, bottom_right, bottom_left];
 
-		uv
-	}
+        uv
+    }
 }
 
 #[cfg(test)]
-mod test{
-
-}
+mod test {}

@@ -129,4 +129,3 @@ where
         self.pending.draw(layout, renderer);
     }
 }
-

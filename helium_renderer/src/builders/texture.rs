@@ -1,6 +1,5 @@
 use helium_core::Size;
 
-
 pub struct TextureBuilder<'b> {
     label: Option<&'b str>,
     size: Size,
@@ -24,37 +23,37 @@ impl<'b> TextureBuilder<'b> {
         }
     }
 
-	/// Set the label of the texture
+    /// Set the label of the texture
     pub fn label(mut self, label: &'b str) -> Self {
-		self.label = Some(label);
+        self.label = Some(label);
         self
     }
-	
-	/// Set the size of the texture
+
+    /// Set the size of the texture
     pub fn size(mut self, size: Size) -> Self {
-		self.size = size;
+        self.size = size;
         self
     }
-	
-	/// Set the dimensions of the texture
+
+    /// Set the dimensions of the texture
     pub fn dimension(mut self, dimension: wgpu::TextureDimension) -> Self {
         self.dimension = dimension;
         self
     }
 
-	/// Set the texture format
+    /// Set the texture format
     pub fn format(mut self, format: wgpu::TextureFormat) -> Self {
-		self.format = format;
+        self.format = format;
         self
     }
-	
-	/// Set the texture usage
+
+    /// Set the texture usage
     pub fn usage(mut self, usage: wgpu::TextureUsages) -> Self {
         self.usage |= usage;
         self
     }
 
-	/// Build the `wgpu::Texture`
+    /// Build the `wgpu::Texture`
     pub fn build(self, device: &wgpu::Device) -> wgpu::Texture {
         device.create_texture(&wgpu::TextureDescriptor {
             label: self.label,

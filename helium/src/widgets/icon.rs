@@ -27,7 +27,7 @@ impl Icon {
     /// Create an icon by passing in the raw bytes, the bytes must be
     /// from an svg image.
     pub fn bytes(bytes: &[u8]) -> Self {
-		// TODO return a result
+        // TODO return a result
         let id = nanoid::nanoid!();
 
         let options = usvg::Options::default();

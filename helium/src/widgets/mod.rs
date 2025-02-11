@@ -18,7 +18,7 @@ pub use button::*;
 pub use circle::*;
 pub use container::*;
 use crystal::Layout;
-use helium_core::{Position,Bounds};
+use helium_core::{Bounds, Position};
 use helium_renderer::Renderer;
 pub use hstack::*;
 pub use image::*;
@@ -83,7 +83,7 @@ impl dyn Widget {
         }
     }
 
-	/// Handles `winit`'s click event.
+    /// Handles `winit`'s click event.
     fn dispatch_click(
         &mut self,
         state: &winit::event::ElementState,
@@ -100,11 +100,9 @@ impl dyn Widget {
         }
     }
 
-	fn dispatch_scroll(&mut self,){
+    fn dispatch_scroll(&mut self) {}
 
-	}
-
-	/// Handles all `winit` events
+    /// Handles all `winit` events
     pub(crate) fn dispatch_event(
         &mut self,
         mouse_pos: helium_core::Position,
@@ -128,18 +126,18 @@ impl dyn Widget {
                     } else {
                         self.unfocus();
                     }
-                },
-				WindowEvent::MouseWheel { delta,.. } => {
-					let position = match delta {
-						MouseScrollDelta::LineDelta(x,y) => {
-
-						},
-						MouseScrollDelta::PixelDelta(pos) => Position::from(pos),
-					}
-				},
+                }
+                WindowEvent::MouseWheel { delta, .. } => {
+                    let position = match delta {
+                        MouseScrollDelta::LineDelta(x, y) => Position::new(*x, *y),
+                        MouseScrollDelta::PixelDelta(pos) => {
+                            Position::new(pos.x as f32, pos.y as f32)
+                        }
+                    };
+                }
                 event => {
-					dbg!(&event);
-				}
+                    dbg!(&event);
+                }
             }
         } else {
             log::warn!("Widget: {} is missing a Layout", self.id())
