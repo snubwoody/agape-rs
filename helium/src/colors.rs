@@ -1,4 +1,5 @@
 use helium_core::Color;
+pub use helium_core::colors::*;
 
 /// Contains all the colors from [tailwindcss](https://tailwindcss.com/docs/customizing-colors).
 pub mod tailwind_colors {

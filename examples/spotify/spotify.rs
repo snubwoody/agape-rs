@@ -1,16 +1,11 @@
 #![allow(non_snake_case)]
 use helium::{
-    crystal::{AxisAlignment, LayoutSolver},
+    crystal::AxisAlignment,
     hex, hstack, vstack,
     widgets::*,
-    App, Color, Page, Size, BLACK, WHITE,
+    App, Color, colors::{BLACK, WHITE}
 };
 use icon::feather_icons;
-use std::{
-    env,
-    fs::OpenOptions,
-    io::{BufWriter, Write},
-};
 
 const BACKGROUND: Color = hex!("#121212");
 const GREY: Color = hex!("#414141");

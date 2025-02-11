@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use helium::{colors::tailwind_colors, vstack, widgets::*, App, Page, BLACK, WHITE};
+use helium::{colors::tailwind_colors, vstack, widgets::*, App, Page, colors::{BLACK, WHITE}};
 
 #[tokio::main]
 async fn main() -> Result<(), helium::Error> {

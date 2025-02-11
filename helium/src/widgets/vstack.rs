@@ -100,7 +100,7 @@ impl Widget for VStack {
     }
 
 	fn scroll(&mut self,delta:crystal::Position) {
-		
+		self.layout.scroll(delta.y);
 	}
 
     fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
@@ -110,6 +110,7 @@ impl Widget for VStack {
             .map(|widget| widget.layout(renderer))
             .collect();
 
+		
         let VerticalLayout {
             spacing,
             padding,
@@ -117,6 +118,7 @@ impl Widget for VStack {
             main_axis_alignment,
             cross_axis_alignment,
             constraints,
+			scroll_offset,
             ..
         } = self.layout;
 
@@ -129,6 +131,7 @@ impl Widget for VStack {
             cross_axis_alignment,
             main_axis_alignment,
             constraints,
+			scroll_offset,
             children: children_layout,
             ..Default::default()
         };

@@ -91,7 +91,7 @@ impl VerticalLayout {
     }
 
     pub fn scroll(&mut self, offset: f32) {
-        self.scroll_offset = offset;
+        self.scroll_offset += offset;
     }
 
     /// Align the children on the main axis at the start
