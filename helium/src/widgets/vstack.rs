@@ -100,7 +100,9 @@ impl Widget for VStack {
     }
 
 	fn scroll(&mut self,delta:crystal::Position) {
-		self.layout.scroll(delta.y);
+		// The delta is usally really small values so we must scale it
+		let scroll_speed = 5.0;
+		self.layout.scroll(delta.y * scroll_speed);
 	}
 
     fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
