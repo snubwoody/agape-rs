@@ -1,4 +1,4 @@
-use helium::{vstack, widgets::Rect, App, colors::BLACK};
+use helium::{colors::BLACK, crystal::AxisAlignment, vstack, widgets::{Rect, Text}, App};
 
 #[tokio::main]
 async fn main() -> Result<(), helium::Error> {
@@ -12,7 +12,8 @@ async fn main() -> Result<(), helium::Error> {
     }
     .spacing(24)
     .fill()
-    .align_center();
+	.scrollable() // Enable scrolling
+	.cross_axis_alignment(AxisAlignment::Center);
 
     let mut app = App::new();
     app.add_page(list);

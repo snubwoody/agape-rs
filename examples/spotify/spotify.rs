@@ -53,6 +53,7 @@ async fn main() -> Result<(), helium::Error> {
     }
     .padding(24)
     .spacing(24)
+	.scrollable()
     .fill_width();
 
     let home_page = hstack! {Sidebar(),mainpanel}

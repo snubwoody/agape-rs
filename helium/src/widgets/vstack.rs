@@ -30,6 +30,20 @@ use helium_renderer::Rect;
 /// 	.add_child(Text::new("World"));
 ///
 /// ```
+/// 
+/// # Scrolling
+/// `VStack`'s are not scrollable by default, to enable scrolling use the `scrollable()`
+/// method.
+/// 
+/// ```
+/// use helium::{vstack,widgets::Text};
+/// 
+/// vstack!{
+/// 	Text::new("Hello"),
+/// 	Text::new("world!"),
+/// }
+/// .scrollable();
+/// ```
 ///
 pub struct VStack {
     id: String,
@@ -113,6 +127,7 @@ impl Widget for VStack {
 
 		// The delta is usally really small values so we must scale it
 		let scroll_speed = 5.0;
+		// TODO change the scroll speeed based on whether it's a mouse pad or touch pad
 		self.layout.scroll(delta.y * scroll_speed);
 	}
 
@@ -183,6 +198,21 @@ impl Widget for VStack {
 /// 	Text::new("world")
 /// };
 /// ```
+/// 
+/// # Scrolling
+/// `VStack`'s are not scrollable by default, to enable scrolling use the `scrollable()`
+/// method.
+/// 
+/// ```
+/// use helium::{vstack,widgets::Text};
+/// 
+/// vstack!{
+/// 	Text::new("Hello"),
+/// 	Text::new("world!"),
+/// }
+/// .scrollable();
+/// ```
+///
 #[macro_export]
 macro_rules! vstack {
 	($($child:expr), + $(,)?) => {
