@@ -28,6 +28,8 @@ fn main(){
 # Widgets
 ## HStack
 The `HStack` is a `Widget` that arranges it's children horizontally.
+![Illustration](<docs/assets/HStack Illustration.svg>)
+
 # Support
 
 
