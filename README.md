@@ -10,19 +10,15 @@ Helium is inspired by SwiftUI and Flutter and aims to be a fully featured rust g
 ## Quick start
 
 ```rust
-use helium::{
-	widget::Text,
-	app::App,
-	page::Page
-}
+use helium::{App,widgets::Text,}
 
-fn main(){
-	let page = Page::new(Text::new("Hello world"));
+#[tokio::main]
+async fn main() -> Result<(),helium::Error>{
+	let text = Text::new("Hello world");
 
-	App::new()
-		.add_page(page)
-		.run()
-		.unwrap()
+	let mut app = App::new();
+	app.add_page(text)
+	app.run().await	
 }
 ```
 
