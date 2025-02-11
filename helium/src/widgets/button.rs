@@ -1,41 +1,78 @@
-use super::{text::Text, Widget};
-use crate::app::events::Event;
-use crate::{
-    impl_events,
-    surface::rect::RectSurface,
-    widgets::WidgetBody,
-};
-use crystal::{BlockLayout, BoxSizing, Layout};
-use helium_core::color::Color;
-use nanoid::nanoid;
-use winit::keyboard;
+use super::{Modifiers, Text, Widget};
+use crate::impl_modifiers;
+use crystal::{AxisAlignment, BlockLayout, Layout};
+use helium_core::Color;
 
-/// A simple button.
-pub struct Button {
+/// A `Button` is a [`Widget`] that wraps another [`Widget`] and responds to different
+/// events such as `on_click` and `on_hover` events.
+///
+/// The simplest way to create a button is to use `Button::text()`
+/// ```
+/// use helium::widgets::Button;
+///
+/// let button = Button::text("Click me")
+/// 	.on_click(||println!("Clicked!"));
+/// ```
+///
+/// # Button wrapping a [`Widget`]
+/// ```
+/// use helium::{vstack,widgets::*};
+///
+/// let card = vstack!{
+/// 	Text::new("Header"),
+/// };
+///
+/// Button::new(card);
+/// ```
+pub struct Button<W> {
     id: String,
-    text: String,
-    color: Color,
-    padding: u32,
-    corner_radius: u32,
+    pub color: Color,
+    pub padding: u32,
+    pub corner_radius: u32,
+    child: W,
+    modifiers: Modifiers,
+    on_click: Option<Box<dyn FnMut()>>,
 }
 
-impl Button {
-    pub fn new(text: &str) -> Self {
+impl Button<Text> {
+    pub fn text(text: &str) -> Self {
         Self {
-            id: nanoid!(),
-            text: text.into(),
+            id: nanoid::nanoid!(),
             color: Color::Hex("#615fff"),
             padding: 12,
             corner_radius: 0,
+            child: Text::new(text),
+            modifiers: Modifiers::new(),
+            on_click: None,
         }
     }
 
-    pub fn get_id(&self) -> String {
-        self.id.clone()
+    pub fn font_color(mut self, color: Color) -> Self {
+        self.child.color = color;
+        self
+    }
+}
+
+impl<W: Widget> Button<W> {
+    pub fn new(child: W) -> Self {
+        Self {
+            id: nanoid::nanoid!(),
+            color: Color::Hex("#615fff"),
+            padding: 12,
+            corner_radius: 0,
+            child,
+            modifiers: Modifiers::new(),
+            on_click: None,
+        }
     }
 
     pub fn color(mut self, color: Color) -> Self {
         self.color = color;
+        self
+    }
+
+    pub fn on_click(mut self, f: impl FnMut() + 'static) -> Self {
+        self.on_click = Some(Box::new(f));
         self
     }
 
@@ -49,29 +86,41 @@ impl Button {
         self
     }
 
-    impl_events!();
+    impl_modifiers!();
 }
 
-impl Widget for Button {
-    fn build(&self) -> (WidgetBody,Box<dyn Layout>) {
-        let mut surface = RectSurface::default();
-		surface.color = self.color.clone();
-        surface.corner_radius(self.corner_radius);
-		
-        let (text_body,text_layout) = Text::new(&self.text).build();
-		
-		
-		let body = WidgetBody {
-			id: self.id.clone(),
-            surface: Box::new(surface),
-            children: vec![Box::new(text_body)],
-            ..Default::default()
-        };
-		
-		let mut layout = BlockLayout::new(text_layout);
-		layout.id = body.id.clone();
-		layout.padding = self.padding;
+impl<W: Widget> Widget for Button<W> {
+    fn id(&self) -> &str {
+        &self.id
+    }
 
-		(body,Box::new(layout))
+    fn click(&mut self) {
+        if let Some(func) = &mut self.on_click {
+            func()
+        }
+    }
+
+    fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
+        let mut layout = BlockLayout::new(self.child.layout(renderer));
+        layout.intrinsic_size = self.modifiers.intrinsic_size;
+        layout.padding = self.padding;
+        layout.main_axis_alignment = AxisAlignment::Center; // TODO expose this
+        layout.cross_axis_alignment = AxisAlignment::Center;
+        layout.id = self.id.clone();
+
+        Box::new(layout)
+    }
+
+    fn children(&self) -> Vec<&dyn Widget> {
+        vec![&self.child]
+    }
+
+    fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {
+        renderer.draw([
+            helium_renderer::Rect::new(layout.size().width, layout.size().height)
+                .position(layout.position().x, layout.position().y)
+                .color(self.color)
+                .corner_radius(self.corner_radius as f32),
+        ]);
     }
 }

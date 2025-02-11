@@ -1,77 +1,101 @@
-use super::{Widget, WidgetBody};
+use super::Widget;
 use crate::Color;
-use crate::surface::rect::RectSurface;
-use crate::Size;
-use crystal::{BlockLayout, BoxSizing, EmptyLayout, IntrinsicSize, Layout};
+use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
+use helium_core::colors::WHITE;
 use nanoid::nanoid;
 
-// TODO change size to u32
+// TODO add BoxStyle struct
 /// A simple rectangle
-pub struct Rect{
-	id:String,
-    width: f32,
-    height: f32,
-	intrinsic_size:crystal::IntrinsicSize,
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
+pub struct Rect {
+    id: String,
+    intrinsic_size: crystal::IntrinsicSize,
     color: Color,
-	radius:u32
+    corner_radius: u32,
 }
 
 impl Rect {
-    pub fn new(width: f32, height: f32, color: Color) -> Self {
-        let intrinsic_size = IntrinsicSize{
-			width:BoxSizing::Fixed(width),
-			height:BoxSizing::Fixed(height)
-		};
+    pub fn new(width: f32, height: f32) -> Self {
+        let intrinsic_size = IntrinsicSize {
+            width: BoxSizing::Fixed(width),
+            height: BoxSizing::Fixed(height),
+        };
 
-		Self {
-			id:nanoid!(),
-            width,
-            height,
-            color,
-			intrinsic_size,
-			radius:0
+        Self {
+            id: nanoid!(),
+            color: WHITE,
+            intrinsic_size,
+            corner_radius: 0,
         }
     }
 
-	/// Set th border radius
-	pub fn corner_radius(mut self,radius:u32) -> Self{
-		self.radius = radius;
-		self
-	}
+    pub fn color(mut self, color: Color) -> Self {
+        self.color = color;
+        self
+    }
 
-	pub fn flex_width(mut self,factor:u8) -> Self{
-		self.intrinsic_size.width = BoxSizing::Flex(factor);
-		self
-	}
+    /// This event fires when the mouse cursor is over a [`Widget`]
+    ///
+    /// # Example
+    /// ```
+    /// use helium::widgets::Rect;
+    ///
+    /// Rect::new(150.0,150.0)
+    /// 	.on_hover(||println!("Hello world"));
+    /// ```
+    pub fn on_hover(self, f: impl FnMut() + 'static) -> Self {
+        self
+    }
 
-	pub fn flex_height(mut self,factor:u8) -> Self{
-		self.intrinsic_size.height = BoxSizing::Flex(factor);
-		self
-	}
+    /// This event fires when the mouse clicks on a [`Widget`].
+    ///
+    /// # Example
+    /// ```
+    /// use helium::widgets::Rect;
+    ///
+    /// Rect::new(150.0,150.0)
+    /// 	.on_click(||println!("Hello world"));
+    /// ```
+    pub fn on_click(self, f: impl FnMut() + 'static) -> Self {
+        self
+    }
+
+    /// Set the corner radius
+    pub fn corner_radius(mut self, corner_radius: u32) -> Self {
+        self.corner_radius = corner_radius;
+        self
+    }
+
+    // TODO replace with impl_layout!()
+    pub fn flex_width(mut self, factor: u8) -> Self {
+        self.intrinsic_size.width = BoxSizing::Flex(factor);
+        self
+    }
+
+    pub fn flex_height(mut self, factor: u8) -> Self {
+        self.intrinsic_size.height = BoxSizing::Flex(factor);
+        self
+    }
 }
 
 impl Widget for Rect {
-    fn build(&self) -> (WidgetBody,Box<dyn Layout>) {
-        let surface = Box::new(RectSurface {
-            size: Size::new(self.width as f32, self.height as f32),
-            color: self.color.clone(),
-			corner_radius:self.radius,
-            ..Default::default()
-        });
-
-		let body = WidgetBody {
-			id:self.id.clone(),
-            surface,
-            children: vec![],
-            ..Default::default()
-        };
-
-		let mut layout = EmptyLayout::new();
-		layout.intrinsic_size = self.intrinsic_size;
-		layout.id = body.id.clone();
-
-		(body,Box::new(layout))
+    fn id(&self) -> &str {
+        &self.id
     }
 
-}
+    fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
+        let mut layout = EmptyLayout::new();
+        layout.intrinsic_size = self.intrinsic_size;
+        layout.id = self.id.clone();
 
+        Box::new(layout)
+    }
+
+    fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {
+        renderer.draw([
+            helium_renderer::Rect::new(layout.size().width, layout.size().height)
+                .position(layout.position().x, layout.position().y)
+                .color(self.color),
+        ]);
+    }
+}

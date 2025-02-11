@@ -1,115 +1,225 @@
-use crate::{
-    app::events::Event, impl_events, impl_style, impl_widget, surface::rect::RectSurface, widgets::{Widget, WidgetBody}, Color
-};
-use crystal::{Layout, VerticalLayout};
-use helium_core::color::TRANSPARENT;
+use crate::{impl_layout, impl_style, widgets::Widget, Color};
+use crystal::{AxisAlignment, Layout, VerticalLayout};
+use helium_core::colors::TRANSPARENT;
+use helium_renderer::Rect;
 
+/// A [`Widget`] that places it's children vertically. The `vstack!` macro
+/// provides convienient initialization and is likely how you will be creating an
+/// `VStack` most of the time.
+///
+/// # Example using `vstack!`
+///
+/// ```
+/// use helium::{vstack,widgets::{Circle,Text}};
+///
+/// vstack!{
+/// 	Circle::new(15),
+/// 	Text::new("Hello world")
+/// };
+///
+/// ```
+///
+/// You can also simply use the struct method for initialization if you choose to,
+/// which is what `vstack!` expands to
+///
+/// ```
+/// use helium::widgets::{Text,VStack};
+///
+/// VStack::new()
+/// 	.add_child(Text::new("Hello"))
+/// 	.add_child(Text::new("World"));
+///
+/// ```
+/// 
+/// # Scrolling
+/// `VStack`'s are not scrollable by default, to enable scrolling use the `scrollable()`
+/// method.
+/// 
+/// ```
+/// use helium::{vstack,widgets::Text};
+/// 
+/// vstack!{
+/// 	Text::new("Hello"),
+/// 	Text::new("world!"),
+/// }
+/// .scrollable();
+/// ```
+///
 pub struct VStack {
-	pub id:String,
-    pub children: Vec<Box<dyn Widget>>,
-    pub color: Color,
-	pub layout:VerticalLayout
+    id: String,
+    children: Vec<Box<dyn Widget>>,
+    color: Color,
+    layout: VerticalLayout,
+    corner_radius: u32,
+	/// Whether the `VStack` should be scrollable, false by default
+	scollable:bool
 }
 
 impl VStack {
-	pub fn new() -> Self{
-		VStack{
-			id:String::default(),
-			color:TRANSPARENT,
-			children:vec![],
-			layout:VerticalLayout::new()
-		}
-	}
+    pub fn new() -> Self {
+        VStack {
+            id: nanoid::nanoid!(),
+            color: TRANSPARENT,
+            children: vec![],
+            layout: VerticalLayout::new(),
+            corner_radius: 0,
+			scollable: false
+        }
+    }
 
-	pub fn padding(mut self, padding: u32) -> Self {
-		self.layout.padding = padding;
+    pub fn corner_radius(mut self, corner_radius: u32) -> Self {
+        self.corner_radius = corner_radius;
+        self
+    }
+
+    pub fn get(&self, index: usize) -> Option<&dyn Widget> {
+        self.children.get(index).map(|w| &**w)
+    }
+
+    pub fn add_child(mut self, widget: impl Widget + 'static) -> Self {
+        self.children.push(Box::new(widget));
+        self
+    }
+
+    pub fn padding(mut self, padding: u32) -> Self {
+        self.layout.padding = padding;
+        self
+    }
+
+    pub fn spacing(mut self, spacing: u32) -> Self {
+        self.layout.spacing = spacing;
+        self
+    }
+
+	/// Enable scrolling
+	pub fn scrollable(mut self) -> Self{
+		self.scollable = true;
 		self
 	}
 
-	pub fn spacing(mut self, spacing: u32) -> Self {
-		self.layout.spacing = spacing;
-		self
-	}
+    pub fn align_center(mut self) -> Self {
+        self.layout.main_axis_alignment = AxisAlignment::Center;
+        self.layout.cross_axis_alignment = AxisAlignment::Center;
+        self
+    }
 
-	impl_widget!();	
-	impl_style!();
-	impl_events!();
+    pub fn main_axis_alignment(mut self, alignment: AxisAlignment) -> Self {
+        self.layout.main_axis_alignment = alignment;
+        self
+    }
+
+    pub fn cross_axis_alignment(mut self, alignment: AxisAlignment) -> Self {
+        self.layout.cross_axis_alignment = alignment;
+        self
+    }
+
+    impl_layout!();
+    impl_style!();
 }
 
 impl Widget for VStack {
-    fn build(&self) -> (WidgetBody,Box<dyn Layout>) {
-        let mut surface = RectSurface::default();
-        surface.color(self.color.clone());
+    fn id(&self) -> &str {
+        &self.id
+    }
 
-		let (children_body,children_layout):(Vec<Box<WidgetBody>>,Vec<Box<dyn Layout>>) = 
-			self
-			.children
-			.iter()
-			.map(|widget| {
-				let (body,layout) = widget.build();
-				return (Box::new(body),layout);
-			})
-			.collect();
+	fn scroll(&mut self,delta:crystal::Position) {
+		if !self.scollable {return}
 
-		let body = WidgetBody {
-			id:self.id.clone(),
-			children:children_body,
-			surface: Box::new(surface),
-			..Default::default()
-		};
+		// The delta is usally really small values so we must scale it
+		let scroll_speed = 5.0;
+		// TODO change the scroll speeed based on whether it's a mouse pad or touch pad
+		self.layout.scroll(delta.y * scroll_speed);
+	}
 
-		let VerticalLayout{
-			spacing,
-			padding,
-			intrinsic_size,
-			main_axis_alignment,
-			cross_axis_alignment,
-			constraints,
-			..
-		} = self.layout;
-	
-		let layout = VerticalLayout{
-			id:body.id.clone(),
-			spacing,
-			padding,
-			intrinsic_size,
-			constraints,
-			main_axis_alignment,
-			cross_axis_alignment,
-			children:children_layout,
-			..Default::default()
-		};
+    fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
+        let children_layout: Vec<Box<dyn Layout>> = self
+            .children
+            .iter()
+            .map(|widget| widget.layout(renderer))
+            .collect();
 
-		(body,Box::new(layout))
+		
+        let VerticalLayout {
+            spacing,
+            padding,
+            intrinsic_size,
+            main_axis_alignment,
+            cross_axis_alignment,
+            constraints,
+			scroll_offset,
+            ..
+        } = self.layout;
+
+        // TODO use builder pattern?
+        let layout = VerticalLayout {
+            id: self.id.clone(),
+            spacing,
+            padding,
+            intrinsic_size,
+            cross_axis_alignment,
+            main_axis_alignment,
+            constraints,
+			scroll_offset,
+            children: children_layout,
+            ..Default::default()
+        };
+
+        Box::new(layout)
+    }
+
+    fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
+        renderer.draw([Rect::new(layout.size().width, layout.size().height)
+            .position(layout.position().x, layout.position().y)
+            .color(self.color)
+            .corner_radius(self.corner_radius as f32)]);
+    }
+
+    fn children(&self) -> Vec<&dyn Widget> {
+        self.children
+            .iter()
+            .map(|child| child.as_ref())
+            .collect::<Vec<_>>()
+    }
+
+    fn children_mut(&mut self) -> &mut [Box<dyn Widget>] {
+        self.children.as_mut_slice()
     }
 }
 
-
 /// Creates an [`VStack`].  
-/// 
+///
 /// `vstack!` allows [`VStack`]'s to be declared in a more declarative manner.  
-/// 
-/// ```ignore
-/// vstack!{
-/// 	Button::new("Click me"),
-/// 	Text::new("Hello world")
-/// }
+///
 /// ```
+/// use helium::{vstack,widgets::{Button,Text}};
+///
+/// vstack!{
+/// 	Text::new("Hello"),
+/// 	Text::new("world")
+/// };
+/// ```
+/// 
+/// # Scrolling
+/// `VStack`'s are not scrollable by default, to enable scrolling use the `scrollable()`
+/// method.
+/// 
+/// ```
+/// use helium::{vstack,widgets::Text};
+/// 
+/// vstack!{
+/// 	Text::new("Hello"),
+/// 	Text::new("world!"),
+/// }
+/// .scrollable();
+/// ```
+///
 #[macro_export]
 macro_rules! vstack {
 	($($child:expr), + $(,)?) => {
 		{
-			$crate::widgets::VStack{
-				id:helium::nanoid!(),
-				color:$crate::TRANSPARENT,
-				layout:$crate::VerticalLayout::new(),
-				children:vec![
-					$(
-						Box::new($child),
-					)*
-				]
-			}
+			$crate::widgets::VStack::new()
+			$(.add_child($child))*
 		}
-		
+
 	};
 }

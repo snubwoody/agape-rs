@@ -1,202 +1,330 @@
-mod rect;
-mod container;
-mod text;
+//! [`Widget`]'s describe what you want to present onto the screen. Helium tries to provide
+//! as many [`Widget`]'s as possible for various uses such as [`Text`],[`Button`],[`HStack`]
+//! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
+mod _await;
 mod button;
 mod circle;
-mod vstack;
+mod container;
 mod hstack;
-mod spacer;
 pub mod icon;
-pub (crate) mod image;
-use nanoid::nanoid;
-pub use rect::*;
-pub use text::*;
+mod image;
+mod rect;
+mod spacer;
+mod text;
+mod text_field;
+mod vstack;
+pub use _await::*;
 pub use button::*;
-pub use hstack::*;
-pub use vstack::*;
-pub use container::*;
 pub use circle::*;
-pub use image::*;
-pub use spacer::*;
-use crate::{
-	app::AppState, 
-	surface::{
-		rect::RectSurface, Surface
-	}, 
-};
+pub use container::*;
 use crystal::Layout;
-// TODO maybe test widgets with layouts to make sure everything's integrated properly;
+use helium_core::{Bounds, Position};
+use helium_renderer::Renderer;
+pub use hstack::*;
+pub use image::*;
+pub use rect::*;
+pub use spacer::*;
+pub use text::*;
+pub use text_field::*;
+pub use vstack::*;
+use winit::event::{ElementState, MouseButton, MouseScrollDelta, WindowEvent};
 
-/// The trait that all widgets must implement. Each `widget` must implement build function
-/// which returns a [`WidgetBody`]. `widgetbodies` are objects that hold information about 
-/// the widget.
-pub trait Widget{
-	// I've changed this between &self and self, a couple times and my conclusion is 
-	// just keep it as &self forever, it makes it way easier to compose multiple sub-widgets.
+/// The trait that all widgets must implement.
+pub trait Widget: WidgetIterator {
+    /// Build the [`Widget`] into a primitive [`WidgetBody`] for
+    /// rendering.
+    fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout>;
 
-	/// Build the [`Widget`] into a primitive [`WidgetBody`] for
-	/// rendering.
-	fn build(&self) -> (WidgetBody,Box<dyn Layout>);
+    /// Get the `id` of the [`Widget`]
+    fn id(&self) -> &str;
+
+    /// Get a [`Widget`] from the widget tree by it's `id`
+    fn get(&self, id: &str) -> Option<&dyn Widget> {
+        for widget in self.iter() {
+            if widget.id() == id {
+                return Some(widget);
+            }
+        }
+        None
+    }
+
+    /// Runs every frame allowing [`Widget`]'s to manage any
+    /// state they may have
+    fn tick(&mut self) {}
+
+    fn process_key(&mut self, key: &winit::keyboard::Key) {}
+
+    fn click(&mut self) {}
+    
+	/// Respond to the user scrolling, triggered by either the touchpad or mousewheel.
+	fn scroll(&mut self,delta:Position) {}
+
+    /// Set the [`Widget`]'s focus state to false when the cursor clicks outside
+    /// the widget's bounds.
+    fn unfocus(&mut self) {}
+
+    /// Draw the [`Widget`] to the screen
+    fn draw(&self, layout: &dyn Layout, renderer: &mut Renderer);
+
+    // TODO maybe make a test macro to make sure all widgets
+    // handle this right
+    /// Get the direct children of the [`Widget`]
+    fn children(&self) -> Vec<&dyn Widget> {
+        vec![]
+    }
+
+    fn children_mut(&mut self) -> &mut [Box<dyn Widget>] {
+        &mut []
+    }
 }
 
-/// Primitive structure that holds all the information
-/// about a [`Widget`] required for rendering.
-#[derive(Debug)]
-pub struct WidgetBody{ // TODO this changes a lot so make these fields private
-	pub id:String,
-	/// A label for debugging purposes
-	pub label:Option<String>,
-	pub surface:Box<dyn Surface>,
-	pub children:Vec<Box<WidgetBody>>,
+impl dyn Widget {
+    pub fn update(&mut self) {
+        self.tick();
+        for child in self.children_mut() {
+            child.tick();
+        }
+    }
+
+    /// Handles `winit`'s click event.
+    fn dispatch_click(
+        &mut self,
+        state: &winit::event::ElementState,
+        button: &winit::event::MouseButton,
+    ) {
+        match button {
+            MouseButton::Left => match state {
+                ElementState::Pressed => {
+                    self.click();
+                }
+                _ => {}
+            },
+            _ => {}
+        }
+    }
+
+    /// Handles all `winit` events
+    pub(crate) fn dispatch_event(
+        &mut self,
+        mouse_pos: helium_core::Position,
+        layout_tree: &dyn Layout,
+        window_event: &WindowEvent,
+    ) {
+        // I feel like events might happen out of order because of winit's event loop but we shall find out
+        if let Some(layout) = layout_tree.get(self.id()) {
+            match window_event {
+                WindowEvent::KeyboardInput { event, .. } => match event.state {
+                    ElementState::Pressed => {
+                        self.process_key(&event.logical_key);
+                    }
+                    ElementState::Released => {}
+                },
+                WindowEvent::MouseInput { state, button, .. } => {
+                    let bounds = Bounds::new(layout.position(), layout.size());
+
+                    if bounds.within(&mouse_pos) {
+                        self.dispatch_click(state, button)
+                    } else {
+                        self.unfocus();
+                    }
+                }
+                WindowEvent::MouseWheel { delta, .. } => {
+                    let position = match delta {
+                        MouseScrollDelta::LineDelta(x, y) => Position::new(*x, *y),
+                        MouseScrollDelta::PixelDelta(pos) => {
+                            Position::new(pos.x as f32, pos.y as f32)
+                        }
+                    };
+					// TODO check for mouse position
+					self.scroll(position);
+                }
+                _ => {}
+            }
+        } else {
+            log::warn!("Widget: {} is missing a Layout", self.id())
+        }
+
+        for child in self.children_mut() {
+            child.dispatch_event(mouse_pos, layout_tree, window_event);
+        }
+    }
 }
 
-impl WidgetBody {
-	pub fn new() -> Self{
-		Self::default()	
-	}
-
-	pub fn label(mut self,label:&str) -> Self {
-		self.label = Some(label.to_owned());
-		self
-	}
-
-	pub fn surface(mut self,surface:Box<dyn Surface>) -> Self{
-		self.surface = surface;
-		self
-	}
-
-	pub fn add_child(mut self,child:WidgetBody) -> Self{
-		self.children.push(Box::new(child));
-		self
-	}
-
-	pub fn add_children(mut self,children:Vec<WidgetBody>) -> Self{
-		for child in children{
-			self.children.push(Box::new(child));
-		};
-		self
-	}
-
-	fn check_size(&mut self,layout:Box<&dyn Layout>){
-		if layout.id() == self.id{
-			self.surface.size(
-				layout.size().width, 
-				layout.size().height
-			);
-			self.surface.position(
-				layout.position().x, 
-				layout.position().y
-			);
-			// println!(
-			// 	"\nHit!!!\nSurface: {:?}",
-			// 	self.surface,
-			// );
-		}
-	}
-
-	pub fn update_sizes(&mut self,root_layout:&Box<dyn Layout>){
-		// FIXME this probably has disgusting performance
-		for (_,layout) in root_layout.iter().enumerate(){
-			self.check_size(layout);
-		}
-		for child in &mut self.children{
-			child.update_sizes(root_layout);
-		}
-	}
-
-	/// Draw the [`WidgetBody`] to the screen.
-	pub fn render(
-		&mut self,
-		render_pass:&mut wgpu::RenderPass,
-		state: &AppState
-	) {
-		let context = &state.context;
-
-		// Draw the parent then the children to the screen
-		self.surface.draw(render_pass, context,state);
-		self.children.iter_mut().for_each(|child|{
-			child.render(render_pass, state);
-		});
-	}
+// TODO test this
+/// An iterator for the [`Widget`] tree.
+pub struct WidgetIter<'a> {
+    stack: Vec<&'a dyn Widget>,
 }
 
-impl Default for WidgetBody {
-	fn default() -> Self {
-		let surface = Box::new(RectSurface::default());
+impl<'a> Iterator for WidgetIter<'a> {
+    type Item = &'a dyn Widget;
 
-		Self { 
-			id:nanoid!(),
-			surface, 
-			label:None,
-			children:vec![], 
-		}
-	}
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(widget) = self.stack.pop() {
+            self.stack.extend(widget.children());
+            return Some(widget);
+        }
+        None
+    }
 }
 
+pub trait WidgetIterator {
+    fn iter(&self) -> WidgetIter<'_>;
+}
 
-// TODO remove this and replace with modifiers 
+impl<T: Widget> WidgetIterator for T {
+    fn iter(&self) -> WidgetIter<'_> {
+        WidgetIter { stack: vec![self] }
+    }
+}
+
+#[derive(Debug, Default, Clone, Copy, PartialEq, PartialOrd)]
+pub struct Modifiers {
+    intrinsic_size: crystal::IntrinsicSize,
+}
+
+impl Modifiers {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
+// TODO replace this with modifiers?
 /// Implement common styling attributes
 #[macro_export]
 macro_rules! impl_style {
-	() => {
-		/// Change the [`Color`] of a [`Widget`].
-		pub fn color(mut self,color:crate::Color) -> Self{
-			self.color = color;
-			self
-		} 
-	};
+    () => {
+        /// Change the [`Color`] of a [`Widget`].
+        pub fn color(mut self, color: crate::Color) -> Self {
+            self.color = color;
+            self
+        }
+    };
 }
 
 /// Implement common methods for widgets
 #[macro_export]
-macro_rules! impl_widget {
-	() => {
-		pub fn fill(mut self) -> Self{
-			self.layout.intrinsic_size.width = crystal::BoxSizing::Flex(1);
-			self.layout.intrinsic_size.height = crystal::BoxSizing::Flex(1);
-			self
-		}
+macro_rules! impl_modifiers {
+    () => {
+        pub fn fill(mut self) -> Self {
+            self.modifiers.intrinsic_size.width = crystal::BoxSizing::Flex(1);
+            self.modifiers.intrinsic_size.height = crystal::BoxSizing::Flex(1);
+            self
+        }
 
-		pub fn flex(mut self,factor:u8) -> Self{
-			self.layout.intrinsic_size.width = crystal::BoxSizing::Flex(factor);
-			self.layout.intrinsic_size.height = crystal::BoxSizing::Flex(factor);
-			self
-		}
-	
-		pub fn fit(mut self) -> Self{
-			self.layout.intrinsic_size.width = crystal::BoxSizing::Shrink;
-			self.layout.intrinsic_size.height = crystal::BoxSizing::Shrink;
-			self
-		}
+        pub fn flex(mut self, factor: u8) -> Self {
+            self.modifiers.intrinsic_size.width = crystal::BoxSizing::Flex(factor);
+            self.modifiers.intrinsic_size.height = crystal::BoxSizing::Flex(factor);
+            self
+        }
 
-		pub fn fill_width(mut self) -> Self{
-			self.layout.intrinsic_size.width = crystal::BoxSizing::Flex(1);
-			self
-		}
-	
-		pub fn fill_height(mut self) -> Self{
-			self.layout.intrinsic_size.height = crystal::BoxSizing::Flex(1);
-			self
-		}
+        pub fn fit(mut self) -> Self {
+            self.modifiers.intrinsic_size.width = crystal::BoxSizing::Shrink;
+            self.modifiers.intrinsic_size.height = crystal::BoxSizing::Shrink;
+            self
+        }
 
-		pub fn fit_width(mut self) -> Self{
-			self.layout.intrinsic_size.width = crystal::BoxSizing::Shrink;
-			self
-		}
-	
-		pub fn fit_height(mut self) -> Self{
-			self.layout.intrinsic_size.height = crystal::BoxSizing::Shrink;
-			self
-		}
-	
-		pub fn flex_width(mut self,factor:u8) -> Self{
-			self.layout.intrinsic_size.height = crystal::BoxSizing::Flex(factor);
-			self
-		}
-		
-		pub fn flex_height(mut self,factor:u8) -> Self{
-			self.layout.intrinsic_size.height = crystal::BoxSizing::Flex(factor);
-			self
-		}
-	};
+        pub fn fill_width(mut self) -> Self {
+            self.modifiers.intrinsic_size.width = crystal::BoxSizing::Flex(1);
+            self
+        }
+
+        pub fn fill_height(mut self) -> Self {
+            self.modifiers.intrinsic_size.height = crystal::BoxSizing::Flex(1);
+            self
+        }
+
+        pub fn fixed_width(mut self, width: f32) -> Self {
+            self.modifiers.intrinsic_size.width = crystal::BoxSizing::Fixed(width);
+            self
+        }
+
+        pub fn fixed_height(mut self, height: f32) -> Self {
+            self.modifiers.intrinsic_size.height = crystal::BoxSizing::Fixed(height);
+            self
+        }
+
+        pub fn fit_width(mut self) -> Self {
+            self.modifiers.intrinsic_size.width = crystal::BoxSizing::Shrink;
+            self
+        }
+
+        pub fn fit_height(mut self) -> Self {
+            self.modifiers.intrinsic_size.height = crystal::BoxSizing::Shrink;
+            self
+        }
+
+        pub fn flex_width(mut self, factor: u8) -> Self {
+            self.modifiers.intrinsic_size.height = crystal::BoxSizing::Flex(factor);
+            self
+        }
+
+        pub fn flex_height(mut self, factor: u8) -> Self {
+            self.modifiers.intrinsic_size.height = crystal::BoxSizing::Flex(factor);
+            self
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! impl_layout {
+    () => {
+        pub fn fill(mut self) -> Self {
+            self.layout.intrinsic_size.width = crystal::BoxSizing::Flex(1);
+            self.layout.intrinsic_size.height = crystal::BoxSizing::Flex(1);
+            self
+        }
+
+        pub fn flex(mut self, factor: u8) -> Self {
+            self.layout.intrinsic_size.width = crystal::BoxSizing::Flex(factor);
+            self.layout.intrinsic_size.height = crystal::BoxSizing::Flex(factor);
+            self
+        }
+
+        pub fn fit(mut self) -> Self {
+            self.layout.intrinsic_size.width = crystal::BoxSizing::Shrink;
+            self.layout.intrinsic_size.height = crystal::BoxSizing::Shrink;
+            self
+        }
+
+        pub fn fill_width(mut self) -> Self {
+            self.layout.intrinsic_size.width = crystal::BoxSizing::Flex(1);
+            self
+        }
+
+        pub fn fill_height(mut self) -> Self {
+            self.layout.intrinsic_size.height = crystal::BoxSizing::Flex(1);
+            self
+        }
+
+        pub fn fixed_width(mut self, width: f32) -> Self {
+            self.layout.intrinsic_size.width = crystal::BoxSizing::Fixed(width);
+            self
+        }
+
+        pub fn fixed_height(mut self, height: f32) -> Self {
+            self.layout.intrinsic_size.height = crystal::BoxSizing::Fixed(height);
+            self
+        }
+
+        pub fn fit_width(mut self) -> Self {
+            self.layout.intrinsic_size.width = crystal::BoxSizing::Shrink;
+            self
+        }
+
+        pub fn fit_height(mut self) -> Self {
+            self.layout.intrinsic_size.height = crystal::BoxSizing::Shrink;
+            self
+        }
+
+        pub fn flex_width(mut self, factor: u8) -> Self {
+            self.layout.intrinsic_size.height = crystal::BoxSizing::Flex(factor);
+            self
+        }
+
+        pub fn flex_height(mut self, factor: u8) -> Self {
+            self.layout.intrinsic_size.height = crystal::BoxSizing::Flex(factor);
+            self
+        }
+    };
 }

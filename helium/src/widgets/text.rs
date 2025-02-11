@@ -1,49 +1,87 @@
+use super::Widget;
 use crystal::{BoxSizing, EmptyLayout, Layout};
-use crate::surface::{text::TextSurface, Surface} ;
-use super::{Widget, WidgetBody};
+use helium_core::Color;
 
-// TODO probably crate a rich text then make text a tuple struct or a function
-pub struct Text{
-	text:String,
-	font_size:u8,
+// TODO TextStyle struct
+/// A [`Widget`] for displaying text onto the screen.
+///
+/// # Example
+/// ```
+/// use helium::widgets::Text;
+///
+/// Text::new("Hello world");
+/// ```
+#[derive(Debug, Clone, Hash)]
+pub struct Text {
+    id: String,
+    pub text: String,
+    pub font_size: u8,
+    pub color: Color,
+}
+
+impl Default for Text {
+    fn default() -> Self {
+        Self {
+            id: nanoid::nanoid!(),
+            font_size: 16,
+            text: Default::default(),
+            color: Color::Hex("#000000"),
+        }
+    }
 }
 
 impl Text {
-	pub fn new(text:&str) -> Self{
-		Self { 
-			text:text.into(), 
-			font_size:16,
-		}	
-	}
+    pub fn new(text: &str) -> Self {
+        Self {
+            id: nanoid::nanoid!(),
+            text: text.into(),
+            font_size: 16,
+            color: Color::Hex("#000000"),
+        }
+    }
 
-	/// Set the font size
-	pub fn font_size(mut self,size:u8) -> Self{
-		self.font_size = size;
-		self
-	}
+    pub fn text(mut self, text: &str) -> Self {
+        self.text = text.to_string();
+        self
+    }
+
+    pub fn color(mut self, color: Color) -> Self {
+        self.color = color;
+        self
+    }
+
+    /// Set the font size
+    pub fn font_size(mut self, size: u8) -> Self {
+        self.font_size = size;
+        self
+    }
+
+    fn primitive(&self) -> helium_renderer::Text {
+        helium_renderer::Text::new(&self.text)
+            .font_size(self.font_size)
+            .color(self.color)
+    }
 }
 
 impl Widget for Text {
-	fn build(&self) -> (WidgetBody,Box<dyn Layout>) {
-		// Create the text surface to be rendered
-		let textsurface = TextSurface::new(
-			self.text.as_str(),
-			self.font_size
-		);
+    fn id(&self) -> &str {
+        &self.id
+    }
 
-		let size = textsurface.get_size();
-		let surface = Box::new(textsurface);
+    fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
+        let text = self.primitive();
+        let size = renderer.text_size(&text);
 
-		let body = WidgetBody{
-			surface,
-			..Default::default()
-		};
+        let mut layout = EmptyLayout::new();
+        layout.intrinsic_size.width = BoxSizing::Fixed(size.width);
+        layout.intrinsic_size.height = BoxSizing::Fixed(size.height);
+        layout.id = self.id.clone();
 
-		let mut layout = EmptyLayout::new();
-		layout.intrinsic_size.width = BoxSizing::Fixed(size.width);
-		layout.intrinsic_size.height = BoxSizing::Fixed(size.height);
-		layout.id = body.id.clone();
+        Box::new(layout)
+    }
 
-		(body,Box::new(layout))
-	}
+    fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {
+        let position = layout.position();
+        renderer.draw([self.primitive().position(position.x, position.y)]);
+    }
 }

@@ -1,25 +1,44 @@
-use helium::{
-    app::{events::EventQueue, view::View, App}, hstack, widgets::{icon::feather_icons, Image, Text, Widget}, LayoutSolver, Size
-};
+use helium::{crystal::AxisAlignment, vstack, widgets::*, App, colors::BLACK};
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<(), helium::Error> {
+    std::env::set_var("RUST_LOG", "warn,helium=trace");
     env_logger::init();
-	app();
+    // Add list view
+
+    let main = vstack! {
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+        Rect::new(200.0, 50.0).color(BLACK),
+    }
+    .spacing(24)
+    .fill()
+    .cross_axis_alignment(AxisAlignment::Center);
+
+    let mut app = App::new();
+    app.add_page(main);
+
+    app.run().await?;
+
+    Ok(())
 }
-
-fn app(){
-	let event_loop = EventQueue::new();
-
-	let main = hstack!{
-		feather_icons::airplay(),
-		feather_icons::_box(),
-		feather_icons::facebook()
-	};
-
-	let page = View::new(main,event_loop);
-  	
-	App::new()
-	.add_view(page)
-	.run();
-}
-

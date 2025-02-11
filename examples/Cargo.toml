@@ -4,17 +4,32 @@ version = "0.1.0"
 edition = "2021"
 
 [dev-dependencies]
-helium = { path = "../helium" }
-env_logger = "0.11.5"
+helium = { path = "../helium", features = ["icon-sets"]}
+helium_renderer = {path = "../helium_renderer"}
+env_logger.workspace = true
 log = "0.4.22"
+tokio.workspace = true
+dotenv = "0.15.0"
+winit.workspace = true
+image.workspace = true
+reqwest = {version = "0.12.12",features = ["blocking","stream","json"]}
 
 [[example]]
 name = "counter"
 path = "counter.rs"
 
 [[example]]
-name = "spotify"
-path = "spotify.rs"
+name = "scroll"
+path = "scroll.rs"
 
-[dependencies]
-dotenv = "0.15.0"
+[[example]]
+name = "spotify"
+path = "spotify/spotify.rs"
+
+[[example]]
+name = "sign_in"
+path = "pages/sign_in.rs"
+
+[[example]]
+name = "renderer"
+path = "renderer.rs"
