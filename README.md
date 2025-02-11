@@ -25,7 +25,9 @@ fn main(){
 		.unwrap()
 }
 ```
-
+# Widgets
+## HStack
+The `HStack` is a `Widget` that arranges it's children horizontally.
 # Support
 
 
