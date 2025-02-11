@@ -28,6 +28,10 @@ async fn main() -> Result<(),helium::Error>{
 
 There are two axes for each widget, the main axis and the cross axis, for most widgets the main axis is in the x-direction with the cross axis.
 
+![Axis Alignment Start](<docs/assets/Axis Alignment Start.svg>)
+![Axis Alignment Center](<docs/assets/Axis Alignment Center.svg>)
+![Axis Alignment End](<docs/assets/Axis Alignment End.svg>)
+
 #### Main Axis
 
 We can align sub-widgets on the main axis of supported widgets e.g. `HStack`, `VStack` and `Container`
@@ -46,19 +50,19 @@ hstack!{
 
 Position sub-widget's at the start of the widget.
 
-![Start](<docs/assets/HStack Main-Axis-Alignment Start.svg>)
+![Start](<docs/assets/Main-Axis-Alignment Start.svg>)
 
 ##### Center
 
 Position sub-widget's at the center of the widget.
 
-![Center](<docs/assets/HStack Main-Axis-Alignment Center.svg>)
+![Center](<docs/assets/Main-Axis-Alignment Center.svg>)
 
 ##### End
 
 Position sub-widget's at the end of the widget.
 
-![End](<docs/assets/HStack Main-Axis-Alignment End.svg>)
+![End](<docs/assets/Main-Axis-Alignment End.svg>)
 
 #### Cross Axis
 
