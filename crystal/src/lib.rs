@@ -7,6 +7,7 @@ mod vertical;
 pub use block::BlockLayout;
 pub use empty::EmptyLayout;
 pub use error::LayoutError;
+use helium_core::Bounds;
 pub use helium_core::{Position, Size};
 pub use horizontal::HorizontalLayout;
 use std::fmt::Debug;
@@ -63,6 +64,11 @@ pub trait Layout: Debug + Send + Sync {
 
     /// Get the `Position` of the [`Layout`]
     fn position(&self) -> Position;
+	
+    /// Get the `Bounds` of the [`Layout`]
+    fn bounds(&self) -> Bounds{
+		Bounds::new(self.position(), self.size())
+	}
 
     fn children(&self) -> &[Box<dyn Layout>];
 
