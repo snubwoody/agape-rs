@@ -1,5 +1,5 @@
 use super::{IntoPrimitive, Primitive};
-use helium_core::{color::BLACK, Color, Position};
+use helium_core::{colors::BLACK, Color, Position};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Icon {

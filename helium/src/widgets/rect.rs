@@ -1,7 +1,7 @@
 use super::Widget;
 use crate::Color;
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
-use helium_core::color::WHITE;
+use helium_core::colors::WHITE;
 use nanoid::nanoid;
 
 // TODO add BoxStyle struct

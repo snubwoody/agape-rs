@@ -1,7 +1,7 @@
 use super::{Modifiers, Text, Widget};
 use crate::impl_modifiers;
 use crystal::{AxisAlignment, BlockLayout, Layout};
-use helium_core::color::Color;
+use helium_core::Color;
 
 /// A `Button` is a [`Widget`] that wraps another [`Widget`] and responds to different
 /// events such as `on_click` and `on_hover` events.

@@ -1,7 +1,7 @@
 use crate::{
     AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter,
 };
-use helium_core::{position::Position, size::Size};
+use helium_core::{Position, Size};
 
 // TODO add example
 /// A [`HorizontalLayout`] arranges it's children horizontally.

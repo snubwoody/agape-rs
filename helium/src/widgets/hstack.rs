@@ -1,6 +1,6 @@
 use crate::{impl_layout, impl_style, widgets::Widget, Color};
 use crystal::{AxisAlignment, HorizontalLayout, Layout};
-use helium_core::color::TRANSPARENT;
+use helium_core::colors::TRANSPARENT;
 use helium_renderer::Rect;
 
 /// A [`Widget`] that places it's children horizontally. The `hstack!` macro

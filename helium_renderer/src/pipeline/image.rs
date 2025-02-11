@@ -7,9 +7,9 @@ use crate::{
     primitives::Image,
     vertex::Vertex,
 };
-use helium_core::{color::TRANSPARENT, Size,Position};
+use helium_core::{colors::TRANSPARENT, Size,Position};
 use image::{ImageBuffer, Rgba};
-use std::{rc::Rc, time::Instant};
+use std::rc::Rc;
 use wgpu::Extent3d;
 
 pub struct ImagePipeline {

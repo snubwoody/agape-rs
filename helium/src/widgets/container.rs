@@ -1,6 +1,6 @@
 use crate::{impl_style, widgets::Widget};
 use crystal::{BlockLayout, Layout};
-use helium_core::color::Color;
+use helium_core::Color;
 use nanoid::nanoid;
 
 /// A container [`Widget`] that wraps its child

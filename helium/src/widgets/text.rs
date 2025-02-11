@@ -1,6 +1,6 @@
 use super::Widget;
 use crystal::{BoxSizing, EmptyLayout, Layout};
-use helium_core::color::Color;
+use helium_core::Color;
 
 // TODO TextStyle struct
 /// A [`Widget`] for displaying text onto the screen.

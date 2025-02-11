@@ -8,7 +8,7 @@ use std::{fs, path::Path};
 pub fn hex(item: TokenStream) -> TokenStream {
     let s = item.to_string().replace("\"", "");
 
-    match helium_core::color::Color::hex_to_rgba(&s) {
+    match helium_core::Color::hex_to_rgba(&s) {
         Ok(_) => return quote! {helium::Color::Hex(#s)}.into(),
         Err(err) => {
             return quote! {

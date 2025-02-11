@@ -3,8 +3,8 @@ use crate::{
     colors::tailwind_colors::{NEUTRAL100, NEUTRAL200},
     impl_modifiers,
 };
-use crystal::{BoxSizing, EmptyLayout};
-use helium_core::color::Color;
+use crystal::EmptyLayout;
+use helium_core::Color;
 use helium_renderer::Rect;
 
 /// Contains editable text

@@ -18,7 +18,7 @@ pub use button::*;
 pub use circle::*;
 pub use container::*;
 use crystal::Layout;
-use helium_core::position::Bounds;
+use helium_core::{Position,Bounds};
 use helium_renderer::Renderer;
 pub use hstack::*;
 pub use image::*;
@@ -27,7 +27,7 @@ pub use spacer::*;
 pub use text::*;
 pub use text_field::*;
 pub use vstack::*;
-use winit::event::{ElementState, MouseButton, WindowEvent};
+use winit::event::{ElementState, MouseButton, MouseScrollDelta, WindowEvent};
 
 /// The trait that all widgets must implement.
 pub trait Widget: WidgetIterator {
@@ -83,6 +83,7 @@ impl dyn Widget {
         }
     }
 
+	/// Handles `winit`'s click event.
     fn dispatch_click(
         &mut self,
         state: &winit::event::ElementState,
@@ -99,6 +100,11 @@ impl dyn Widget {
         }
     }
 
+	fn dispatch_scroll(&mut self,){
+
+	}
+
+	/// Handles all `winit` events
     pub(crate) fn dispatch_event(
         &mut self,
         mouse_pos: helium_core::Position,
@@ -122,9 +128,17 @@ impl dyn Widget {
                     } else {
                         self.unfocus();
                     }
-                }
+                },
+				WindowEvent::MouseWheel { delta,.. } => {
+					let position = match delta {
+						MouseScrollDelta::LineDelta(x,y) => {
+
+						},
+						MouseScrollDelta::PixelDelta(pos) => Position::from(pos),
+					}
+				},
                 event => {
-					//dbg!(&event);
+					dbg!(&event);
 				}
             }
         } else {

@@ -1,5 +1,5 @@
 use bytemuck::{Pod, Zeroable};
-use helium_core::color::Color;
+use helium_core::Color;
 use helium_core::{Position, Size};
 
 /// Represents a single vertex with a 2D position, color and uv coordinates.

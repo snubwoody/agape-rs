@@ -8,7 +8,7 @@ use crate::{
     vertex::Vertex,
 };
 use helium_core::{
-    color::{TRANSPARENT, WHITE},
+    colors::{TRANSPARENT, WHITE},
     Size,
 };
 use std::rc::Rc;

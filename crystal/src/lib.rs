@@ -7,7 +7,7 @@ mod vertical;
 pub use block::BlockLayout;
 pub use empty::EmptyLayout;
 pub use error::LayoutError;
-pub use helium_core::{position::Position, size::Size};
+pub use helium_core::{Position, Size};
 pub use horizontal::HorizontalLayout;
 use std::fmt::Debug;
 pub use vertical::VerticalLayout;

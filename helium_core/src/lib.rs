@@ -1,7 +1,7 @@
-pub mod color;
-pub mod position;
-pub mod size;
-pub use {color::Color, position::Position, size::Size};
+mod color;
+mod position;
+mod size;
+pub use {color::*, position::*, size::*};
 // TODD reexport?
 
 /// Map value from one range to another. Any overflow is clipped to the min or max

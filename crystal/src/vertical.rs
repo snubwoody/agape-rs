@@ -1,8 +1,7 @@
 use crate::{
     error::OverflowAxis, AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter
 };
-use helium_core::{position::Position, size::Size};
-use std::f32::INFINITY;
+use helium_core::{Position, Size};
 // TODO maybe make some items private
 // TODO if min width is larger than max width then it's an overflow
 /// A [`Layout`] that arranges it's children vertically.

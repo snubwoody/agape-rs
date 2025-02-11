@@ -3,7 +3,7 @@ use bytemuck::{Pod, Zeroable};
 use std::ops::{AddAssign, SubAssign};
 use winit::dpi::PhysicalPosition;
 
-/// Represents the position of any structure
+/// The `x` and `y` position of any structure.
 ///
 /// You can add and subtract `Positions`'s to and from each other
 /// ```

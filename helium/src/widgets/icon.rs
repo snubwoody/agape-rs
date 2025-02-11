@@ -1,7 +1,7 @@
 use super::Widget;
 use crate::impl_layout;
 use crystal::{BoxSizing, EmptyLayout};
-use helium_core::color::Color;
+use helium_core::Color;
 use image::GenericImageView;
 use resvg::tiny_skia::Pixmap;
 use std::fs;

@@ -1,15 +1,19 @@
 use crate::map;
 
-pub const WHITE: Color = Color::Rgb(255, 255, 255);
-pub const BLACK: Color = Color::Rgb(0, 0, 0);
-pub const RED: Color = Color::Rgb(255, 0, 0);
-pub const GREEN: Color = Color::Rgb(0, 255, 0);
-pub const BLUE: Color = Color::Rgb(0, 0, 255);
-pub const AMBER: Color = Color::Rgb(245, 158, 11);
-pub const TEAL: Color = Color::Rgb(20, 184, 166);
-pub const INDIGO: Color = Color::Rgb(99, 102, 241);
-pub const PINK: Color = Color::Rgb(236, 72, 153);
-pub const TRANSPARENT: Color = Color::Rgba(0, 0, 0, 0);
+pub mod colors{
+	use super::*;
+	pub const WHITE: Color = Color::Rgb(255, 255, 255);
+	pub const BLACK: Color = Color::Rgb(0, 0, 0);
+	pub const RED: Color = Color::Rgb(255, 0, 0);
+	pub const GREEN: Color = Color::Rgb(0, 255, 0);
+	pub const BLUE: Color = Color::Rgb(0, 0, 255);
+	pub const AMBER: Color = Color::Rgb(245, 158, 11);
+	pub const TEAL: Color = Color::Rgb(20, 184, 166);
+	pub const INDIGO: Color = Color::Rgb(99, 102, 241);
+	pub const PINK: Color = Color::Rgb(236, 72, 153);
+	pub const TRANSPARENT: Color = Color::Rgba(0, 0, 0, 0);
+}
+
 
 /// Represents a color.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]

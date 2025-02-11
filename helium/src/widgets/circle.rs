@@ -1,6 +1,6 @@
 use super::Widget;
 use crystal::{BoxSizing, EmptyLayout, Layout};
-use helium_core::color::Color;
+use helium_core::Color;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Circle {
