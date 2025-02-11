@@ -3,35 +3,45 @@ An easy to use rust GUI library built using `wgpu`.
 
 Helium is inspired by SwiftUI and Flutter and aims to be a fully featured rust gui library.
 
-![](https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white)
-
 ![example workflow](https://github.com/snubwoody/Helium/actions/workflows/rust.yml/badge.svg?branch=main)
 
 ## Quick start
 
 ```rust
-use helium::{
-	widget::Text,
-	app::App,
-	page::Page
-}
+use helium::{App,widgets::Text,}
 
-fn main(){
-	let page = Page::new(Text::new("Hello world"));
+#[tokio::main]
+async fn main() -> Result<(),helium::Error>{
+	let text = Text::new("Hello world");
 
-	App::new()
-		.add_page(page)
-		.run()
-		.unwrap()
+	let mut app = App::new();
+	app.add_page(text)
+	app.run().await
 }
 ```
-# Widgets
-## HStack
+
+## Widgets
+
+### Alignment
+
+There are two axes for each widget, the main axis and the cross axis, for most widgets the main axis is in the x-direction with the cross axis.
+
+<div align='center'>
+
+![Axis Alignment Start](<docs/assets/Axis Alignment Start.svg>)
+![Axis Alignment Center](<docs/assets/Axis Alignment Center.svg>)
+![Axis Alignment End](<docs/assets/Axis Alignment End.svg>)
+</div>
+
+### HStack
+
 The `HStack` is a `Widget` that arranges it's children horizontally.
+
 ![Illustration](<docs/assets/HStack Illustration.svg>)
 
-# Support
 
+
+## Support
 
 |Platform|Status|
 |--|:--:|
