@@ -55,6 +55,9 @@ pub trait Widget: WidgetIterator {
     fn process_key(&mut self, key: &winit::keyboard::Key) {}
 
     fn click(&mut self) {}
+    
+	/// Respond to the user scrolling, triggered by either the touchpad or mousewheel.
+	fn scroll(&mut self,delta:Position) {}
 
     /// Set the [`Widget`]'s focus state to false when the cursor clicks outside
     /// the widget's bounds.
@@ -100,8 +103,6 @@ impl dyn Widget {
         }
     }
 
-    fn dispatch_scroll(&mut self) {}
-
     /// Handles all `winit` events
     pub(crate) fn dispatch_event(
         &mut self,
@@ -134,10 +135,10 @@ impl dyn Widget {
                             Position::new(pos.x as f32, pos.y as f32)
                         }
                     };
+
+					self.scroll(position);
                 }
-                event => {
-                    dbg!(&event);
-                }
+                _ => {}
             }
         } else {
             log::warn!("Widget: {} is missing a Layout", self.id())

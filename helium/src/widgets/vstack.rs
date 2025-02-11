@@ -99,6 +99,10 @@ impl Widget for VStack {
         &self.id
     }
 
+	fn scroll(&mut self,delta:crystal::Position) {
+		
+	}
+
     fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
         let children_layout: Vec<Box<dyn Layout>> = self
             .children
