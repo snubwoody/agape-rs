@@ -28,7 +28,21 @@ fn main(){
 # Widgets
 ## HStack
 The `HStack` is a `Widget` that arranges it's children horizontally.
+
 ![Illustration](<docs/assets/HStack Illustration.svg>)
+
+### Alignment
+
+There are two axes for each widget, the main axis and the cross axis, for most widgets the main axis is in the x-direction with the cross axis
+
+###### Start
+![Start](<docs/assets/HStack Main-Axis-Alignment Start.svg>)
+
+###### Center
+![Center](<docs/assets/HStack Main-Axis-Alignment Center.svg>)
+
+###### End
+![End](<docs/assets/HStack Main-Axis-Alignment End.svg>)
 
 # Support
 
