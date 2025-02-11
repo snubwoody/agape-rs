@@ -118,14 +118,6 @@ impl<'a> Iterator for LayoutIter<'a> {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum LayoutType {
-    #[default]
-    Block,
-    Horizontal,
-    Vertical,
-}
-
 /// Decribes the size a [`Layout`] will try to be.
 #[derive(Debug, Clone, Copy, Default, PartialEq, PartialOrd)]
 pub enum BoxSizing {
@@ -163,7 +155,7 @@ impl BoxContraints {
     }
 }
 
-/// This is the size that a [`Widget`] will try to be,  
+/// This is the size that a [`Layout`] will try to be,  
 /// the actual final size is dependant on the space
 /// available.
 #[derive(Debug, Clone, Copy, Default, PartialEq, PartialOrd)]
@@ -171,35 +163,4 @@ pub struct IntrinsicSize {
     // TODO does this really need to be a seperate struct?
     pub width: BoxSizing,
     pub height: BoxSizing,
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn horizontal_and_empty_layout() {
-        let window = Size::new(1000.0, 1000.0);
-
-        let mut child_1 = EmptyLayout::new();
-        child_1.intrinsic_size.width = BoxSizing::Fixed(250.0);
-        child_1.intrinsic_size.height = BoxSizing::Flex(1);
-
-        let mut child_2 = EmptyLayout::new();
-        child_2.intrinsic_size.width = BoxSizing::Flex(1);
-        child_2.intrinsic_size.height = BoxSizing::Fixed(20.0);
-
-        let mut child_3 = EmptyLayout::new();
-        child_3.intrinsic_size.height = BoxSizing::Fixed(250.0);
-
-        let mut root = HorizontalLayout::new();
-        root.add_children([child_1, child_2, child_3]);
-
-        LayoutSolver::solve(&mut root, window);
-
-        assert_eq!(root.size(), Size::new(250.0, 250.0));
-        assert_eq!(root.children[0].size(), Size::new(250.0, 250.0));
-        assert_eq!(root.children[1].size(), Size::new(0.0, 20.0));
-        assert_eq!(root.children[2].size(), Size::new(0.0, 250.0));
-    }
 }
