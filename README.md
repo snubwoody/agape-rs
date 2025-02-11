@@ -25,24 +25,56 @@ fn main(){
 		.unwrap()
 }
 ```
-# Widgets
+
+## Widgets
+
+### Alignment
+
+There are two axes for each widget, the main axis and the cross axis, for most widgets the main axis is in the x-direction with the cross axis.
+
+#### Main Axis
+
+We can align sub-widgets on the main axis of supported widgets e.g. `HStack`, `VStack` and `Container`
+
+```rust
+use helium::{hstack,Text,crystal::AxisAlignment};
+
+hstack!{
+	Text::New("Hello"),
+	Text::New("world"),
+}
+.main_axis_alignment(AxisAlignment::Center);
+```
+
+##### Start
+
+Position sub-widget's at the start of the widget.
+
+![Start](<docs/assets/HStack Main-Axis-Alignment Start.svg>)
+
+##### Center
+
+Position sub-widget's at the center of the widget.
+
+![Center](<docs/assets/HStack Main-Axis-Alignment Center.svg>)
+
+##### End
+
+Position sub-widget's at the end of the widget.
+
+![End](<docs/assets/HStack Main-Axis-Alignment End.svg>)
+
+#### Cross Axis
+
+We can align sub-widgets on the cross axis of supported widgets e.g. `HStack`, `VStack` and `Container`
+
+
 ## HStack
 The `HStack` is a `Widget` that arranges it's children horizontally.
 
 ![Illustration](<docs/assets/HStack Illustration.svg>)
 
-### Alignment
 
-There are two axes for each widget, the main axis and the cross axis, for most widgets the main axis is in the x-direction with the cross axis
-
-###### Start
-![Start](<docs/assets/HStack Main-Axis-Alignment Start.svg>)
-
-###### Center
-![Center](<docs/assets/HStack Main-Axis-Alignment Center.svg>)
-
-###### End
-![End](<docs/assets/HStack Main-Axis-Alignment End.svg>)
 
 # Support
 
