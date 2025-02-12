@@ -1,6 +1,10 @@
 use helium_core::Color;
 pub use helium_core::colors::*;
+use helium_macros::hex;
 
+fn color(){
+	let white = hex!("#FFFFFF");
+}
 /// Contains all the colors from [tailwindcss](https://tailwindcss.com/docs/customizing-colors).
 pub mod tailwind_colors {
     use super::*;

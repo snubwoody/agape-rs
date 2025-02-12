@@ -3,16 +3,26 @@ use proc_macro2::{Literal, Span};
 use quote::quote;
 use std::{fs, path::Path};
 
-/// A macro for using compile time verified hex colors.
+// TODO compile but dont run?
+/// A macro for using compile time verified colors.
+/// 
+/// ```no_run
+/// use helium::{hex};
+/// 
+/// let white = hex!("#FFFFFF") 
+/// let white = hex!("#FFFFFFFF") // White code with alpha 
+/// ```
+/// 
 #[proc_macro]
 pub fn hex(item: TokenStream) -> TokenStream {
     let s = item.to_string().replace("\"", "");
 
-    match helium_core::Color::hex_to_rgba(&s) {
+    match helium_core::Color::hex(&s) {
         Ok(_) => return quote! {helium::Color::Hex(#s)}.into(),
         Err(err) => {
+			let message = format!("{err}");
             return quote! {
-                compile_error!(#err)
+                compile_error!(#message)
             }
             .into()
         }
