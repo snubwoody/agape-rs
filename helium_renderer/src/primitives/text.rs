@@ -1,5 +1,5 @@
 use super::{IntoPrimitive, Primitive};
-use helium_core::{Color, Position, Size};
+use helium_core::{Color, IntoColor, Position, Rgba};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
 pub struct Text {
@@ -8,7 +8,7 @@ pub struct Text {
     /// The line height is a multiple of the font_size, e.g.
     /// a line height of `1.0` with a font size of `16px` is `16px`.
     pub line_height: f32,
-    pub color: Color,
+    pub color: Color<Rgba>,
     pub position: Position,
 }
 
@@ -45,8 +45,8 @@ impl Text {
         self
     }
 
-    pub fn color(mut self, color: Color) -> Self {
-        self.color = color;
+    pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
+        self.color = color.into_color();
         self
     }
 }

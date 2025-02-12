@@ -93,7 +93,7 @@ impl CirclePipeline {
     }
 
     pub fn draw(&mut self, circle: &Circle, device: &wgpu::Device, pass: &mut wgpu::RenderPass) {
-        let vertices = Vertex::quad(Size::unit(circle.diameter), circle.position, circle.color);
+        let vertices = Vertex::quad(Size::unit(circle.diameter), circle.position, circle.color.clone());
 
         let vertex_buffer = BufferBuilder::new()
             .label("Circle vertex buffer")

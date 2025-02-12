@@ -192,7 +192,7 @@ impl TextPipeline {
         // Add padding to prevent clipping
         size += 1.0; // TODO change to 1.0
 
-        let [r, g, b, a] = text.color.to_rgba();
+        let (r, g, b, a) = text.color.inner();
 
         // FIXME one of the sizes starts at 0 and one starts at 1 im not sure which
         let mut image = RgbaImage::new(size.width as u32, size.height as u32);
@@ -224,7 +224,7 @@ impl TextPipeline {
     ) {
         let (text_img, size) = self.rasterize_text(&text);
 
-        let vertices = Vertex::quad(size, text.position, text.color);
+        let vertices = Vertex::quad(size, text.position, text.color.clone());
 
         let vertex_buffer = BufferBuilder::new()
             .label("Text vertex buffer")

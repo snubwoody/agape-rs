@@ -1,11 +1,11 @@
 use super::{IntoPrimitive, Primitive};
-use helium_core::{Color, Position, Size};
+use helium_core::{Color, IntoColor, Position, Rgba, Size};
 
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Default)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
 pub struct Rect {
     pub size: Size,
     pub position: Position,
-    pub color: Color,
+    pub color: Color<Rgba>,
     pub corner_radius: f32,
 }
 
@@ -29,8 +29,8 @@ impl Rect {
         self
     }
 
-    pub fn color(mut self, color: Color) -> Self {
-        self.color = color;
+    pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
+        self.color = color.into_color();
         self
     }
 

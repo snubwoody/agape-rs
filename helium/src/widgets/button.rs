@@ -1,7 +1,7 @@
 use super::{Modifiers, Text, Widget};
 use crate::impl_modifiers;
 use crystal::{AxisAlignment, BlockLayout, Layout};
-use helium_core::Color;
+use helium_core::{Color, IntoColor, Rgba};
 
 /// A `Button` is a [`Widget`] that wraps another [`Widget`] and responds to different
 /// events such as `on_click` and `on_hover` events.
@@ -26,7 +26,7 @@ use helium_core::Color;
 /// ```
 pub struct Button<W> {
     id: String,
-    pub color: Color,
+    pub color: Color<Rgba>,
     pub padding: u32,
     pub corner_radius: u32,
     child: W,
@@ -38,7 +38,7 @@ impl Button<Text> {
     pub fn text(text: &str) -> Self {
         Self {
             id: nanoid::nanoid!(),
-            color: Color::Hex("#615fff"),
+            color: Color::rgb(52, 68, 108),
             padding: 12,
             corner_radius: 0,
             child: Text::new(text),
@@ -47,8 +47,8 @@ impl Button<Text> {
         }
     }
 
-    pub fn font_color(mut self, color: Color) -> Self {
-        self.child.color = color;
+    pub fn font_color(mut self, color: impl IntoColor<Rgba>) -> Self {
+        self.child.color = color.into_color();
         self
     }
 }
@@ -57,7 +57,7 @@ impl<W: Widget> Button<W> {
     pub fn new(child: W) -> Self {
         Self {
             id: nanoid::nanoid!(),
-            color: Color::Hex("#615fff"),
+            color: Color::rgb(52, 68, 108),
             padding: 12,
             corner_radius: 0,
             child,
@@ -66,8 +66,8 @@ impl<W: Widget> Button<W> {
         }
     }
 
-    pub fn color(mut self, color: Color) -> Self {
-        self.color = color;
+    pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
+        self.color = color.into_color();
         self
     }
 
@@ -119,7 +119,7 @@ impl<W: Widget> Widget for Button<W> {
         renderer.draw([
             helium_renderer::Rect::new(layout.size().width, layout.size().height)
                 .position(layout.position().x, layout.position().y)
-                .color(self.color)
+                .color(self.color.clone())
                 .corner_radius(self.corner_radius as f32),
         ]);
     }

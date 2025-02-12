@@ -1,11 +1,11 @@
 use super::{IntoPrimitive, Primitive};
-use helium_core::{colors::BLACK, Color, Position};
+use helium_core::{colors::BLACK, Color, IntoColor, Position, Rgba};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Icon {
     pub image: ::image::DynamicImage,
     pub position: Position,
-    pub color: Color,
+    pub color: Color<Rgba>,
 }
 
 impl Icon {
@@ -17,8 +17,8 @@ impl Icon {
         }
     }
 
-    pub fn color(mut self, color: Color) -> Self {
-        self.color = color;
+    pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
+        self.color = color.into_color();
         self
     }
 

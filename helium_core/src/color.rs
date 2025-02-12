@@ -10,18 +10,15 @@ pub mod colors {
     pub const GREEN: Color<Rgba> = Color::rgb(0, 255, 0);
     pub const BLUE: Color<Rgba> = Color::rgb(0, 0, 255);
     pub const AMBER: Color<Rgba> = Color::rgb(245, 158, 11);
-    pub const TEAL: Color<Rgba> = Color::rgb(20, 184, 166);
+    pub const TEAL: Color<Rgba> = Color::rgb(128, 225, 214);
     pub const INDIGO: Color<Rgba> = Color::rgb(99, 102, 241);
     pub const PINK: Color<Rgba> = Color::rgb(236, 72, 153);
     pub const TRANSPARENT: Color<Rgba> = Color::rgba(0, 0, 0, 0);
 }
 
 /// Trait for generating [`Color`]'s
-pub trait IntoColor{
-	/// The data type of the [`Color`] either `Hex` or `Rgba`
-	type Container;
-	
-	fn into_color(self) -> Color<Self::Container>;
+pub trait IntoColor<Container>{
+	fn into_color(self) -> Color<Container>;
 }
 
 #[derive(Debug,Clone,Error,PartialEq, Eq,)]
@@ -52,8 +49,6 @@ impl Rgba{
 		Self{r,g,b,a}
 	}
 }
-
-// TODO move the hex macro here
 
 /// Represents a color.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -123,6 +118,11 @@ impl Color<Rgba> {
 		self.0.a
 	}
 
+	/// Get all the inner color components
+	pub fn inner(&self) -> (u8,u8,u8,u8){
+		(self.r(),self.g(),self.b(),self.a())
+	}
+
 	/// Normalize the colors and convert them from `srgb` to linear `rgb`.
     pub fn normalize(&self) -> [f32; 4] {
 		// TODO test the values
@@ -142,13 +142,17 @@ impl Color<Hex>{
 	/// must start with `#` and must contain a valid hexadecimal string with 6  or 8 
 	/// characters.
 	/// 
+	/// For an easier way to create hex colors use the `hex!` macro.
+	/// 
 	/// # Example
 	/// 
 	/// ```
 	/// use helium_core::{Color,ColorError};
 	/// 
-	/// fn main() -> Result{
+	/// fn main() -> Result<(),ColorError>{
 	/// 	let color = Color::hex("#FFFFFF")?;
+	/// 	
+	/// 	Ok(())
 	/// }
 	/// 
 	/// ```
@@ -205,11 +209,12 @@ impl Color<Hex>{
 	/// 	assert_eq!(rgba.r(),255);
 	/// 	assert_eq!(rgba.g(),255);
 	/// 	assert_eq!(rgba.b(),255);
+	/// 
+	/// 	Ok(())
 	/// } 
 	/// ```
 	pub fn to_rgba(&self) -> Color<Rgba>{
 		let hex_code = &self.0.0.strip_prefix("#").unwrap();
-
 		let (red, green, blue,alpha) = (
 			&hex_code[0..2], 
 			&hex_code[2..4], 
@@ -240,11 +245,50 @@ impl Default for Color<Rgba> {
     }
 }
 
-impl IntoColor for Color<Hex>{
-	type Container = Rgba;
-
-	fn into_color(self) -> Color<Self::Container> {
+impl IntoColor<Rgba> for Color<Hex>{
+	fn into_color(self) -> Color<Rgba> {
 		self.to_rgba()
+	}
+}
+
+impl IntoColor<Rgba> for Color<Rgba>{
+	fn into_color(self) -> Color<Rgba> {
+		self
+	}
+}
+
+impl IntoColor<Rgba> for (u8,u8,u8,u8) {
+	fn into_color(self) -> Color<Rgba> {
+		let (r,g,b,a) = self;
+		Color::rgba(r, g, b, a)	
+	}
+}
+
+impl IntoColor<Rgba> for u8 {
+	/// Create a color with the same r,g,b value 
+	/// 
+	/// # Example
+	/// 
+	/// ```
+	/// use helium_core::Color;
+	/// 
+	/// let color = 27.into_color();
+	/// 
+	/// assert_eq!(color.r(),27);
+	/// assert_eq!(color.b(),27);
+	/// assert_eq!(color.g(),27);
+	/// assert_eq!(color.a(),100);
+	/// ```
+	fn into_color(self) -> Color<Rgba> {
+		Color::rgba(self, self, self, 100)	
+	}
+}
+
+impl IntoColor<Rgba> for (u8,u8,u8) {
+	fn into_color(self) -> Color<Rgba> {
+		let (r,g,b) = self;
+		
+		Color::rgba(r, g, b, 100)	
 	}
 }
 

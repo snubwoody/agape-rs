@@ -1,11 +1,11 @@
 use super::{IntoPrimitive, Primitive};
-use helium_core::{Color, Position};
+use helium_core::{Color, IntoColor, Position, Rgba};
 
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Default)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
 pub struct Circle {
     pub diameter: f32,
     pub position: Position,
-    pub color: Color,
+    pub color: Color<Rgba>,
 }
 
 impl Circle {
@@ -29,8 +29,8 @@ impl Circle {
         self
     }
 
-    pub fn color(mut self, color: Color) -> Self {
-        self.color = color;
+    pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
+        self.color = color.into_color();
         self
     }
 }

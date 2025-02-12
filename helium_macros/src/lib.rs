@@ -4,21 +4,14 @@ use quote::quote;
 use std::{fs, path::Path};
 
 // TODO compile but dont run?
-/// A macro for using compile time verified colors.
-/// 
-/// ```no_run
-/// use helium::{hex};
-/// 
-/// let white = hex!("#FFFFFF") 
-/// let white = hex!("#FFFFFFFF") // White code with alpha 
-/// ```
+/// A macro for create compile time verified colors.
 /// 
 #[proc_macro]
 pub fn hex(item: TokenStream) -> TokenStream {
     let s = item.to_string().replace("\"", "");
 
     match helium_core::Color::hex(&s) {
-        Ok(_) => return quote! {helium::Color::Hex(#s)}.into(),
+        Ok(_) => return quote! {helium_core::Color::hex(#s).unwrap()}.into(),
         Err(err) => {
 			let message = format!("{err}");
             return quote! {
