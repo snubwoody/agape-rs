@@ -5,7 +5,7 @@ pub mod widgets;
 pub use crystal;
 use crystal::LayoutSolver;
 pub use error::{Error, Result};
-pub use helium_core::{Bounds, Color, Position, Size};
+pub use helium_core::*;
 pub use helium_macros::hex; // TODO move to colors mod
 use helium_renderer::{Renderer, Text};
 pub use nanoid::nanoid;

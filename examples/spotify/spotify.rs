@@ -1,15 +1,12 @@
 #![allow(non_snake_case)]
 use helium::{
-    crystal::AxisAlignment,
-    hex, hstack, vstack,
-    widgets::*,
-    App, Color, colors::{BLACK, WHITE}
+    colors::{BLACK, WHITE}, crystal::AxisAlignment, hex, hstack, vstack, widgets::*, App, Color, Rgba
 };
 use icon::feather_icons;
 
-const BACKGROUND: Color = hex!("#121212");
-const GREY: Color = hex!("#414141");
-const SPOTIFY_GREEN: Color = hex!("#3be477");
+const BACKGROUND: Color<Rgba> = Color::rgb(0, 0,0);
+const GREY: Color<Rgba> = Color::rgb(40, 40, 40);
+const SPOTIFY_GREEN: Color<Rgba> = Color::rgb(0, 255, 0);
 
 // TODO theres some sizes that are making the icons pixelated, very weird
 #[tokio::main]

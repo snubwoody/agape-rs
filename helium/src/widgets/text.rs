@@ -1,6 +1,6 @@
 use super::Widget;
 use crystal::{BoxSizing, EmptyLayout, Layout};
-use helium_core::Color;
+use helium_core::{colors::BLACK, Color, IntoColor, Rgba};
 
 // TODO TextStyle struct
 /// A [`Widget`] for displaying text onto the screen.
@@ -16,7 +16,7 @@ pub struct Text {
     id: String,
     pub text: String,
     pub font_size: u8,
-    pub color: Color,
+    pub color: Color<Rgba>,
 }
 
 impl Default for Text {
@@ -25,7 +25,7 @@ impl Default for Text {
             id: nanoid::nanoid!(),
             font_size: 16,
             text: Default::default(),
-            color: Color::Hex("#000000"),
+            color: BLACK,
         }
     }
 }
@@ -36,7 +36,7 @@ impl Text {
             id: nanoid::nanoid!(),
             text: text.into(),
             font_size: 16,
-            color: Color::Hex("#000000"),
+            color: BLACK,
         }
     }
 
@@ -45,8 +45,8 @@ impl Text {
         self
     }
 
-    pub fn color(mut self, color: Color) -> Self {
-        self.color = color;
+    pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
+        self.color = color.into_color();
         self
     }
 
@@ -59,7 +59,7 @@ impl Text {
     fn primitive(&self) -> helium_renderer::Text {
         helium_renderer::Text::new(&self.text)
             .font_size(self.font_size)
-            .color(self.color)
+            .color(self.color.clone())
     }
 }
 

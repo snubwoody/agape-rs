@@ -5,13 +5,12 @@ use std::{fs, path::Path};
 
 // TODO compile but dont run?
 /// A macro for create compile time verified colors.
-/// 
 #[proc_macro]
 pub fn hex(item: TokenStream) -> TokenStream {
     let s = item.to_string().replace("\"", "");
 
     match helium_core::Color::hex(&s) {
-        Ok(_) => return quote! {helium_core::Color::hex(#s).unwrap()}.into(),
+        Ok(_) => return quote! {helium::Color::hex(#s).unwrap()}.into(),
         Err(err) => {
 			let message = format!("{err}");
             return quote! {

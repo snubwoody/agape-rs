@@ -1,13 +1,13 @@
 use crate::{impl_style, widgets::Widget};
 use crystal::{BlockLayout, Layout};
-use helium_core::Color;
+use helium_core::{Color, Rgba};
 use nanoid::nanoid;
 
 /// A container [`Widget`] that wraps its child
 pub struct Container<W> {
     id: String,
-    color: Color,
-    child: W, // TODO make this a generic
+    color: Color<Rgba>,
+    child: W,
     corner_radius: u32,
     padding: u32,
 }
@@ -19,7 +19,7 @@ where
     pub fn new(child: W) -> Self {
         Container {
             id: nanoid!(),
-            color: Color::Rgb(255, 255, 255),
+            color: Color::rgb(255, 255, 255),
             child,
             corner_radius: 0,
             padding: 0,
@@ -59,7 +59,7 @@ where
         renderer.draw([
             helium_renderer::Rect::new(layout.size().width, layout.size().height)
                 .position(layout.position().x, layout.position().y)
-                .color(self.color)
+                .color(self.color.clone())
                 .corner_radius(self.corner_radius as f32),
         ]);
     }

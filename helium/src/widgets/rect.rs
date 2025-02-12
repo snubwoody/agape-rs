@@ -1,7 +1,7 @@
 use super::Widget;
 use crate::Color;
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
-use helium_core::colors::WHITE;
+use helium_core::{colors::WHITE, IntoColor, Rgba};
 use nanoid::nanoid;
 
 // TODO add BoxStyle struct
@@ -10,7 +10,7 @@ use nanoid::nanoid;
 pub struct Rect {
     id: String,
     intrinsic_size: crystal::IntrinsicSize,
-    color: Color,
+    color: Color<Rgba>,
     corner_radius: u32,
 }
 
@@ -29,8 +29,8 @@ impl Rect {
         }
     }
 
-    pub fn color(mut self, color: Color) -> Self {
-        self.color = color;
+    pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
+        self.color = color.into_color();
         self
     }
 
@@ -95,7 +95,7 @@ impl Widget for Rect {
         renderer.draw([
             helium_renderer::Rect::new(layout.size().width, layout.size().height)
                 .position(layout.position().x, layout.position().y)
-                .color(self.color),
+                .color(self.color.clone()),
         ]);
     }
 }

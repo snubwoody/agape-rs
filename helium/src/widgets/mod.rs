@@ -196,8 +196,8 @@ impl Modifiers {
 macro_rules! impl_style {
     () => {
         /// Change the [`Color`] of a [`Widget`].
-        pub fn color(mut self, color: crate::Color) -> Self {
-            self.color = color;
+        pub fn color(mut self, color: impl $crate::IntoColor<$crate::Rgba>) -> Self {
+            self.color = color.into_color();
             self
         }
     };

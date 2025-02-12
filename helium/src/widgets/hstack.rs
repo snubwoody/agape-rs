@@ -1,6 +1,6 @@
 use crate::{impl_layout, impl_style, widgets::Widget, Color};
 use crystal::{AxisAlignment, HorizontalLayout, Layout};
-use helium_core::colors::TRANSPARENT;
+use helium_core::{colors::TRANSPARENT, Rgba};
 use helium_renderer::Rect;
 
 /// A [`Widget`] that places it's children horizontally. The `hstack!` macro
@@ -33,7 +33,7 @@ use helium_renderer::Rect;
 pub struct HStack {
     id: String,
     children: Vec<Box<dyn Widget>>,
-    color: Color,
+    color: Color<Rgba>,
     corner_radius: u32,
     layout: HorizontalLayout,
 }
@@ -136,7 +136,7 @@ impl Widget for HStack {
     fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
         renderer.draw([Rect::new(layout.size().width, layout.size().height)
             .position(layout.position().x, layout.position().y)
-            .color(self.color)
+            .color(self.color.clone())
             .corner_radius(self.corner_radius as f32)]);
     }
 

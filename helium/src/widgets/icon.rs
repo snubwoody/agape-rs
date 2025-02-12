@@ -1,7 +1,7 @@
 use super::Widget;
 use crate::impl_layout;
 use crystal::{BoxSizing, EmptyLayout};
-use helium_core::Color;
+use helium_core::{Color, IntoColor, Rgba};
 use image::GenericImageView;
 use resvg::tiny_skia::Pixmap;
 use std::fs;
@@ -20,7 +20,7 @@ pub struct Icon {
     id: String,
     image: image::DynamicImage,
     layout: crystal::EmptyLayout,
-    color: Color,
+    color: Color<Rgba>,
 }
 
 impl Icon {
@@ -53,7 +53,7 @@ impl Icon {
             id,
             image,
             layout,
-            color: Color::Rgb(0, 0, 0),
+            color: Color::rgb(0, 0, 0),
         }
     }
 
@@ -85,12 +85,12 @@ impl Icon {
             id,
             image,
             layout,
-            color: Color::Rgb(0, 0, 0),
+            color: Color::rgb(0, 0, 0),
         }
     }
 
-    pub fn color(mut self, color: Color) -> Self {
-        self.color = color;
+    pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
+        self.color = color.into_color();
         self
     }
 
@@ -108,7 +108,7 @@ impl Widget for Icon {
 
     fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
         renderer.draw([helium_renderer::Icon::new(self.image.clone())
-            .color(self.color)
+            .color(self.color.clone())
             .position(layout.position().x, layout.position().y)]);
     }
 }
