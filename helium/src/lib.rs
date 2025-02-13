@@ -2,6 +2,8 @@
 pub mod colors;
 pub mod error;
 pub mod widgets;
+mod state;
+pub use state::State;
 pub use crystal;
 use crystal::LayoutSolver;
 pub use error::{Error, Result};

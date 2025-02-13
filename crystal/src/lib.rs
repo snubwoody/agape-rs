@@ -14,7 +14,7 @@ use std::fmt::Debug;
 pub use vertical::VerticalLayout;
 
 pub struct LayoutSolver;
-
+// TODO maybe just make it a function
 impl LayoutSolver {
     /// Calculates the layout of all the layout nodes
     pub fn solve(root: &mut dyn Layout, window_size: Size) -> Vec<crate::LayoutError> {
