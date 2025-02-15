@@ -1,6 +1,6 @@
 use helium::{
 	hstack, 
-	widgets::{icon::feather_icons, *}, 
+	widgets::{icon::feather_icons::*, *}, 
 	State,
 	App
 };
@@ -10,12 +10,15 @@ async fn main() -> Result<(), helium::Error> {
     std::env::set_var("RUST_LOG", "warn,helium=trace");
     env_logger::init();
 
-	let mut count = 1;
+	let count = 1;
 	
 	let main = hstack! {
-		Button::new(feather_icons::minus()),
+		Button::new(minus()),
 		Text::new(&format!("{count}")),
-		Button::new(feather_icons::plus()),
+		Button::new(plus())
+		.on_click(||{
+			//count.update(|value| value+=1 ) Increment the count here
+		}),
     }
     .spacing(24)
     .fill()

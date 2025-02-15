@@ -31,6 +31,7 @@ impl Default for Text {
 }
 
 impl Text {
+	/// Create a new [`Text`] widget.
     pub fn new(text: &str) -> Self {
         Self {
             id: nanoid::nanoid!(),
@@ -40,11 +41,13 @@ impl Text {
         }
     }
 
+	/// Change the inner text
     pub fn text(mut self, text: &str) -> Self {
         self.text = text.to_string();
         self
     }
-
+	
+	/// Set the text color
     pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
         self.color = color.into_color();
         self

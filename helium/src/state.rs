@@ -1,22 +1,28 @@
-use std::{cell::{Ref, RefCell}, sync::mpsc};
+use std::{cell::{Ref, RefCell}, sync::Arc};
 
-pub struct State{
-	value:RefCell<i32>
+#[derive(Debug)]
+pub struct State<T>{
+	value:Arc<RefCell<T>>
 }
 
-impl State{
-	pub fn new(value:i32) -> Self{
+impl<T> State<T>{
+	pub fn new(value:T) -> Self{
+		// TODO maybe i should make a custom type to prevent misuse of the inner refcell
 		Self{
-			value:RefCell::new(value)
+			value:Arc::new(RefCell::new(value))
 		}
 	}
 
-	pub fn get(&self) -> Ref<'_,i32>{
-		self.value.borrow()
+	/// Get a reference to the stateful value
+	pub fn get(&self) -> Arc<RefCell<T>>{
+		self.value.clone()
 	}
 
-	pub fn update(&self){
-		*self.value.borrow_mut() += 1;
+	pub fn set(&self,value:T){
+		match self.value.try_borrow_mut() {
+			Ok(mut v) => *v = value,
+			Err(err) => println!("{err}")
+		}
 	}
 }
 
@@ -26,12 +32,15 @@ mod tests{
 
 	#[test]
 	fn state(){
-		let count = State::new(0);
-		let current = *count.get();
-		
-		assert_eq!(current,0);
-		count.update();
-		assert_eq!(current,1);
-		
+		let state = State::new(10);
+		let k = state.get();
+		let v = state.get();
+		let a = k.borrow();
+		dbg!(&k);
+		dbg!(&v);
+		state.set(20);
+		dbg!(&a);
+		dbg!(&k);
+		dbg!(&v);
 	}
 }

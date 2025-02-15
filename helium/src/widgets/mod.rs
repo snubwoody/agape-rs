@@ -29,10 +29,9 @@ pub use text_field::*;
 pub use vstack::*;
 use winit::event::{ElementState, MouseButton, MouseScrollDelta, WindowEvent};
 
-/// The trait that all widgets must implement.
+
 pub trait Widget: WidgetIterator {
-    /// Build the [`Widget`] into a primitive [`WidgetBody`] for
-    /// rendering.
+    /// Get the widget's [`Layout`]
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout>;
 
     /// Get the `id` of the [`Widget`]
