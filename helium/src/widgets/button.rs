@@ -57,9 +57,9 @@ impl<W: Widget> Button<W> {
     pub fn new(child: W) -> Self {
         Self {
             id: nanoid::nanoid!(),
-            color: Color::rgb(52, 68, 108),
+            color: Color::rgb(0, 0, 0),
             padding: 12,
-            corner_radius: 0,
+            corner_radius: 24,
             child,
             modifiers: Modifiers::new(),
             on_click: None,

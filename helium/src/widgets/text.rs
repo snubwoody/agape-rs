@@ -40,14 +40,18 @@ impl Text {
             color: BLACK,
         }
     }
-
-	/// Change the inner text
-    pub fn text(mut self, text: &str) -> Self {
-        self.text = text.to_string();
-        self
-    }
 	
 	/// Set the text color
+	/// 
+	/// # Example
+	/// 
+	/// ```
+	/// use helium::{widgets::Text,Color};
+	/// 
+	/// let text = Text::new("").color(Color::rgb(0,0,0));
+	/// 
+	/// assert_eq!(text.color,Color::rgb(0,0,0))
+	/// ```
     pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
         self.color = color.into_color();
         self

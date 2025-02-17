@@ -7,7 +7,6 @@ pub struct State<T>{
 
 impl<T> State<T>{
 	pub fn new(value:T) -> Self{
-		// TODO maybe i should make a custom type to prevent misuse of the inner refcell
 		Self{
 			value:Arc::new(RefCell::new(value))
 		}
@@ -19,10 +18,7 @@ impl<T> State<T>{
 	}
 
 	pub fn set(&self,value:T){
-		match self.value.try_borrow_mut() {
-			Ok(mut v) => *v = value,
-			Err(err) => println!("{err}")
-		}
+		self.value.replace(value);
 	}
 }
 
@@ -36,9 +32,12 @@ mod tests{
 		let k = state.get();
 		let v = state.get();
 		let a = k.borrow();
+		
 		dbg!(&k);
 		dbg!(&v);
-		state.set(20);
+
+		state.set(20); // Panics here
+		
 		dbg!(&a);
 		dbg!(&k);
 		dbg!(&v);

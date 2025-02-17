@@ -1,21 +1,18 @@
 use helium::{
-	hstack, 
-	widgets::{icon::feather_icons::*, *}, 
-	State,
-	App
+	hex, hstack, widgets::{icon::feather_icons::*, *}, App, State
 };
 
 #[tokio::main]
 async fn main() -> Result<(), helium::Error> {
-    std::env::set_var("RUST_LOG", "warn,helium=trace");
+    std::env::set_var("RUST_LOG", "error,helium=trace");
     env_logger::init();
 
 	let count = 1;
 	
 	let main = hstack! {
-		Button::new(minus()),
+		Button::new(minus().color(hex!("#FFFFFF"))),
 		Text::new(&format!("{count}")),
-		Button::new(plus())
+		Button::new(plus().color(hex!("#FFFFFF")))
 		.on_click(||{
 			//count.update(|value| value+=1 ) Increment the count here
 		}),
