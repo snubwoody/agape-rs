@@ -138,6 +138,6 @@ impl Page {
             }
         });
 		
-		//self.layout = layout;
+		self.layout = layout;
     }
 }
