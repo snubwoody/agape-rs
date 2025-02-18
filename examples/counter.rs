@@ -1,27 +1,45 @@
+use std::{cell::Cell, sync::Arc};
+
 use helium::{
-	colors::BLACK, crystal::HorizontalLayout, hex, hstack, nanoid, renderer::Renderer, widgets::{icon::feather_icons::*, *}, App
+	crystal::HorizontalLayout, 
+	hstack, 
+	nanoid, 
+	renderer::Renderer, 
+	widgets::{icon::feather_icons::*, *}, 
+	App
 };
 
 
 struct Counter{
 	id: String,
-	count: i32
+	count: Arc<Cell<i32>>
 }
 
 impl Counter {
 	fn new() -> Self{
 		Self {
 			id: nanoid!(), 
-			count:0 
+			count: Arc::new(Cell::new(1))
 		}
 	}
 
-	pub fn increment(&mut self){
-		self.count += 1
+	pub fn increment(&self){
+		let val = self.count.get();
+		self.count.replace(val + 1);
+	}
+	
+	pub fn decrement(&self){
+		let val = self.count.get();
+		self.count.replace(val - 1);
 	}
 
-	pub fn decrement(&mut self){
-		self.count -= 1
+	fn build(&mut self){
+		let count = self.count.clone();
+		hstack! {
+			Button::new(plus()).on_click(move ||{
+				count.replace(23);
+			})
+		};
 	}
 }
 
@@ -35,7 +53,6 @@ impl Widget for Counter {
 	}
 
 	fn draw(&self, layout: &dyn helium::crystal::Layout, renderer: &mut Renderer) {
-		Text::new(&format!("{}",&self.count));
 	}
 }
 

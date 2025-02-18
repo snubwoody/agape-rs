@@ -37,6 +37,7 @@ pub struct Await<P, C> {
 
 impl<P, C> Await<P, C>
 where
+	P: Widget,
     C: Widget + Send + 'static,
 {
     /// Receives a [`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) that is
@@ -88,6 +89,7 @@ where
 
     /// Continuously check if the receiver has new messages
     pub fn poll(&mut self) {
+		// TODO maybe check if widget is none to be more efficient
         match self.rx.try_recv() {
             Ok(widget) => {
                 self.complete = Some(widget);

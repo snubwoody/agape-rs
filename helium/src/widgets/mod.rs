@@ -29,6 +29,7 @@ pub use text_field::*;
 pub use vstack::*;
 use winit::event::{ElementState, MouseButton, MouseScrollDelta, WindowEvent};
 
+// TODO maybe have a build function that returns a layout and surface
 
 pub trait Widget: WidgetIterator {
     /// Get the widget's [`Layout`]
