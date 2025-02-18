@@ -76,8 +76,7 @@ impl App {
                         renderer.render();
                     }
                     WindowEvent::Resized(window_size) => {
-                        size = window_size.into();
-                        self.pages[self.index].resize(Size::from(window_size));
+                        size = Size::from(window_size);
                         renderer.resize(window_size.into());
                         // I think resizing already causes a redraw request but i'm not sure
                         self.window.request_redraw();
@@ -118,10 +117,6 @@ impl Page {
         self.widget.update();
     }
 
-    fn resize(&mut self, size: Size) {
-        LayoutSolver::solve(&mut *self.layout, size);
-    }
-
     fn dispatch_event(&mut self, event: &winit::event::WindowEvent) {
         match event {
             WindowEvent::CursorMoved { position, .. } => self.mouse_pos = Position::from(*position),
@@ -131,16 +126,18 @@ impl Page {
             .dispatch_event(self.mouse_pos, &*self.layout, event);
     }
 
-    fn draw(&self, renderer: &mut Renderer, size: Size) {
-        let mut layout = self.widget.layout(renderer);
+    fn draw(&mut self, renderer: &mut Renderer, size: Size) {
+        let (mut layout,_) = self.widget.build(renderer);
         LayoutSolver::solve(&mut *layout, size);
 
-        self.widget.iter().for_each(|w| {
-            if let Some(layout) = layout.get(w.id()) {
-                w.draw(layout, renderer);
+		self.widget.iter().for_each(|w| {
+			if let Some(layout) = layout.get(w.id()) {
+				w.draw(layout, renderer);
             } else {
-                log::warn!("Widget is missing it's Layout")
+				log::warn!("Widget is missing it's Layout")
             }
         });
+		
+		//self.layout = layout;
     }
 }
