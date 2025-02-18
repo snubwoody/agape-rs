@@ -34,44 +34,19 @@ impl Rect {
         self
     }
 
-    /// This event fires when the mouse cursor is over a [`Widget`]
-    ///
-    /// # Example
-    /// ```
-    /// use helium::widgets::Rect;
-    ///
-    /// Rect::new(150.0,150.0)
-    /// 	.on_hover(||println!("Hello world"));
-    /// ```
-    pub fn on_hover(self, f: impl FnMut() + 'static) -> Self {
-        self
-    }
-
-    /// This event fires when the mouse clicks on a [`Widget`].
-    ///
-    /// # Example
-    /// ```
-    /// use helium::widgets::Rect;
-    ///
-    /// Rect::new(150.0,150.0)
-    /// 	.on_click(||println!("Hello world"));
-    /// ```
-    pub fn on_click(self, f: impl FnMut() + 'static) -> Self {
-        self
-    }
-
     /// Set the corner radius
     pub fn corner_radius(mut self, corner_radius: u32) -> Self {
         self.corner_radius = corner_radius;
         self
     }
 
-    // TODO replace with impl_layout!()
+	/// Set the intrinsic width to `BoxSixing::Flex`.
     pub fn flex_width(mut self, factor: u8) -> Self {
         self.intrinsic_size.width = BoxSizing::Flex(factor);
         self
     }
 
+	/// Set the intrinsic height to `BoxSixing::Flex`.
     pub fn flex_height(mut self, factor: u8) -> Self {
         self.intrinsic_size.height = BoxSizing::Flex(factor);
         self

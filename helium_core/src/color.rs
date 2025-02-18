@@ -231,6 +231,10 @@ impl Color<Hex>{
 
 		Color::rgba(r, g, b, a)
 	}
+
+	pub fn as_str(&self) -> &str{
+		self.0.0.as_str()
+	}
 }
 
 impl ToString for Color<Hex>{

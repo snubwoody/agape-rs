@@ -32,6 +32,15 @@ impl Default for Text {
 
 impl Text {
 	/// Create a new [`Text`] widget.
+	/// 
+	/// # Example
+	/// 
+	/// ```
+	/// use helium::widgets::Text;
+	/// 
+	/// let greeting = Text::new("Hello world!");
+	/// ```
+	/// 
     pub fn new(text: &str) -> Self {
         Self {
             id: nanoid::nanoid!(),
@@ -48,7 +57,8 @@ impl Text {
 	/// ```
 	/// use helium::{widgets::Text,Color};
 	/// 
-	/// let text = Text::new("").color(Color::rgb(0,0,0));
+	/// let text = Text::new("")
+	/// 	.color(Color::rgb(0,0,0));
 	/// 
 	/// assert_eq!(text.color,Color::rgb(0,0,0))
 	/// ```
@@ -58,6 +68,17 @@ impl Text {
     }
 
     /// Set the font size
+	/// 
+	/// # Example
+	/// 
+	/// ```
+	/// use helium::{widgets::Text,Color};
+	/// 
+	/// let text = Text::new("")
+	/// 	.font_size(24);
+	/// 
+	/// assert_eq!(text.font_size, 24);
+	/// ```
     pub fn font_size(mut self, size: u8) -> Self {
         self.font_size = size;
         self

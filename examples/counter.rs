@@ -1,5 +1,5 @@
 use helium::{
-	hex, hstack, widgets::{icon::feather_icons::*, *}, App, State
+	hex, hstack, widgets::{icon::feather_icons::*, *}, App
 };
 
 #[tokio::main]
@@ -8,7 +8,7 @@ async fn main() -> Result<(), helium::Error> {
     env_logger::init();
 
 	let count = 1;
-	
+
 	let main = hstack! {
 		Button::new(minus().color(hex!("#FFFFFF"))),
 		Text::new(&format!("{count}")),

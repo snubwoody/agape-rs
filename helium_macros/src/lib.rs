@@ -4,7 +4,7 @@ use quote::quote;
 use std::{fs, path::Path};
 
 // TODO compile but dont run?
-/// A macro for create compile time verified colors.
+/// A macro for create compile time verified hex colors.
 #[proc_macro]
 pub fn hex(item: TokenStream) -> TokenStream {
     let s = item.to_string().replace("\"", "");

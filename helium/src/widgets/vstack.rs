@@ -222,4 +222,8 @@ macro_rules! vstack {
 		}
 
 	};
+
+	()=>{
+		$crate::widgets::VStack::new()
+	};
 }

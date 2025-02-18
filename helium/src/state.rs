@@ -24,22 +24,16 @@ impl<T> State<T>{
 
 #[cfg(test)]
 mod tests{
+	use std::sync::{Mutex, RwLock};
+	use crate::widgets::Text;
 	use super::*;
 
 	#[test]
 	fn state(){
-		let state = State::new(10);
-		let k = state.get();
-		let v = state.get();
-		let a = k.borrow();
-		
-		dbg!(&k);
-		dbg!(&v);
+		println!("Hi");
 
-		state.set(20); // Panics here
-		
-		dbg!(&a);
-		dbg!(&k);
-		dbg!(&v);
+		let count = State::new(5);
+		let text = Text::new(&format!("{}",*count.get().borrow()));
+		count.set(13);
 	}
 }

@@ -153,6 +153,7 @@ impl Widget for HStack {
 }
 
 /// Creates an [`HStack`].  
+/// 
 /// `hstack!` allows [`HStack`]'s to be declared in a more declarative manner.
 /// ```
 /// use helium::{hstack,widgets::{Text}};
@@ -172,4 +173,10 @@ macro_rules! hstack {
 			$(.add_child($child))*
 		}
 	};
+	
+	()=>{
+		$crate::widgets::HStack::new()	
+	};
+
+	
 }
