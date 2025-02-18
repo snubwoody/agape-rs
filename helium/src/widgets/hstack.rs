@@ -147,10 +147,11 @@ impl Widget for HStack {
     }
 
     fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
-        renderer.draw([Rect::new(layout.size().width, layout.size().height)
-            .position(layout.position().x, layout.position().y)
-            .color(self.color.clone())
-            .corner_radius(self.corner_radius as f32)]);
+		let primitive = Rect::from(layout)
+			.color(self.color.clone())
+			.corner_radius(self.corner_radius as f32);
+
+        renderer.draw([primitive]);
     }
 
     fn children(&self) -> Vec<&dyn Widget> {

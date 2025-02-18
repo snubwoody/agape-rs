@@ -18,7 +18,7 @@ pub use button::*;
 pub use circle::*;
 pub use container::*;
 use crystal::Layout;
-use helium_core::{Bounds, Position};
+use helium_core::{Bounds, Color, Position, Rgba};
 use helium_renderer::Renderer;
 pub use hstack::*;
 pub use image::*;
@@ -33,7 +33,7 @@ use winit::event::{ElementState, MouseButton, MouseScrollDelta, WindowEvent};
 pub trait Widget: WidgetIterator {
     /// Get the widget's [`Layout`]
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout>;
-
+    
     /// Get the `id` of the [`Widget`]
     fn id(&self) -> &str;
 
@@ -178,8 +178,12 @@ impl<T: Widget> WidgetIterator for T {
     }
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Debug, Default, Clone, PartialEq, PartialOrd)]
 pub struct Modifiers {
+	padding: u32,
+	spacing: u32,
+	background_color: Color<Rgba>,
+	foreground_color: Color<Rgba>,
     intrinsic_size: crystal::IntrinsicSize,
 }
 
