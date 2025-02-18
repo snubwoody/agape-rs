@@ -81,6 +81,10 @@ impl Layout for BlockLayout {
         &self.id
     }
 
+	fn set_id(&mut self,id: &str) {
+		self.id = id.to_string();
+	}
+
     fn size(&self) -> Size {
         self.size
     }

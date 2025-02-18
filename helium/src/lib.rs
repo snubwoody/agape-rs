@@ -2,14 +2,13 @@
 pub mod colors;
 pub mod error;
 pub mod widgets;
-mod state;
-pub use state::State;
+use helium_renderer::{Renderer, Text};
 pub use crystal;
 use crystal::LayoutSolver;
 pub use error::{Error, Result};
 pub use helium_core::*;
 pub use helium_macros::hex; // TODO move to colors mod
-use helium_renderer::{Renderer, Text};
+pub use helium_renderer as renderer;
 pub use nanoid::nanoid;
 use std::time::{Duration, Instant};
 use widgets::Widget;

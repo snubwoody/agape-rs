@@ -160,6 +160,10 @@ impl Layout for VerticalLayout {
         &self.id
     }
 
+	fn set_id(&mut self,id: &str) {
+		self.id = id.to_string();
+	}
+
     fn position(&self) -> Position {
         self.position
     }

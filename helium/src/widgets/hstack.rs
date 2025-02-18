@@ -69,6 +69,19 @@ impl HStack {
         self
     }
 
+	/// Set the spacing between children
+	/// 
+	/// # Example
+	/// 
+	/// ```
+	/// use helium::{hstack,widgets::Text};
+	/// 
+	/// hstack!{
+	/// 	Text::new("Hello"),
+	/// 	Text::new("world!"),
+	/// }
+	/// .spacing(24);
+	/// ```
     pub fn spacing(mut self, spacing: u32) -> Self {
         self.layout.spacing = spacing;
         self

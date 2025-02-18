@@ -33,6 +33,10 @@ impl Layout for EmptyLayout {
         &self.id
     }
 
+	fn set_id(&mut self,id: &str) {
+		self.id = id.to_string();
+	}
+
     fn set_position(&mut self, position: Position) {
         self.position = position;
     }
