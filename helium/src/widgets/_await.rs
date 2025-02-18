@@ -117,6 +117,13 @@ where
         self.pending.id()
     }
 
+	fn build(&self,renderer: &mut Renderer) -> (Box<dyn Layout>,helium_renderer::Primitive) {
+		match &self.complete {
+			Some(complete) => complete.build(renderer),
+			None => self.pending.build(renderer)
+		}
+	}
+
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
         if let Some(complete) = &self.complete {
             return complete.layout(renderer);

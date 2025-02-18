@@ -1,7 +1,7 @@
 use crate::{impl_layout, impl_style, widgets::Widget, Color};
 use crystal::{AxisAlignment, Layout, VerticalLayout};
 use helium_core::{colors::TRANSPARENT, Rgba};
-use helium_renderer::Rect;
+use helium_renderer::{IntoPrimitive, Rect};
 
 /// A [`Widget`] that places it's children vertically. The `vstack!` macro
 /// provides convienient initialization and is likely how you will be creating an
@@ -129,6 +129,47 @@ impl Widget for VStack {
 		let scroll_speed = 5.0;
 		// TODO change the scroll speeed based on whether it's a mouse pad or touch pad
 		self.layout.scroll(delta.y * scroll_speed);
+	}
+
+	fn build(&self,renderer: &mut helium_renderer::Renderer) -> (Box<dyn Layout>,helium_renderer::Primitive) {
+		let children_layout: Vec<Box<dyn Layout>> = self
+            .children
+            .iter()
+            .map(|widget| widget.layout(renderer))
+            .collect();
+
+		
+        let VerticalLayout {
+            spacing,
+            padding,
+            intrinsic_size,
+            main_axis_alignment,
+            cross_axis_alignment,
+            constraints,
+			scroll_offset,
+            ..
+        } = self.layout;
+
+        // TODO use builder pattern?
+        let layout = VerticalLayout {
+            id: self.id.clone(),
+            spacing,
+            padding,
+            intrinsic_size,
+            cross_axis_alignment,
+            main_axis_alignment,
+            constraints,
+			scroll_offset,
+            children: children_layout,
+            ..Default::default()
+        };
+
+		let primitive = helium_renderer::Rect::from(&layout as &dyn Layout)
+			.color(self.color.clone())
+			.corner_radius(self.corner_radius as f32)
+			.into_primitive();
+
+        (Box::new(layout),primitive)
 	}
 
     fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {

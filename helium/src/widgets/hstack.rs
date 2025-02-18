@@ -1,7 +1,7 @@
 use crate::{impl_layout, impl_style, widgets::Widget, Color};
 use crystal::{AxisAlignment, HorizontalLayout, Layout};
 use helium_core::{colors::TRANSPARENT, Rgba};
-use helium_renderer::Rect;
+use helium_renderer::{IntoPrimitive, Rect};
 
 /// A [`Widget`] that places it's children horizontally. The `hstack!` macro
 /// provides convienient initialization and is mostly how you be creating an `HStack`
@@ -145,6 +145,45 @@ impl Widget for HStack {
 
         Box::new(layout)
     }
+
+	fn build(&self,renderer: &mut helium_renderer::Renderer) -> (Box<dyn Layout>,helium_renderer::Primitive) {
+		let children_layout: Vec<Box<dyn Layout>> = self
+            .children
+            .iter()
+            .map(|widget| widget.layout(renderer))
+            .collect();
+
+        let HorizontalLayout {
+            spacing,
+            padding,
+            intrinsic_size,
+            main_axis_alignment,
+            cross_axis_alignment,
+            constraints,
+            ..
+        } = self.layout;
+
+        // TODO use builder pattern?
+        let layout = HorizontalLayout {
+            id: self.id.clone(),
+            spacing,
+            padding,
+            intrinsic_size,
+            cross_axis_alignment,
+            main_axis_alignment,
+            constraints,
+            children: children_layout,
+            ..Default::default()
+        };
+
+		
+		let primitive = Rect::from(&layout as &dyn Layout)
+			.color(self.color.clone())
+			.corner_radius(self.corner_radius as f32)
+			.into_primitive();
+
+        (Box::new(layout),primitive)
+	}
 
     fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
 		let primitive = Rect::from(layout)

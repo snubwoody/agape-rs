@@ -19,7 +19,7 @@ pub use circle::*;
 pub use container::*;
 use crystal::Layout;
 use helium_core::{Bounds, Color, Position, Rgba};
-use helium_renderer::Renderer;
+use helium_renderer::{Primitive, Renderer};
 pub use hstack::*;
 pub use image::*;
 pub use rect::*;
@@ -47,6 +47,8 @@ pub trait Widget: WidgetIterator {
         }
         None
     }
+
+	fn build(&self,renderer: &mut Renderer) -> (Box<dyn Layout>,Primitive); 
 
     /// Runs every frame allowing [`Widget`]'s to manage any
     /// state they may have

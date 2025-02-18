@@ -2,6 +2,7 @@ use super::{Modifiers, Text, Widget};
 use crate::impl_modifiers;
 use crystal::{AxisAlignment, BlockLayout, Layout};
 use helium_core::{Color, IntoColor, Rgba};
+use helium_renderer::IntoPrimitive;
 
 /// A `Button` is a [`Widget`] that wraps another [`Widget`] and responds to different
 /// events such as `on_click` and `on_hover` events.
@@ -99,6 +100,23 @@ impl<W: Widget> Widget for Button<W> {
             func()
         }
     }
+
+	fn build(&self,renderer: &mut helium_renderer::Renderer) -> (Box<dyn Layout>,helium_renderer::Primitive) {
+		let mut layout = BlockLayout::new(self.child.layout(renderer));
+        layout.intrinsic_size = self.modifiers.intrinsic_size;
+        layout.padding = self.padding;
+        layout.main_axis_alignment = AxisAlignment::Center; // TODO expose this
+        layout.cross_axis_alignment = AxisAlignment::Center;
+        layout.id = self.id.clone();
+
+		let primitive = helium_renderer::Rect::new(layout.size().width, layout.size().height)
+                .position(layout.position().x, layout.position().y)
+                .color(self.color.clone())
+                .corner_radius(self.corner_radius as f32)
+				.into_primitive();
+
+        (Box::new(layout),primitive)
+	}
 
     fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
         let mut layout = BlockLayout::new(self.child.layout(renderer));

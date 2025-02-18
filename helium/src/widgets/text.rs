@@ -1,6 +1,7 @@
 use super::Widget;
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::{colors::BLACK, Color, IntoColor, Rgba};
+use helium_renderer::IntoPrimitive;
 
 // TODO TextStyle struct
 /// A [`Widget`] for displaying text onto the screen.
@@ -96,6 +97,22 @@ impl Widget for Text {
         &self.id
     }
 
+	fn build(&self,renderer: &mut helium_renderer::Renderer) -> (Box<dyn Layout>,helium_renderer::Primitive) {
+		let primitive = helium_renderer::Text::new(&self.text)
+			.font_size(self.font_size)
+			.color(self.color.clone());
+		
+		let text = self.primitive();
+        let size = renderer.text_size(&text);
+
+        let mut layout = EmptyLayout::new();
+        layout.intrinsic_size.width = BoxSizing::Fixed(size.width);
+        layout.intrinsic_size.height = BoxSizing::Fixed(size.height);
+        layout.id = self.id.clone();
+
+        (Box::new(layout),primitive.into_primitive())
+	}
+
     fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
         let text = self.primitive();
         let size = renderer.text_size(&text);
@@ -106,6 +123,7 @@ impl Widget for Text {
         layout.id = self.id.clone();
 
         Box::new(layout)
+
     }
 
     fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {

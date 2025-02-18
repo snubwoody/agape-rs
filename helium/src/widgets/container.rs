@@ -1,6 +1,7 @@
 use crate::{impl_style, widgets::Widget};
 use crystal::{BlockLayout, Layout};
 use helium_core::{Color, Rgba};
+use helium_renderer::IntoPrimitive;
 use nanoid::nanoid;
 
 /// A container [`Widget`] that wraps its child
@@ -46,6 +47,20 @@ where
     fn id(&self) -> &str {
         &self.id
     }
+
+	fn build(&self,renderer: &mut helium_renderer::Renderer) -> (Box<dyn Layout>,helium_renderer::Primitive) {
+		let child_layout = self.child.layout(renderer);
+        let mut layout = BlockLayout::new(child_layout);
+        layout.id = self.id.clone();
+        layout.padding = self.padding;
+
+		let primitive = helium_renderer::Rect::new(layout.size().width, layout.size().height)
+			.position(layout.position().x, layout.position().y)
+			.color(self.color.clone())
+			.corner_radius(self.corner_radius as f32);
+        
+		(Box::new(layout),primitive.into_primitive())
+	}
 
     fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
         let child_layout = self.child.layout(renderer);

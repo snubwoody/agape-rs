@@ -1,8 +1,8 @@
 use super::{Modifiers, Widget};
 use crate::{impl_modifiers};
-use crystal::EmptyLayout;
+use crystal::{EmptyLayout, Layout};
 use helium_core::{Color, IntoColor, Rgba};
-use helium_renderer::Rect;
+use helium_renderer::{IntoPrimitive, Rect, Text};
 
 /// Contains editable text
 pub struct TextField {
@@ -89,6 +89,29 @@ impl Widget for TextField {
             _ => {}
         }
     }
+
+	fn build(&self,renderer: &mut helium_renderer::Renderer) -> (Box<dyn crystal::Layout>,helium_renderer::Primitive) {
+		let mut layout = EmptyLayout::new();
+        layout.id = self.id.clone();
+        layout.intrinsic_size = self.modifiers.intrinsic_size;
+		
+		let background_color = match self.focused {
+			true => self.focus_background_color.clone(),
+            false => self.background_color.clone(),
+        };
+
+		// FIXME
+        let primitive = Rect::from(&layout as &dyn Layout)
+			.color(background_color)
+            .corner_radius(self.corner_radius as f32)
+			.into_primitive();
+		
+		let text_primitive = Text::new(&self.text)
+                .position(layout.position().x + 16.0, layout.position().y + 16.0)
+				.into_primitive(); // TODO replace this with a layout
+
+		(Box::new(layout),primitive)
+	}
 
     fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn crystal::Layout> {
         let mut layout = EmptyLayout::new();

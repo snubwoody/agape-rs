@@ -1,6 +1,7 @@
 use super::Widget;
 use crate::{impl_layout, Result};
-use crystal::{BoxSizing, EmptyLayout};
+use crystal::{BoxSizing, EmptyLayout, Layout};
+use helium_renderer::IntoPrimitive;
 use image::{GenericImageView, ImageReader};
 use resvg::tiny_skia::Pixmap;
 
@@ -167,6 +168,25 @@ impl Widget for Image {
     fn id(&self) -> &str {
         &self.id
     }
+
+	fn build(&self,renderer: &mut helium_renderer::Renderer) -> (Box<dyn crystal::Layout>,helium_renderer::Primitive) {
+		let layout = self.layout.clone();
+
+		let primitive = match &self.state {
+            ImageState::Complete(image) => 
+                helium_renderer::Image::new(image.to_rgba8().clone())
+                    .position(layout.position().x, layout.position().y)
+                    .size(layout.size().width, layout.size().height)
+					.into_primitive(),
+            ImageState::Loading(_) =>
+                helium_renderer::Rect::default()
+                    .position(layout.position().x, layout.position().y)
+					.into_primitive()
+            
+        };
+
+		(Box::new(layout),primitive)
+	}
 
     fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn crystal::Layout> {
         Box::new(self.layout.clone())
