@@ -2,7 +2,7 @@ use super::*;
 use crate::impl_modifiers;
 use crystal::{AxisAlignment, BlockLayout, Layout};
 use helium_core::{Color, IntoColor, Rgba};
-use helium_renderer::IntoPrimitive;
+use helium_renderer::IntoSurface;
 
 /// A `Button` is a [`Widget`] that wraps another [`Widget`] and responds to different
 /// events such as `on_click` and `on_hover` events.
@@ -109,10 +109,10 @@ impl<W: Widget> Widget for Button<W> {
         layout.cross_axis_alignment = AxisAlignment::Center;
         layout.id = self.id.clone();
 
-		let primitive = helium_renderer::Rect::new(0.0,0.0)
+		let primitive = helium_renderer::RectSurface::new(0.0,0.0)
             .color(self.color.clone())
             .corner_radius(self.corner_radius as f32)
-			.into_primitive();
+			.into_surface();
 		let child = self.child.build(renderer);
 
 		let layout = LayoutConfig::block()
@@ -146,7 +146,7 @@ impl<W: Widget> Widget for Button<W> {
 
     fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {
         renderer.draw([
-            helium_renderer::Rect::new(layout.size().width, layout.size().height)
+            helium_renderer::RectSurface::new(layout.size().width, layout.size().height)
                 .position(layout.position().x, layout.position().y)
                 .color(self.color.clone())
                 .corner_radius(self.corner_radius as f32),

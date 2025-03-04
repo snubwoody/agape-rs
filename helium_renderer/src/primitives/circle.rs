@@ -1,14 +1,14 @@
-use super::{IntoPrimitive, Primitive};
+use super::{IntoSurface, Surface};
 use helium_core::{Color, IntoColor, Position, Rgba};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
-pub struct Circle {
+pub struct CircleSurface {
     pub diameter: f32,
     pub position: Position,
     pub color: Color<Rgba>,
 }
 
-impl Circle {
+impl CircleSurface {
     pub fn new(diameter: f32) -> Self {
         Self {
             diameter,
@@ -35,8 +35,8 @@ impl Circle {
     }
 }
 
-impl IntoPrimitive for Circle {
-    fn into_primitive(self) -> Primitive {
-        Primitive::Circle(self)
+impl IntoSurface for CircleSurface {
+    fn into_surface(self) -> Surface {
+        Surface::Circle(self)
     }
 }

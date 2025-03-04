@@ -1,15 +1,15 @@
-use super::{IntoPrimitive, Primitive};
+use super::{IntoSurface, Surface};
 use helium_core::{Position, Size};
 use image::{ImageBuffer, Rgba};
 
 #[derive(Clone, PartialEq)]
-pub struct Image {
+pub struct ImageSurface {
     pub size: Size,
     pub data: ImageBuffer<Rgba<u8>, Vec<u8>>,
     pub position: Position,
 }
 
-impl Image {
+impl ImageSurface {
     pub fn new(data: ::image::ImageBuffer<Rgba<u8>, Vec<u8>>) -> Self {
         // TODO get the size of the image and make it a u8 max?
         let width = data.width();
@@ -39,9 +39,9 @@ impl Image {
     }
 }
 
-impl std::fmt::Debug for Image{
+impl std::fmt::Debug for ImageSurface{
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		f.debug_struct("Image")
+		f.debug_struct("ImageSurface")
 			.field("size", &self.size)
 			.field("position", &self.position)
 			.field("data", &"ImageBuffer<...>")
@@ -49,8 +49,8 @@ impl std::fmt::Debug for Image{
 	}
 }
 
-impl IntoPrimitive for Image {
-    fn into_primitive(self) -> Primitive {
-        Primitive::Image(self)
+impl IntoSurface for ImageSurface {
+    fn into_surface(self) -> Surface {
+        Surface::Image(self)
     }
 }

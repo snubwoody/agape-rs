@@ -1,7 +1,7 @@
 use super::{LayoutConfig, LayoutType, Widget, WidgetBody};
 use crate::{impl_layout, Result};
 use crystal::{BoxSizing, EmptyLayout, Layout};
-use helium_renderer::IntoPrimitive;
+use helium_renderer::IntoSurface;
 use image::{GenericImageView, ImageReader};
 use resvg::tiny_skia::Pixmap;
 
@@ -172,11 +172,11 @@ impl Widget for Image {
 	fn build(&self,_renderer: &mut helium_renderer::Renderer) -> WidgetBody {
 		let primitive = match &self.state {
             ImageState::Complete(image) => 
-                helium_renderer::Image::new(image.to_rgba8().clone())
-					.into_primitive(),
+                helium_renderer::ImageSurface::new(image.to_rgba8().clone())
+					.into_surface(),
             ImageState::Loading(_) =>
-                helium_renderer::Rect::default()
-					.into_primitive()
+                helium_renderer::RectSurface::default()
+					.into_surface()
         };
 
 
@@ -198,12 +198,12 @@ impl Widget for Image {
     fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
         match &self.state {
             ImageState::Complete(image) => {
-                renderer.draw([helium_renderer::Image::new(image.to_rgba8().clone())
+                renderer.draw([helium_renderer::ImageSurface::new(image.to_rgba8().clone())
                     .position(layout.position().x, layout.position().y)
                     .size(layout.size().width, layout.size().height)]);
             }
             ImageState::Loading(_) => {
-                renderer.draw([helium_renderer::Rect::default()
+                renderer.draw([helium_renderer::RectSurface::default()
                     .position(layout.position().x, layout.position().y)]);
             }
         }

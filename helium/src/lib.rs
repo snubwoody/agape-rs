@@ -2,7 +2,7 @@
 pub mod colors;
 pub mod error;
 pub mod widgets;
-use helium_renderer::{Primitive, Renderer, Text};
+use helium_renderer::{Renderer, TextSurface};
 pub use crystal;
 use crystal::LayoutSolver;
 pub use error::{Error, Result};
@@ -72,7 +72,7 @@ impl App {
                     WindowEvent::CloseRequested => window_target.exit(),
                     WindowEvent::RedrawRequested => {
                         self.pages[0].draw(&mut renderer, size);
-                        renderer.draw([Text::new(format!("{:?}", previous_duration).as_str())]);
+                        renderer.draw([TextSurface::new(format!("{:?}", previous_duration).as_str())]);
                         renderer.render();
                     }
                     WindowEvent::Resized(window_size) => {

@@ -19,7 +19,7 @@ pub use circle::*;
 pub use container::*;
 use crystal::{BlockLayout, EmptyLayout, HorizontalLayout, Layout, VerticalLayout};
 use helium_core::{Bounds, Color, Position, Rgba};
-use helium_renderer::{Primitive, Renderer};
+use helium_renderer::{Surface, Renderer};
 pub use hstack::*;
 pub use image::*;
 pub use rect::*;
@@ -241,13 +241,13 @@ impl LayoutConfig{
 pub struct WidgetBody{
 	id: String,
 	layout: LayoutConfig,
-	primitive: Primitive,
+	primitive: Surface,
 	children: Vec<Box<WidgetBody>>
 }
 
 impl WidgetBody{
-	/// Get the [`WidgetBody`]'s [`Primitive`] by cloning and returning it.
-	pub fn primitive(&self) -> Primitive{
+	/// Get the [`WidgetBody`]'s [`Surface`] by cloning and returning it.
+	pub fn primitive(&self) -> Surface{
 		self.primitive.clone()
 	}
 
@@ -520,7 +520,7 @@ macro_rules! impl_layout {
 #[cfg(test)]
 mod tests{
     use crystal::{AxisAlignment, IntrinsicSize};
-    use helium_renderer::IntoPrimitive;
+    use helium_renderer::IntoSurface;
 
     use super::*;
 
@@ -533,7 +533,7 @@ mod tests{
 	// 		.main_axis_alignment(AxisAlignment::End)
 	// 		.intrinsic_size(IntrinsicSize::fill());
 
-	// 	let primitive = helium_renderer::Rect::new(0.0, 0.0).into_primitive();
+	// 	let primitive = helium_renderer::Rect::new(0.0, 0.0).into_surface();
 
 	// 	let body = WidgetBody{
 	// 		id: String::default(),

@@ -3,27 +3,27 @@ mod icon;
 mod image;
 mod rect;
 mod text;
-pub use circle::Circle;
-pub use icon::Icon;
-pub use image::Image;
-pub use rect::Rect;
-pub use text::Text;
+pub use circle::CircleSurface;
+pub use icon::IconSurface;
+pub use image::ImageSurface;
+pub use rect::RectSurface;
+pub use text::TextSurface;
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum Primitive {
-    Rect(Rect),
-    Circle(Circle),
-    Text(Text),
-    Image(Image),
-    Icon(Icon),
+pub enum Surface {
+    Rect(RectSurface),
+    Circle(CircleSurface),
+    Text(TextSurface),
+    Image(ImageSurface),
+    Icon(IconSurface),
 }
 
-pub trait IntoPrimitive {
-    fn into_primitive(self) -> Primitive;
+pub trait IntoSurface {
+    fn into_surface(self) -> Surface;
 }
 
-impl IntoPrimitive for Primitive{
-	fn into_primitive(self) -> Primitive {
+impl IntoSurface for Surface{
+	fn into_surface(self) -> Surface {
 		self
 	}
 }

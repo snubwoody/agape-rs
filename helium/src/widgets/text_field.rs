@@ -1,8 +1,8 @@
 use super::{LayoutConfig, LayoutType, Modifiers, Widget, WidgetBody};
-use crate::{impl_modifiers};
+use crate::impl_modifiers;
 use crystal::{EmptyLayout, Layout};
 use helium_core::{Color, IntoColor, Rgba};
-use helium_renderer::{IntoPrimitive, Rect, Text};
+use helium_renderer::{IntoSurface, RectSurface, TextSurface};
 
 /// Contains editable text
 pub struct TextField {
@@ -101,14 +101,14 @@ impl Widget for TextField {
         };
 
 		// FIXME replace child with text
-        let primitive = Rect::new(350.0,250.0)
+        let primitive = RectSurface::new(350.0,250.0)
 			.color(background_color)
             .corner_radius(self.corner_radius as f32)
-			.into_primitive();
+			.into_surface();
 		
-		let text_primitive = Text::new(&self.text)
+		let text_primitive = TextSurface::new(&self.text)
                 .position(layout.position().x + 16.0, layout.position().y + 16.0)
-				.into_primitive(); // TODO replace this with a layout
+				.into_surface(); // TODO replace this with a layout
 
 		let layout = LayoutConfig::new()
 			.layout(LayoutType::EmptyLayout)
@@ -135,7 +135,7 @@ impl Widget for TextField {
             false => self.background_color.clone(),
         };
 
-        renderer.draw([Rect::from(layout)
+        renderer.draw([RectSurface::from(layout)
             .color(background_color)
             .corner_radius(self.corner_radius as f32)]);
 
@@ -145,7 +145,7 @@ impl Widget for TextField {
         }
 
         renderer.draw([
-            helium_renderer::Text::new(&self.text)
+            helium_renderer::TextSurface::new(&self.text)
                 .position(layout.position().x + 16.0, layout.position().y + 16.0), // TODO replace this with a layout
         ]);
 

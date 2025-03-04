@@ -1,15 +1,15 @@
-use super::{IntoPrimitive, Primitive};
+use super::{IntoSurface, Surface};
 use helium_core::{Color, IntoColor, Position, Rgba, Size};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
-pub struct Rect {
+pub struct RectSurface {
     pub size: Size,
     pub position: Position,
     pub color: Color<Rgba>,
     pub corner_radius: f32,
 }
 
-impl Rect {
+impl RectSurface {
     pub fn new(width: f32, height: f32) -> Self {
         Self {
             size: Size { width, height },
@@ -40,13 +40,13 @@ impl Rect {
     }
 }
 
-impl IntoPrimitive for Rect {
-    fn into_primitive(self) -> Primitive {
-        Primitive::Rect(self)
+impl IntoSurface for RectSurface {
+    fn into_surface(self) -> Surface {
+        Surface::Rect(self)
     }
 }
 
-impl From<&dyn crystal::Layout> for Rect {
+impl From<&dyn crystal::Layout> for RectSurface {
     fn from(layout: &dyn crystal::Layout) -> Self {
         let size = layout.size();
         let position = layout.position();

@@ -4,7 +4,7 @@ use crate::{
         BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, TextureBuilder,
         VertexBufferLayoutBuilder,
     },
-    primitives::Image,
+    primitives::ImageSurface,
     vertex::Vertex,
 };
 use helium_core::{colors::TRANSPARENT, Position, Size};
@@ -123,7 +123,7 @@ impl ImagePipeline {
 
     pub fn draw(
         &mut self,
-        image: &Image,
+        image: &ImageSurface,
         queue: &wgpu::Queue,
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
@@ -175,7 +175,7 @@ impl TextureAtlas {
         }
     }
 
-    pub fn get(&mut self, image: &Image, queue: &wgpu::Queue) -> [[f32; 2]; 4] {
+    pub fn get(&mut self, image: &ImageSurface, queue: &wgpu::Queue) -> [[f32; 2]; 4] {
         for cached_image in &self.images {
             if cached_image.image == image.data {
                 return cached_image.uv(self.size);
@@ -264,6 +264,3 @@ impl CachedImage {
         uv
     }
 }
-
-#[cfg(test)]
-mod test {}

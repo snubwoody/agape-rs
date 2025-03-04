@@ -1,7 +1,7 @@
 use crate::{impl_layout, impl_style, widgets::Widget, Color};
 use crystal::{AxisAlignment, Layout, VerticalLayout};
 use helium_core::{colors::TRANSPARENT, Rgba};
-use helium_renderer::{IntoPrimitive, Rect};
+use helium_renderer::{IntoSurface, RectSurface};
 
 use super::{LayoutConfig, LayoutType, WidgetBody};
 
@@ -161,10 +161,10 @@ impl Widget for VStack {
 
 		
 		// FIXME
-		let primitive = Rect::new(0.0, 0.0)
+		let primitive = RectSurface::new(0.0, 0.0)
 			.color(self.color.clone())
 			.corner_radius(self.corner_radius as f32)
-			.into_primitive();
+			.into_surface();
 
         WidgetBody{
 			id: self.id.clone(),
@@ -211,7 +211,7 @@ impl Widget for VStack {
     }
 
     fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
-		let primitive = Rect::from(layout)
+		let primitive = RectSurface::from(layout)
 			.color(self.color.clone())
 			.corner_radius(self.corner_radius as f32);
         

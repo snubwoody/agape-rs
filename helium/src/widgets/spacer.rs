@@ -1,6 +1,6 @@
 use super::{LayoutConfig, LayoutType, Widget, WidgetBody};
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
-use helium_renderer::{IntoPrimitive, Primitive, Rect, Renderer};
+use helium_renderer::{IntoSurface, RectSurface, Renderer};
 
 /// A [`Widget`] that fills up all the available space.  
 ///
@@ -41,7 +41,7 @@ impl Widget for Spacer {
     }
 
 	fn build(&self,_renderer: &mut Renderer) -> WidgetBody {
-		let primitive = Rect::new(250.0, 250.0).into_primitive();
+		let primitive = RectSurface::new(250.0, 250.0).into_surface();
 
 		let layout = LayoutConfig::new()
 			.layout(LayoutType::EmptyLayout)
@@ -65,7 +65,7 @@ impl Widget for Spacer {
     }
 
     fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
-		let primitive = Rect::new(layout.size().width, layout.size().height)
+		let primitive = RectSurface::new(layout.size().width, layout.size().height)
 			.position(layout.position().x, layout.position().y);
         renderer.draw([primitive]);
     }

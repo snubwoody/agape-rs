@@ -2,7 +2,7 @@ use super::{LayoutConfig, Widget, WidgetBody};
 use crate::impl_layout;
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::{Color, IntoColor, Rgba};
-use helium_renderer::IntoPrimitive;
+use helium_renderer::IntoSurface;
 use image::GenericImageView;
 use resvg::tiny_skia::Pixmap;
 use std::fs;
@@ -105,9 +105,9 @@ impl Widget for Icon {
     }
 
 	fn build(&self,_renderer: &mut helium_renderer::Renderer) -> WidgetBody {
-		let primitive = helium_renderer::Icon::new(self.image.clone())
+		let primitive = helium_renderer::IconSurface::new(self.image.clone())
             .color(self.color.clone())
-			.into_primitive();
+			.into_surface();
 
 		// FIXME
 		let layout = LayoutConfig::new();
@@ -125,7 +125,7 @@ impl Widget for Icon {
     }
 
     fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
-        renderer.draw([helium_renderer::Icon::new(self.image.clone())
+        renderer.draw([helium_renderer::IconSurface::new(self.image.clone())
             .color(self.color.clone())
             .position(layout.position().x, layout.position().y)]);
     }

@@ -4,17 +4,14 @@ use crate::{
         BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, TextureBuilder,
         VertexBufferLayoutBuilder,
     },
-    primitives::Text,
+    primitives::TextSurface,
     vertex::Vertex,
 };
-use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, SwashCache, Weight};
+use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, SwashCache};
 use helium_core::Size;
-use image::{GenericImageView, ImageBuffer, Rgba, RgbaImage};
-use std::{io::Cursor, rc::Rc, time::Instant};
-use wgpu::{
-    hal::auxil::db::{self, imgtec},
-    Extent3d,
-};
+use image::{ImageBuffer, Rgba, RgbaImage};
+use std::rc::Rc;
+use wgpu::Extent3d;
 
 // TODO replace text_to_png
 /// The pipeline that handles text rendering.
@@ -119,7 +116,8 @@ impl TextPipeline {
         }
     }
 
-    pub fn text_size(&mut self, text: &Text) -> Size {
+	/// Get the [`Size`] of a string of text
+    pub fn text_size(&mut self, text: &TextSurface) -> Size {
         let font_system = &mut self.font_system;
 
         let mut buffer = Buffer::new(
@@ -157,7 +155,7 @@ impl TextPipeline {
 
     /// Uses `comsic-text` to rasterize the font into a an image, which
     /// will then be written to a `wgpu::Buffer`.
-    fn rasterize_text(&mut self, text: &Text) -> (ImageBuffer<Rgba<u8>, Vec<u8>>, Size) {
+    fn rasterize_text(&mut self, text: &TextSurface) -> (ImageBuffer<Rgba<u8>, Vec<u8>>, Size) {
         // FIXME there's some artifacts appearing on the texture.
         let font_system = &mut self.font_system;
         let cache = &mut self.cache;
@@ -217,7 +215,7 @@ impl TextPipeline {
 
     pub fn draw(
         &mut self,
-        text: &Text,
+        text: &TextSurface,
         queue: &wgpu::Queue,
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
@@ -293,10 +291,10 @@ mod tests {
 
         let mut pipeline = TextPipeline::new(&device, format, global);
         let text_queue = [
-            Text::new("Hello world").line_height(20.0),
-            Text::new("Hello world").font_size(255),
-            Text::new("Hi mom!"),
-            Text::new("Click me please! You might get a treat")
+            TextSurface::new("Hello world").line_height(20.0),
+            TextSurface::new("Hello world").font_size(255),
+            TextSurface::new("Hi mom!"),
+            TextSurface::new("Click me please! You might get a treat")
                 .line_height(2.0)
                 .font_size(24),
         ];

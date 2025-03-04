@@ -6,7 +6,7 @@ use crate::{
     builders::{
         BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, VertexBufferLayoutBuilder,
     },
-    primitives::{Circle, Rect},
+    primitives::CircleSurface,
     vertex::Vertex,
 };
 
@@ -92,7 +92,7 @@ impl CirclePipeline {
         }
     }
 
-    pub fn draw(&mut self, circle: &Circle, device: &wgpu::Device, pass: &mut wgpu::RenderPass) {
+    pub fn draw(&mut self, circle: &CircleSurface, device: &wgpu::Device, pass: &mut wgpu::RenderPass) {
         let vertices = Vertex::quad(Size::unit(circle.diameter), circle.position, circle.color.clone());
 
         let vertex_buffer = BufferBuilder::new()

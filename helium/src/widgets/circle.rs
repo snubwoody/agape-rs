@@ -1,7 +1,7 @@
 use super::{LayoutConfig, Widget, WidgetBody};
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::{colors::BLACK, Color, IntoColor, Rgba};
-use helium_renderer::IntoPrimitive;
+use helium_renderer::IntoSurface;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Circle {
@@ -31,9 +31,9 @@ impl Widget for Circle {
     }
 
 	fn build(&self,_renderer: &mut helium_renderer::Renderer) -> WidgetBody {
-		let primitive = helium_renderer::Circle::new(self.diameter as f32)
+		let primitive = helium_renderer::CircleSurface::new(self.diameter as f32)
 			.color(self.color.clone())
-			.into_primitive();
+			.into_surface();
 
 		// FIXME test this and add the size here
 		let layout = LayoutConfig::empty();
@@ -57,7 +57,7 @@ impl Widget for Circle {
     }
 
     fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {
-        renderer.draw([helium_renderer::Circle::new(layout.size().width)
+        renderer.draw([helium_renderer::CircleSurface::new(layout.size().width)
             .position(layout.position().x, layout.position().y)
             .color(self.color.clone())]);
     }

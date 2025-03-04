@@ -1,8 +1,8 @@
-use super::{IntoPrimitive, Primitive};
+use super::{IntoSurface, Surface};
 use helium_core::{Color, IntoColor, Position, Rgba};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
-pub struct Text {
+pub struct TextSurface {
     pub text: String,
     pub font_size: u8,
     /// The line height is a multiple of the font_size, e.g.
@@ -12,7 +12,7 @@ pub struct Text {
     pub position: Position,
 }
 
-impl Text {
+impl TextSurface {
     pub fn new(text: &str) -> Self {
         Self {
             text: String::from(text),
@@ -51,8 +51,8 @@ impl Text {
     }
 }
 
-impl IntoPrimitive for Text {
-    fn into_primitive(self) -> Primitive {
-        Primitive::Text(self)
+impl IntoSurface for TextSurface {
+    fn into_surface(self) -> Surface {
+        Surface::Text(self)
     }
 }
