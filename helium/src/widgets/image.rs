@@ -1,4 +1,4 @@
-use super::Widget;
+use super::{LayoutConfig, LayoutType, Widget, WidgetBody};
 use crate::{impl_layout, Result};
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_renderer::IntoPrimitive;
@@ -169,23 +169,26 @@ impl Widget for Image {
         &self.id
     }
 
-	fn build(&self,renderer: &mut helium_renderer::Renderer) -> (Box<dyn crystal::Layout>,helium_renderer::Primitive) {
-		let layout = self.layout.clone();
-
+	fn build(&self,_renderer: &mut helium_renderer::Renderer) -> WidgetBody {
 		let primitive = match &self.state {
             ImageState::Complete(image) => 
                 helium_renderer::Image::new(image.to_rgba8().clone())
-                    .position(layout.position().x, layout.position().y)
-                    .size(layout.size().width, layout.size().height)
 					.into_primitive(),
             ImageState::Loading(_) =>
                 helium_renderer::Rect::default()
-                    .position(layout.position().x, layout.position().y)
 					.into_primitive()
-            
         };
 
-		(Box::new(layout),primitive)
+
+		let layout = LayoutConfig::new()
+			.layout(LayoutType::EmptyLayout);
+
+		WidgetBody { 
+			id: self.id.clone(), 
+			layout, 
+			primitive, 
+			children: vec![]
+		}
 	}
 
     fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn crystal::Layout> {

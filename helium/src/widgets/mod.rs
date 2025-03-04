@@ -48,7 +48,8 @@ pub trait Widget: WidgetIterator {
         None
     }
 
-	fn build(&self,renderer: &mut Renderer) -> (Box<dyn Layout>,Primitive); 
+	/// Build the [`Widget`] into a [`WidgetBody`]
+	fn build(&self,renderer: &mut Renderer) -> WidgetBody; 
 
     /// Runs every frame allowing [`Widget`]'s to manage any
     /// state they may have
@@ -167,6 +168,7 @@ pub enum LayoutType{
 pub struct LayoutConfig{
 	padding: u32,
 	spacing: u32,
+	scroll_offset: f32,
 	intrinsic_size: crystal::IntrinsicSize,
 	constraints: crystal::BoxConstraints,
 	main_axis_alignment: crystal::AxisAlignment,
@@ -174,13 +176,39 @@ pub struct LayoutConfig{
 	_type: LayoutType
 }
 
+// TODO add empty, vertical, etc constructors
 impl LayoutConfig{
 	pub fn new() -> Self{
 		Self::default()
 	}
 
+	pub fn block() -> Self{
+		Self::default()
+		.layout(LayoutType::BlockLayout)
+	}
+
+	pub fn empty() -> Self{
+		Self::default()
+		.layout(LayoutType::EmptyLayout)
+	}
+
+	pub fn horizontal() -> Self{
+		Self::default()
+		.layout(LayoutType::HorizontalLayout)
+	}
+
+	pub fn vertical() -> Self{
+		Self::default()
+		.layout(LayoutType::VerticalLayout)
+	}
+
 	pub fn padding(mut self,padding:u32) -> Self{
 		self.padding = padding;
+		self
+	}
+	
+	pub fn scroll_offset(mut self,scroll_offset:f32) -> Self{
+		self.scroll_offset = scroll_offset;
 		self
 	}
 
@@ -215,9 +243,10 @@ impl LayoutConfig{
 	}
 }
 
+// TODO size the Text
 pub struct WidgetBody{
 	id: String,
-	layout: Box<dyn Layout>,
+	layout: LayoutConfig,
 	primitive: Primitive,
 	children: Vec<Box<WidgetBody>>
 }

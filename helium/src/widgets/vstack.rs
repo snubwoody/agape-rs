@@ -3,6 +3,8 @@ use crystal::{AxisAlignment, Layout, VerticalLayout};
 use helium_core::{colors::TRANSPARENT, Rgba};
 use helium_renderer::{IntoPrimitive, Rect};
 
+use super::{LayoutConfig, LayoutType, WidgetBody};
+
 /// A [`Widget`] that places it's children vertically. The `vstack!` macro
 /// provides convienient initialization and is likely how you will be creating an
 /// `VStack` most of the time.
@@ -131,14 +133,7 @@ impl Widget for VStack {
 		self.layout.scroll(delta.y * scroll_speed);
 	}
 
-	fn build(&self,renderer: &mut helium_renderer::Renderer) -> (Box<dyn Layout>,helium_renderer::Primitive) {
-		let children_layout: Vec<Box<dyn Layout>> = self
-            .children
-            .iter()
-            .map(|widget| widget.layout(renderer))
-            .collect();
-
-		
+	fn build(&self,renderer: &mut helium_renderer::Renderer) -> WidgetBody {
         let VerticalLayout {
             spacing,
             padding,
@@ -150,26 +145,35 @@ impl Widget for VStack {
             ..
         } = self.layout;
 
-        // TODO use builder pattern?
-        let layout = VerticalLayout {
-            id: self.id.clone(),
-            spacing,
-            padding,
-            intrinsic_size,
-            cross_axis_alignment,
-            main_axis_alignment,
-            constraints,
-			scroll_offset,
-            children: children_layout,
-            ..Default::default()
-        };
+		let children: Vec<Box<WidgetBody>> = self
+			.children
+			.iter()
+			.map(|widget| Box::new(widget.build(renderer)))
+			.collect();
 
-		let primitive = helium_renderer::Rect::from(&layout as &dyn Layout)
+		let layout = LayoutConfig::new()
+			.spacing(spacing)
+			.padding(padding)
+			.intrinsic_size(intrinsic_size)
+			.main_axis_alignment(main_axis_alignment)
+			.cross_axis_alignment(cross_axis_alignment)
+			.constraints(constraints)
+			.scroll_offset(scroll_offset)
+			.layout(LayoutType::VerticalLayout);
+
+		
+		// FIXME
+		let primitive = Rect::new(0.0, 0.0)
 			.color(self.color.clone())
 			.corner_radius(self.corner_radius as f32)
 			.into_primitive();
 
-        (Box::new(layout),primitive)
+        WidgetBody{
+			id: self.id.clone(),
+			primitive,
+			layout,
+			children
+		}
 	}
 
     fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {

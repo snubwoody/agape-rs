@@ -167,3 +167,12 @@ pub struct IntrinsicSize {
     pub width: BoxSizing,
     pub height: BoxSizing,
 }
+
+impl IntrinsicSize{
+	pub fn fill() -> Self{
+		Self { 
+			width: BoxSizing::Flex(1), 
+			height: BoxSizing::Flex(1) 
+		}
+	}
+}

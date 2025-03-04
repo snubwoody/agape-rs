@@ -1,5 +1,5 @@
-use super::Widget;
-use crystal::{BoxSizing, EmptyLayout, Layout};
+use super::{LayoutConfig, LayoutType, Widget, WidgetBody};
+use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use helium_renderer::{IntoPrimitive, Primitive, Rect, Renderer};
 
 /// A [`Widget`] that fills up all the available space.  
@@ -40,15 +40,19 @@ impl Widget for Spacer {
         &self.id
     }
 
-	fn build(&self,renderer: &mut Renderer) -> (Box<dyn crystal::Layout>,Primitive) {
-		let mut layout = EmptyLayout::new();
-        layout.id = self.id.clone();
-        layout.intrinsic_size.width = BoxSizing::Flex(1);
-        layout.intrinsic_size.height = BoxSizing::Flex(1);
-		
-		let primitive = Rect::from(&layout as &dyn Layout).into_primitive();
-		
-		(Box::new(layout),primitive)
+	fn build(&self,_renderer: &mut Renderer) -> WidgetBody {
+		let primitive = Rect::new(250.0, 250.0).into_primitive();
+
+		let layout = LayoutConfig::new()
+			.layout(LayoutType::EmptyLayout)
+			.intrinsic_size(IntrinsicSize::fill());
+
+		WidgetBody{
+			id: self.id.clone(),
+			layout,
+			primitive,
+			children: vec![]
+		}
 	}
 
     fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn crystal::Layout> {

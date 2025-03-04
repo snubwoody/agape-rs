@@ -130,7 +130,7 @@ impl Page {
 
 	/// Draw the [`Widgets`]
     fn draw(&mut self, renderer: &mut Renderer, size: Size) {
-        let (mut layout,_) = self.widget.build(renderer);
+        let widget_body = self.widget.build(renderer);
         LayoutSolver::solve(&mut *layout, size);
 
 		let primitives:Vec<Primitive> = self.widget.iter().map(|widget|{

@@ -1,4 +1,4 @@
-use super::Widget;
+use super::{LayoutConfig, LayoutType, Widget, WidgetBody};
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::{colors::BLACK, Color, IntoColor, Rgba};
 use helium_renderer::IntoPrimitive;
@@ -97,20 +97,22 @@ impl Widget for Text {
         &self.id
     }
 
-	fn build(&self,renderer: &mut helium_renderer::Renderer) -> (Box<dyn Layout>,helium_renderer::Primitive) {
+	fn build(&self,_renderer: &mut helium_renderer::Renderer) -> WidgetBody {
 		let primitive = helium_renderer::Text::new(&self.text)
 			.font_size(self.font_size)
-			.color(self.color.clone());
+			.color(self.color.clone())
+			.into_primitive();
 		
-		let text = self.primitive();
-        let size = renderer.text_size(&text);
+		// FIXME add text size
+		let layout = LayoutConfig::new()
+			.layout(LayoutType::EmptyLayout);
 
-        let mut layout = EmptyLayout::new();
-        layout.intrinsic_size.width = BoxSizing::Fixed(size.width);
-        layout.intrinsic_size.height = BoxSizing::Fixed(size.height);
-        layout.id = self.id.clone();
-
-        (Box::new(layout),primitive.into_primitive())
+		WidgetBody{
+			id: self.id.clone(),
+			primitive,
+			layout,
+			children: vec![]
+		}
 	}
 
     fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {

@@ -1,4 +1,4 @@
-use super::Widget;
+use super::{LayoutConfig, Widget, WidgetBody};
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::{colors::BLACK, Color, IntoColor, Rgba};
 use helium_renderer::IntoPrimitive;
@@ -30,19 +30,21 @@ impl Widget for Circle {
         &self.id
     }
 
-	fn build(&self,renderer: &mut helium_renderer::Renderer) -> (Box<dyn Layout>,helium_renderer::Primitive) {
-		let mut layout = EmptyLayout::new();
-        layout.intrinsic_size.width = BoxSizing::Fixed(self.diameter as f32);
-        layout.intrinsic_size.height = BoxSizing::Fixed(self.diameter as f32);
-        layout.id = self.id.clone();
-
-		
+	fn build(&self,_renderer: &mut helium_renderer::Renderer) -> WidgetBody {
 		let primitive = helium_renderer::Circle::new(self.diameter as f32)
-			.position(layout.position.x, layout.position.y)
 			.color(self.color.clone())
 			.into_primitive();
 
-        (Box::new(layout),primitive)
+		// FIXME test this and add the size here
+		let layout = LayoutConfig::empty();
+
+		WidgetBody{
+			id: self.id.clone(),
+			primitive,
+			children:vec![],
+			layout
+		}
+        
 	}
 
     fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn Layout> {

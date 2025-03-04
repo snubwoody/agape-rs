@@ -1,4 +1,4 @@
-use super::{Modifiers, Widget};
+use super::{LayoutConfig, LayoutType, Modifiers, Widget, WidgetBody};
 use crate::{impl_modifiers};
 use crystal::{EmptyLayout, Layout};
 use helium_core::{Color, IntoColor, Rgba};
@@ -90,7 +90,7 @@ impl Widget for TextField {
         }
     }
 
-	fn build(&self,renderer: &mut helium_renderer::Renderer) -> (Box<dyn crystal::Layout>,helium_renderer::Primitive) {
+	fn build(&self,_renderer: &mut helium_renderer::Renderer) -> WidgetBody {
 		let mut layout = EmptyLayout::new();
         layout.id = self.id.clone();
         layout.intrinsic_size = self.modifiers.intrinsic_size;
@@ -100,8 +100,8 @@ impl Widget for TextField {
             false => self.background_color.clone(),
         };
 
-		// FIXME
-        let primitive = Rect::from(&layout as &dyn Layout)
+		// FIXME replace child with text
+        let primitive = Rect::new(350.0,250.0)
 			.color(background_color)
             .corner_radius(self.corner_radius as f32)
 			.into_primitive();
@@ -110,7 +110,16 @@ impl Widget for TextField {
                 .position(layout.position().x + 16.0, layout.position().y + 16.0)
 				.into_primitive(); // TODO replace this with a layout
 
-		(Box::new(layout),primitive)
+		let layout = LayoutConfig::new()
+			.layout(LayoutType::EmptyLayout)
+			.intrinsic_size(self.modifiers.intrinsic_size);
+
+		WidgetBody{
+			id:self.id.clone(),
+			primitive,
+			layout,
+			children: vec![]
+		}
 	}
 
     fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn crystal::Layout> {

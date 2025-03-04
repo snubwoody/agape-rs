@@ -1,4 +1,4 @@
-use super::{Widget, WidgetBody};
+use super::{LayoutConfig, LayoutType, Widget, WidgetBody};
 use crate::Color;
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use helium_core::{colors::WHITE, IntoColor, Rgba};
@@ -59,17 +59,21 @@ impl Widget for Rect {
         &self.id
     }
 
-	fn build(&self,renderer: &mut helium_renderer::Renderer) -> (Box<dyn Layout>,helium_renderer::Primitive) {
-		let mut layout = EmptyLayout::new();
-        layout.intrinsic_size = self.intrinsic_size;
-        layout.id = self.id.clone();
+	fn build(&self,_renderer: &mut helium_renderer::Renderer) -> WidgetBody {
+		let primitive = helium_renderer::Rect::new(100.0, 100.0)
+			.color(self.color.clone())
+			.into_primitive();
 
-		let primitive = helium_renderer::Rect::new(layout.size().width, layout.size().height)
-                .position(layout.position().x, layout.position().y)
-                .color(self.color.clone())
-				.into_primitive();
+		let layout = LayoutConfig::new()
+			.layout(LayoutType::EmptyLayout)
+			.intrinsic_size(self.intrinsic_size);
 
-        (Box::new(layout),primitive)
+		WidgetBody { 
+			id: self.id.clone(), 
+			layout, 
+			primitive, 
+			children: vec![]
+		}
 	}
 
     fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn Layout> {

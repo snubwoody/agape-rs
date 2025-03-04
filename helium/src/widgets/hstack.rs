@@ -3,6 +3,8 @@ use crystal::{AxisAlignment, HorizontalLayout, Layout};
 use helium_core::{colors::TRANSPARENT, Rgba};
 use helium_renderer::{IntoPrimitive, Rect};
 
+use super::{LayoutConfig, LayoutType, WidgetBody};
+
 /// A [`Widget`] that places it's children horizontally. The `hstack!` macro
 /// provides convienient initialization and is mostly how you be creating an `HStack`
 /// most of the time.
@@ -146,11 +148,11 @@ impl Widget for HStack {
         Box::new(layout)
     }
 
-	fn build(&self,renderer: &mut helium_renderer::Renderer) -> (Box<dyn Layout>,helium_renderer::Primitive) {
-		let children_layout: Vec<Box<dyn Layout>> = self
+	fn build(&self,renderer: &mut helium_renderer::Renderer) -> WidgetBody {
+		let children: Vec<Box<WidgetBody>> = self
             .children
             .iter()
-            .map(|widget| widget.layout(renderer))
+            .map(|widget| Box::new(widget.build(renderer)))
             .collect();
 
         let HorizontalLayout {
@@ -163,26 +165,28 @@ impl Widget for HStack {
             ..
         } = self.layout;
 
-        // TODO use builder pattern?
-        let layout = HorizontalLayout {
-            id: self.id.clone(),
-            spacing,
-            padding,
-            intrinsic_size,
-            cross_axis_alignment,
-            main_axis_alignment,
-            constraints,
-            children: children_layout,
-            ..Default::default()
-        };
+		let layout = LayoutConfig::new()
+			.spacing(spacing)
+			.padding(padding)
+			.intrinsic_size(intrinsic_size)
+			.main_axis_alignment(main_axis_alignment)
+			.cross_axis_alignment(cross_axis_alignment)
+			.constraints(constraints)
+			.layout(LayoutType::HorizontalLayout);
 
 		
-		let primitive = Rect::from(&layout as &dyn Layout)
+		// FIXME
+		let primitive = Rect::new(0.0, 0.0)
 			.color(self.color.clone())
 			.corner_radius(self.corner_radius as f32)
 			.into_primitive();
 
-        (Box::new(layout),primitive)
+        WidgetBody{
+			id: self.id.clone(),
+			primitive,
+			layout,
+			children
+		}
 	}
 
     fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {

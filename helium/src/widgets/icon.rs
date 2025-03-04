@@ -1,4 +1,4 @@
-use super::Widget;
+use super::{LayoutConfig, Widget, WidgetBody};
 use crate::impl_layout;
 use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::{Color, IntoColor, Rgba};
@@ -104,15 +104,20 @@ impl Widget for Icon {
         &self.id
     }
 
-	fn build(&self,renderer: &mut helium_renderer::Renderer) -> (Box<dyn crystal::Layout>,helium_renderer::Primitive) {
-		let layout = self.layout.clone();
-
+	fn build(&self,_renderer: &mut helium_renderer::Renderer) -> WidgetBody {
 		let primitive = helium_renderer::Icon::new(self.image.clone())
             .color(self.color.clone())
-            .position(layout.position().x, layout.position().y)
 			.into_primitive();
 
-		(Box::new(layout),primitive)
+		// FIXME
+		let layout = LayoutConfig::new();
+
+		WidgetBody{
+			id: self.id.clone(),
+			layout,
+			primitive,
+			children: vec![]
+		}
 	}
 
     fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn crystal::Layout> {

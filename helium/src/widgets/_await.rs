@@ -1,4 +1,4 @@
-use super::Widget;
+use super::{Widget, WidgetBody};
 use crystal::Layout;
 use helium_renderer::Renderer;
 use std::future::Future;
@@ -117,7 +117,7 @@ where
         self.pending.id()
     }
 
-	fn build(&self,renderer: &mut Renderer) -> (Box<dyn Layout>,helium_renderer::Primitive) {
+	fn build(&self,renderer: &mut Renderer) -> WidgetBody {
 		match &self.complete {
 			Some(complete) => complete.build(renderer),
 			None => self.pending.build(renderer)

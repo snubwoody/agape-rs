@@ -4,6 +4,8 @@ use helium_core::{Color, Rgba};
 use helium_renderer::IntoPrimitive;
 use nanoid::nanoid;
 
+use super::{LayoutConfig, LayoutType, WidgetBody};
+
 /// A container [`Widget`] that wraps its child
 pub struct Container<W> {
     id: String,
@@ -48,18 +50,23 @@ where
         &self.id
     }
 
-	fn build(&self,renderer: &mut helium_renderer::Renderer) -> (Box<dyn Layout>,helium_renderer::Primitive) {
-		let child_layout = self.child.layout(renderer);
-        let mut layout = BlockLayout::new(child_layout);
-        layout.id = self.id.clone();
-        layout.padding = self.padding;
-
-		let primitive = helium_renderer::Rect::new(layout.size().width, layout.size().height)
-			.position(layout.position().x, layout.position().y)
+	fn build(&self,renderer: &mut helium_renderer::Renderer) -> WidgetBody {
+		let primitive = helium_renderer::Rect::new(0.0,0.0)
 			.color(self.color.clone())
-			.corner_radius(self.corner_radius as f32);
-        
-		(Box::new(layout),primitive.into_primitive())
+			.corner_radius(self.corner_radius as f32)
+			.into_primitive();
+
+		let child = self.child.build(renderer);
+
+		let layout = LayoutConfig::block()
+			.padding(self.padding);
+
+		WidgetBody{
+			id: self.id.clone(),
+			primitive,
+			layout,
+			children: vec![Box::new(child)]
+		}
 	}
 
     fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
