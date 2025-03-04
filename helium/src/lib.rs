@@ -2,7 +2,7 @@
 pub mod colors;
 pub mod error;
 pub mod widgets;
-use helium_renderer::{Renderer, Text};
+use helium_renderer::{Primitive, Renderer, Text};
 pub use crystal;
 use crystal::LayoutSolver;
 pub use error::{Error, Result};
@@ -105,7 +105,9 @@ pub struct Page {
 }
 
 impl Page {
+	/// Create a new [`Page`]
     pub fn new(widget: impl Widget + 'static, renderer: &mut Renderer) -> Self {
+		let (mut layout,_) = widget.build(renderer);
         Self {
             mouse_pos: Position::default(),
             layout: widget.layout(renderer),
@@ -126,18 +128,27 @@ impl Page {
             .dispatch_event(self.mouse_pos, &*self.layout, event);
     }
 
+	/// Draw the [`Widgets`]
     fn draw(&mut self, renderer: &mut Renderer, size: Size) {
         let (mut layout,_) = self.widget.build(renderer);
         LayoutSolver::solve(&mut *layout, size);
 
-		self.widget.iter().for_each(|w| {
-			if let Some(layout) = layout.get(w.id()) {
-				w.draw(layout, renderer);
-            } else {
-				log::warn!("Widget is missing it's Layout")
-            }
-        });
+		let primitives:Vec<Primitive> = self.widget.iter().map(|widget|{
+			let (_,primitive) = widget.build(renderer);
+			primitive
+		}).collect();
+
+		dbg!(&primitives);
+
+		renderer.draw(primitives);
 		
-		self.layout = layout;
+
+		// self.widget.iter().for_each(|w| {
+		// 	if let Some(layout) = layout.get(w.id()) {
+		// 		w.draw(layout, renderer);
+        //     } else {
+		// 		log::warn!("Widget is missing it's Layout")
+        //     }
+        // });
     }
 }

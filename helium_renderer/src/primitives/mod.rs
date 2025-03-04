@@ -21,3 +21,9 @@ pub enum Primitive {
 pub trait IntoPrimitive {
     fn into_primitive(self) -> Primitive;
 }
+
+impl IntoPrimitive for Primitive{
+	fn into_primitive(self) -> Primitive {
+		self
+	}
+}

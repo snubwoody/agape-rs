@@ -80,7 +80,7 @@ pub trait Widget: WidgetIterator {
     }
 }
 
-// TODO I've forgotten why this is seperate
+// TODO I've forgoten why this is seperate
 impl dyn Widget {
     pub fn update(&mut self) {
         self.tick();

@@ -1,5 +1,4 @@
 use std::{cell::Cell, sync::Arc};
-
 use helium::{
 	crystal::HorizontalLayout, 
 	hstack, 
@@ -43,29 +42,27 @@ impl Counter {
 	}
 }
 
-impl Widget for Counter {
-	fn id(&self) -> &str {
-		&self.id
-	}
+// impl Widget for Counter {
+// 	fn id(&self) -> &str {
+// 		&self.id
+// 	}
 
-	fn layout(&self, renderer: &mut Renderer) -> Box<dyn helium::crystal::Layout> {
-		Box::new(HorizontalLayout::default())	
-	}
+// 	fn layout(&self, renderer: &mut Renderer) -> Box<dyn helium::crystal::Layout> {
+// 		Box::new(HorizontalLayout::default())	
+// 	}
 
-	fn draw(&self, layout: &dyn helium::crystal::Layout, renderer: &mut Renderer) {
-	}
-}
+// }
 
 #[tokio::main]
 async fn main() -> Result<(), helium::Error> {
     std::env::set_var("RUST_LOG", "error,helium=trace");
     env_logger::init();
 
-	let counter = Counter::new();
-    let mut app = App::new();
-	app.add_page(counter);
+	// let counter = Counter::new();
+    // let mut app = App::new();
+	// app.add_page(counter);
 
-    app.run().await?;
+    // app.run().await?;
 
     Ok(())
 }

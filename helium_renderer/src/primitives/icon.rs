@@ -1,7 +1,7 @@
 use super::{IntoPrimitive, Primitive};
 use helium_core::{colors::BLACK, Color, IntoColor, Position, Rgba};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct Icon {
     pub image: ::image::DynamicImage,
     pub position: Position,
@@ -32,4 +32,14 @@ impl IntoPrimitive for Icon {
     fn into_primitive(self) -> Primitive {
         Primitive::Icon(self)
     }
+}
+
+impl std::fmt::Debug for Icon{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		f.debug_struct("Icon")
+			.field("color", &self.color)
+			.field("position", &self.position)
+			.field("image", &"ImageBuffer<...>")
+			.finish()
+	}
 }

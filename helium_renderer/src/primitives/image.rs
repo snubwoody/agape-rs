@@ -2,7 +2,7 @@ use super::{IntoPrimitive, Primitive};
 use helium_core::{Position, Size};
 use image::{ImageBuffer, Rgba};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct Image {
     pub size: Size,
     pub data: ImageBuffer<Rgba<u8>, Vec<u8>>,
@@ -37,6 +37,16 @@ impl Image {
         };
         self
     }
+}
+
+impl std::fmt::Debug for Image{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		f.debug_struct("Image")
+			.field("size", &self.size)
+			.field("position", &self.position)
+			.field("data", &"ImageBuffer<...>")
+			.finish()
+	}
 }
 
 impl IntoPrimitive for Image {
