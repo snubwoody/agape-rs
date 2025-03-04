@@ -153,29 +153,73 @@ impl dyn Widget {
     }
 }
 
-// #[derive(Debug, Default, Clone, PartialEq)]
-// pub struct EmptyLayout {
-//     pub id: String,
-//     pub size: Size,
-//     pub position: Position,
-//     // TODO could probably just inline this
-//     pub intrinsic_size: IntrinsicSize,
-//     pub constraints: BoxContraints,
-//     pub errors: Vec<crate::LayoutError>,
-// }
 
-#[derive(Debug,PartialEq, PartialOrd)]
-pub enum LayoutConfig{
-	VerticalLayout{},
-	HorizontalLayout{},
-	BlockLayout{},
-	EmptyLayout{},
+#[derive(Debug,PartialEq, PartialOrd,Clone, Copy,Default)]
+pub enum LayoutType{
+	VerticalLayout,
+	HorizontalLayout,
+	BlockLayout,
+	#[default]
+	EmptyLayout,
+}
+
+#[derive(Debug,PartialEq, PartialOrd,Clone,Copy,Default)]
+pub struct LayoutConfig{
+	padding: u32,
+	spacing: u32,
+	intrinsic_size: crystal::IntrinsicSize,
+	constraints: crystal::BoxConstraints,
+	main_axis_alignment: crystal::AxisAlignment,
+	cross_axis_alignment: crystal::AxisAlignment,
+	_type: LayoutType
+}
+
+impl LayoutConfig{
+	pub fn new() -> Self{
+		Self::default()
+	}
+
+	pub fn padding(mut self,padding:u32) -> Self{
+		self.padding = padding;
+		self
+	}
+
+	pub fn spacing(mut self,spacing:u32) -> Self{
+		self.spacing = spacing;
+		self
+	}
+
+	pub fn intrinsic_size(mut self, intrinsic_size: crystal::IntrinsicSize) -> Self{
+		self.intrinsic_size = intrinsic_size;
+		self
+	}
+
+	pub fn constraints(mut self, constraints: crystal::BoxConstraints) -> Self{
+		self.constraints = constraints;
+		self
+	}
+
+	pub fn main_axis_alignment(mut self, main_axis_alignment:crystal::AxisAlignment) -> Self{
+		self.main_axis_alignment = main_axis_alignment;
+		self
+	}
+
+	pub fn cross_axis_alignment(mut self, cross_axis_alignment:crystal::AxisAlignment) -> Self{
+		self.cross_axis_alignment = cross_axis_alignment;
+		self
+	}
+
+	pub fn layout(mut self,_type: LayoutType) -> Self{
+		self._type = _type;
+		self
+	}
 }
 
 pub struct WidgetBody{
 	id: String,
 	layout: Box<dyn Layout>,
-	primitive: Primitive
+	primitive: Primitive,
+	children: Vec<Box<WidgetBody>>
 }
 
 // TODO test this

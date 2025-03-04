@@ -1,5 +1,5 @@
 use crate::{
-    AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter,
+    AxisAlignment, BoxConstraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter,
 };
 use helium_core::{Position, Size};
 
@@ -13,7 +13,7 @@ pub struct BlockLayout {
     pub intrinsic_size: IntrinsicSize,
     // TODO i'm thinking of adding user constraints as well so that people can define their own
     // constraints
-    pub constraints: BoxContraints,
+    pub constraints: BoxConstraints,
     /// The main axis is the `x-axis`
     pub main_axis_alignment: AxisAlignment,
     /// The cross axis is the `y-axis`
@@ -30,7 +30,7 @@ impl BlockLayout {
             padding: 0,
             position: Position::default(),
             intrinsic_size: IntrinsicSize::default(),
-            constraints: BoxContraints::default(),
+            constraints: BoxConstraints::default(),
             main_axis_alignment: AxisAlignment::default(),
             cross_axis_alignment: AxisAlignment::default(),
             errors: vec![],
@@ -109,7 +109,7 @@ impl Layout for BlockLayout {
         std::slice::from_ref(&self.child)
     }
 
-    fn constraints(&self) -> BoxContraints {
+    fn constraints(&self) -> BoxConstraints {
         self.constraints
     }
 

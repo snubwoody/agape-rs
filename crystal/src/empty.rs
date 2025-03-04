@@ -1,4 +1,4 @@
-use crate::{BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
+use crate::{BoxConstraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
 use helium_core::{Position, Size};
 
 /// An [`Layout`] with no children.  
@@ -14,7 +14,7 @@ pub struct EmptyLayout {
     pub position: Position,
     // TODO could probably just inline this
     pub intrinsic_size: IntrinsicSize,
-    pub constraints: BoxContraints,
+    pub constraints: BoxConstraints,
     pub errors: Vec<crate::LayoutError>,
 }
 
@@ -57,7 +57,7 @@ impl Layout for EmptyLayout {
         &[]
     }
 
-    fn constraints(&self) -> BoxContraints {
+    fn constraints(&self) -> BoxConstraints {
         self.constraints
     }
 

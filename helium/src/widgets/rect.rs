@@ -64,11 +64,6 @@ impl Widget for Rect {
         layout.intrinsic_size = self.intrinsic_size;
         layout.id = self.id.clone();
 
-		WidgetBody{
-			layout:Box::new(layout.clone()),
-			primitive: Circle::new(20.0).into_primitive()
-		};
-
 		let primitive = helium_renderer::Rect::new(layout.size().width, layout.size().height)
                 .position(layout.position().x, layout.position().y)
                 .color(self.color.clone())
