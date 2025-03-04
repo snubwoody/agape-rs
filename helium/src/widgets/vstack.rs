@@ -140,7 +140,6 @@ impl Widget for VStack {
             intrinsic_size,
             main_axis_alignment,
             cross_axis_alignment,
-            constraints,
 			scroll_offset,
             ..
         } = self.layout;
@@ -157,7 +156,6 @@ impl Widget for VStack {
 			.intrinsic_size(intrinsic_size)
 			.main_axis_alignment(main_axis_alignment)
 			.cross_axis_alignment(cross_axis_alignment)
-			.constraints(constraints)
 			.scroll_offset(scroll_offset)
 			.layout(LayoutType::VerticalLayout);
 

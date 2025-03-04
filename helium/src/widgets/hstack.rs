@@ -161,7 +161,6 @@ impl Widget for HStack {
             intrinsic_size,
             main_axis_alignment,
             cross_axis_alignment,
-            constraints,
             ..
         } = self.layout;
 
@@ -171,7 +170,6 @@ impl Widget for HStack {
 			.intrinsic_size(intrinsic_size)
 			.main_axis_alignment(main_axis_alignment)
 			.cross_axis_alignment(cross_axis_alignment)
-			.constraints(constraints)
 			.layout(LayoutType::HorizontalLayout);
 
 		

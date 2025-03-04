@@ -17,7 +17,7 @@ pub use _await::*;
 pub use button::*;
 pub use circle::*;
 pub use container::*;
-use crystal::Layout;
+use crystal::{BlockLayout, EmptyLayout, HorizontalLayout, Layout, VerticalLayout};
 use helium_core::{Bounds, Color, Position, Rgba};
 use helium_renderer::{Primitive, Renderer};
 pub use hstack::*;
@@ -170,7 +170,6 @@ pub struct LayoutConfig{
 	spacing: u32,
 	scroll_offset: f32,
 	intrinsic_size: crystal::IntrinsicSize,
-	constraints: crystal::BoxConstraints,
 	main_axis_alignment: crystal::AxisAlignment,
 	cross_axis_alignment: crystal::AxisAlignment,
 	_type: LayoutType
@@ -222,11 +221,6 @@ impl LayoutConfig{
 		self
 	}
 
-	pub fn constraints(mut self, constraints: crystal::BoxConstraints) -> Self{
-		self.constraints = constraints;
-		self
-	}
-
 	pub fn main_axis_alignment(mut self, main_axis_alignment:crystal::AxisAlignment) -> Self{
 		self.main_axis_alignment = main_axis_alignment;
 		self
@@ -249,6 +243,85 @@ pub struct WidgetBody{
 	layout: LayoutConfig,
 	primitive: Primitive,
 	children: Vec<Box<WidgetBody>>
+}
+
+impl WidgetBody{
+	/// Build the [`Widget`]'s layout from the [`LayoutConfig`]
+	fn layout(&self) -> Box<dyn Layout>{
+		let LayoutConfig { 
+			padding, 
+			spacing, 
+			scroll_offset, 
+			intrinsic_size, 
+			main_axis_alignment, 
+			cross_axis_alignment, 
+			_type 
+		} = self.layout;
+		
+		let layout: Box<dyn Layout> = match _type {
+			LayoutType::BlockLayout => {
+				let child = self.children[0].layout();	
+
+				let mut layout = BlockLayout::new(child);
+				layout.intrinsic_size = intrinsic_size;
+				layout.padding = padding;
+				layout.cross_axis_alignment = cross_axis_alignment;
+				layout.main_axis_alignment = main_axis_alignment;
+
+				Box::new(layout)
+			},
+			LayoutType::VerticalLayout => {
+				let children:Vec<Box<dyn Layout>> = self.children
+					.iter()
+					.map(|child|child.layout())
+					.collect();
+				
+				let layout = VerticalLayout{
+					id: self.id.clone(),
+					padding,
+					spacing,
+					scroll_offset,
+					intrinsic_size,
+					cross_axis_alignment,
+					main_axis_alignment,
+					children,
+					..Default::default()
+				};
+
+				Box::new(layout)
+			},
+			LayoutType::EmptyLayout => {
+				let layout = EmptyLayout{
+					id: self.id.clone(),
+					intrinsic_size,
+					..Default::default()
+				};
+
+				Box::new(layout)
+			},
+			LayoutType::HorizontalLayout => {
+				let children:Vec<Box<dyn Layout>> = self.children
+					.iter()
+					.map(|child|child.layout())
+					.collect();
+				
+				let layout = HorizontalLayout{
+					id: self.id.clone(),
+					padding,
+					spacing,
+					intrinsic_size,
+					cross_axis_alignment,
+					main_axis_alignment,
+					children,
+					..Default::default()
+				};
+
+				Box::new(layout)
+			},
+		};
+
+		layout
+	}
 }
 
 // TODO test this
@@ -432,4 +505,16 @@ macro_rules! impl_layout {
             self
         }
     };
+}
+
+#[cfg(test)]
+mod tests{
+    use crystal::BoxConstraints;
+
+    use super::*;
+
+	#[test]
+	fn build_layout_from_config(){
+		let config = LayoutConfig::new();
+	}
 }

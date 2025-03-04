@@ -107,7 +107,7 @@ pub struct Page {
 impl Page {
 	/// Create a new [`Page`]
     pub fn new(widget: impl Widget + 'static, renderer: &mut Renderer) -> Self {
-		let (mut layout,_) = widget.build(renderer);
+		let body = widget.build(renderer);
         Self {
             mouse_pos: Position::default(),
             layout: widget.layout(renderer),
@@ -130,17 +130,17 @@ impl Page {
 
 	/// Draw the [`Widgets`]
     fn draw(&mut self, renderer: &mut Renderer, size: Size) {
-        let widget_body = self.widget.build(renderer);
-        LayoutSolver::solve(&mut *layout, size);
+        // let widget_body = self.widget.build(renderer);
+        // LayoutSolver::solve(&mut *layout, size);
 
-		let primitives:Vec<Primitive> = self.widget.iter().map(|widget|{
-			let (_,primitive) = widget.build(renderer);
-			primitive
-		}).collect();
+		// let primitives:Vec<Primitive> = self.widget.iter().map(|widget|{
+		// 	let (_,primitive) = widget.build(renderer);
+		// 	primitive
+		// }).collect();
 
-		dbg!(&primitives);
+		// dbg!(&primitives);
 
-		renderer.draw(primitives);
+		// renderer.draw(primitives);
 		
 
 		// self.widget.iter().for_each(|w| {

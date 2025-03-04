@@ -144,6 +144,7 @@ pub enum AxisAlignment {
     End,
 }
 
+/// Describes the maximum and minimum size of a [`Layout`] 
 #[derive(Debug, Clone, Copy, Default, PartialEq,PartialOrd)]
 pub struct BoxConstraints {
     pub max_width: f32,
@@ -153,6 +154,7 @@ pub struct BoxConstraints {
 }
 
 impl BoxConstraints {
+	/// Create new [`BoxConstraints`]
     pub fn new() -> Self {
         Self::default()
     }
