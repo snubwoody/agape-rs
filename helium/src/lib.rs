@@ -108,9 +108,10 @@ impl Page {
 	/// Create a new [`Page`]
     pub fn new(widget: impl Widget + 'static, renderer: &mut Renderer) -> Self {
 		let body = widget.build(renderer);
+		let layout = body.layout();
         Self {
             mouse_pos: Position::default(),
-            layout: widget.layout(renderer),
+            layout,
             widget: Box::new(widget),
         }
     }
@@ -119,6 +120,7 @@ impl Page {
         self.widget.update();
     }
 
+	/// Dispatch the `winit` events to the `Widget`'s.
     fn dispatch_event(&mut self, event: &winit::event::WindowEvent) {
         match event {
             WindowEvent::CursorMoved { position, .. } => self.mouse_pos = Position::from(*position),
@@ -128,19 +130,22 @@ impl Page {
             .dispatch_event(self.mouse_pos, &*self.layout, event);
     }
 
-	/// Draw the [`Widgets`]
+	/// Draw the contents of the [`Page`] to the screen
     fn draw(&mut self, renderer: &mut Renderer, size: Size) {
-        // let widget_body = self.widget.build(renderer);
-        // LayoutSolver::solve(&mut *layout, size);
+        let widget_body = self.widget.build(renderer);
+		
+		// Solve the Layout tree
+		let mut layout = widget_body.layout();
+        LayoutSolver::solve(&mut *layout, size);
+		self.layout = layout;
 
-		// let primitives:Vec<Primitive> = self.widget.iter().map(|widget|{
-		// 	let (_,primitive) = widget.build(renderer);
-		// 	primitive
-		// }).collect();
-
-		// dbg!(&primitives);
-
-		// renderer.draw(primitives);
+		let mut primitives = vec![widget_body.primitive()];
+		primitives.extend(
+			widget_body.children().iter().map(|child|child.primitive())
+		);
+		
+		dbg!(&primitives);
+		renderer.draw(primitives);
 		
 
 		// self.widget.iter().for_each(|w| {

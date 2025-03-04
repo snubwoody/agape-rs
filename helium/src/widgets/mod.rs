@@ -246,8 +246,18 @@ pub struct WidgetBody{
 }
 
 impl WidgetBody{
+	/// Get the [`WidgetBody`]'s [`Primitive`] by cloning and returning it.
+	pub fn primitive(&self) -> Primitive{
+		self.primitive.clone()
+	}
+
+	/// Get the [`WidgetBody`]'s children
+	pub fn children(&self) -> &[Box<WidgetBody>]{
+		&self.children
+	}
+
 	/// Build the [`Widget`]'s layout from the [`LayoutConfig`]
-	fn layout(&self) -> Box<dyn Layout>{
+	pub fn layout(&self) -> Box<dyn Layout>{
 		let LayoutConfig { 
 			padding, 
 			spacing, 
@@ -509,12 +519,27 @@ macro_rules! impl_layout {
 
 #[cfg(test)]
 mod tests{
-    use crystal::BoxConstraints;
+    use crystal::{AxisAlignment, IntrinsicSize};
+    use helium_renderer::IntoPrimitive;
 
     use super::*;
 
-	#[test]
-	fn build_layout_from_config(){
-		let config = LayoutConfig::new();
-	}
+	// #[test]
+	// fn build_layout_from_config(){
+	// 	let config = LayoutConfig::vertical()
+	// 		.padding(12)
+	// 		.spacing(12)
+	// 		.cross_axis_alignment(AxisAlignment::End)
+	// 		.main_axis_alignment(AxisAlignment::End)
+	// 		.intrinsic_size(IntrinsicSize::fill());
+
+	// 	let primitive = helium_renderer::Rect::new(0.0, 0.0).into_primitive();
+
+	// 	let body = WidgetBody{
+	// 		id: String::default(),
+	// 		layout: config,
+	// 		primitive,
+	// 		children: vec![]
+	// 	};
+	// }
 }
