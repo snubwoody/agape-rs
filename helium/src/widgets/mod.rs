@@ -153,6 +153,31 @@ impl dyn Widget {
     }
 }
 
+// #[derive(Debug, Default, Clone, PartialEq)]
+// pub struct EmptyLayout {
+//     pub id: String,
+//     pub size: Size,
+//     pub position: Position,
+//     // TODO could probably just inline this
+//     pub intrinsic_size: IntrinsicSize,
+//     pub constraints: BoxContraints,
+//     pub errors: Vec<crate::LayoutError>,
+// }
+
+#[derive(Debug,PartialEq, PartialOrd)]
+pub enum LayoutConfig{
+	VerticalLayout{},
+	HorizontalLayout{},
+	BlockLayout{},
+	EmptyLayout{},
+}
+
+pub struct WidgetBody{
+	id: String,
+	layout: Box<dyn Layout>,
+	primitive: Primitive
+}
+
 // TODO test this
 /// An iterator for the [`Widget`] tree.
 pub struct WidgetIter<'a> {

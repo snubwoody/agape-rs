@@ -1,8 +1,8 @@
-use super::Widget;
+use super::{Widget, WidgetBody};
 use crate::Color;
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use helium_core::{colors::WHITE, IntoColor, Rgba};
-use helium_renderer::IntoPrimitive;
+use helium_renderer::{Circle, IntoPrimitive};
 use nanoid::nanoid;
 
 // TODO add BoxStyle struct
@@ -63,6 +63,11 @@ impl Widget for Rect {
 		let mut layout = EmptyLayout::new();
         layout.intrinsic_size = self.intrinsic_size;
         layout.id = self.id.clone();
+
+		WidgetBody{
+			layout:Box::new(layout.clone()),
+			primitive: Circle::new(20.0).into_primitive()
+		};
 
 		let primitive = helium_renderer::Rect::new(layout.size().width, layout.size().height)
                 .position(layout.position().x, layout.position().y)
