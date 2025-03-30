@@ -19,6 +19,25 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::{Window, WindowBuilder},
 };
+
+/// An `App` is a convience structure that manages
+/// the window and event loop, allowing you to simply
+/// use the renderer directly.
+/// 
+/// # Example
+/// ```no_run
+/// use ruby::{App,Result,RectSurface};
+/// 
+/// #[tokio::main]
+/// async fn main() -> ruby::Result<()>{
+/// 	let app = App::new()?;
+/// 	app.run(|r|{
+/// 		r.draw([RectSurface::new(300.0,300.0)]);
+/// 	}).await?;
+/// 
+/// 	Ok(())
+/// }
+/// ```
 pub struct App {
     event_loop: EventLoop<()>,
     window: Window,
@@ -41,8 +60,7 @@ impl App {
         })
     }
 
-    // FIXME app panics if there are no views
-    pub async fn run(mut self, mut f: impl FnMut(&mut Renderer)) -> Result<()> {
+    pub async fn run(self, mut f: impl FnMut(&mut Renderer)) -> Result<()> {
         self.window.set_visible(true);
 
         let mut renderer = Renderer::new(&self.window).await;
@@ -144,10 +162,13 @@ impl<'r> Renderer<'r> {
 
         surface.configure(&device, &config);
 
+		// TODO I think wgpu updated so that you can 
+		// just clone the resources directly.
         let global = Rc::new(GlobalResources::new(
             &device,
             Size::from(window.inner_size()),
         ));
+
         let rect_pipeline = RectPipeline::new(&device, config.format, Rc::clone(&global));
         let circle_pipeline = CirclePipeline::new(&device, config.format, Rc::clone(&global));
         let text_pipeline = TextPipeline::new(&device, config.format, Rc::clone(&global));
