@@ -4,7 +4,7 @@ mod pipeline;
 mod primitives;
 mod vertex;
 pub use error::{Error,Result};
-use helium_core::Size;
+use helium_core::{IntoColor, Rgba, Size};
 use pipeline::{
     CirclePipeline, GlobalResources, IconPipeline, ImagePipeline, RectPipeline, TextPipeline,
 };
@@ -149,6 +149,7 @@ impl<'r> Renderer<'r> {
             .copied()
             .unwrap_or(surface_caps.formats[0]);
 
+		// TODO expose this to the user?
         let config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
             format: surface_format,
@@ -207,6 +208,14 @@ impl<'r> Renderer<'r> {
         self.surface.configure(&self.device, &self.config);
     }
 
+	pub fn draw_square(&mut self, size: f32,color: impl IntoColor<Rgba>,radius: f32){
+		let rect = RectSurface::new(size, size)
+			.color(color)
+			.corner_radius(radius);
+
+		self.draw_queue.push(primitives::Surface::Rect(rect));
+	}
+
     /// Add primitives to the draw queue
     pub fn draw<I, P>(&mut self, primitives: I)
     where
@@ -250,44 +259,27 @@ impl<'r> Renderer<'r> {
             timestamp_writes: None,
         });
 
-        // TODO maybe return these?
-        let mut rect_trace = Duration::new(0, 0);
-        let mut circle_trace = Duration::new(0, 0);
-        let mut text_trace = Duration::new(0, 0);
-        let mut icon_trace = Duration::new(0, 0);
-        let mut image_trace = Duration::new(0, 0);
-
         for primitive in self.draw_queue.drain(..) {
             match primitive {
                 Surface::Rect(rect) => {
-                    let instant = Instant::now();
                     self.rect_pipeline
                         .draw(&rect, &self.device, &mut render_pass);
-                    rect_trace += instant.elapsed();
                 }
                 Surface::Circle(circle) => {
-                    let instant = Instant::now();
                     self.circle_pipeline
                         .draw(&circle, &self.device, &mut render_pass);
-                    circle_trace += instant.elapsed();
                 }
                 Surface::Text(text) => {
-                    let instant = Instant::now();
                     self.text_pipeline
                         .draw(&text, &self.queue, &self.device, &mut render_pass);
-                    text_trace += instant.elapsed();
                 }
                 Surface::Image(image) => {
-                    let instant = Instant::now();
                     self.image_pipeline
                         .draw(&image, &self.queue, &self.device, &mut render_pass);
-                    image_trace += instant.elapsed();
                 }
                 Surface::Icon(icon) => {
-                    let instant = Instant::now();
                     self.icon_pipeline
                         .draw(&icon, &self.queue, &self.device, &mut render_pass);
-                    icon_trace += instant.elapsed();
                 }
             }
         }
@@ -297,16 +289,6 @@ impl<'r> Renderer<'r> {
 
         self.queue.submit(std::iter::once(encoder.finish()));
         output.present();
-
-        let mut trace = format!("\nFrame time: {:?}\n", instant.elapsed());
-        trace += "Trace\n";
-        trace += &format!("Icon Pipeline: {icon_trace:?}\n");
-        trace += &format!("Image Pipeline: {image_trace:?}\n");
-        trace += &format!("Text Pipeline: {text_trace:?}\n");
-        trace += &format!("Rect Pipeline: {rect_trace:?}\n");
-        trace += &format!("Circle Pipeline: {circle_trace:?}\n");
-
-        //log::trace!("{trace}");
     }
 }
 
