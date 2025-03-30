@@ -6,6 +6,7 @@ edition = "2024"
 [dev-dependencies]
 helium = { path = "../helium", features = ["icon-sets"]}
 helium_renderer = {path = "../helium_renderer"}
+ruby = {path = "../ruby"}
 env_logger.workspace = true
 log = "0.4.22"
 tokio.workspace = true
