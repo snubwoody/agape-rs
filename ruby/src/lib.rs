@@ -25,21 +25,20 @@ pub struct App {
 }
 
 impl App {
-    pub fn new() -> Self {
+    pub fn new() -> Result<Self> {
         // FIXME handle the errors
-        let event_loop = EventLoop::new().unwrap();
+        let event_loop = EventLoop::new()?;
         event_loop.set_control_flow(ControlFlow::Poll);
 
 		// Set the window to invisible at startup to prevent flashes
         let window = WindowBuilder::new()
             .with_visible(false)
-            .build(&event_loop)
-            .unwrap();
+            .build(&event_loop)?;
 
-        Self {
+        Ok(Self {
             event_loop,
             window,
-        }
+        })
     }
 
     // FIXME app panics if there are no views
