@@ -11,7 +11,9 @@ const SPOTIFY_GREEN: Color<Rgba> = Color::rgb(0, 255, 0);
 // TODO theres some sizes that are making the icons pixelated, very weird
 #[tokio::main]
 async fn main() -> Result<(), helium::Error> {
-    std::env::set_var("RUST_LOG", "warn,helium_renderer=trace");
+	unsafe {
+		std::env::set_var("RUST_LOG", "warn,helium_renderer=trace");
+	}
     env_logger::init();
 
     let announcements = Rect::new(0.0, 400.0)

@@ -55,7 +55,9 @@ impl Counter {
 
 #[tokio::main]
 async fn main() -> Result<(), helium::Error> {
-    std::env::set_var("RUST_LOG", "error,helium=trace");
+	unsafe {
+		std::env::set_var("RUST_LOG", "error,helium=trace");
+	}
     env_logger::init();
 
 	// let counter = Counter::new();

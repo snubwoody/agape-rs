@@ -6,7 +6,9 @@ use winit::{event::WindowEvent, event_loop::EventLoop, window::WindowBuilder};
 
 #[tokio::main]
 async fn main() {
-    std::env::set_var("RUST_LOG", "warn,helium_renderer=trace");
+	unsafe {
+		std::env::set_var("RUST_LOG", "warn,helium_renderer=trace");
+	}
     env_logger::init();
     let event_loop = EventLoop::new().unwrap();
 
