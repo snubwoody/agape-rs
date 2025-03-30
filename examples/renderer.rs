@@ -1,7 +1,7 @@
 use std::time::Instant;
 
-use helium_renderer::{Image, Renderer, Text};
-use image::{load_from_memory, DynamicImage, ImageBuffer, Rgba};
+use helium_renderer::{ImageSurface, Renderer, TextSurface};
+use image::load_from_memory;
 use winit::{event::WindowEvent, event_loop::EventLoop, window::WindowBuilder};
 
 #[tokio::main]
@@ -19,11 +19,11 @@ async fn main() {
     let image2 = load_from_memory(include_bytes!("spotify/Drake_-_So_Far_Gone_cover.png")).unwrap();
 
     let images = [
-        Image::new(image1.to_rgba8()).size(250.0, 250.0),
-        Image::new(image2.to_rgba8())
+        ImageSurface::new(image1.to_rgba8()).size(250.0, 250.0),
+        ImageSurface::new(image2.to_rgba8())
             .size(250.0, 250.0)
             .position(300.0, 0.0),
-        Image::new(image2.to_rgba8())
+        ImageSurface::new(image2.to_rgba8())
             .size(250.0, 250.0)
             .position(0.0, 300.0),
     ];

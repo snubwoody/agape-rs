@@ -1,0 +1,19 @@
+[package]
+name = "helium_renderer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+helium_core = {path = "../helium_core"}
+crystal = {path = "../crystal"}
+wgpu.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+winit.workspace = true
+bytemuck.workspace = true
+log.workspace = true
+image.workspace = true
+cosmic-text = "0.12.1"
+fontdue = "0.9.2"
+fontdb = "0.23.0"
+ab_glyph = "0.2.29"
