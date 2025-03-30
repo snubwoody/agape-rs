@@ -1,5 +1,7 @@
 use thiserror::Error;
 
+pub type Result<T> = std::result::Result<T,Error>;
+
 #[derive(Debug, Clone, Error, PartialEq, Eq)]
 pub enum Error {
     /// A resource was not found at it's expected location.  
