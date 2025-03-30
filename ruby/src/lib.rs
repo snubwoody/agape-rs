@@ -16,6 +16,70 @@ use std::{
 pub use vertex::Vertex;
 use winit::window::Window;
 
+pub struct App {
+    event_loop: EventLoop<()>,
+    window: Window,
+    pages: Vec<Page>,
+    index: usize,
+}
+
+impl App {
+    pub fn new() -> Self {
+        // FIXME handle the errors
+        let event_loop = EventLoop::new().unwrap();
+        event_loop.set_control_flow(ControlFlow::Poll);
+
+        let window = WindowBuilder::new()
+            .with_visible(false)
+            .build(&event_loop)
+            .unwrap();
+
+        Self {
+            event_loop,
+            window,
+            pages: vec![],
+            index: 0,
+        }
+    }
+
+    // FIXME app panics if there are no views
+    pub async fn run(mut self, f: impl FnMut(&mut Renderer)) -> Result<()> {
+        self.window.set_visible(true);
+
+        let mut renderer = Renderer::new(&self.window).await;
+        log::info!("Running app");
+
+        let mut size = Size::from(self.window.inner_size());
+
+        self.event_loop.run(|event, window_target| {
+            match event {
+                winit::event::Event::WindowEvent { event, .. } => match event {
+                    WindowEvent::CloseRequested => window_target.exit(),
+                    WindowEvent::RedrawRequested => {
+                        f(renderer);
+                        renderer.render();
+                    }
+                    WindowEvent::Resized(window_size) => {
+                        size = Size::from(window_size);
+                        renderer.resize(window_size.into());
+                        // I think resizing already causes a redraw request but i'm not sure
+                        self.window.request_redraw();
+                    }
+                    event => {
+                        self.pages[self.index].dispatch_event(&event);
+                        self.window.request_redraw();
+                    }
+                },
+                _ => {
+                    self.window.request_redraw();
+                }
+            }
+        })?;
+
+        Ok(())
+    }
+}
+
 pub struct Renderer<'r> {
     surface: wgpu::Surface<'r>,
     device: wgpu::Device,

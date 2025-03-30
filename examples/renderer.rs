@@ -13,7 +13,7 @@ async fn main() {
     let event_loop = EventLoop::new().unwrap();
 
     let window = WindowBuilder::new().build(&event_loop).unwrap();
-
+	
     let mut renderer = Renderer::new(&window).await;
 
     let image1 = load_from_memory(include_bytes!("spotify/COLOURS - PARTYNEXTDOOR.jpg")).unwrap();
