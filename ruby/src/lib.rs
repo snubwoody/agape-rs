@@ -4,7 +4,7 @@ mod pipeline;
 mod primitives;
 mod vertex;
 pub use error::{Error,Result};
-use helium_core::{IntoColor, Rgba, Size};
+pub use helium_core::{IntoColor, Rgba, Size,Color};
 use pipeline::{
     CirclePipeline, GlobalResources, IconPipeline, ImagePipeline, RectPipeline, TextPipeline,
 };
