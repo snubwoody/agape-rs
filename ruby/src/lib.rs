@@ -4,7 +4,7 @@ mod pipeline;
 mod primitives;
 mod vertex;
 pub use error::{Error,Result};
-use helium_core::{IntoColor, Rgba, Size};
+pub use helium_core::{IntoColor, Rgba, Size,Color};
 use pipeline::{
     CirclePipeline, GlobalResources, IconPipeline, ImagePipeline, RectPipeline, TextPipeline,
 };
@@ -259,6 +259,7 @@ impl<'r> Renderer<'r> {
             timestamp_writes: None,
         });
 
+		// TODO give all the pipelines their own draw_queue
         for primitive in self.draw_queue.drain(..) {
             match primitive {
                 Surface::Rect(rect) => {
