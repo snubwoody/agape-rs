@@ -3,7 +3,7 @@ mod error;
 mod pipeline;
 mod primitives;
 mod vertex;
-pub use error::Error;
+pub use error::{Error,Result};
 use helium_core::Size;
 use pipeline::{
     CirclePipeline, GlobalResources, IconPipeline, ImagePipeline, RectPipeline, TextPipeline,
@@ -14,13 +14,14 @@ use std::{
     time::{Duration, Instant},
 };
 pub use vertex::Vertex;
-use winit::window::Window;
-
+use winit::{
+    event::WindowEvent,
+    event_loop::{ControlFlow, EventLoop},
+    window::{Window, WindowBuilder},
+};
 pub struct App {
     event_loop: EventLoop<()>,
     window: Window,
-    pages: Vec<Page>,
-    index: usize,
 }
 
 impl App {
@@ -29,6 +30,7 @@ impl App {
         let event_loop = EventLoop::new().unwrap();
         event_loop.set_control_flow(ControlFlow::Poll);
 
+		// Set the window to invisible at startup to prevent flashes
         let window = WindowBuilder::new()
             .with_visible(false)
             .build(&event_loop)
@@ -37,13 +39,11 @@ impl App {
         Self {
             event_loop,
             window,
-            pages: vec![],
-            index: 0,
         }
     }
 
     // FIXME app panics if there are no views
-    pub async fn run(mut self, f: impl FnMut(&mut Renderer)) -> Result<()> {
+    pub async fn run(mut self, mut f: impl FnMut(&mut Renderer)) -> Result<()> {
         self.window.set_visible(true);
 
         let mut renderer = Renderer::new(&self.window).await;
@@ -56,7 +56,7 @@ impl App {
                 winit::event::Event::WindowEvent { event, .. } => match event {
                     WindowEvent::CloseRequested => window_target.exit(),
                     WindowEvent::RedrawRequested => {
-                        f(renderer);
+                        f(&mut renderer);
                         renderer.render();
                     }
                     WindowEvent::Resized(window_size) => {
@@ -66,7 +66,6 @@ impl App {
                         self.window.request_redraw();
                     }
                     event => {
-                        self.pages[self.index].dispatch_event(&event);
                         self.window.request_redraw();
                     }
                 },
@@ -74,7 +73,7 @@ impl App {
                     self.window.request_redraw();
                 }
             }
-        })?;
+        }).unwrap();
 
         Ok(())
     }
