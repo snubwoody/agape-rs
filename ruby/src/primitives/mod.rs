@@ -7,12 +7,11 @@ pub use circle::Circle;
 pub use icon::Icon;
 pub use image::Image;
 pub use rect::RectSurface;
-pub use text::TextSurface;
+pub use text::Text;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Surface {
     Rect(RectSurface),
-    Text(TextSurface),
 }
 
 pub trait IntoSurface {

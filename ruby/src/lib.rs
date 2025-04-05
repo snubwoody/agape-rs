@@ -194,10 +194,6 @@ impl<'r> Renderer<'r> {
         })
     }
 
-    pub fn text_size(&mut self, text: &TextSurface) -> Size {
-        self.text_pipeline.text_size(text)
-    }
-
     pub fn resize(&mut self, size: Size) {
         self.config.width = size.width as u32;
         self.config.height = size.height as u32;
@@ -279,10 +275,6 @@ impl<'r> Renderer<'r> {
                 Surface::Rect(rect) => {
                     self.rect_pipeline
                         .draw(&rect, &self.device, &mut render_pass);
-                }
-                Surface::Text(text) => {
-                    self.text_pipeline
-                        .draw(&text, &self.queue, &self.device, &mut render_pass);
                 }
             }
         }

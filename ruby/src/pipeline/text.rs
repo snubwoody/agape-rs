@@ -4,7 +4,7 @@ use crate::{
         BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, TextureBuilder,
         VertexBufferLayoutBuilder,
     },
-    primitives::TextSurface,
+    primitives::Text,
     vertex::Vertex,
 };
 use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, SwashCache};
@@ -117,7 +117,7 @@ impl TextPipeline {
     }
 
 	/// Get the [`Size`] of a string of text
-    pub fn text_size(&mut self, text: &TextSurface) -> Size {
+    pub fn text_size(&mut self, text: &Text) -> Size {
         let font_system = &mut self.font_system;
 
         let mut buffer = Buffer::new(
@@ -155,7 +155,7 @@ impl TextPipeline {
 
     /// Uses `comsic-text` to rasterize the font into a an image, which
     /// will then be written to a `wgpu::Buffer`.
-    fn rasterize_text(&mut self, text: &TextSurface) -> (ImageBuffer<Rgba<u8>, Vec<u8>>, Size) {
+    fn rasterize_text(&mut self, text: &Text) -> (ImageBuffer<Rgba<u8>, Vec<u8>>, Size) {
         // FIXME there's some artifacts appearing on the texture.
         let font_system = &mut self.font_system;
         let cache = &mut self.cache;
@@ -215,7 +215,7 @@ impl TextPipeline {
 
     pub fn draw(
         &mut self,
-        text: &TextSurface,
+        text: &Text,
         queue: &wgpu::Queue,
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
@@ -291,10 +291,10 @@ mod tests {
 
         let mut pipeline = TextPipeline::new(&device, format, global);
         let text_queue = [
-            TextSurface::new("Hello world").line_height(20.0),
-            TextSurface::new("Hello world").font_size(255),
-            TextSurface::new("Hi mom!"),
-            TextSurface::new("Click me please! You might get a treat")
+            Text::new("Hello world").line_height(20.0),
+            Text::new("Hello world").font_size(255),
+            Text::new("Hi mom!"),
+            Text::new("Click me please! You might get a treat")
                 .line_height(2.0)
                 .font_size(24),
         ];
