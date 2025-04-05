@@ -63,7 +63,7 @@ impl App {
     pub async fn run(self, mut f: impl FnMut(&mut Renderer)) -> Result<()> {
         self.window.set_visible(true);
 
-        let mut renderer = Renderer::new(&self.window).await;
+        let mut renderer = Renderer::new(&self.window).await?;
         log::info!("Running app");
 
         let mut size = Size::from(self.window.inner_size());
@@ -111,7 +111,8 @@ pub struct Renderer<'r> {
 }
 
 impl<'r> Renderer<'r> {
-    pub async fn new(window: &'r Window) -> Self {
+	// TODO use tokio blocking and remove async
+    pub async fn new(window: &'r Window) -> crate::Result<Self> {
         let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
             backends: wgpu::Backends::PRIMARY,
             ..Default::default()
@@ -119,14 +120,17 @@ impl<'r> Renderer<'r> {
 
         let surface = instance.create_surface(window).unwrap();
 
+		tokio::task::spawn_blocking(||{
+
+		});
+
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: Default::default(),
                 compatible_surface: Some(&surface),
                 force_fallback_adapter: false,
             })
-            .await
-            .unwrap(); // FIXME return these errors
+            .await.unwrap(); // FIXME create custom
 
         let (device, queue) = adapter
             .request_device(
@@ -137,8 +141,7 @@ impl<'r> Renderer<'r> {
                 },
                 None,
             )
-            .await
-            .unwrap();
+            .await?;
 
         let surface_caps = surface.get_capabilities(&adapter);
 
@@ -176,7 +179,7 @@ impl<'r> Renderer<'r> {
         let image_pipeline = ImagePipeline::new(&device, config.format, Rc::clone(&global));
         let icon_pipeline = IconPipeline::new(&device, config.format, Rc::clone(&global));
 
-        Self {
+        Ok(Self {
             surface,
             device,
             queue,
@@ -188,7 +191,7 @@ impl<'r> Renderer<'r> {
             icon_pipeline,
             global,
             draw_queue: vec![],
-        }
+        })
     }
 
     pub fn text_size(&mut self, text: &TextSurface) -> Size {
@@ -352,4 +355,9 @@ mod tests {
     async fn setup_works() {
         let (_device, _queue) = setup().await;
     }
+
+	#[tokio::test]
+	async fn all_pipelines_used_in_renderer(){
+
+	}
 }
