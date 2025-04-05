@@ -11,7 +11,7 @@ use pipeline::{
 pub use primitives::*;
 use std::{
     rc::Rc,
-    time::{Duration, Instant},
+    time::Instant,
 };
 pub use vertex::Vertex;
 use winit::{
@@ -224,6 +224,10 @@ impl<'r> Renderer<'r> {
 		self.icon_pipeline.draw(icon);
 	}
 
+	pub fn draw_circle(&mut self, circle: primitives::Circle){
+		self.circle_pipeline.draw(circle);
+	}
+
     /// Add primitives to the draw queue
     pub fn draw<I, P>(&mut self, primitives: I)
     where
@@ -282,6 +286,7 @@ impl<'r> Renderer<'r> {
 
 		self.icon_pipeline.render(&self.queue, &self.device, &mut render_pass);
 		self.image_pipeline.render(&self.queue, &self.device, &mut render_pass);
+		self.circle_pipeline.render(&self.device, &mut render_pass);
 
 
         // Drop the render pass because it borrows encoder mutably

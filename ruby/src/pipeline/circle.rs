@@ -14,6 +14,7 @@ pub struct CirclePipeline {
     pipeline: wgpu::RenderPipeline,
     layout: wgpu::BindGroupLayout,
     global: Rc<GlobalResources>,
+	draw_queue: Vec<Circle>
 }
 
 impl CirclePipeline {
@@ -89,43 +90,50 @@ impl CirclePipeline {
             pipeline,
             layout,
             global,
+			draw_queue: Vec::new()
         }
     }
 
-    pub fn draw(&mut self, circle: &Circle, device: &wgpu::Device, pass: &mut wgpu::RenderPass) {
-        let vertices = Vertex::quad(Size::unit(circle.diameter), circle.position, circle.color.clone());
+	pub fn draw(&mut self, circle: Circle){
+		self.draw_queue.push(circle);
+	}	
 
-        let vertex_buffer = BufferBuilder::new()
-            .label("Circle vertex buffer")
-            .vertex()
-            .init(&vertices)
-            .build(device);
+    pub fn render(&mut self, device: &wgpu::Device, pass: &mut wgpu::RenderPass) {
+		for circle in self.draw_queue.drain(..){
+			let vertices = Vertex::quad(Size::unit(circle.diameter), circle.position, circle.color.clone());
 
-        let diameter = BufferBuilder::new()
-            .label("Circle diameter buffer")
-            .uniform()
-            .copy_dst()
-            .init(&[circle.diameter])
-            .build(device);
-
-        let position = BufferBuilder::new()
-            .label("Rect position buffer")
-            .uniform()
-            .copy_dst()
-            .init(&[circle.position])
-            .build(device);
-
-        let rect_bind_group = BindGroupBuilder::new()
-            .label("Rect bind group")
-            .buffer(&diameter)
-            .buffer(&position)
-            .build(&self.layout, device);
-
-        pass.set_pipeline(&self.pipeline);
-        pass.set_bind_group(0, self.global.window_bind_group(), &[]);
-        pass.set_bind_group(1, &rect_bind_group, &[]);
-        pass.set_vertex_buffer(0, vertex_buffer.slice(..));
-
-        pass.draw(0..vertices.len() as u32, 0..1);
+			let vertex_buffer = BufferBuilder::new()
+				.label("Circle vertex buffer")
+				.vertex()
+				.init(&vertices)
+				.build(device);
+	
+			let diameter = BufferBuilder::new()
+				.label("Circle diameter buffer")
+				.uniform()
+				.copy_dst()
+				.init(&[circle.diameter])
+				.build(device);
+	
+			let position = BufferBuilder::new()
+				.label("Rect position buffer")
+				.uniform()
+				.copy_dst()
+				.init(&[circle.position])
+				.build(device);
+	
+			let rect_bind_group = BindGroupBuilder::new()
+				.label("Rect bind group")
+				.buffer(&diameter)
+				.buffer(&position)
+				.build(&self.layout, device);
+	
+			pass.set_pipeline(&self.pipeline);
+			pass.set_bind_group(0, self.global.window_bind_group(), &[]);
+			pass.set_bind_group(1, &rect_bind_group, &[]);
+			pass.set_vertex_buffer(0, vertex_buffer.slice(..));
+	
+			pass.draw(0..vertices.len() as u32, 0..1);
+		}
     }
 }
