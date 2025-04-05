@@ -188,7 +188,7 @@ impl TextPipeline {
         }
 
         // Add padding to prevent clipping
-        size += 1.0; // TODO change to 1.0
+        size += 1.0;
 
         let (r, g, b, a) = text.color.inner();
 
