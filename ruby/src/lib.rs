@@ -1,3 +1,4 @@
+//! General purpose native 2D renderer 
 mod builders;
 mod error;
 mod pipeline;
@@ -9,9 +10,7 @@ use pipeline::{
     CirclePipeline, GlobalResources, IconPipeline, ImagePipeline, RectPipeline, TextPipeline,
 };
 pub use primitives::*;
-use std::{
-    rc::Rc,
-};
+use std::rc::Rc;
 pub use vertex::Vertex;
 use winit::{
     event::WindowEvent,
