@@ -47,3 +47,18 @@ impl std::fmt::Debug for Image{
 			.finish()
 	}
 }
+
+
+#[cfg(test)]
+mod tests{
+    use super::*;
+
+	#[test]
+	fn image_min_size(){
+		let data = image::DynamicImage::new(0, 0, image::ColorType::Rgba16);
+		let image = Image::new(data.into())
+			.size(-1.0, -1.0);
+
+		assert_eq!(image.size,Size::unit(1.0));
+	}
+}
