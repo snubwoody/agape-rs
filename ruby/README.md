@@ -9,11 +9,6 @@ use ruby::{Color, Rect};
 
 #[tokio::main]
 async fn main() -> ruby::Result<()> {
-    unsafe {
-        std::env::set_var("RUST_LOG", "warn,helium_renderer=trace");
-    }
-    env_logger::init();
-    
     let app = ruby::App::new()?;
     
     app.run(move |r|{
@@ -25,6 +20,8 @@ async fn main() -> ruby::Result<()> {
 }
 
 ```
+
+## Features
 
 ## Primitives
 
