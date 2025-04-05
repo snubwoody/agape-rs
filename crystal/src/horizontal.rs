@@ -1,5 +1,5 @@
 use crate::{
-    AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter,
+    AxisAlignment, BoxConstraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter,
 };
 use helium_core::{Position, Size};
 
@@ -12,7 +12,7 @@ pub struct HorizontalLayout {
     pub position: Position,
     pub spacing: u32,
     pub padding: u32,
-    pub constraints: BoxContraints,
+    pub constraints: BoxConstraints,
     pub intrinsic_size: IntrinsicSize,
     /// The main axis is the axis which the content flows in, for the [`HorizontalLayout`]
     /// main axis is the `x-axis`
@@ -137,6 +137,10 @@ impl Layout for HorizontalLayout {
         &self.id
     }
 
+	fn set_id(&mut self,id: &str) {
+		self.id = id.to_string();
+	}
+	
     fn set_position(&mut self, position: Position) {
         self.position = position;
     }
@@ -161,7 +165,7 @@ impl Layout for HorizontalLayout {
         self.children.as_slice()
     }
 
-    fn constraints(&self) -> BoxContraints {
+    fn constraints(&self) -> BoxConstraints {
         self.constraints
     }
 

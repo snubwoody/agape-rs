@@ -1,11 +1,8 @@
-use super::{Modifiers, Widget};
-use crate::{
-    colors::tailwind_colors::{NEUTRAL100, NEUTRAL200},
-    impl_modifiers,
-};
-use crystal::EmptyLayout;
-use helium_core::Color;
-use helium_renderer::Rect;
+use super::{LayoutConfig, LayoutType, Modifiers, Widget, WidgetBody};
+use crate::impl_modifiers;
+use crystal::{EmptyLayout, Layout};
+use helium_core::{Color, IntoColor, Rgba};
+use helium_renderer::{IntoSurface, RectSurface, TextSurface};
 
 /// Contains editable text
 pub struct TextField {
@@ -13,8 +10,8 @@ pub struct TextField {
     text: String,
     focused: bool,
     /// The background color when this widget is focused.
-    pub focus_background_color: Color,
-    pub background_color: Color,
+    pub focus_background_color: Color<Rgba>,
+    pub background_color: Color<Rgba>,
     pub corner_radius: u32,
     modifiers: Modifiers,
 }
@@ -25,8 +22,8 @@ impl TextField {
             id: nanoid::nanoid!(),
             text: String::default(),
             focused: false,
-            focus_background_color: NEUTRAL200,
-            background_color: NEUTRAL100,
+            focus_background_color: Color::rgb(221, 218, 218),
+            background_color: Color::rgb(239, 237, 237),
             corner_radius: 0,
             modifiers: Modifiers::new(),
         }
@@ -42,14 +39,14 @@ impl TextField {
     }
 
     /// Set the background color of the [`TextField`] when it is focused.
-    pub fn focus_background_color(mut self, focus_background_color: Color) -> Self {
-        self.focus_background_color = focus_background_color;
+    pub fn focus_background_color(mut self, focus_background_color: impl IntoColor<Rgba>) -> Self {
+        self.focus_background_color = focus_background_color.into_color();
         self
     }
 
     /// Set the background color of the [`TextField`].
-    pub fn background_color(mut self, background_color: Color) -> Self {
-        self.background_color = background_color;
+    pub fn background_color(mut self, background_color: impl IntoColor<Rgba>) -> Self {
+        self.background_color = background_color.into_color();
         self
     }
 
@@ -93,6 +90,38 @@ impl Widget for TextField {
         }
     }
 
+	fn build(&self,_renderer: &mut helium_renderer::Renderer) -> WidgetBody {
+		let mut layout = EmptyLayout::new();
+        layout.id = self.id.clone();
+        layout.intrinsic_size = self.modifiers.intrinsic_size;
+		
+		let background_color = match self.focused {
+			true => self.focus_background_color.clone(),
+            false => self.background_color.clone(),
+        };
+
+		// FIXME replace child with text
+        let primitive = RectSurface::new(350.0,250.0)
+			.color(background_color)
+            .corner_radius(self.corner_radius as f32)
+			.into_surface();
+		
+		let text_primitive = TextSurface::new(&self.text)
+                .position(layout.position().x + 16.0, layout.position().y + 16.0)
+				.into_surface(); // TODO replace this with a layout
+
+		let layout = LayoutConfig::new()
+			.layout(LayoutType::EmptyLayout)
+			.intrinsic_size(self.modifiers.intrinsic_size);
+
+		WidgetBody{
+			id:self.id.clone(),
+			primitive,
+			layout,
+			children: vec![]
+		}
+	}
+
     fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn crystal::Layout> {
         let mut layout = EmptyLayout::new();
         layout.id = self.id.clone();
@@ -102,11 +131,11 @@ impl Widget for TextField {
 
     fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
         let background_color = match self.focused {
-            true => self.focus_background_color,
-            false => self.background_color,
+            true => self.focus_background_color.clone(),
+            false => self.background_color.clone(),
         };
 
-        renderer.draw([Rect::from(layout)
+        renderer.draw([RectSurface::from(layout)
             .color(background_color)
             .corner_radius(self.corner_radius as f32)]);
 
@@ -116,7 +145,7 @@ impl Widget for TextField {
         }
 
         renderer.draw([
-            helium_renderer::Text::new(&self.text)
+            helium_renderer::TextSurface::new(&self.text)
                 .position(layout.position().x + 16.0, layout.position().y + 16.0), // TODO replace this with a layout
         ]);
 

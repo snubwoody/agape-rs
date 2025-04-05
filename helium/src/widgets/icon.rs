@@ -1,7 +1,8 @@
-use super::Widget;
+use super::{LayoutConfig, Widget, WidgetBody};
 use crate::impl_layout;
-use crystal::{BoxSizing, EmptyLayout};
-use helium_core::Color;
+use crystal::{BoxSizing, EmptyLayout, Layout};
+use helium_core::{Color, IntoColor, Rgba};
+use helium_renderer::IntoSurface;
 use image::GenericImageView;
 use resvg::tiny_skia::Pixmap;
 use std::fs;
@@ -10,6 +11,7 @@ use std::fs;
 // TODO add this behind a feature flag since it increased binary size
 #[cfg(feature = "feather-icons")]
 pub mod feather_icons {
+	// TODO move this to icons module
     use helium_macros::include_icons;
 
     // The path is relative to the root crate
@@ -20,7 +22,7 @@ pub struct Icon {
     id: String,
     image: image::DynamicImage,
     layout: crystal::EmptyLayout,
-    color: Color,
+    color: Color<Rgba>,
 }
 
 impl Icon {
@@ -53,7 +55,7 @@ impl Icon {
             id,
             image,
             layout,
-            color: Color::Rgb(0, 0, 0),
+            color: Color::rgb(0, 0, 0),
         }
     }
 
@@ -85,12 +87,12 @@ impl Icon {
             id,
             image,
             layout,
-            color: Color::Rgb(0, 0, 0),
+            color: Color::rgb(0, 0, 0),
         }
     }
 
-    pub fn color(mut self, color: Color) -> Self {
-        self.color = color;
+    pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
+        self.color = color.into_color();
         self
     }
 
@@ -102,13 +104,29 @@ impl Widget for Icon {
         &self.id
     }
 
+	fn build(&self,_renderer: &mut helium_renderer::Renderer) -> WidgetBody {
+		let primitive = helium_renderer::IconSurface::new(self.image.clone())
+            .color(self.color.clone())
+			.into_surface();
+
+		// FIXME
+		let layout = LayoutConfig::new();
+
+		WidgetBody{
+			id: self.id.clone(),
+			layout,
+			primitive,
+			children: vec![]
+		}
+	}
+
     fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn crystal::Layout> {
         Box::new(self.layout.clone())
     }
 
     fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
-        renderer.draw([helium_renderer::Icon::new(self.image.clone())
-            .color(self.color)
+        renderer.draw([helium_renderer::IconSurface::new(self.image.clone())
+            .color(self.color.clone())
             .position(layout.position().x, layout.position().y)]);
     }
 }

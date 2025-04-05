@@ -1,5 +1,5 @@
 use crate::{
-    error::OverflowAxis, AxisAlignment, BoxContraints, BoxSizing, IntrinsicSize, Layout,
+    error::OverflowAxis, AxisAlignment, BoxConstraints, BoxSizing, IntrinsicSize, Layout,
     LayoutError, LayoutIter,
 };
 use helium_core::{Position, Size};
@@ -22,7 +22,7 @@ pub struct VerticalLayout {
     pub main_axis_alignment: AxisAlignment,
     /// The cross axis is the `x-axis`
     pub cross_axis_alignment: AxisAlignment,
-    pub constraints: BoxContraints,
+    pub constraints: BoxConstraints,
     pub errors: Vec<crate::LayoutError>,
 }
 
@@ -160,6 +160,10 @@ impl Layout for VerticalLayout {
         &self.id
     }
 
+	fn set_id(&mut self,id: &str) {
+		self.id = id.to_string();
+	}
+
     fn position(&self) -> Position {
         self.position
     }
@@ -184,7 +188,7 @@ impl Layout for VerticalLayout {
         self.children.as_slice()
     }
 
-    fn constraints(&self) -> BoxContraints {
+    fn constraints(&self) -> BoxConstraints {
         self.constraints
     }
 

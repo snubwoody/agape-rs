@@ -1,5 +1,5 @@
 use bytemuck::{Pod, Zeroable};
-use helium_core::Color;
+use helium_core::{Color, IntoColor, Rgba};
 use helium_core::{Position, Size};
 
 /// Represents a single vertex with a 2D position, color and uv coordinates.
@@ -52,7 +52,8 @@ impl Vertex {
     /// assert_eq!(vertices[0].position[0],position.x);
     /// assert_eq!(vertices[5].position[0],position.x + size.width);
     /// ```
-    pub fn quad(size: Size, position: Position, color: Color) -> Vec<Self> {
+    pub fn quad(size: Size, position: Position, color: impl IntoColor<Rgba>) -> Vec<Self>{
+		let color:Color<Rgba> = color.into_color();
         let color = color.normalize();
         let width = size.width;
         let height = size.height;
@@ -106,10 +107,10 @@ impl Vertex {
     pub fn quad_with_uv(
         size: Size,
         position: Position,
-        color: Color,
+        color: impl IntoColor<Rgba>,
         uv: [[f32; 2]; 4],
-    ) -> Vec<Self> {
-        let color = color.normalize();
+    ) -> Vec<Self>{
+		let color = color.into_color().normalize();
         let width = size.width;
         let height = size.height;
         let x = position.x;

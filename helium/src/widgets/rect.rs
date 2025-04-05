@@ -1,7 +1,8 @@
-use super::Widget;
+use super::{LayoutConfig, LayoutType, Widget, WidgetBody};
 use crate::Color;
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
-use helium_core::colors::WHITE;
+use helium_core::{colors::WHITE, IntoColor, Rgba};
+use helium_renderer::IntoSurface;
 use nanoid::nanoid;
 
 // TODO add BoxStyle struct
@@ -10,7 +11,7 @@ use nanoid::nanoid;
 pub struct Rect {
     id: String,
     intrinsic_size: crystal::IntrinsicSize,
-    color: Color,
+    color: Color<Rgba>,
     corner_radius: u32,
 }
 
@@ -29,34 +30,8 @@ impl Rect {
         }
     }
 
-    pub fn color(mut self, color: Color) -> Self {
-        self.color = color;
-        self
-    }
-
-    /// This event fires when the mouse cursor is over a [`Widget`]
-    ///
-    /// # Example
-    /// ```
-    /// use helium::widgets::Rect;
-    ///
-    /// Rect::new(150.0,150.0)
-    /// 	.on_hover(||println!("Hello world"));
-    /// ```
-    pub fn on_hover(self, f: impl FnMut() + 'static) -> Self {
-        self
-    }
-
-    /// This event fires when the mouse clicks on a [`Widget`].
-    ///
-    /// # Example
-    /// ```
-    /// use helium::widgets::Rect;
-    ///
-    /// Rect::new(150.0,150.0)
-    /// 	.on_click(||println!("Hello world"));
-    /// ```
-    pub fn on_click(self, f: impl FnMut() + 'static) -> Self {
+    pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
+        self.color = color.into_color();
         self
     }
 
@@ -66,12 +41,13 @@ impl Rect {
         self
     }
 
-    // TODO replace with impl_layout!()
+	/// Set the intrinsic width to `BoxSixing::Flex`.
     pub fn flex_width(mut self, factor: u8) -> Self {
         self.intrinsic_size.width = BoxSizing::Flex(factor);
         self
     }
 
+	/// Set the intrinsic height to `BoxSixing::Flex`.
     pub fn flex_height(mut self, factor: u8) -> Self {
         self.intrinsic_size.height = BoxSizing::Flex(factor);
         self
@@ -83,6 +59,23 @@ impl Widget for Rect {
         &self.id
     }
 
+	fn build(&self,_renderer: &mut helium_renderer::Renderer) -> WidgetBody {
+		let primitive = helium_renderer::RectSurface::new(100.0, 100.0)
+			.color(self.color.clone())
+			.into_surface();
+
+		let layout = LayoutConfig::new()
+			.layout(LayoutType::EmptyLayout)
+			.intrinsic_size(self.intrinsic_size);
+
+		WidgetBody { 
+			id: self.id.clone(), 
+			layout, 
+			primitive, 
+			children: vec![]
+		}
+	}
+
     fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size = self.intrinsic_size;
@@ -93,9 +86,9 @@ impl Widget for Rect {
 
     fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {
         renderer.draw([
-            helium_renderer::Rect::new(layout.size().width, layout.size().height)
+            helium_renderer::RectSurface::new(layout.size().width, layout.size().height)
                 .position(layout.position().x, layout.position().y)
-                .color(self.color),
+                .color(self.color.clone()),
         ]);
     }
 }

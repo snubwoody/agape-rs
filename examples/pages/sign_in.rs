@@ -1,9 +1,10 @@
 #![allow(non_snake_case)]
-use helium::{colors::tailwind_colors, vstack, widgets::*, App, Page, colors::{BLACK, WHITE}};
+use helium::{colors::{BLACK}, hex, vstack, widgets::*, App, Color};
 
 #[tokio::main]
 async fn main() -> Result<(), helium::Error> {
     // TODO add underlines
+	// FIXME hex macro 
     env_logger::init();
     // TODO export hstack from widgets
 
@@ -28,7 +29,7 @@ fn Form() -> impl Widget {
         InputField("Password"),
         Button::text("Sign in")
             .color(BLACK)
-            .font_color(tailwind_colors::NEUTRAL200)
+            .font_color(Color::rgb(59,50,50))
             .fill_width()
             .on_click(||{
                 let num = 15.0;

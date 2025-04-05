@@ -56,3 +56,15 @@ The `HStack` is a `Widget` that arranges it's children horizontally.
 ➖: Assumed but has not been tested  
 🚧: Planned but not yet supported  
 *For MacOS and Linux, all the libraries that `helium` uses, i.e `wgpu` and `winit`, are fully cross platform, however they have not been tested so support is not guaranteed. 
+
+## Commit
+
+- refactor
+- docs
+- feat
+- fix
+- style
+- chore
+- test
+- perf
+- build

@@ -1,156 +1,333 @@
+use std::num::ParseIntError;
+use thiserror::Error;
 use crate::map;
 
 pub mod colors {
     use super::*;
-    pub const WHITE: Color = Color::Rgb(255, 255, 255);
-    pub const BLACK: Color = Color::Rgb(0, 0, 0);
-    pub const RED: Color = Color::Rgb(255, 0, 0);
-    pub const GREEN: Color = Color::Rgb(0, 255, 0);
-    pub const BLUE: Color = Color::Rgb(0, 0, 255);
-    pub const AMBER: Color = Color::Rgb(245, 158, 11);
-    pub const TEAL: Color = Color::Rgb(20, 184, 166);
-    pub const INDIGO: Color = Color::Rgb(99, 102, 241);
-    pub const PINK: Color = Color::Rgb(236, 72, 153);
-    pub const TRANSPARENT: Color = Color::Rgba(0, 0, 0, 0);
+    pub const WHITE: Color<Rgba> = Color::rgb(255, 255, 255);
+    pub const BLACK: Color<Rgba> = Color::rgb(0, 0, 0);
+    pub const RED: Color<Rgba> = Color::rgb(255, 0, 0);
+    pub const GREEN: Color<Rgba> = Color::rgb(0, 255, 0);
+    pub const BLUE: Color<Rgba> = Color::rgb(0, 0, 255);
+    pub const AMBER: Color<Rgba> = Color::rgb(245, 158, 11);
+    pub const TEAL: Color<Rgba> = Color::rgb(128, 225, 214);
+    pub const INDIGO: Color<Rgba> = Color::rgb(99, 102, 241);
+    pub const PINK: Color<Rgba> = Color::rgb(236, 72, 153);
+    pub const TRANSPARENT: Color<Rgba> = Color::rgba(0, 0, 0, 0);
+}
+
+/// Trait for generating [`Color`]'s
+pub trait IntoColor<Container>{
+	fn into_color(self) -> Color<Container>;
+}
+
+#[derive(Debug,Clone,Error,PartialEq, Eq,)]
+pub enum ColorError{
+	#[error("Missing # at the start of hex code")]
+	MissingHex,
+	#[error("Hex code is {0} characters long but must have a length of 6 or 8")]
+	InvalidLength(usize),
+	#[error(transparent)]
+	ParseIntError(#[from] ParseIntError)
+}
+
+/// Container for Hex [`Color`]'s
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Hex(String);
+
+/// Container for Rgba [`Color`]'s
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Rgba{
+	r:u8,
+	g:u8,
+	b:u8,
+	a:u8,
+}
+
+impl Rgba{
+	const fn new(r:u8,b:u8,g:u8,a:u8) -> Self{
+		Self{r,g,b,a}
+	}
 }
 
 /// Represents a color.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum Color {
-    Rgb(u8, u8, u8),
-    Rgba(u8, u8, u8, u8),
-    /// If an invalid hex code is used, it will default back to
-    /// white. Use the `hex!` macro to validate hex codes at compile time.
-    Hex(&'static str),
-}
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Color<C>(C);
 
-impl Color {
-    // TODO test this and add other variants
-    /// Convert any variant of [`Color`] to the `Rgb` variant
-    pub fn as_rgb(&self) -> Self {
-        let [r, g, b, _] = self.to_rgba();
-        Self::Rgb(r, g, b)
-    }
+impl Color<Rgba> {
+	/// Create a new rgb [`Colour`]
+	/// 
+	/// # Example
+	/// 
+	/// ```
+	/// use helium_core::Color;
+	/// 
+	/// let color = Color::rgb(75,25,90);
+	/// 
+	/// assert_eq!(color.r(),75);
+	/// assert_eq!(color.g(),25);
+	/// assert_eq!(color.b(),90);
+	/// assert_eq!(color.a(),100);
+	/// ```
+	pub const fn rgb(r:u8,g:u8,b:u8) -> Color<Rgba>{
+		let color = Rgba::new(r, b, g, 100);
+		Color(color)
+	}
+	
+	/// Create a new rgba [`Colour`]
+	/// 
+	/// # Example
+	/// 
+	/// ```
+	/// use helium_core::Color;
+	/// 
+	/// let color = Color::rgba(175,225,90,100);
+	/// 
+	/// assert_eq!(color.r(),175);
+	/// assert_eq!(color.g(),225);
+	/// assert_eq!(color.b(),90);
+	/// assert_eq!(color.a(),100);
+	/// ```
+	pub const fn rgba(r:u8,g:u8,b:u8,a:u8) -> Color<Rgba>{
+		let mut  a = a;
+		if a > 100{
+			a = 100
+		}
+		let color = Rgba::new(r, b, g, a);
+		Color(color)
+	}
 
-    /// Convert a [`Color`] into a hex string  
-    /// # Example
-    /// ```
-    /// use helium_core::color::Color;
-    ///
-    /// let color = Color::Rgb(255,255,255);
-    ///
-    /// assert_eq!(color.into_hex_string(),format!("#ffffff"))
-    /// ```
-    /// **`Note`** than this does not do any color conversion
-    /// so invalid hex codes will returned as is.
-    pub fn into_hex_string(&self) -> String {
-        // TODO replace this with to string
-        match self {
-            Self::Hex(hex) => hex.to_string(),
-            Self::Rgb(r, g, b) | Self::Rgba(r, g, b, _) => {
-                format!("#{:x}{:x}{:x}", r, g, b)
-            }
-        }
-    }
+	/// Get the red component of the [`Color`]
+	pub fn r(&self) -> u8{
+		self.0.r
+	}
 
-    /// Parse any type of color to rgba values
-    pub fn to_rgba(&self) -> [u8; 4] {
-        match self {
-            Self::Rgb(r, g, b) => [*r, *g, *b, 100],
-            Self::Rgba(r, g, b, mut a) => {
-                if a > 100 {
-                    a = 100
-                }
-                [*r, *g, *b, a]
-            }
-            Self::Hex(color) => Color::hex_to_rgba(color).unwrap_or([255, 255, 255, 100]),
-        }
-    }
+	/// Get the green component of the [`Color`]
+	pub fn g(&self) -> u8{
+		self.0.g
+	
+	}
+	
+	/// Get the blue component of the [`Color`]
+	pub fn b(&self) -> u8{
+		self.0.b
+	}
 
-    /// Convert a hex color to an rgba color. Returns an error if an invalid hex code
-    /// is provided.  
-    /// Examples of invalid hexcodes
-    /// - Strings that don't begin with `#`
-    /// - Any string that isn't six characters in length
-    /// - Any string that isn't is hexadecimal format
-    pub fn hex_to_rgba(hex: &str) -> Result<[u8; 4], String> {
-        // TODO add custom error
+	/// Get the alpha component of the [`Color`]
+	pub fn a(&self) -> u8{
+		self.0.a
+	}
 
-        let hex_code = hex
-            .strip_prefix("#")
-            .ok_or("Invalid hex code: missing `#` at the start of hex")?;
+	/// Get all the inner color components
+	pub fn inner(&self) -> (u8,u8,u8,u8){
+		(self.r(),self.g(),self.b(),self.a())
+	}
 
-        if hex_code.len() != 6 {
-            return Err("Invalid hex code: Hex colors should be 6 characters in length".into());
-        }
-
-        let (red, green, blue) = (&hex_code[0..2], &hex_code[2..4], &hex_code[4..6]);
-
-        let r =
-            u8::from_str_radix(red, 16).map_err(|err| format!("Failed to parse hex code:{err}"))?;
-        let g = u8::from_str_radix(green, 16)
-            .map_err(|err| format!("Failed to parse hex code:{err}"))?;
-        let b = u8::from_str_radix(blue, 16)
-            .map_err(|err| format!("Failed to parse hex code:{err}"))?;
-
-        Ok([r, g, b, 100])
-    }
-
-    /// Normalize the colors and convert them from `srgb` to linear `rgb`.
+	/// Normalize the colors and convert them from `srgb` to linear `rgb`.
     pub fn normalize(&self) -> [f32; 4] {
-        let [r, g, b, a] = self.to_rgba();
-
-        let r = ((r as f32 / 255.0 + 0.055) / 1.055).powf(2.4);
-        let g = ((g as f32 / 255.0 + 0.055) / 1.055).powf(2.4);
-        let b = ((b as f32 / 255.0 + 0.055) / 1.055).powf(2.4);
-        let a = map(a as f32, [0.0, 100.0], [0.0, 1.0]);
+		// TODO test the values
+        let r = ((self.r() as f32 / 255.0 + 0.055) / 1.055).powf(2.4);
+        let g = ((self.g() as f32 / 255.0 + 0.055) / 1.055).powf(2.4);
+        let b = ((self.b() as f32 / 255.0 + 0.055) / 1.055).powf(2.4);
+        let a = map(self.a() as f32, [0.0, 100.0], [0.0, 1.0]);
 
         [r, g, b, a]
     }
 }
 
-impl Default for Color {
-    fn default() -> Self {
-        Self::Rgba(0, 0, 0, 0)
+impl Color<Hex>{
+	/// Create a new hex [`Color`].
+	/// 
+	/// This method is fallible, as not every string is a valid hex code. Hex codes
+	/// must start with `#` and must contain a valid hexadecimal string with 6  or 8 
+	/// characters.
+	/// 
+	/// For an easier way to create hex colors use the `hex!` macro.
+	/// 
+	/// # Example
+	/// 
+	/// ```
+	/// use helium_core::{Color,ColorError};
+	/// 
+	/// fn main() -> Result<(),ColorError>{
+	/// 	let color = Color::hex("#FFFFFF")?;
+	/// 	
+	/// 	Ok(())
+	/// }
+	/// 
+	/// ```
+	pub fn hex(value:&str) -> Result<Color<Hex>,ColorError> {
+		let hex_code = value
+			.strip_prefix("#")
+			.ok_or(ColorError::MissingHex)?;
+
+		match hex_code.len() {
+			6 => {
+				let (red, green, blue) = (&hex_code[0..2], &hex_code[2..4], &hex_code[4..6]);
+				
+				let _ = u8::from_str_radix(red, 16)?;
+				let _ = u8::from_str_radix(green, 16)?;
+				let _ = u8::from_str_radix(blue, 16)?;
+				
+				let mut hex = value.to_string(); 
+				hex.push_str("FF");
+
+				Ok(Color(Hex(hex)))
+			},
+			8=> {
+				let (red, green, blue,alpha) = (
+					&hex_code[0..2], 
+					&hex_code[2..4], 
+					&hex_code[4..6],
+					&hex_code[6..8]
+				);
+
+				let _ = u8::from_str_radix(red, 16)?;
+				let _ = u8::from_str_radix(green, 16)?;
+				let _ = u8::from_str_radix(blue, 16)?;
+				let _ = u8::from_str_radix(alpha, 16)?;
+
+				Ok(Color(Hex(String::from(value))))
+			},
+			_ => {
+				return Err(ColorError::InvalidLength(hex_code.len()));
+			}
+		}
+	}
+
+	/// Convert the hex color into rgba format
+	/// 
+	/// # Example
+	/// 
+	/// ```
+	/// use helium_core::{Color,ColorError};
+	/// 
+	/// fn main() -> Result<(),ColorError>{
+	/// 	let hex = Color::hex("#FFFFFF")?;
+	/// 	let rgba = hex.to_rgba();
+	/// 
+	/// 	assert_eq!(rgba.r(),255);
+	/// 	assert_eq!(rgba.g(),255);
+	/// 	assert_eq!(rgba.b(),255);
+	/// 
+	/// 	Ok(())
+	/// } 
+	/// ```
+	pub fn to_rgba(&self) -> Color<Rgba>{
+		let hex_code = &self.0.0.strip_prefix("#").unwrap();
+		let (red, green, blue,alpha) = (
+			&hex_code[0..2], 
+			&hex_code[2..4], 
+			&hex_code[4..6],
+			&hex_code[6..8]
+		);
+
+		// TODO I don't know how I feel about these unwraps?
+		// Hex codes should always be valid
+		let r = u8::from_str_radix(red, 16).unwrap();
+		let g = u8::from_str_radix(green, 16).unwrap();
+		let b = u8::from_str_radix(blue, 16).unwrap();
+		let a = u8::from_str_radix(alpha, 16).unwrap();
+
+		Color::rgba(r, g, b, a)
+	}
+
+	pub fn as_str(&self) -> &str{
+		self.0.0.as_str()
+	}
+}
+
+impl ToString for Color<Hex>{
+	fn to_string(&self) -> String {
+		self.0.0.clone()
+	}
+}
+
+impl Default for Color<Rgba> {
+    fn default() -> Color<Rgba> {
+        Color::rgba(0, 0, 0,0)
     }
 }
 
-// TODO impl Display
+impl IntoColor<Rgba> for Color<Hex>{
+	fn into_color(self) -> Color<Rgba> {
+		self.to_rgba()
+	}
+}
+
+impl IntoColor<Rgba> for Color<Rgba>{
+	fn into_color(self) -> Color<Rgba> {
+		self
+	}
+}
+
+impl IntoColor<Rgba> for (u8,u8,u8,u8) {
+	fn into_color(self) -> Color<Rgba> {
+		let (r,g,b,a) = self;
+		Color::rgba(r, g, b, a)	
+	}
+}
+
+impl IntoColor<Rgba> for u8 {
+	/// Create a color with the same r,g,b value 
+	/// 
+	/// # Example
+	/// 
+	/// ```
+	/// use helium_core::Color;
+	/// 
+	/// let color = 27.into_color();
+	/// 
+	/// assert_eq!(color.r(),27);
+	/// assert_eq!(color.b(),27);
+	/// assert_eq!(color.g(),27);
+	/// assert_eq!(color.a(),100);
+	/// ```
+	fn into_color(self) -> Color<Rgba> {
+		Color::rgba(self, self, self, 100)	
+	}
+}
+
+impl IntoColor<Rgba> for (u8,u8,u8) {
+	fn into_color(self) -> Color<Rgba> {
+		let (r,g,b) = self;
+		
+		Color::rgba(r, g, b, 100)	
+	}
+}
 
 #[cfg(test)]
 mod test {
     use super::*;
 
-    #[test]
-    fn test_valid_hex_colors() {
-        // Invalid hex colors are defaulted to white
-        let color = Color::Hex("#".into());
-        assert_eq!(color.to_rgba(), [255, 255, 255, 100]);
+	#[test]
+	fn hex_colors_length(){
+		let white = Color::hex("#FFFFFF").unwrap();
+		let color = Color::hex("#00000000").unwrap();
 
-        // Valid hex codes
-        let color = Color::Hex("#ffffff".into());
-        assert_eq!(color.to_rgba(), [255, 255, 255, 100]);
+		assert!(white.to_string().len() == 9);
+		assert!(color.to_string().len() == 9);
+	}
 
-        let color = Color::Hex("#faba32".into());
-        assert_eq!(color.to_rgba(), [250, 186, 50, 100]);
+	#[test]
+	fn rgba_alpha_clamped(){
+		let color = Color::rgba(100, 100, 255, 255);
+		assert_eq!(color.a(),100);
+	}
 
-        let color = Color::Hex("#345af0".into());
-        assert_eq!(color.to_rgba(), [52, 90, 240, 100]);
-    }
-
-    #[test]
-    fn test_hex_conversion_errors() {
-        assert_eq!(
-            Color::hex_to_rgba(""),
-            Err("Invalid hex code: missing `#` at the start of hex".into())
-        );
-        assert_eq!(
-            Color::hex_to_rgba("#"),
-            Err("Invalid hex code: Hex colors should be 6 characters in length".into())
-        );
-        assert_eq!(
-            Color::hex_to_rgba("ffffff"),
-            Err("Invalid hex code: missing `#` at the start of hex".into())
-        );
-    }
+	#[test]
+	fn invalid_hex_color(){
+		assert_eq!(
+			Color::hex("ffffff"),
+			Err(ColorError::MissingHex)
+		);
+		assert_eq!(
+			Color::hex("#"),
+			Err(ColorError::InvalidLength(0))
+		);
+		assert_eq!(
+			Color::hex("#fff"),
+			Err(ColorError::InvalidLength(3))
+		);
+	}
 }

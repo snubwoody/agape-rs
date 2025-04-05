@@ -14,7 +14,7 @@ use std::fmt::Debug;
 pub use vertical::VerticalLayout;
 
 pub struct LayoutSolver;
-
+// TODO maybe just make it a function
 impl LayoutSolver {
     /// Calculates the layout of all the layout nodes
     pub fn solve(root: &mut dyn Layout, window_size: Size) -> Vec<crate::LayoutError> {
@@ -52,9 +52,12 @@ pub trait Layout: Debug + Send + Sync {
 
     /// Get the `id` of the [`Layout`]
     fn id(&self) -> &str;
+    
+    /// Set the `id` of the [`Layout`]
+	fn set_id(&mut self,id: &str);
 
     /// Get the [`BoxConstraints`] of the [`Layout`]
-    fn constraints(&self) -> BoxContraints;
+    fn constraints(&self) -> BoxConstraints;
 
     /// Get the [`IntrinsicSize`] of the [`Layout`]
     fn intrinsic_size(&self) -> IntrinsicSize;
@@ -141,15 +144,17 @@ pub enum AxisAlignment {
     End,
 }
 
-#[derive(Debug, Clone, Copy, Default, PartialEq)]
-pub struct BoxContraints {
+/// Describes the maximum and minimum size of a [`Layout`] 
+#[derive(Debug, Clone, Copy, Default, PartialEq,PartialOrd)]
+pub struct BoxConstraints {
     pub max_width: f32,
     pub max_height: f32,
     pub min_height: f32,
     pub min_width: f32,
 }
 
-impl BoxContraints {
+impl BoxConstraints {
+	/// Create new [`BoxConstraints`]
     pub fn new() -> Self {
         Self::default()
     }
@@ -163,4 +168,13 @@ pub struct IntrinsicSize {
     // TODO does this really need to be a seperate struct?
     pub width: BoxSizing,
     pub height: BoxSizing,
+}
+
+impl IntrinsicSize{
+	pub fn fill() -> Self{
+		Self { 
+			width: BoxSizing::Flex(1), 
+			height: BoxSizing::Flex(1) 
+		}
+	}
 }

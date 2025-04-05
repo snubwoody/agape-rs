@@ -1,14 +1,14 @@
-use super::{IntoPrimitive, Primitive};
-use helium_core::{colors::BLACK, Color, Position};
+use super::{IntoSurface, Surface};
+use helium_core::{colors::BLACK, Color, IntoColor, Position, Rgba};
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct Icon {
+#[derive(Clone, PartialEq)]
+pub struct IconSurface {
     pub image: ::image::DynamicImage,
     pub position: Position,
-    pub color: Color,
+    pub color: Color<Rgba>,
 }
 
-impl Icon {
+impl IconSurface {
     pub fn new(image: ::image::DynamicImage) -> Self {
         Self {
             image,
@@ -17,8 +17,8 @@ impl Icon {
         }
     }
 
-    pub fn color(mut self, color: Color) -> Self {
-        self.color = color;
+    pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
+        self.color = color.into_color();
         self
     }
 
@@ -28,8 +28,18 @@ impl Icon {
     }
 }
 
-impl IntoPrimitive for Icon {
-    fn into_primitive(self) -> Primitive {
-        Primitive::Icon(self)
+impl IntoSurface for IconSurface {
+    fn into_surface(self) -> Surface {
+        Surface::Icon(self)
     }
+}
+
+impl std::fmt::Debug for IconSurface{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		f.debug_struct("Icon")
+			.field("color", &self.color)
+			.field("position", &self.position)
+			.field("image", &"ImageBuffer<...>")
+			.finish()
+	}
 }

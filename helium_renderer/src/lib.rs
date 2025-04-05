@@ -27,7 +27,7 @@ pub struct Renderer<'r> {
     text_pipeline: TextPipeline,
     image_pipeline: ImagePipeline,
     icon_pipeline: IconPipeline,
-    draw_queue: Vec<Primitive>,
+    draw_queue: Vec<Surface>,
 }
 
 impl<'r> Renderer<'r> {
@@ -107,7 +107,7 @@ impl<'r> Renderer<'r> {
         }
     }
 
-    pub fn text_size(&mut self, text: &Text) -> Size {
+    pub fn text_size(&mut self, text: &TextSurface) -> Size {
         self.text_pipeline.text_size(text)
     }
 
@@ -128,10 +128,10 @@ impl<'r> Renderer<'r> {
     pub fn draw<I, P>(&mut self, primitives: I)
     where
         I: IntoIterator<Item = P>,
-        P: IntoPrimitive,
+        P: IntoSurface,
     {
         self.draw_queue
-            .extend(primitives.into_iter().map(|p| p.into_primitive()));
+            .extend(primitives.into_iter().map(|p| p.into_surface()));
     }
 
     pub fn render(&mut self) {
@@ -176,31 +176,31 @@ impl<'r> Renderer<'r> {
 
         for primitive in self.draw_queue.drain(..) {
             match primitive {
-                Primitive::Rect(rect) => {
+                Surface::Rect(rect) => {
                     let instant = Instant::now();
                     self.rect_pipeline
                         .draw(&rect, &self.device, &mut render_pass);
                     rect_trace += instant.elapsed();
                 }
-                Primitive::Circle(circle) => {
+                Surface::Circle(circle) => {
                     let instant = Instant::now();
                     self.circle_pipeline
                         .draw(&circle, &self.device, &mut render_pass);
                     circle_trace += instant.elapsed();
                 }
-                Primitive::Text(text) => {
+                Surface::Text(text) => {
                     let instant = Instant::now();
                     self.text_pipeline
                         .draw(&text, &self.queue, &self.device, &mut render_pass);
                     text_trace += instant.elapsed();
                 }
-                Primitive::Image(image) => {
+                Surface::Image(image) => {
                     let instant = Instant::now();
                     self.image_pipeline
                         .draw(&image, &self.queue, &self.device, &mut render_pass);
                     image_trace += instant.elapsed();
                 }
-                Primitive::Icon(icon) => {
+                Surface::Icon(icon) => {
                     let instant = Instant::now();
                     self.icon_pipeline
                         .draw(&icon, &self.queue, &self.device, &mut render_pass);

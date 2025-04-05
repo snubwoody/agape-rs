@@ -1,4 +1,4 @@
-use super::Widget;
+use super::{Widget, WidgetBody};
 use crystal::Layout;
 use helium_renderer::Renderer;
 use std::future::Future;
@@ -37,6 +37,7 @@ pub struct Await<P, C> {
 
 impl<P, C> Await<P, C>
 where
+	P: Widget,
     C: Widget + Send + 'static,
 {
     /// Receives a [`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) that is
@@ -88,6 +89,7 @@ where
 
     /// Continuously check if the receiver has new messages
     pub fn poll(&mut self) {
+		// TODO maybe check if widget is none to be more efficient
         match self.rx.try_recv() {
             Ok(widget) => {
                 self.complete = Some(widget);
@@ -114,6 +116,13 @@ where
         }
         self.pending.id()
     }
+
+	fn build(&self,renderer: &mut Renderer) -> WidgetBody {
+		match &self.complete {
+			Some(complete) => complete.build(renderer),
+			None => self.pending.build(renderer)
+		}
+	}
 
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
         if let Some(complete) = &self.complete {

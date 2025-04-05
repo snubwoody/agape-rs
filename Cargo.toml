@@ -1,5 +1,5 @@
 [workspace]
-resolver = "2"
+resolver = "3"
 
 members = [
 	"helium", 
@@ -7,7 +7,9 @@ members = [
 	"helium_macros", 
 	"helium_core", 
 	"crystal",
-	"helium_renderer", "helium_cli",
+	"helium_renderer", 
+	"helium_cli",
+	"ruby"
 ]
 
 [workspace.dependencies]

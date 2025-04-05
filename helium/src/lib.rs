@@ -2,12 +2,13 @@
 pub mod colors;
 pub mod error;
 pub mod widgets;
+use helium_renderer::{Renderer, TextSurface};
 pub use crystal;
 use crystal::LayoutSolver;
 pub use error::{Error, Result};
-pub use helium_core::{Bounds, Color, Position, Size};
+pub use helium_core::*;
 pub use helium_macros::hex; // TODO move to colors mod
-use helium_renderer::{Renderer, Text};
+pub use helium_renderer as renderer;
 pub use nanoid::nanoid;
 use std::time::{Duration, Instant};
 use widgets::Widget;
@@ -71,12 +72,11 @@ impl App {
                     WindowEvent::CloseRequested => window_target.exit(),
                     WindowEvent::RedrawRequested => {
                         self.pages[0].draw(&mut renderer, size);
-                        renderer.draw([Text::new(format!("{:?}", previous_duration).as_str())]);
+                        renderer.draw([TextSurface::new(format!("{:?}", previous_duration).as_str())]);
                         renderer.render();
                     }
                     WindowEvent::Resized(window_size) => {
-                        size = window_size.into();
-                        self.pages[self.index].resize(Size::from(window_size));
+                        size = Size::from(window_size);
                         renderer.resize(window_size.into());
                         // I think resizing already causes a redraw request but i'm not sure
                         self.window.request_redraw();
@@ -105,10 +105,13 @@ pub struct Page {
 }
 
 impl Page {
+	/// Create a new [`Page`]
     pub fn new(widget: impl Widget + 'static, renderer: &mut Renderer) -> Self {
+		let body = widget.build(renderer);
+		let layout = body.layout();
         Self {
             mouse_pos: Position::default(),
-            layout: widget.layout(renderer),
+            layout,
             widget: Box::new(widget),
         }
     }
@@ -117,10 +120,7 @@ impl Page {
         self.widget.update();
     }
 
-    fn resize(&mut self, size: Size) {
-        LayoutSolver::solve(&mut *self.layout, size);
-    }
-
+	/// Dispatch the `winit` events to the `Widget`'s.
     fn dispatch_event(&mut self, event: &winit::event::WindowEvent) {
         match event {
             WindowEvent::CursorMoved { position, .. } => self.mouse_pos = Position::from(*position),
@@ -130,16 +130,30 @@ impl Page {
             .dispatch_event(self.mouse_pos, &*self.layout, event);
     }
 
-    fn draw(&self, renderer: &mut Renderer, size: Size) {
-        let mut layout = self.widget.layout(renderer);
+	/// Draw the contents of the [`Page`] to the screen
+    fn draw(&mut self, renderer: &mut Renderer, size: Size) {
+        let widget_body = self.widget.build(renderer);
+		
+		// Solve the Layout tree
+		let mut layout = widget_body.layout();
         LayoutSolver::solve(&mut *layout, size);
+		self.layout = layout;
 
-        self.widget.iter().for_each(|w| {
-            if let Some(layout) = layout.get(w.id()) {
-                w.draw(layout, renderer);
-            } else {
-                log::warn!("Widget is missing it's Layout")
-            }
-        });
+		let mut primitives = vec![widget_body.primitive()];
+		primitives.extend(
+			widget_body.children().iter().map(|child|child.primitive())
+		);
+		
+		dbg!(&primitives);
+		renderer.draw(primitives);
+		
+
+		// self.widget.iter().for_each(|w| {
+		// 	if let Some(layout) = layout.get(w.id()) {
+		// 		w.draw(layout, renderer);
+        //     } else {
+		// 		log::warn!("Widget is missing it's Layout")
+        //     }
+        // });
     }
 }

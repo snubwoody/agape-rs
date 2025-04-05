@@ -4,13 +4,10 @@ use crate::{
         BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, TextureBuilder,
         VertexBufferLayoutBuilder,
     },
-    primitives::Icon,
+    primitives::IconSurface,
     vertex::Vertex,
 };
-use helium_core::{
-    colors::{TRANSPARENT, WHITE},
-    Size,
-};
+use helium_core::Size;
 use std::rc::Rc;
 use wgpu::Extent3d;
 
@@ -106,7 +103,7 @@ impl IconPipeline {
 
     pub fn draw(
         &mut self,
-        icon: &Icon,
+        icon: &IconSurface,
         queue: &wgpu::Queue,
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
@@ -118,7 +115,7 @@ impl IconPipeline {
             height: image_data.dimensions().1 as f32,
         };
 
-        let vertices = Vertex::quad(size, icon.position, icon.color);
+        let vertices = Vertex::quad(size, icon.position, icon.color.clone());
 
         let vertex_buffer = BufferBuilder::new()
             .label("Icon vertex buffer")

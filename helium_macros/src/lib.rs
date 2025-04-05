@@ -3,16 +3,19 @@ use proc_macro2::{Literal, Span};
 use quote::quote;
 use std::{fs, path::Path};
 
-/// A macro for using compile time verified hex colors.
+// TODO compile but dont run?
+// TODO change name and provide wrapper in helium
+/// A macro for create compile time verified hex colors.
 #[proc_macro]
 pub fn hex(item: TokenStream) -> TokenStream {
     let s = item.to_string().replace("\"", "");
 
-    match helium_core::Color::hex_to_rgba(&s) {
-        Ok(_) => return quote! {helium::Color::Hex(#s)}.into(),
+    match helium_core::Color::hex(&s) {
+        Ok(_) => return quote! {helium::Color::hex(#s).unwrap()}.into(),
         Err(err) => {
+			let message = format!("{err}");
             return quote! {
-                compile_error!(#err)
+                compile_error!(#message)
             }
             .into()
         }
@@ -21,6 +24,7 @@ pub fn hex(item: TokenStream) -> TokenStream {
 
 /// This macro does the very tedius job of defining a function for each icon in a
 /// directory. The icon must be in svg format, all non-svg files in the directory will be ignored.
+/// 
 /// Files that start with reserved keywords will be prefixed with `_`.
 /// eg `box.svg -> _box()`
 #[proc_macro]
@@ -29,6 +33,7 @@ pub fn include_icons(dir: TokenStream) -> TokenStream {
     let path = Path::new(&dir_name);
 
     let mut icons: Vec<proc_macro2::TokenStream> = vec![];
+
     match fs::read_dir(path) {
         Ok(entries) => {
             for entry in entries {

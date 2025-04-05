@@ -3,7 +3,7 @@ use crate::{
     builders::{
         BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, VertexBufferLayoutBuilder,
     },
-    primitives::Rect,
+    primitives::RectSurface,
     vertex::Vertex,
 };
 use std::rc::Rc;
@@ -91,8 +91,8 @@ impl RectPipeline {
         }
     }
 
-    pub fn draw(&mut self, rect: &Rect, device: &wgpu::Device, pass: &mut wgpu::RenderPass) {
-        let vertices = Vertex::quad(rect.size, rect.position, rect.color);
+    pub fn draw(&mut self, rect: &RectSurface, device: &wgpu::Device, pass: &mut wgpu::RenderPass) {
+        let vertices = Vertex::quad(rect.size, rect.position, rect.color.clone());
 
         let vertex_buffer = BufferBuilder::new()
             .label("Rect vertex buffer")

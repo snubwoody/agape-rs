@@ -1,12 +1,13 @@
-use super::Widget;
+use super::{LayoutConfig, Widget, WidgetBody};
 use crystal::{BoxSizing, EmptyLayout, Layout};
-use helium_core::Color;
+use helium_core::{colors::BLACK, Color, IntoColor, Rgba};
+use helium_renderer::IntoSurface;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Circle {
     id: String,
     diameter: u32,
-    color: Color,
+    color: Color<Rgba>,
 }
 
 impl Circle {
@@ -14,12 +15,12 @@ impl Circle {
         Self {
             id: nanoid::nanoid!(),
             diameter,
-            color: Color::default(),
+            color: BLACK,
         }
     }
 
-    pub fn color(mut self, color: Color) -> Self {
-        self.color = color;
+    pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
+        self.color = color.into_color();
         self
     }
 }
@@ -28,6 +29,23 @@ impl Widget for Circle {
     fn id(&self) -> &str {
         &self.id
     }
+
+	fn build(&self,_renderer: &mut helium_renderer::Renderer) -> WidgetBody {
+		let primitive = helium_renderer::CircleSurface::new(self.diameter as f32)
+			.color(self.color.clone())
+			.into_surface();
+
+		// FIXME test this and add the size here
+		let layout = LayoutConfig::empty();
+
+		WidgetBody{
+			id: self.id.clone(),
+			primitive,
+			children:vec![],
+			layout
+		}
+        
+	}
 
     fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
         let mut layout = EmptyLayout::new();
@@ -39,8 +57,8 @@ impl Widget for Circle {
     }
 
     fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {
-        renderer.draw([helium_renderer::Circle::new(layout.size().width)
+        renderer.draw([helium_renderer::CircleSurface::new(layout.size().width)
             .position(layout.position().x, layout.position().y)
-            .color(self.color)]);
+            .color(self.color.clone())]);
     }
 }

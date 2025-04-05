@@ -42,9 +42,11 @@ impl Position {
     }
 
     /// Translate the position by `x` and `y` amount.
+	/// 
     /// # Example
+	/// 
     /// ```
-    /// use helium_core::position::Position;
+    /// use helium_core::Position;
     ///
     /// let mut position = Position::new(0.0,0.0);
     /// position.translate(40.0,100.0);
@@ -144,7 +146,7 @@ impl Bounds {
     ///
     /// # Example
     /// ```
-    /// use helium_core::{position::{Position,Bounds},size::Size};
+    /// use helium_core::{Position,Bounds,Size};
     ///
     /// let size = Size::new(250.0,100.0);
     /// let position = Position::new(10.0,0.0);

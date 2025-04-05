@@ -1,7 +1,9 @@
 use crate::{impl_layout, impl_style, widgets::Widget, Color};
 use crystal::{AxisAlignment, HorizontalLayout, Layout};
-use helium_core::colors::TRANSPARENT;
-use helium_renderer::Rect;
+use helium_core::{colors::TRANSPARENT, Rgba};
+use helium_renderer::{IntoSurface, RectSurface};
+
+use super::{LayoutConfig, LayoutType, WidgetBody};
 
 /// A [`Widget`] that places it's children horizontally. The `hstack!` macro
 /// provides convienient initialization and is mostly how you be creating an `HStack`
@@ -33,7 +35,7 @@ use helium_renderer::Rect;
 pub struct HStack {
     id: String,
     children: Vec<Box<dyn Widget>>,
-    color: Color,
+    color: Color<Rgba>,
     corner_radius: u32,
     layout: HorizontalLayout,
 }
@@ -69,6 +71,19 @@ impl HStack {
         self
     }
 
+	/// Set the spacing between children
+	/// 
+	/// # Example
+	/// 
+	/// ```
+	/// use helium::{hstack,widgets::Text};
+	/// 
+	/// hstack!{
+	/// 	Text::new("Hello"),
+	/// 	Text::new("world!"),
+	/// }
+	/// .spacing(24);
+	/// ```
     pub fn spacing(mut self, spacing: u32) -> Self {
         self.layout.spacing = spacing;
         self
@@ -133,11 +148,51 @@ impl Widget for HStack {
         Box::new(layout)
     }
 
+	fn build(&self,renderer: &mut helium_renderer::Renderer) -> WidgetBody {
+		let children: Vec<Box<WidgetBody>> = self
+            .children
+            .iter()
+            .map(|widget| Box::new(widget.build(renderer)))
+            .collect();
+
+        let HorizontalLayout {
+            spacing,
+            padding,
+            intrinsic_size,
+            main_axis_alignment,
+            cross_axis_alignment,
+            ..
+        } = self.layout;
+
+		let layout = LayoutConfig::new()
+			.spacing(spacing)
+			.padding(padding)
+			.intrinsic_size(intrinsic_size)
+			.main_axis_alignment(main_axis_alignment)
+			.cross_axis_alignment(cross_axis_alignment)
+			.layout(LayoutType::HorizontalLayout);
+
+		
+		// FIXME
+		let primitive = RectSurface::new(0.0, 0.0)
+			.color(self.color.clone())
+			.corner_radius(self.corner_radius as f32)
+			.into_surface();
+
+        WidgetBody{
+			id: self.id.clone(),
+			primitive,
+			layout,
+			children
+		}
+	}
+
     fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
-        renderer.draw([Rect::new(layout.size().width, layout.size().height)
-            .position(layout.position().x, layout.position().y)
-            .color(self.color)
-            .corner_radius(self.corner_radius as f32)]);
+		let primitive = RectSurface::from(layout)
+			.color(self.color.clone())
+			.corner_radius(self.corner_radius as f32);
+
+        renderer.draw([primitive]);
     }
 
     fn children(&self) -> Vec<&dyn Widget> {
@@ -153,6 +208,7 @@ impl Widget for HStack {
 }
 
 /// Creates an [`HStack`].  
+/// 
 /// `hstack!` allows [`HStack`]'s to be declared in a more declarative manner.
 /// ```
 /// use helium::{hstack,widgets::{Text}};
@@ -172,4 +228,10 @@ macro_rules! hstack {
 			$(.add_child($child))*
 		}
 	};
+	
+	()=>{
+		$crate::widgets::HStack::new()	
+	};
+
+	
 }
