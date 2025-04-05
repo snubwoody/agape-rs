@@ -220,6 +220,10 @@ impl<'r> Renderer<'r> {
 		self.image_pipeline.draw(image);
 	}
 
+	pub fn draw_icon(&mut self, icon: primitives::Icon){
+		self.icon_pipeline.draw(icon);
+	}
+
     /// Add primitives to the draw queue
     pub fn draw<I, P>(&mut self, primitives: I)
     where
@@ -280,6 +284,7 @@ impl<'r> Renderer<'r> {
             }
         }
 
+		self.icon_pipeline.render(&self.queue, &self.device, &mut render_pass);
 		self.image_pipeline.render(&self.queue, &self.device, &mut render_pass);
 
 
