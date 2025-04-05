@@ -5,7 +5,7 @@ mod rect;
 mod text;
 pub use circle::CircleSurface;
 pub use icon::IconSurface;
-pub use image::ImageSurface;
+pub use image::{ImageSurface,Image};
 pub use rect::RectSurface;
 pub use text::TextSurface;
 
