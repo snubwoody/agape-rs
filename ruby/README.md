@@ -3,6 +3,7 @@
 General purpose native 2D renderer built using `wgpu`
 
 ## Getting started
+
 ```rust
 use ruby::{Color, Rect};
 
