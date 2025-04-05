@@ -277,10 +277,6 @@ impl<'r> Renderer<'r> {
                     self.text_pipeline
                         .draw(&text, &self.queue, &self.device, &mut render_pass);
                 }
-                Surface::Icon(icon) => {
-                    self.icon_pipeline
-                        .draw(&icon, &self.queue, &self.device, &mut render_pass);
-                }
             }
         }
 

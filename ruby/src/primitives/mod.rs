@@ -4,7 +4,7 @@ mod image;
 mod rect;
 mod text;
 pub use circle::CircleSurface;
-pub use icon::IconSurface;
+pub use icon::Icon;
 pub use image::Image;
 pub use rect::RectSurface;
 pub use text::TextSurface;
@@ -14,7 +14,6 @@ pub enum Surface {
     Rect(RectSurface),
     Circle(CircleSurface),
     Text(TextSurface),
-    Icon(IconSurface),
 }
 
 pub trait IntoSurface {

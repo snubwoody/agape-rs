@@ -1,14 +1,13 @@
-use super::{IntoSurface, Surface};
 use helium_core::{colors::BLACK, Color, IntoColor, Position, Rgba};
 
 #[derive(Clone, PartialEq)]
-pub struct IconSurface {
+pub struct Icon {
     pub image: ::image::DynamicImage,
     pub position: Position,
     pub color: Color<Rgba>,
 }
 
-impl IconSurface {
+impl Icon {
     pub fn new(image: ::image::DynamicImage) -> Self {
         Self {
             image,
@@ -28,13 +27,7 @@ impl IconSurface {
     }
 }
 
-impl IntoSurface for IconSurface {
-    fn into_surface(self) -> Surface {
-        Surface::Icon(self)
-    }
-}
-
-impl std::fmt::Debug for IconSurface{
+impl std::fmt::Debug for Icon{
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		f.debug_struct("Icon")
 			.field("color", &self.color)

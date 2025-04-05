@@ -4,7 +4,7 @@ use crate::{
         BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, TextureBuilder,
         VertexBufferLayoutBuilder,
     },
-    primitives::IconSurface,
+    primitives::Icon,
     vertex::Vertex,
 };
 use helium_core::Size;
@@ -103,7 +103,7 @@ impl IconPipeline {
 
     pub fn draw(
         &mut self,
-        icon: &IconSurface,
+        icon: &Icon,
         queue: &wgpu::Queue,
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
