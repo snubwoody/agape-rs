@@ -3,7 +3,7 @@ use crate::{
     builders::{
         BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, VertexBufferLayoutBuilder,
     },
-    primitives::RectSurface,
+    primitives::Rect,
     vertex::Vertex,
 };
 use std::rc::Rc;
@@ -12,6 +12,7 @@ pub struct RectPipeline {
     pipeline: wgpu::RenderPipeline,
     layout: wgpu::BindGroupLayout,
     global: Rc<GlobalResources>,
+	draw_queue: Vec<Rect>
 }
 
 impl RectPipeline {
@@ -88,51 +89,59 @@ impl RectPipeline {
             pipeline,
             layout,
             global,
+			draw_queue: Vec::new()
         }
     }
 
-    pub fn draw(&mut self, rect: &RectSurface, device: &wgpu::Device, pass: &mut wgpu::RenderPass) {
-        let vertices = Vertex::quad(rect.size, rect.position, rect.color.clone());
+	pub fn draw(&mut self, rect: Rect){
+		self.draw_queue.push(rect);
+	}
 
-        let vertex_buffer = BufferBuilder::new()
-            .label("Rect vertex buffer")
-            .vertex()
-            .init(&vertices)
-            .build(device);
+    pub fn render(&mut self, device: &wgpu::Device, pass: &mut wgpu::RenderPass) {
+		for rect in self.draw_queue.drain(..){
+			
+			let vertices = Vertex::quad(rect.size, rect.position, rect.color.clone());
 
-        let size = BufferBuilder::new()
-            .label("Rect size buffer")
-            .uniform()
-            .copy_dst()
-            .init(&[rect.size])
-            .build(device);
-
-        let position = BufferBuilder::new()
-            .label("Rect position buffer")
-            .uniform()
-            .copy_dst()
-            .init(&[rect.position])
-            .build(device);
-
-        let corner_radius = BufferBuilder::new()
-            .label("Rect corner radius buffer")
-            .uniform()
-            .copy_dst()
-            .init(&[rect.corner_radius])
-            .build(device);
-
-        let rect_bind_group = BindGroupBuilder::new()
-            .label("Rect bind group")
-            .buffer(&corner_radius)
-            .buffer(&size)
-            .buffer(&position)
-            .build(&self.layout, device);
-
-        pass.set_pipeline(&self.pipeline);
-        pass.set_bind_group(0, self.global.window_bind_group(), &[]);
-        pass.set_bind_group(1, &rect_bind_group, &[]);
-        pass.set_vertex_buffer(0, vertex_buffer.slice(..));
-
-        pass.draw(0..vertices.len() as u32, 0..1);
+			let vertex_buffer = BufferBuilder::new()
+				.label("Rect vertex buffer")
+				.vertex()
+				.init(&vertices)
+				.build(device);
+	
+			let size = BufferBuilder::new()
+				.label("Rect size buffer")
+				.uniform()
+				.copy_dst()
+				.init(&[rect.size])
+				.build(device);
+	
+			let position = BufferBuilder::new()
+				.label("Rect position buffer")
+				.uniform()
+				.copy_dst()
+				.init(&[rect.position])
+				.build(device);
+	
+			let corner_radius = BufferBuilder::new()
+				.label("Rect corner radius buffer")
+				.uniform()
+				.copy_dst()
+				.init(&[rect.corner_radius])
+				.build(device);
+	
+			let rect_bind_group = BindGroupBuilder::new()
+				.label("Rect bind group")
+				.buffer(&corner_radius)
+				.buffer(&size)
+				.buffer(&position)
+				.build(&self.layout, device);
+	
+			pass.set_pipeline(&self.pipeline);
+			pass.set_bind_group(0, self.global.window_bind_group(), &[]);
+			pass.set_bind_group(1, &rect_bind_group, &[]);
+			pass.set_vertex_buffer(0, vertex_buffer.slice(..));
+	
+			pass.draw(0..vertices.len() as u32, 0..1);
+		}
     }
 }

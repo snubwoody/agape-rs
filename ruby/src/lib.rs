@@ -11,7 +11,6 @@ use pipeline::{
 pub use primitives::*;
 use std::{
     rc::Rc,
-    time::Instant,
 };
 pub use vertex::Vertex;
 use winit::{
@@ -60,7 +59,7 @@ impl App {
         })
     }
 
-    pub async fn run(self, mut f: impl FnMut(&mut Renderer)) -> Result<()> {
+    pub async fn run(self, f: impl Fn(&mut Renderer)) -> Result<()> {
         self.window.set_visible(true);
 
         let mut renderer = Renderer::new(&self.window).await?;
@@ -107,7 +106,6 @@ pub struct Renderer<'r> {
     text_pipeline: TextPipeline,
     image_pipeline: ImagePipeline,
     icon_pipeline: IconPipeline,
-    draw_queue: Vec<Surface>,
 }
 
 impl<'r> Renderer<'r> {
@@ -190,7 +188,6 @@ impl<'r> Renderer<'r> {
             image_pipeline,
             icon_pipeline,
             global,
-            draw_queue: vec![],
         })
     }
 
@@ -207,12 +204,8 @@ impl<'r> Renderer<'r> {
         self.surface.configure(&self.device, &self.config);
     }
 
-	pub fn draw_square(&mut self, size: f32,color: impl IntoColor<Rgba>,radius: f32){
-		let rect = RectSurface::new(size, size)
-			.color(color)
-			.corner_radius(radius);
-
-		self.draw_queue.push(primitives::Surface::Rect(rect));
+	pub fn draw_rect(&mut self, rect: Rect){
+		self.rect_pipeline.draw(rect);
 	}
 
 	pub fn draw_image(&mut self, image: primitives::Image){
@@ -230,16 +223,6 @@ impl<'r> Renderer<'r> {
 	pub fn draw_text(&mut self, text: primitives::Text){
 		self.text_pipeline.draw(text);
 	}
-
-    /// Add primitives to the draw queue
-    pub fn draw<I, P>(&mut self, primitives: I)
-    where
-        I: IntoIterator<Item = P>,
-        P: IntoSurface,
-    {
-        self.draw_queue
-            .extend(primitives.into_iter().map(|p| p.into_surface()));
-    }
 
     pub fn render(&mut self) {
         let output = self.surface.get_current_texture().unwrap(); // TODO maybe handle this error
@@ -273,15 +256,7 @@ impl<'r> Renderer<'r> {
             timestamp_writes: None,
         });
 
-        for primitive in self.draw_queue.drain(..) {
-            match primitive {
-                Surface::Rect(rect) => {
-                    self.rect_pipeline
-                        .draw(&rect, &self.device, &mut render_pass);
-                }
-            }
-        }
-
+		self.rect_pipeline.render(&self.device, &mut render_pass);
 		self.text_pipeline.render(&self.queue, &self.device, &mut render_pass);
 		self.icon_pipeline.render(&self.queue, &self.device, &mut render_pass);
 		self.image_pipeline.render(&self.queue, &self.device, &mut render_pass);

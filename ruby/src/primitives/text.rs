@@ -1,4 +1,3 @@
-use super::{IntoSurface, Surface};
 use helium_core::{Color, IntoColor, Position, Rgba};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
