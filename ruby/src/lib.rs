@@ -273,10 +273,6 @@ impl<'r> Renderer<'r> {
                     self.rect_pipeline
                         .draw(&rect, &self.device, &mut render_pass);
                 }
-                Surface::Circle(circle) => {
-                    self.circle_pipeline
-                        .draw(&circle, &self.device, &mut render_pass);
-                }
                 Surface::Text(text) => {
                     self.text_pipeline
                         .draw(&text, &self.queue, &self.device, &mut render_pass);
