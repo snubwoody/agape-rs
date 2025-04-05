@@ -13,7 +13,6 @@ use image::{ImageBuffer, Rgba, RgbaImage};
 use std::rc::Rc;
 use wgpu::Extent3d;
 
-// TODO replace text_to_png
 /// The pipeline that handles text rendering.
 /// It uses `cosmic_text` for text shaping, then rasterizes it to an image
 /// which is then written to a `Texture`.
@@ -23,6 +22,7 @@ pub struct TextPipeline {
     global: Rc<GlobalResources>,
     font_system: FontSystem,
     cache: SwashCache,
+	draw_queue: Vec<Text>
 }
 
 impl TextPipeline {
@@ -113,44 +113,8 @@ impl TextPipeline {
             layout,
             global,
             cache,
+			draw_queue: Vec::new()
         }
-    }
-
-	/// Get the [`Size`] of a string of text
-    pub fn text_size(&mut self, text: &Text) -> Size {
-        let font_system = &mut self.font_system;
-
-        let mut buffer = Buffer::new(
-            font_system,
-            Metrics::new(
-                text.font_size as f32,
-                text.font_size as f32 * text.line_height,
-            ),
-        );
-
-        // TODO try to get the default font on each platform
-        // TODO expose font weight and other items
-        // Just get any sans-serif font
-        let attrs = Attrs::new().family(cosmic_text::Family::SansSerif);
-
-        buffer.set_text(
-            font_system,
-            &text.text,
-            attrs,
-            cosmic_text::Shaping::Advanced,
-        );
-
-        buffer.shape_until_scroll(font_system, false);
-        let mut size = Size::default();
-        for run in buffer.layout_runs() {
-            size.width += size.width.max(run.line_w); // Get the max of all lines
-            size.height += run.line_height;
-        }
-
-        // Add padding to prevent clipping
-        size += 1.0;
-
-        size
     }
 
     /// Uses `comsic-text` to rasterize the font into a an image, which
@@ -213,68 +177,75 @@ impl TextPipeline {
         (image, size)
     }
 
-    pub fn draw(
+	pub fn draw(&mut self, text: Text){
+		self.draw_queue.push(text);
+	}
+
+    pub fn render(
         &mut self,
-        text: &Text,
         queue: &wgpu::Queue,
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
     ) {
-        let (text_img, size) = self.rasterize_text(&text);
+		let primitives:Vec<Text> = self.draw_queue.drain(..).collect();
+		
+		for text in primitives{
+			let (text_img, size) = self.rasterize_text(&text);
 
-        let vertices = Vertex::quad(size, text.position, text.color.clone());
-
-        let vertex_buffer = BufferBuilder::new()
-            .label("Text vertex buffer")
-            .vertex()
-            .init(&vertices)
-            .build(device);
-
-        let texture = TextureBuilder::new()
-            .label("Text texture")
-            .size(size)
-            .dimension(wgpu::TextureDimension::D2)
-            .format(wgpu::TextureFormat::Rgba8UnormSrgb)
-            .usage(wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST)
-            .build(device);
-
-        let texture_view = texture.create_view(&Default::default());
-        let sampler = device.create_sampler(&Default::default());
-
-        let bind_group = BindGroupBuilder::new()
-            .label("Text bind group")
-            .texture_view(&texture_view)
-            .sampler(&sampler)
-            .build(&self.layout, device);
-
-        let size = Extent3d {
-            width: size.width as u32,
-            height: size.height as u32,
-            depth_or_array_layers: 1,
-        };
-
-        queue.write_texture(
-            wgpu::TexelCopyTextureInfo {
-                texture: &texture,
-                mip_level: 0,
-                origin: wgpu::Origin3d::ZERO,
-                aspect: wgpu::TextureAspect::All,
-            },
-            &text_img,
-            wgpu::TexelCopyBufferLayout {
-                offset: 0,
-                bytes_per_row: Some(4 * size.width as u32),
-                rows_per_image: Some(size.height as u32),
-            },
-            size,
-        );
-
-        pass.set_pipeline(&self.pipeline);
-        pass.set_bind_group(0, self.global.window_bind_group(), &[]);
-        pass.set_bind_group(1, &bind_group, &[]);
-        pass.set_vertex_buffer(0, vertex_buffer.slice(..));
-
-        pass.draw(0..vertices.len() as u32, 0..1);
+			let vertices = Vertex::quad(size, text.position, text.color.clone());
+	
+			let vertex_buffer = BufferBuilder::new()
+				.label("Text vertex buffer")
+				.vertex()
+				.init(&vertices)
+				.build(device);
+	
+			let texture = TextureBuilder::new()
+				.label("Text texture")
+				.size(size)
+				.dimension(wgpu::TextureDimension::D2)
+				.format(wgpu::TextureFormat::Rgba8UnormSrgb)
+				.usage(wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST)
+				.build(device);
+	
+			let texture_view = texture.create_view(&Default::default());
+			let sampler = device.create_sampler(&Default::default());
+	
+			let bind_group = BindGroupBuilder::new()
+				.label("Text bind group")
+				.texture_view(&texture_view)
+				.sampler(&sampler)
+				.build(&self.layout, device);
+	
+			let size = Extent3d {
+				width: size.width as u32,
+				height: size.height as u32,
+				depth_or_array_layers: 1,
+			};
+	
+			queue.write_texture(
+				wgpu::TexelCopyTextureInfo {
+					texture: &texture,
+					mip_level: 0,
+					origin: wgpu::Origin3d::ZERO,
+					aspect: wgpu::TextureAspect::All,
+				},
+				&text_img,
+				wgpu::TexelCopyBufferLayout {
+					offset: 0,
+					bytes_per_row: Some(4 * size.width as u32),
+					rows_per_image: Some(size.height as u32),
+				},
+				size,
+			);
+	
+			pass.set_pipeline(&self.pipeline);
+			pass.set_bind_group(0, self.global.window_bind_group(), &[]);
+			pass.set_bind_group(1, &bind_group, &[]);
+			pass.set_vertex_buffer(0, vertex_buffer.slice(..));
+	
+			pass.draw(0..vertices.len() as u32, 0..1);
+		}
     }
 }
 

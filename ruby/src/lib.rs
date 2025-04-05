@@ -226,6 +226,10 @@ impl<'r> Renderer<'r> {
 	pub fn draw_circle(&mut self, circle: primitives::Circle){
 		self.circle_pipeline.draw(circle);
 	}
+	
+	pub fn draw_text(&mut self, text: primitives::Text){
+		self.text_pipeline.draw(text);
+	}
 
     /// Add primitives to the draw queue
     pub fn draw<I, P>(&mut self, primitives: I)
@@ -238,7 +242,6 @@ impl<'r> Renderer<'r> {
     }
 
     pub fn render(&mut self) {
-        let instant = Instant::now();
         let output = self.surface.get_current_texture().unwrap(); // TODO maybe handle this error
         let view = output
             .texture
@@ -279,10 +282,10 @@ impl<'r> Renderer<'r> {
             }
         }
 
+		self.text_pipeline.render(&self.queue, &self.device, &mut render_pass);
 		self.icon_pipeline.render(&self.queue, &self.device, &mut render_pass);
 		self.image_pipeline.render(&self.queue, &self.device, &mut render_pass);
 		self.circle_pipeline.render(&self.device, &mut render_pass);
-
 
         // Drop the render pass because it borrows encoder mutably
         std::mem::drop(render_pass);
