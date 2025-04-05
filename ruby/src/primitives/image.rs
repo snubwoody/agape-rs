@@ -1,6 +1,19 @@
 use helium_core::{Position, Size};
 use image::{ImageBuffer, Rgba};
 
+/// An image
+/// 
+/// # Example
+/// ```
+/// use ruby::Image;
+/// use helium_core::Size;
+/// 
+/// let data = image::DynamicImage::new(0, 0, image::ColorType::Rgba16)
+///			.into_rgba8();
+/// let image = Image::new(data).size(500.0,500.0);
+/// 
+/// assert_eq!(image.size,Size::unit(500.0));
+/// ```
 pub struct Image{
 	pub size: Size,
 	// TODO make this private and expose using method?
@@ -55,8 +68,9 @@ mod tests{
 
 	#[test]
 	fn image_min_size(){
-		let data = image::DynamicImage::new(0, 0, image::ColorType::Rgba16);
-		let image = Image::new(data.into())
+		let data = image::DynamicImage::new(0, 0, image::ColorType::Rgba16)
+			.into_rgba8();
+		let image = Image::new(data)
 			.size(-1.0, -1.0);
 
 		assert_eq!(image.size,Size::unit(1.0));
