@@ -1,15 +1,27 @@
-use super::{IntoSurface, Surface};
 use helium_core::{Position, Size};
 use image::{ImageBuffer, Rgba};
 
-#[derive(Clone, PartialEq)]
-pub struct ImageSurface {
-    pub size: Size,
-    pub data: ImageBuffer<Rgba<u8>, Vec<u8>>,
-    pub position: Position,
+/// An image
+/// 
+/// # Example
+/// ```
+/// use ruby::Image;
+/// use helium_core::Size;
+/// 
+/// let data = image::DynamicImage::new(0, 0, image::ColorType::Rgba16)
+///			.into_rgba8();
+/// let image = Image::new(data).size(500.0,500.0);
+/// 
+/// assert_eq!(image.size,Size::unit(500.0));
+/// ```
+pub struct Image{
+	pub size: Size,
+	// TODO make this private and expose using method?
+	pub(crate) data: ImageBuffer<Rgba<u8>,Vec<u8>>,
+	pub position: Position
 }
 
-impl ImageSurface {
+impl Image {
     pub fn new(data: ::image::ImageBuffer<Rgba<u8>, Vec<u8>>) -> Self {
         // TODO get the size of the image and make it a u8 max?
         let width = data.width();
@@ -39,9 +51,9 @@ impl ImageSurface {
     }
 }
 
-impl std::fmt::Debug for ImageSurface{
+impl std::fmt::Debug for Image{
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		f.debug_struct("ImageSurface")
+		f.debug_struct("Image")
 			.field("size", &self.size)
 			.field("position", &self.position)
 			.field("data", &"ImageBuffer<...>")
@@ -49,8 +61,18 @@ impl std::fmt::Debug for ImageSurface{
 	}
 }
 
-impl IntoSurface for ImageSurface {
-    fn into_surface(self) -> Surface {
-        Surface::Image(self)
-    }
+
+#[cfg(test)]
+mod tests{
+    use super::*;
+
+	#[test]
+	fn image_min_size(){
+		let data = image::DynamicImage::new(0, 0, image::ColorType::Rgba16)
+			.into_rgba8();
+		let image = Image::new(data)
+			.size(-1.0, -1.0);
+
+		assert_eq!(image.size,Size::unit(1.0));
+	}
 }

@@ -11,7 +11,6 @@ use pipeline::{
 pub use primitives::*;
 use std::{
     rc::Rc,
-    time::{Duration, Instant},
 };
 pub use vertex::Vertex;
 use winit::{
@@ -60,10 +59,10 @@ impl App {
         })
     }
 
-    pub async fn run(self, mut f: impl FnMut(&mut Renderer)) -> Result<()> {
+    pub async fn run(self, f: impl Fn(&mut Renderer)) -> Result<()> {
         self.window.set_visible(true);
 
-        let mut renderer = Renderer::new(&self.window).await;
+        let mut renderer = Renderer::new(&self.window).await?;
         log::info!("Running app");
 
         let mut size = Size::from(self.window.inner_size());
@@ -107,11 +106,11 @@ pub struct Renderer<'r> {
     text_pipeline: TextPipeline,
     image_pipeline: ImagePipeline,
     icon_pipeline: IconPipeline,
-    draw_queue: Vec<Surface>,
 }
 
 impl<'r> Renderer<'r> {
-    pub async fn new(window: &'r Window) -> Self {
+	// TODO use tokio blocking and remove async
+    pub async fn new(window: &'r Window) -> crate::Result<Self> {
         let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
             backends: wgpu::Backends::PRIMARY,
             ..Default::default()
@@ -119,14 +118,17 @@ impl<'r> Renderer<'r> {
 
         let surface = instance.create_surface(window).unwrap();
 
+		tokio::task::spawn_blocking(||{
+
+		});
+
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: Default::default(),
                 compatible_surface: Some(&surface),
                 force_fallback_adapter: false,
             })
-            .await
-            .unwrap(); // FIXME return these errors
+            .await.unwrap(); // FIXME create custom
 
         let (device, queue) = adapter
             .request_device(
@@ -137,8 +139,7 @@ impl<'r> Renderer<'r> {
                 },
                 None,
             )
-            .await
-            .unwrap();
+            .await?;
 
         let surface_caps = surface.get_capabilities(&adapter);
 
@@ -176,7 +177,7 @@ impl<'r> Renderer<'r> {
         let image_pipeline = ImagePipeline::new(&device, config.format, Rc::clone(&global));
         let icon_pipeline = IconPipeline::new(&device, config.format, Rc::clone(&global));
 
-        Self {
+        Ok(Self {
             surface,
             device,
             queue,
@@ -187,12 +188,7 @@ impl<'r> Renderer<'r> {
             image_pipeline,
             icon_pipeline,
             global,
-            draw_queue: vec![],
-        }
-    }
-
-    pub fn text_size(&mut self, text: &TextSurface) -> Size {
-        self.text_pipeline.text_size(text)
+        })
     }
 
     pub fn resize(&mut self, size: Size) {
@@ -208,26 +204,27 @@ impl<'r> Renderer<'r> {
         self.surface.configure(&self.device, &self.config);
     }
 
-	pub fn draw_square(&mut self, size: f32,color: impl IntoColor<Rgba>,radius: f32){
-		let rect = RectSurface::new(size, size)
-			.color(color)
-			.corner_radius(radius);
-
-		self.draw_queue.push(primitives::Surface::Rect(rect));
+	pub fn draw_rect(&mut self, rect: Rect){
+		self.rect_pipeline.draw(rect);
 	}
 
-    /// Add primitives to the draw queue
-    pub fn draw<I, P>(&mut self, primitives: I)
-    where
-        I: IntoIterator<Item = P>,
-        P: IntoSurface,
-    {
-        self.draw_queue
-            .extend(primitives.into_iter().map(|p| p.into_surface()));
-    }
+	pub fn draw_image(&mut self, image: primitives::Image){
+		self.image_pipeline.draw(image);
+	}
+
+	pub fn draw_icon(&mut self, icon: primitives::Icon){
+		self.icon_pipeline.draw(icon);
+	}
+
+	pub fn draw_circle(&mut self, circle: primitives::Circle){
+		self.circle_pipeline.draw(circle);
+	}
+	
+	pub fn draw_text(&mut self, text: primitives::Text){
+		self.text_pipeline.draw(text);
+	}
 
     pub fn render(&mut self) {
-        let instant = Instant::now();
         let output = self.surface.get_current_texture().unwrap(); // TODO maybe handle this error
         let view = output
             .texture
@@ -259,30 +256,11 @@ impl<'r> Renderer<'r> {
             timestamp_writes: None,
         });
 
-        for primitive in self.draw_queue.drain(..) {
-            match primitive {
-                Surface::Rect(rect) => {
-                    self.rect_pipeline
-                        .draw(&rect, &self.device, &mut render_pass);
-                }
-                Surface::Circle(circle) => {
-                    self.circle_pipeline
-                        .draw(&circle, &self.device, &mut render_pass);
-                }
-                Surface::Text(text) => {
-                    self.text_pipeline
-                        .draw(&text, &self.queue, &self.device, &mut render_pass);
-                }
-                Surface::Image(image) => {
-                    self.image_pipeline
-                        .draw(&image, &self.queue, &self.device, &mut render_pass);
-                }
-                Surface::Icon(icon) => {
-                    self.icon_pipeline
-                        .draw(&icon, &self.queue, &self.device, &mut render_pass);
-                }
-            }
-        }
+		self.rect_pipeline.render(&self.device, &mut render_pass);
+		self.text_pipeline.render(&self.queue, &self.device, &mut render_pass);
+		self.icon_pipeline.render(&self.queue, &self.device, &mut render_pass);
+		self.image_pipeline.render(&self.queue, &self.device, &mut render_pass);
+		self.circle_pipeline.render(&self.device, &mut render_pass);
 
         // Drop the render pass because it borrows encoder mutably
         std::mem::drop(render_pass);
@@ -347,4 +325,9 @@ mod tests {
     async fn setup_works() {
         let (_device, _queue) = setup().await;
     }
+
+	#[tokio::test]
+	async fn all_pipelines_used_in_renderer(){
+
+	}
 }

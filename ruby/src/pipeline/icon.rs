@@ -4,7 +4,7 @@ use crate::{
         BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, TextureBuilder,
         VertexBufferLayoutBuilder,
     },
-    primitives::IconSurface,
+    primitives::Icon,
     vertex::Vertex,
 };
 use helium_core::Size;
@@ -15,6 +15,7 @@ pub struct IconPipeline {
     pipeline: wgpu::RenderPipeline,
     layout: wgpu::BindGroupLayout,
     global: Rc<GlobalResources>,
+	draw_queue: Vec<Icon>
 }
 
 impl IconPipeline {
@@ -98,75 +99,82 @@ impl IconPipeline {
             pipeline,
             layout,
             global,
+			draw_queue: Vec::new()
         }
     }
 
-    pub fn draw(
+	pub fn draw(&mut self, icon: Icon){
+		self.draw_queue.push(icon);
+	}
+
+    pub fn render(
         &mut self,
-        icon: &IconSurface,
         queue: &wgpu::Queue,
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
     ) {
-        let image_data = icon.image.to_rgba8();
+		for icon in self.draw_queue.drain(..){
+			let image_data = icon.image.to_rgba8();
 
-        let size = Size {
-            width: image_data.dimensions().0 as f32,
-            height: image_data.dimensions().1 as f32,
-        };
-
-        let vertices = Vertex::quad(size, icon.position, icon.color.clone());
-
-        let vertex_buffer = BufferBuilder::new()
-            .label("Icon vertex buffer")
-            .vertex()
-            .init(&vertices)
-            .build(device);
-
-        let texture = TextureBuilder::new()
-            .label("Icon texture")
-            .size(size)
-            .dimension(wgpu::TextureDimension::D2)
-            .format(wgpu::TextureFormat::Rgba8UnormSrgb)
-            .usage(wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST)
-            .build(device);
-
-        let texture_view = texture.create_view(&Default::default());
-        let sampler = device.create_sampler(&Default::default());
-
-        let bind_group = BindGroupBuilder::new()
-            .label("Icon bind group")
-            .texture_view(&texture_view)
-            .sampler(&sampler)
-            .build(&self.layout, device);
-
-        let size = Extent3d {
-            width: size.width as u32,
-            height: size.height as u32,
-            depth_or_array_layers: 1,
-        };
-
-        queue.write_texture(
-            wgpu::TexelCopyTextureInfo {
-                texture: &texture,
-                mip_level: 0,
-                origin: wgpu::Origin3d::ZERO,
-                aspect: wgpu::TextureAspect::All,
-            },
-            &image_data,
-            wgpu::TexelCopyBufferLayout {
-                offset: 0,
-                bytes_per_row: Some(4 * size.width as u32),
-                rows_per_image: Some(size.height as u32),
-            },
-            size,
-        );
-
-        pass.set_pipeline(&self.pipeline);
-        pass.set_bind_group(0, self.global.window_bind_group(), &[]);
-        pass.set_bind_group(1, &bind_group, &[]);
-        pass.set_vertex_buffer(0, vertex_buffer.slice(..));
-
-        pass.draw(0..vertices.len() as u32, 0..1);
+			let size = Size {
+				width: image_data.dimensions().0 as f32,
+				height: image_data.dimensions().1 as f32,
+			};
+	
+			let vertices = Vertex::quad(size, icon.position, icon.color.clone());
+	
+			let vertex_buffer = BufferBuilder::new()
+				.label("Icon vertex buffer")
+				.vertex()
+				.init(&vertices)
+				.build(device);
+	
+			let texture = TextureBuilder::new()
+				.label("Icon texture")
+				.size(size)
+				.dimension(wgpu::TextureDimension::D2)
+				.format(wgpu::TextureFormat::Rgba8UnormSrgb)
+				.usage(wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST)
+				.build(device);
+	
+			let texture_view = texture.create_view(&Default::default());
+			let sampler = device.create_sampler(&Default::default());
+	
+			let bind_group = BindGroupBuilder::new()
+				.label("Icon bind group")
+				.texture_view(&texture_view)
+				.sampler(&sampler)
+				.build(&self.layout, device);
+	
+			let size = Extent3d {
+				width: size.width as u32,
+				height: size.height as u32,
+				depth_or_array_layers: 1,
+			};
+	
+			queue.write_texture(
+				wgpu::TexelCopyTextureInfo {
+					texture: &texture,
+					mip_level: 0,
+					origin: wgpu::Origin3d::ZERO,
+					aspect: wgpu::TextureAspect::All,
+				},
+				&image_data,
+				wgpu::TexelCopyBufferLayout {
+					offset: 0,
+					bytes_per_row: Some(4 * size.width as u32),
+					rows_per_image: Some(size.height as u32),
+				},
+				size,
+			);
+	
+			pass.set_pipeline(&self.pipeline);
+			pass.set_bind_group(0, self.global.window_bind_group(), &[]);
+			pass.set_bind_group(1, &bind_group, &[]);
+			pass.set_vertex_buffer(0, vertex_buffer.slice(..));
+	
+			pass.draw(0..vertices.len() as u32, 0..1);
+		}
+        
     }
 }

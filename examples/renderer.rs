@@ -1,5 +1,4 @@
-use helium::colors::BLACK;
-use ruby::{Color, RectSurface};
+use ruby::{Color, Rect};
 
 
 #[tokio::main]
@@ -10,11 +9,10 @@ async fn main() -> ruby::Result<()> {
     env_logger::init();
 	
 	let app = ruby::App::new()?;
-
-	app.run(|r|{
-		r.draw_square(250.0, Color::rgb(25, 223, 102), 24.0);
-		r.draw_square(50.0, Color::rgb(205, 223, 102), 2.0);
-		r.draw_square(550.0, Color::rgb(0, 223, 252), 2.0);
+	
+	app.run(move |r|{
+		let rect = Rect::new(500.0, 500.0).color(Color::rgb(25, 233, 102));
+		r.draw_rect(rect);
 	}).await?;
 
 	Ok(())
