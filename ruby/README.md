@@ -23,6 +23,11 @@ async fn main() -> ruby::Result<()> {
 
 ## Features
 
+- ✅ Basic shapes 
+- ✅ Image rendering
+- ✅ Text rendering
+- ✅ GPU accelerated
+  
 ## Primitives
 
 ### Rect
