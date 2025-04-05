@@ -1,16 +1,19 @@
+//! Pipeline for rendering images, images are rendered onto 
+//! sets of texture atlases.
 use super::GlobalResources;
 use crate::{
     builders::{
         BindGroupBuilder, BindGroupLayoutBuilder, BufferBuilder, TextureBuilder,
         VertexBufferLayoutBuilder,
     },
-    primitives::ImageSurface,
-    vertex::Vertex,
+    vertex::Vertex, Image,
 };
 use helium_core::{colors::TRANSPARENT, Position, Size};
 use image::{ImageBuffer, Rgba};
 use std::rc::Rc;
 use wgpu::Extent3d;
+
+
 
 pub struct ImagePipeline {
     pipeline: wgpu::RenderPipeline,
@@ -20,6 +23,7 @@ pub struct ImagePipeline {
     atlas: TextureAtlas,
     bind_group: wgpu::BindGroup,
     view: wgpu::TextureView,
+	draw_queue: Vec<Image>
 }
 
 impl ImagePipeline {
@@ -118,31 +122,39 @@ impl ImagePipeline {
             atlas,
             bind_group,
             view,
+			draw_queue: Vec::new()
         }
     }
 
-    pub fn draw(
+	/// Add an [`Image`] to the draw queue.
+	pub fn draw(&mut self, image:Image){
+		self.draw_queue.push(image);
+	}
+
+	/// Render all the [`Image`]'s in the draw queue to the screen
+    pub fn render(
         &mut self,
-        image: &ImageSurface,
         queue: &wgpu::Queue,
         device: &wgpu::Device,
         pass: &mut wgpu::RenderPass,
     ) {
-        let quad_size = image.size;
+		for image in self.draw_queue.drain(..){
+			let quad_size = image.size;
 
-        let uv = self.atlas.get(image, queue);
-        let vertices = Vertex::quad_with_uv(quad_size, image.position, TRANSPARENT, uv);
-        let vertex_buffer = BufferBuilder::new()
-            .label("Image vertex buffer")
-            .vertex()
-            .init(&vertices)
-            .build(device);
-
-        pass.set_pipeline(&self.pipeline);
-        pass.set_bind_group(0, self.global.window_bind_group(), &[]);
-        pass.set_bind_group(1, &self.bind_group, &[]);
-        pass.set_vertex_buffer(0, vertex_buffer.slice(..));
-        pass.draw(0..vertices.len() as u32, 0..1);
+			let uv = self.atlas.get(&image, queue);
+			let vertices = Vertex::quad_with_uv(quad_size, image.position, TRANSPARENT, uv);
+			let vertex_buffer = BufferBuilder::new()
+				.label("Image vertex buffer")
+				.vertex()
+				.init(&vertices)
+				.build(device);
+	
+			pass.set_pipeline(&self.pipeline);
+			pass.set_bind_group(0, self.global.window_bind_group(), &[]);
+			pass.set_bind_group(1, &self.bind_group, &[]);
+			pass.set_vertex_buffer(0, vertex_buffer.slice(..));
+			pass.draw(0..vertices.len() as u32, 0..1);
+		}
     }
 }
 
@@ -175,7 +187,7 @@ impl TextureAtlas {
         }
     }
 
-    pub fn get(&mut self, image: &ImageSurface, queue: &wgpu::Queue) -> [[f32; 2]; 4] {
+    pub fn get(&mut self, image: &Image, queue: &wgpu::Queue) -> [[f32; 2]; 4] {
         for cached_image in &self.images {
             if cached_image.image == image.data {
                 return cached_image.uv(self.size);

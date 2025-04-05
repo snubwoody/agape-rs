@@ -216,6 +216,10 @@ impl<'r> Renderer<'r> {
 		self.draw_queue.push(primitives::Surface::Rect(rect));
 	}
 
+	pub fn draw_image(&mut self, image: primitives::Image){
+		self.image_pipeline.draw(image);
+	}
+
     /// Add primitives to the draw queue
     pub fn draw<I, P>(&mut self, primitives: I)
     where
@@ -274,8 +278,6 @@ impl<'r> Renderer<'r> {
                         .draw(&text, &self.queue, &self.device, &mut render_pass);
                 }
                 Surface::Image(image) => {
-                    self.image_pipeline
-                        .draw(&image, &self.queue, &self.device, &mut render_pass);
                 }
                 Surface::Icon(icon) => {
                     self.icon_pipeline
@@ -283,6 +285,9 @@ impl<'r> Renderer<'r> {
                 }
             }
         }
+
+		self.image_pipeline.render(&self.queue, &self.device, &mut render_pass);
+
 
         // Drop the render pass because it borrows encoder mutably
         std::mem::drop(render_pass);
