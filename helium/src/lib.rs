@@ -11,10 +11,8 @@ pub use helium_core::*;
 pub use helium_macros::hex; // TODO move to colors mod
 pub use nanoid::nanoid;
 use pixels::{Pixels, SurfaceTexture};
-use resvg::tiny_skia;
 use resvg::tiny_skia::Pixmap;
 use std::sync::Arc;
-use std::time::{Duration, Instant};
 use widgets::Widget;
 use winit::{
     event::WindowEvent,
@@ -22,8 +20,7 @@ use winit::{
     window::Window,
 };
 use winit::application::ApplicationHandler;
-use winit::event_loop::{ActiveEventLoop, EventLoopBuilder};
-use winit::platform::windows::EventLoopBuilderExtWindows;
+use winit::event_loop::ActiveEventLoop;
 use winit::window::WindowId;
 use crate::view::View;
 
@@ -37,20 +34,20 @@ pub struct App<'app> {
     pixmap: Option<Pixmap>,
 }
 
-impl<'app> ApplicationHandler for App<'app> {
+impl ApplicationHandler for App<'_> {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         log::info!("Initializing resources");
         let window = event_loop.create_window(Default::default()).unwrap();
         let window = Arc::new(window);
-        let mut size = Size::from(window.inner_size());
+        let size = Size::from(window.inner_size());
 
         let surface = SurfaceTexture::new(
             size.width as u32,
             size.height as u32,
             Arc::clone(&window),
         );
-        let mut pixels = Pixels::new(size.width as u32, size.height as u32, surface).unwrap();
-        let mut pixmap = Pixmap::new(size.width as u32, size.height as u32).unwrap();
+        let pixels = Pixels::new(size.width as u32, size.height as u32, surface).unwrap();
+        let pixmap = Pixmap::new(size.width as u32, size.height as u32).unwrap();
         self.pixels = Some(pixels);
         self.window = Some(Arc::clone(&window));
         self.pixmap = Some(pixmap);
@@ -77,7 +74,7 @@ impl<'app> ApplicationHandler for App<'app> {
     }
 }
 
-impl<'app> App<'app> {
+impl App<'_> {
     pub fn new(widget: impl Widget + 'static) -> Self {
 
         Self {

@@ -1,6 +1,5 @@
 use crystal::{
     BlockLayout, BoxSizing, EmptyLayout, HorizontalLayout, Layout, LayoutSolver, Size,
-    VerticalLayout,
 };
 
 #[test]

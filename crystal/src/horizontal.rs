@@ -57,11 +57,8 @@ impl HorizontalLayout {
                 _ => {}
             }
 
-            match child.intrinsic_size().height {
-                BoxSizing::Fixed(height) => {
-                    sum.height = sum.height.max(height);
-                }
-                _ => {}
+            if let BoxSizing::Fixed(height) = child.intrinsic_size().height {
+                sum.height = sum.height.max(height);
             }
 
             // Add the spacing between layouts
@@ -359,7 +356,7 @@ impl Layout for HorizontalLayout {
         for child in &mut self.children {
             if child.position().x > self.position.x + self.size.width {
                 self.errors.push(LayoutError::OutOfBounds {
-                    parent_id: self.id.clone(),
+                    parent_id: self.id,
                     child_id: child.id().to_owned(),
                 });
             }

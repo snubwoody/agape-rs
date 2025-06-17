@@ -34,7 +34,7 @@ impl Widget for Circle {
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size.width = BoxSizing::Fixed(self.diameter as f32);
         layout.intrinsic_size.height = BoxSizing::Fixed(self.diameter as f32);
-        layout.id = self.id.clone();
+        layout.id = self.id;
 
         Box::new(layout)
     }

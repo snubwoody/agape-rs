@@ -197,7 +197,7 @@ impl Color<Hex> {
                 Ok(Color(Hex(String::from(value))))
             }
             _ => {
-                return Err(ColorError::InvalidLength(hex_code.len()));
+                Err(ColorError::InvalidLength(hex_code.len()))
             }
         }
     }

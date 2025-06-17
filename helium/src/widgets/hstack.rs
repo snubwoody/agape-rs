@@ -12,6 +12,12 @@ pub struct HStack {
 }
 
 // TODO add get methods
+impl Default for HStack {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl HStack {
     pub fn new() -> Self {
         HStack {
@@ -92,7 +98,7 @@ impl Widget for HStack {
 
         // TODO use builder pattern?
         let layout = HorizontalLayout {
-            id: self.id.clone(),
+            id: self.id,
             spacing,
             padding,
             intrinsic_size,

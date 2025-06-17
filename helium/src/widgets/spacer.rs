@@ -1,5 +1,5 @@
 use super::Widget;
-use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
+use crystal::{BoxSizing, EmptyLayout, Layout};
 use helium_core::GlobalId;
 
 /// A [`Widget`] that fills up all the available space.  
@@ -25,6 +25,12 @@ pub struct Spacer {
     id: GlobalId,
 }
 
+impl Default for Spacer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Spacer {
     pub fn new() -> Self {
         Self {
@@ -43,7 +49,7 @@ impl Widget for Spacer {
 
     fn layout(&self) -> Box<dyn crystal::Layout> {
         let mut layout = EmptyLayout::new();
-        layout.id = self.id.clone();
+        layout.id = self.id;
         layout.intrinsic_size.width = BoxSizing::Flex(1);
         layout.intrinsic_size.height = BoxSizing::Flex(1);
 

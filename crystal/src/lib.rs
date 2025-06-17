@@ -84,12 +84,7 @@ pub trait Layout: Debug + Send + Sync {
 
     /// Get a [`Layout`] by it's `id`.
     fn get(&self, id: GlobalId) -> Option<&dyn Layout> {
-        for layout in self.iter() {
-            if layout.id() == id {
-                return Some(layout);
-            }
-        }
-        None
+        self.iter().find(|&layout| layout.id() == id)
     }
 }
 
@@ -107,7 +102,7 @@ impl<'a> Iterator for LayoutIter<'a> {
 
             let k = children.iter().map(|child| {
                 // Type gymnastics indeed
-                &*child.as_ref()
+                child.as_ref()
             });
 
             self.stack.extend(k.rev());

@@ -11,13 +11,13 @@ pub fn hex(item: TokenStream) -> TokenStream {
     let s = item.to_string().replace("\"", "");
 
     match helium_core::Color::hex(&s) {
-        Ok(_) => return quote! {helium::Color::hex(#s).unwrap()}.into(),
+        Ok(_) => quote! {helium::Color::hex(#s).unwrap()}.into(),
         Err(err) => {
             let message = format!("{err}");
-            return quote! {
+            quote! {
                 compile_error!(#message)
             }
-            .into();
+            .into()
         }
     }
 }
@@ -91,8 +91,8 @@ pub fn include_icons(dir: TokenStream) -> TokenStream {
         }
     }
 
-    return quote! {
+    quote! {
         #(#icons)*
     }
-    .into();
+    .into()
 }

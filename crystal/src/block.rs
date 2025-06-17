@@ -147,32 +147,20 @@ impl Layout for BlockLayout {
         min_size += self.padding as f32 * 2.0;
 
         // Solve the fix size first
-        match self.intrinsic_size.width {
-            BoxSizing::Fixed(width) => {
-                self.constraints.min_width = width;
-            }
-            _ => {}
+        if let BoxSizing::Fixed(width) = self.intrinsic_size.width {
+            self.constraints.min_width = width;
         }
 
-        match self.intrinsic_size.height {
-            BoxSizing::Fixed(height) => {
-                self.constraints.min_height = height;
-            }
-            _ => {}
+        if let BoxSizing::Fixed(height) = self.intrinsic_size.height {
+            self.constraints.min_height = height;
         }
 
-        match self.child.intrinsic_size().width {
-            BoxSizing::Fixed(width) => {
-                self.constraints.min_width = width + self.padding as f32 * 2.0;
-            }
-            _ => {}
+        if let BoxSizing::Fixed(width) = self.child.intrinsic_size().width {
+            self.constraints.min_width = width + self.padding as f32 * 2.0;
         }
 
-        match self.child.intrinsic_size().height {
-            BoxSizing::Fixed(height) => {
-                self.constraints.min_height = height + self.padding as f32 * 2.0;
-            }
-            _ => {}
+        if let BoxSizing::Fixed(height) = self.child.intrinsic_size().height {
+            self.constraints.min_height = height + self.padding as f32 * 2.0;
         }
 
         let (min_width, min_height) = self.child.solve_min_constraints();
@@ -271,7 +259,7 @@ impl Layout for BlockLayout {
             || self.child.position().y > self.position.y + self.size.height
         {
             self.errors.push(LayoutError::OutOfBounds {
-                parent_id: self.id.clone(),
+                parent_id: self.id,
                 child_id: self.child.id().to_owned(),
             });
         }

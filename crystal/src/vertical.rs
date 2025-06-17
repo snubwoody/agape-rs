@@ -68,12 +68,9 @@ impl VerticalLayout {
     fn fixed_size_sum(&self) -> Size {
         let mut sum = Size::default();
 
-        for (_, child) in self.children.iter().enumerate() {
-            match child.intrinsic_size().width {
-                BoxSizing::Fixed(width) => {
-                    sum.width = sum.width.max(width);
-                }
-                _ => {}
+        for child in self.children.iter() {
+            if let BoxSizing::Fixed(width) = child.intrinsic_size().width {
+                sum.width = sum.width.max(width);
             }
 
             match child.intrinsic_size().height {
@@ -306,7 +303,7 @@ impl Layout for VerticalLayout {
             }
         }
 
-        for (_, child) in self.children.iter_mut().enumerate() {
+        for child in self.children.iter_mut() {
             match child.intrinsic_size().width {
                 BoxSizing::Flex(_) => {
                     child.set_max_width(available_width);
@@ -380,16 +377,12 @@ impl Layout for VerticalLayout {
         let cross_axis_error = LayoutError::overflow(self.id, OverflowAxis::CrossAxis);
 
         // Prevent duplicate errors
-        if !self.errors.contains(&cross_axis_error) {
-            if width_sum > self.size.width {
-                self.errors.push(cross_axis_error);
-            }
+        if !self.errors.contains(&cross_axis_error) && width_sum > self.size.width {
+            self.errors.push(cross_axis_error);
         }
 
-        if !self.errors.contains(&main_axis_error) {
-            if height_sum > self.size.height {
-                self.errors.push(main_axis_error);
-            }
+        if !self.errors.contains(&main_axis_error) && height_sum > self.size.height {
+            self.errors.push(main_axis_error);
         }
     }
 
@@ -417,7 +410,7 @@ impl Layout for VerticalLayout {
 
             if child.position().y > self.position.y + self.size.height {
                 self.errors.push(LayoutError::OutOfBounds {
-                    parent_id: self.id.clone(),
+                    parent_id: self.id,
                     child_id: child.id().to_owned(),
                 });
             }

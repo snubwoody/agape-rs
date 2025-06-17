@@ -1,5 +1,5 @@
 use helium_core::{map, Color, GlobalId, IntoColor, Position, Rgba, Size};
-use tiny_skia::{FillRule, Paint, PathBuilder, Pixmap, Transform};
+use tiny_skia::{Paint, Pixmap, Transform};
 
 /// A [`View`] is a primitive object that performs the rendering to the screen.
 pub trait View {

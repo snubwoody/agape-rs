@@ -10,12 +10,10 @@ mod vstack;
 
 pub use circle::*;
 pub use container::*;
-use crystal::{BlockLayout, EmptyLayout, HorizontalLayout, Layout, VerticalLayout};
+use crystal::Layout;
 use helium_core::{Bounds, Color, GlobalId, Position, Rgba};
 pub use hstack::*;
 pub use rect::*;
-use resvg::tiny_skia;
-use resvg::tiny_skia::{FillRule, Paint, PathBuilder, Pixmap, Transform};
 pub use spacer::*;
 pub use vstack::*;
 use winit::event::{ElementState, MouseButton, MouseScrollDelta, WindowEvent};
@@ -36,12 +34,7 @@ pub trait Widget: WidgetIterator {
 
     /// Get a [`Widget`] from the widget tree by it's `id`
     fn get(&self, id: GlobalId) -> Option<&dyn Widget> {
-        for widget in self.iter() {
-            if widget.id() == id {
-                return Some(widget);
-            }
-        }
-        None
+        self.iter().find(|&widget| widget.id() == id)
     }
 
     /// Runs every frame allowing [`Widget`]'s to manage any
@@ -85,14 +78,8 @@ impl dyn Widget {
         state: &winit::event::ElementState,
         button: &winit::event::MouseButton,
     ) {
-        match button {
-            MouseButton::Left => match state {
-                ElementState::Pressed => {
-                    self.click();
-                }
-                _ => {}
-            },
-            _ => {}
+        if button == &MouseButton::Left && state == &ElementState::Pressed {
+            self.click();
         }
     }
 

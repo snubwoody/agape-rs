@@ -59,7 +59,7 @@ impl Widget for Rect {
     fn layout(&self) -> Box<dyn Layout> {
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size = self.intrinsic_size;
-        layout.id = self.id.clone();
+        layout.id = self.id;
 
         Box::new(layout)
     }

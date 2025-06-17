@@ -12,6 +12,12 @@ pub struct VStack {
     scollable: bool,
 }
 
+impl Default for VStack {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl VStack {
     pub fn new() -> Self {
         VStack {
@@ -110,7 +116,7 @@ impl Widget for VStack {
 
         // TODO use builder pattern?
         let layout = VerticalLayout {
-            id: self.id.clone(),
+            id: self.id,
             spacing,
             padding,
             intrinsic_size,
