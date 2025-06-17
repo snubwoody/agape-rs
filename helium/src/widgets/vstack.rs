@@ -97,11 +97,8 @@ impl Widget for VStack {
     }
 
     fn layout(&self) -> Box<dyn Layout> {
-        let children_layout: Vec<Box<dyn Layout>> = self
-            .children
-            .iter()
-            .map(|widget| widget.layout())
-            .collect();
+        let children_layout: Vec<Box<dyn Layout>> =
+            self.children.iter().map(|widget| widget.layout()).collect();
 
         let VerticalLayout {
             spacing,

@@ -1,6 +1,4 @@
-use crystal::{
-    BlockLayout, BoxSizing, EmptyLayout, HorizontalLayout, Layout, LayoutSolver, Size,
-};
+use crystal::{BlockLayout, BoxSizing, EmptyLayout, HorizontalLayout, Layout, LayoutSolver, Size};
 
 #[test]
 fn test_horizontal_layout() {

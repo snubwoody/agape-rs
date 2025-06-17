@@ -29,7 +29,6 @@ impl Widget for Circle {
         self.id
     }
 
-
     fn layout(&self) -> Box<dyn Layout> {
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size.width = BoxSizing::Fixed(self.diameter as f32);

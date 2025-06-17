@@ -88,14 +88,14 @@ impl Color<Rgba> {
     /// assert_eq!(color.b(),90);
     /// assert_eq!(color.a(),100);
     /// ```
-    /// 
-    /// The alpha channel is from 0-100, any values above 100 will 
+    ///
+    /// The alpha channel is from 0-100, any values above 100 will
     /// be clipped to 100.
-    /// 
+    ///
     /// ```
     /// use helium_core::Color;
     /// let color = Color::rgba(0,0,0,235);
-    /// 
+    ///
     /// assert_eq!(color.a(),100);
     /// ```
     pub const fn rgba(r: u8, g: u8, b: u8, a: u8) -> Color<Rgba> {
@@ -196,9 +196,7 @@ impl Color<Hex> {
 
                 Ok(Color(Hex(String::from(value))))
             }
-            _ => {
-                Err(ColorError::InvalidLength(hex_code.len()))
-            }
+            _ => Err(ColorError::InvalidLength(hex_code.len())),
         }
     }
 

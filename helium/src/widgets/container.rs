@@ -2,7 +2,6 @@ use crate::{impl_style, widgets::Widget};
 use crystal::{BlockLayout, Layout};
 use helium_core::{Color, GlobalId, Rgba};
 
-
 /// A container [`Widget`] that wraps its child
 pub struct Container<W> {
     id: GlobalId,
@@ -47,7 +46,6 @@ where
         self.id
     }
 
-
     fn layout(&self) -> Box<dyn Layout> {
         let child_layout = self.child.layout();
         let mut layout = BlockLayout::new(child_layout);
@@ -55,7 +53,6 @@ where
         layout.padding = self.padding;
         Box::new(layout)
     }
-
 
     fn children(&self) -> Vec<&dyn Widget> {
         vec![&self.child]

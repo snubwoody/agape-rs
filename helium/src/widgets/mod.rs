@@ -8,24 +8,24 @@ mod rect;
 mod spacer;
 mod vstack;
 
+use crate::view::{RectView, View};
 pub use circle::*;
 pub use container::*;
 use crystal::Layout;
+use helium_core::colors::BLACK;
 use helium_core::{Bounds, Color, GlobalId, Position, Rgba};
 pub use hstack::*;
 pub use rect::*;
 pub use spacer::*;
 pub use vstack::*;
 use winit::event::{ElementState, MouseButton, MouseScrollDelta, WindowEvent};
-use helium_core::colors::BLACK;
-use crate::view::{RectView, View};
 // TODO maybe have a build function that returns a layout and surface
 
 pub trait Widget: WidgetIterator {
-    fn view(&self) -> Box<dyn View>{
+    fn view(&self) -> Box<dyn View> {
         Box::new(RectView::new(BLACK))
     }
-    
+
     /// Get the widget's [`Layout`]
     fn layout(&self) -> Box<dyn Layout>;
 

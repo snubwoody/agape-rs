@@ -4,6 +4,7 @@ pub mod error;
 mod view;
 pub mod widgets;
 
+use crate::view::View;
 pub use crystal;
 use crystal::LayoutSolver;
 pub use error::{Error, Result};
@@ -14,15 +15,14 @@ use pixels::{Pixels, SurfaceTexture};
 use resvg::tiny_skia::Pixmap;
 use std::sync::Arc;
 use widgets::Widget;
+use winit::application::ApplicationHandler;
+use winit::event_loop::ActiveEventLoop;
+use winit::window::WindowId;
 use winit::{
     event::WindowEvent,
     event_loop::{ControlFlow, EventLoop},
     window::Window,
 };
-use winit::application::ApplicationHandler;
-use winit::event_loop::ActiveEventLoop;
-use winit::window::WindowId;
-use crate::view::View;
 
 /// An [`App`]'s is the point of entry for your program they are responsible
 /// for the overall management of rendering, resources,
@@ -41,11 +41,8 @@ impl ApplicationHandler for App<'_> {
         let window = Arc::new(window);
         let size = Size::from(window.inner_size());
 
-        let surface = SurfaceTexture::new(
-            size.width as u32,
-            size.height as u32,
-            Arc::clone(&window),
-        );
+        let surface =
+            SurfaceTexture::new(size.width as u32, size.height as u32, Arc::clone(&window));
         let pixels = Pixels::new(size.width as u32, size.height as u32, surface).unwrap();
         let pixmap = Pixmap::new(size.width as u32, size.height as u32).unwrap();
         self.pixels = Some(pixels);
@@ -54,11 +51,11 @@ impl ApplicationHandler for App<'_> {
     }
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
-        match event{
+        match event {
             WindowEvent::CloseRequested => {
                 println!("Exiting app");
                 event_loop.exit();
-            },
+            }
             WindowEvent::RedrawRequested => {
                 let pixmap = self.pixmap.as_mut().unwrap();
                 let pixels = self.pixels.as_mut().unwrap();
@@ -66,17 +63,16 @@ impl ApplicationHandler for App<'_> {
                 view.render(pixmap);
                 pixels.frame_mut().copy_from_slice(pixmap.data());
                 pixels.render().unwrap();
-                
+
                 self.window.as_mut().unwrap().request_redraw();
-            },
-            _ => ()
+            }
+            _ => (),
         }
     }
 }
 
 impl App<'_> {
     pub fn new(widget: impl Widget + 'static) -> Self {
-
         Self {
             widget: Box::new(widget),
             window: None,
@@ -84,10 +80,13 @@ impl App<'_> {
             pixels: None,
         }
     }
-    
-    fn update_view(&self,view: &mut dyn View){
+
+    fn update_view(&self, view: &mut dyn View) {
         let mut layout = self.widget.layout();
-        LayoutSolver::solve(&mut *layout,self.window.as_ref().unwrap().inner_size().into());
+        LayoutSolver::solve(
+            &mut *layout,
+            self.window.as_ref().unwrap().inner_size().into(),
+        );
         let layout = layout.get(view.id()).unwrap();
         view.set_size(layout.size());
         view.set_position(layout.position());
@@ -100,4 +99,3 @@ impl App<'_> {
         Ok(())
     }
 }
-

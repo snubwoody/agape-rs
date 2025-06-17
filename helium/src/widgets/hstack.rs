@@ -2,7 +2,6 @@ use crate::{Color, impl_layout, impl_style, widgets::Widget};
 use crystal::{AxisAlignment, HorizontalLayout, Layout};
 use helium_core::{GlobalId, Rgba, colors::TRANSPARENT};
 
-
 pub struct HStack {
     id: GlobalId,
     children: Vec<Box<dyn Widget>>,
@@ -80,11 +79,8 @@ impl Widget for HStack {
     }
 
     fn layout(&self) -> Box<dyn Layout> {
-        let children_layout: Vec<Box<dyn Layout>> = self
-            .children
-            .iter()
-            .map(|widget| widget.layout())
-            .collect();
+        let children_layout: Vec<Box<dyn Layout>> =
+            self.children.iter().map(|widget| widget.layout()).collect();
 
         let HorizontalLayout {
             spacing,

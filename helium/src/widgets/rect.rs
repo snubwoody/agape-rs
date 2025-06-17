@@ -1,4 +1,4 @@
-use super::{Widget};
+use super::Widget;
 use crate::Color;
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use helium_core::{GlobalId, IntoColor, Rgba, colors::WHITE};
@@ -55,7 +55,6 @@ impl Widget for Rect {
         self.id
     }
 
-
     fn layout(&self) -> Box<dyn Layout> {
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size = self.intrinsic_size;
@@ -63,5 +62,4 @@ impl Widget for Rect {
 
         Box::new(layout)
     }
-
 }
