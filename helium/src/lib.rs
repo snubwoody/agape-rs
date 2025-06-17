@@ -22,7 +22,6 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::{Window, WindowBuilder},
 };
-// TODO re-export the winit event modules
 
 /// An [`App`]'s is the point of entry for your program they are responsible
 /// for the overall management of rendering, resources,
@@ -30,7 +29,6 @@ use winit::{
 pub struct App {
     event_loop: EventLoop<()>,
     window: Arc<Window>,
-    index: usize,
     widget: Box<dyn Widget>,
 }
 
@@ -48,7 +46,6 @@ impl App {
         Self {
             event_loop,
             window: Arc::new(window),
-            index: 0,
             widget: Box::new(widget),
         }
     }
@@ -64,9 +61,20 @@ impl App {
         let mut previous_duration = Duration::new(0, 0);
         let mut size = Size::from(self.window.inner_size());
         
-        let surface = pixels::SurfaceTexture::new(500,500,Arc::clone(&self.window));
-        let mut pixels = Pixels::new(500,500, surface).unwrap();
-        let mut pixmap = Pixmap::new(500,500).unwrap();
+        let surface = pixels::SurfaceTexture::new(
+            size.width as u32,
+            size.height as u32,
+            Arc::clone(&self.window)
+        );
+        let mut pixels = Pixels::new(
+            size.width as u32,
+            size.height as u32, 
+            surface
+        ).unwrap();
+        let mut pixmap = Pixmap::new(
+            size.width as u32,
+            size.height as u32,
+        ).unwrap();
         pixmap.fill(tiny_skia::Color::WHITE);
 
         self.event_loop.run(|event, window_target| {
@@ -75,10 +83,8 @@ impl App {
                 winit::event::Event::WindowEvent { event, .. } => match event {
                     WindowEvent::CloseRequested => window_target.exit(),
                     WindowEvent::RedrawRequested => {
-                        // self.pages[0].draw(&mut renderer, size);
-                        // renderer.draw([TextSurface::new(format!("{:?}", previous_duration).as_str())]);
-                        // renderer.render();
                         self.widget.render(&mut pixmap);
+                        pixels.frame_mut().copy_from_slice(pixmap.data());
                         pixels.render().unwrap();
                     }
                     WindowEvent::Resized(window_size) => {

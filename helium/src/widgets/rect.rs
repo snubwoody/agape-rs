@@ -58,7 +58,6 @@ impl Rect {
 
 impl Widget for Rect {
     fn render(&self,pixmap: &mut Pixmap) {
-        let mut pixmap = Pixmap::new(500,500).unwrap();
         pixmap.fill(tiny_skia::Color::WHITE); let mut paint = Paint::default();
         paint.set_color(tiny_skia::Color::BLACK);
         let rect = tiny_skia::Rect::from_xywh(0.0,0.0,50.0,50.0).unwrap();
