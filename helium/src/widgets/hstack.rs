@@ -1,6 +1,6 @@
 use crate::{impl_layout, impl_style, widgets::Widget, Color};
 use crystal::{AxisAlignment, HorizontalLayout, Layout};
-use helium_core::{colors::TRANSPARENT, Rgba};
+use helium_core::{colors::TRANSPARENT, GlobalId, Rgba};
 use helium_renderer::{IntoSurface, RectSurface};
 
 use super::{LayoutConfig, LayoutType, WidgetBody};
@@ -33,7 +33,7 @@ use super::{LayoutConfig, LayoutType, WidgetBody};
 /// ```
 ///
 pub struct HStack {
-    id: String,
+    id: GlobalId,
     children: Vec<Box<dyn Widget>>,
     color: Color<Rgba>,
     corner_radius: u32,
@@ -44,7 +44,7 @@ pub struct HStack {
 impl HStack {
     pub fn new() -> Self {
         HStack {
-            id: nanoid::nanoid!(),
+            id: GlobalId::default(),
             color: TRANSPARENT,
             children: vec![],
             corner_radius: 0,
@@ -111,8 +111,8 @@ impl HStack {
 
 // TODO test this
 impl Widget for HStack {
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self) -> GlobalId {
+        self.id
     }
 
     fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
@@ -180,7 +180,7 @@ impl Widget for HStack {
 			.into_surface();
 
         WidgetBody{
-			id: self.id.clone(),
+			id: self.id,
 			primitive,
 			layout,
 			children

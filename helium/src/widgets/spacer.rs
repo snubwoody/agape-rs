@@ -1,5 +1,6 @@
 use super::{LayoutConfig, LayoutType, Widget, WidgetBody};
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
+use helium_core::GlobalId;
 use helium_renderer::{IntoSurface, RectSurface, Renderer};
 
 /// A [`Widget`] that fills up all the available space.  
@@ -22,13 +23,13 @@ use helium_renderer::{IntoSurface, RectSurface, Renderer};
 /// an intrinsic size of `Shrink`, because the parent will try to be
 /// as small as possible, hence the spacer will have a size of 0.
 pub struct Spacer {
-    id: String,
+    id: GlobalId,
 }
 
 impl Spacer {
     pub fn new() -> Self {
         Self {
-            id: nanoid::nanoid!(),
+            id: GlobalId::new(),
         }
     }
 }
@@ -36,8 +37,8 @@ impl Spacer {
 // TODO widgets might be easier to test now
 
 impl Widget for Spacer {
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self) -> GlobalId {
+        self.id
     }
 
 	fn build(&self,_renderer: &mut Renderer) -> WidgetBody {
@@ -48,7 +49,7 @@ impl Widget for Spacer {
 			.intrinsic_size(IntrinsicSize::fill());
 
 		WidgetBody{
-			id: self.id.clone(),
+			id: self.id,
 			layout,
 			primitive,
 			children: vec![]

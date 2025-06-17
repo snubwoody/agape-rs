@@ -1,6 +1,6 @@
 use crate::{impl_layout, impl_style, widgets::Widget, Color};
 use crystal::{AxisAlignment, Layout, VerticalLayout};
-use helium_core::{colors::TRANSPARENT, Rgba};
+use helium_core::{colors::TRANSPARENT, GlobalId, Rgba};
 use helium_renderer::{IntoSurface, RectSurface};
 
 use super::{LayoutConfig, LayoutType, WidgetBody};
@@ -48,7 +48,7 @@ use super::{LayoutConfig, LayoutType, WidgetBody};
 /// ```
 ///
 pub struct VStack {
-    id: String,
+    id: GlobalId,
     children: Vec<Box<dyn Widget>>,
     color: Color<Rgba>,
     layout: VerticalLayout,
@@ -60,7 +60,7 @@ pub struct VStack {
 impl VStack {
     pub fn new() -> Self {
         VStack {
-            id: nanoid::nanoid!(),
+            id: GlobalId::new(),
             color: TRANSPARENT,
             children: vec![],
             layout: VerticalLayout::new(),
@@ -120,14 +120,14 @@ impl VStack {
 }
 
 impl Widget for VStack {
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self) -> GlobalId {
+        self.id
     }
 
 	fn scroll(&mut self,delta:crystal::Position) {
 		if !self.scollable {return}
 
-		// The delta is usally really small values so we must scale it
+		// The delta is usually small values so we must scale it
 		let scroll_speed = 5.0;
 		// TODO change the scroll speeed based on whether it's a mouse pad or touch pad
 		self.layout.scroll(delta.y * scroll_speed);

@@ -1,6 +1,6 @@
 use crate::{impl_style, widgets::Widget};
 use crystal::{BlockLayout, Layout};
-use helium_core::{Color, Rgba};
+use helium_core::{Color, GlobalId, Rgba};
 use helium_renderer::IntoSurface;
 use nanoid::nanoid;
 
@@ -8,7 +8,7 @@ use super::{LayoutConfig, LayoutType, WidgetBody};
 
 /// A container [`Widget`] that wraps its child
 pub struct Container<W> {
-    id: String,
+    id: GlobalId,
     color: Color<Rgba>,
     child: W,
     corner_radius: u32,
@@ -21,7 +21,7 @@ where
 {
     pub fn new(child: W) -> Self {
         Container {
-            id: nanoid!(),
+            id: GlobalId::new(),
             color: Color::rgb(255, 255, 255),
             child,
             corner_radius: 0,
@@ -46,8 +46,8 @@ impl<W> Widget for Container<W>
 where
     W: Widget,
 {
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self) -> GlobalId {
+        self.id
     }
 
 	fn build(&self,renderer: &mut helium_renderer::Renderer) -> WidgetBody {

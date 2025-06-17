@@ -1,34 +1,27 @@
 //! [`Widget`]'s describe what you want to present onto the screen. Helium tries to provide
 //! as many [`Widget`]'s as possible for various uses such as [`Text`],[`Button`],[`HStack`]
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
-mod _await;
 mod button;
 mod circle;
 mod container;
 mod hstack;
-pub mod icon;
-mod image;
 mod rect;
 mod spacer;
 mod text;
-mod text_field;
 mod vstack;
 
 use resvg::tiny_skia;
 use resvg::tiny_skia::{FillRule, Paint, PathBuilder, Pixmap, Transform};
-pub use _await::*;
 pub use button::*;
 pub use circle::*;
 pub use container::*;
 use crystal::{BlockLayout, EmptyLayout, HorizontalLayout, Layout, VerticalLayout};
-use helium_core::{Bounds, Color, Position, Rgba};
+use helium_core::{Bounds, Color, GlobalId, Position, Rgba};
 use helium_renderer::{Surface, Renderer};
 pub use hstack::*;
-pub use image::*;
 pub use rect::*;
 pub use spacer::*;
 pub use text::*;
-pub use text_field::*;
 pub use vstack::*;
 use winit::event::{ElementState, MouseButton, MouseScrollDelta, WindowEvent};
 
@@ -46,10 +39,10 @@ pub trait Widget: WidgetIterator {
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout>;
     
     /// Get the `id` of the [`Widget`]
-    fn id(&self) -> &str;
+    fn id(&self) -> GlobalId;
 
     /// Get a [`Widget`] from the widget tree by it's `id`
-    fn get(&self, id: &str) -> Option<&dyn Widget> {
+    fn get(&self, id: GlobalId) -> Option<&dyn Widget> {
         for widget in self.iter() {
             if widget.id() == id {
                 return Some(widget);
@@ -249,7 +242,7 @@ impl LayoutConfig{
 
 // TODO size the Text
 pub struct WidgetBody{
-	id: String,
+	id: GlobalId,
 	layout: LayoutConfig,
 	primitive: Surface,
 	children: Vec<Box<WidgetBody>>
@@ -297,7 +290,7 @@ impl WidgetBody{
 					.collect();
 				
 				let layout = VerticalLayout{
-					id: self.id.clone(),
+					id: self.id,
 					padding,
 					spacing,
 					scroll_offset,
@@ -312,7 +305,7 @@ impl WidgetBody{
 			},
 			LayoutType::EmptyLayout => {
 				let layout = EmptyLayout{
-					id: self.id.clone(),
+					id: self.id,
 					intrinsic_size,
 					..Default::default()
 				};

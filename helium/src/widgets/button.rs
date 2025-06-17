@@ -26,7 +26,7 @@ use helium_renderer::IntoSurface;
 /// Button::new(card);
 /// ```
 pub struct Button<W> {
-    id: String,
+    id: GlobalId,
     pub color: Color<Rgba>,
     pub padding: u32,
     pub corner_radius: u32,
@@ -38,7 +38,7 @@ pub struct Button<W> {
 impl Button<Text> {
     pub fn text(text: &str) -> Self {
         Self {
-            id: nanoid::nanoid!(),
+            id: GlobalId::new(),
             color: Color::rgb(52, 68, 108),
             padding: 12,
             corner_radius: 0,
@@ -57,7 +57,7 @@ impl Button<Text> {
 impl<W: Widget> Button<W> {
     pub fn new(child: W) -> Self {
         Self {
-            id: nanoid::nanoid!(),
+            id: GlobalId::new(),
             color: Color::rgb(0, 0, 0),
             padding: 12,
             corner_radius: 24,
@@ -91,8 +91,8 @@ impl<W: Widget> Button<W> {
 }
 
 impl<W: Widget> Widget for Button<W> {
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self) -> GlobalId {
+        self.id
     }
 
     fn click(&mut self) {

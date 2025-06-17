@@ -1,6 +1,6 @@
 use super::{LayoutConfig, LayoutType, Widget, WidgetBody};
 use crystal::{BoxSizing, EmptyLayout, Layout};
-use helium_core::{colors::BLACK, Color, IntoColor, Rgba};
+use helium_core::{colors::BLACK, Color, GlobalId, IntoColor, Rgba};
 use helium_renderer::IntoSurface;
 
 // TODO TextStyle struct
@@ -14,7 +14,7 @@ use helium_renderer::IntoSurface;
 /// ```
 #[derive(Debug, Clone, Hash)]
 pub struct Text {
-    id: String,
+    id: GlobalId,
     pub text: String,
     pub font_size: u8,
     pub color: Color<Rgba>,
@@ -23,7 +23,7 @@ pub struct Text {
 impl Default for Text {
     fn default() -> Self {
         Self {
-            id: nanoid::nanoid!(),
+            id: GlobalId::new(),
             font_size: 16,
             text: Default::default(),
             color: BLACK,
@@ -44,7 +44,7 @@ impl Text {
 	/// 
     pub fn new(text: &str) -> Self {
         Self {
-            id: nanoid::nanoid!(),
+            id: GlobalId::new(),
             text: text.into(),
             font_size: 16,
             color: BLACK,
@@ -93,8 +93,8 @@ impl Text {
 }
 
 impl Widget for Text {
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self) -> GlobalId {
+        self.id
     }
 
 	fn build(&self,_renderer: &mut helium_renderer::Renderer) -> WidgetBody {

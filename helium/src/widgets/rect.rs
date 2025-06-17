@@ -1,7 +1,7 @@
 use super::{LayoutConfig, LayoutType, Widget, WidgetBody};
 use crate::Color;
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
-use helium_core::{colors::WHITE, IntoColor, Rgba};
+use helium_core::{colors::WHITE, GlobalId, IntoColor, Rgba};
 use helium_renderer::IntoSurface;
 use nanoid::nanoid;
 use resvg::tiny_skia;
@@ -11,7 +11,7 @@ use resvg::tiny_skia::{FillRule, Paint, PathBuilder, Pixmap, Transform};
 /// A simple rectangle
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Rect {
-    id: String,
+    id: GlobalId,
     intrinsic_size: crystal::IntrinsicSize,
     color: Color<Rgba>,
     corner_radius: u32,
@@ -25,7 +25,7 @@ impl Rect {
         };
 
         Self {
-            id: nanoid!(),
+            id: GlobalId::default(),
             color: WHITE,
             intrinsic_size,
             corner_radius: 0,
@@ -64,8 +64,8 @@ impl Widget for Rect {
         let path = PathBuilder::from_rect(rect);
         pixmap.fill_path(&path,&paint,FillRule::Winding,Transform::identity(), None);
     }
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self) -> GlobalId {
+        self.id
     }
 
 	fn build(&self,_renderer: &mut helium_renderer::Renderer) -> WidgetBody {

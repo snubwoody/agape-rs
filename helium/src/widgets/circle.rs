@@ -1,11 +1,11 @@
 use super::{LayoutConfig, Widget, WidgetBody};
 use crystal::{BoxSizing, EmptyLayout, Layout};
-use helium_core::{colors::BLACK, Color, IntoColor, Rgba};
+use helium_core::{colors::BLACK, Color, GlobalId, IntoColor, Rgba};
 use helium_renderer::IntoSurface;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Circle {
-    id: String,
+    id: GlobalId,
     diameter: u32,
     color: Color<Rgba>,
 }
@@ -13,7 +13,7 @@ pub struct Circle {
 impl Circle {
     pub fn new(diameter: u32) -> Self {
         Self {
-            id: nanoid::nanoid!(),
+            id: GlobalId::new(),
             diameter,
             color: BLACK,
         }
@@ -26,8 +26,8 @@ impl Circle {
 }
 
 impl Widget for Circle {
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self) -> GlobalId {
+        self.id
     }
 
 	fn build(&self,_renderer: &mut helium_renderer::Renderer) -> WidgetBody {
