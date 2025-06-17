@@ -30,7 +30,6 @@ use winit::{
 pub struct App {
     event_loop: EventLoop<()>,
     window: Arc<Window>,
-    pages: Vec<Page>,
     index: usize,
     widget: Box<dyn Widget>,
 }
@@ -49,16 +48,9 @@ impl App {
         Self {
             event_loop,
             window: Arc::new(window),
-            pages: vec![],
             index: 0,
             widget: Box::new(widget),
         }
-    }
-
-    pub fn add_page(&mut self, widget: impl Widget + 'static) {
-        // Create a temp renderer for initial layout
-        let mut renderer = async_std::task::block_on(Renderer::new(&self.window));
-        self.pages.push(Page::new(widget, &mut renderer));
     }
 
     // FIXME app panics if there are no views
@@ -96,12 +88,12 @@ impl App {
                         self.window.request_redraw();
                     }
                     event => {
-                        self.pages[self.index].dispatch_event(&event);
+                        // self.pages[self.index].dispatch_event(&event);
                         self.window.request_redraw();
                     }
                 },
                 _ => {
-                    self.pages[self.index].update();
+                    // self.pages[self.index].update();
                     self.window.request_redraw();
                 }
             }
@@ -160,9 +152,6 @@ impl Page {
 		
 		dbg!(&primitives);
 		renderer.draw(primitives);
-
-  
-		
 
 		// self.widget.iter().for_each(|w| {
 		// 	if let Some(layout) = layout.get(w.id()) {

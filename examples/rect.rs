@@ -1,4 +1,4 @@
-use helium::{colors::BLACK, crystal::AxisAlignment, vstack, widgets::{Rect, Text}, App};
+use helium::{widgets::{Rect}, App};
 
 #[tokio::main]
 async fn main() -> Result<(), helium::Error> {
