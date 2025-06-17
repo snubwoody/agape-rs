@@ -1602,10 +1602,12 @@ dependencies = [
  "image",
  "log",
  "nanoid",
+ "pixels",
  "rand",
  "reqwest",
  "resvg",
  "thiserror 2.0.11",
+ "tiny-skia",
  "tokio",
  "usvg",
  "wgpu 24.0.1",
@@ -1643,12 +1645,9 @@ dependencies = [
 name = "helium_renderer"
 version = "0.1.0"
 dependencies = [
- "ab_glyph",
  "bytemuck",
  "cosmic-text",
  "crystal",
- "fontdb 0.23.0",
- "fontdue",
  "helium_core",
  "image",
  "log",

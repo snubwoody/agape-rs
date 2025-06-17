@@ -2,6 +2,8 @@
 pub mod colors;
 pub mod error;
 pub mod widgets;
+
+use std::sync::Arc;
 use helium_renderer::{Renderer, TextSurface};
 pub use crystal;
 use crystal::LayoutSolver;
@@ -11,6 +13,9 @@ pub use helium_macros::hex; // TODO move to colors mod
 pub use helium_renderer as renderer;
 pub use nanoid::nanoid;
 use std::time::{Duration, Instant};
+use pixels::Pixels;
+use resvg::tiny_skia;
+use resvg::tiny_skia::Pixmap;
 use widgets::Widget;
 use winit::{
     event::WindowEvent,
@@ -24,13 +29,14 @@ use winit::{
 /// [`Widget`]'s etc.
 pub struct App {
     event_loop: EventLoop<()>,
-    window: Window,
+    window: Arc<Window>,
     pages: Vec<Page>,
     index: usize,
+    widget: Box<dyn Widget>,
 }
 
 impl App {
-    pub fn new() -> Self {
+    pub fn new(widget: impl Widget + 'static,) -> Self {
         // FIXME handle the errors
         let event_loop = EventLoop::new().unwrap();
         event_loop.set_control_flow(ControlFlow::Poll);
@@ -42,9 +48,10 @@ impl App {
 
         Self {
             event_loop,
-            window,
+            window: Arc::new(window),
             pages: vec![],
             index: 0,
+            widget: Box::new(widget),
         }
     }
 
@@ -64,6 +71,11 @@ impl App {
         // Not quite sure how accurate this is
         let mut previous_duration = Duration::new(0, 0);
         let mut size = Size::from(self.window.inner_size());
+        
+        let surface = pixels::SurfaceTexture::new(500,500,Arc::clone(&self.window));
+        let mut pixels = Pixels::new(500,500, surface).unwrap();
+        let mut pixmap = Pixmap::new(500,500).unwrap();
+        pixmap.fill(tiny_skia::Color::WHITE);
 
         self.event_loop.run(|event, window_target| {
             let instant = Instant::now();
@@ -71,9 +83,11 @@ impl App {
                 winit::event::Event::WindowEvent { event, .. } => match event {
                     WindowEvent::CloseRequested => window_target.exit(),
                     WindowEvent::RedrawRequested => {
-                        self.pages[0].draw(&mut renderer, size);
-                        renderer.draw([TextSurface::new(format!("{:?}", previous_duration).as_str())]);
-                        renderer.render();
+                        // self.pages[0].draw(&mut renderer, size);
+                        // renderer.draw([TextSurface::new(format!("{:?}", previous_duration).as_str())]);
+                        // renderer.render();
+                        self.widget.render(&mut pixmap);
+                        pixels.render().unwrap();
                     }
                     WindowEvent::Resized(window_size) => {
                         size = Size::from(window_size);
@@ -146,6 +160,8 @@ impl Page {
 		
 		dbg!(&primitives);
 		renderer.draw(primitives);
+
+  
 		
 
 		// self.widget.iter().for_each(|w| {
@@ -154,6 +170,9 @@ impl Page {
         //     } else {
 		// 		log::warn!("Widget is missing it's Layout")
         //     }
+        //     pixels.frame_mut().copy_from_slice(pixmap.data());
+        //     
         // });
+       
     }
 }

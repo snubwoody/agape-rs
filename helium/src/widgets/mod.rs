@@ -13,6 +13,9 @@ mod spacer;
 mod text;
 mod text_field;
 mod vstack;
+
+use resvg::tiny_skia;
+use resvg::tiny_skia::{FillRule, Paint, PathBuilder, Pixmap, Transform};
 pub use _await::*;
 pub use button::*;
 pub use circle::*;
@@ -32,6 +35,13 @@ use winit::event::{ElementState, MouseButton, MouseScrollDelta, WindowEvent};
 // TODO maybe have a build function that returns a layout and surface
 
 pub trait Widget: WidgetIterator {
+    fn render(&self,pixmap: &mut Pixmap){
+        pixmap.fill(tiny_skia::Color::WHITE); let mut paint = Paint::default();
+        paint.set_color(tiny_skia::Color::BLACK);
+        let rect = tiny_skia::Rect::from_xywh(0.0,0.0,50.0,50.0).unwrap();
+        let path = PathBuilder::from_rect(rect);
+        pixmap.fill_path(&path,&paint,FillRule::Winding,Transform::identity(), None);
+    }
     /// Get the widget's [`Layout`]
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout>;
     

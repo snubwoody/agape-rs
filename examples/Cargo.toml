@@ -17,21 +17,6 @@ image.workspace = true
 reqwest = {version = "0.12.12",features = ["blocking","stream","json"]}
 
 [[example]]
-name = "counter"
-path = "counter.rs"
+name = "rect"
+path = "rect.rs"
 
-[[example]]
-name = "scroll"
-path = "scroll.rs"
-
-[[example]]
-name = "spotify"
-path = "spotify/spotify.rs"
-
-[[example]]
-name = "sign_in"
-path = "pages/sign_in.rs"
-
-[[example]]
-name = "renderer"
-path = "renderer.rs"
