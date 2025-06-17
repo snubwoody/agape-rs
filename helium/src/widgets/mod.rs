@@ -12,7 +12,6 @@ pub use circle::*;
 pub use container::*;
 use crystal::{BlockLayout, EmptyLayout, HorizontalLayout, Layout, VerticalLayout};
 use helium_core::{Bounds, Color, GlobalId, Position, Rgba};
-use helium_renderer::{Renderer, Surface};
 pub use hstack::*;
 pub use rect::*;
 use resvg::tiny_skia;

@@ -14,13 +14,10 @@ wgpu.workspace = true
 thiserror.workspace = true
 winit.workspace = true
 tokio.workspace = true
-bytemuck.workspace = true
 log.workspace = true
-async-std.workspace = true
 nanoid = "0.4.0"
 helium_core = {path = "../helium_core"}
 helium_macros = {path = "../helium_macros"}
-helium_renderer = {path = "../helium_renderer"}
 crystal = {path = "../crystal"}
 resvg = "0.44.0"
 usvg = "0.44.0"

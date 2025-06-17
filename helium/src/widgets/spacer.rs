@@ -1,7 +1,6 @@
 use super::Widget;
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use helium_core::GlobalId;
-use helium_renderer::{IntoSurface, RectSurface, Renderer};
 
 /// A [`Widget`] that fills up all the available space.  
 ///
