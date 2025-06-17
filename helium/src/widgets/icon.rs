@@ -8,10 +8,8 @@ use resvg::tiny_skia::Pixmap;
 use std::fs;
 
 /// Contains all the icons from the [feather icons](https://feathericons.com/) library
-// TODO add this behind a feature flag since it increased binary size
 #[cfg(feature = "feather-icons")]
 pub mod feather_icons {
-	// TODO move this to icons module
     use helium_macros::include_icons;
 
     // The path is relative to the root crate
