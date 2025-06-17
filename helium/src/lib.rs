@@ -2,7 +2,7 @@
 pub mod colors;
 pub mod error;
 pub mod widgets;
-mod element;
+mod view;
 
 use std::sync::Arc;
 use helium_renderer::{Renderer, TextSurface};
