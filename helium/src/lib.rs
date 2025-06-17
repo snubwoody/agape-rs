@@ -12,7 +12,7 @@ pub use helium_macros::hex; // TODO move to colors mod
 pub use helium_renderer as renderer;
 use helium_renderer::{Renderer, TextSurface};
 pub use nanoid::nanoid;
-use pixels::Pixels;
+use pixels::{Pixels, SurfaceTexture};
 use resvg::tiny_skia;
 use resvg::tiny_skia::Pixmap;
 use std::sync::Arc;
@@ -23,6 +23,8 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::{Window, WindowBuilder},
 };
+use winit::event_loop::EventLoopBuilder;
+use winit::platform::windows::EventLoopBuilderExtWindows;
 
 /// An [`App`]'s is the point of entry for your program they are responsible
 /// for the overall management of rendering, resources,
@@ -50,6 +52,10 @@ impl App {
             widget: Box::new(widget),
         }
     }
+    
+    fn layout(&self){
+        let layout = self.widget.layout();
+    }
 
     // FIXME app panics if there are no views
     pub async fn run(mut self) -> Result<()> {
@@ -62,7 +68,7 @@ impl App {
         let mut previous_duration = Duration::new(0, 0);
         let mut size = Size::from(self.window.inner_size());
 
-        let surface = pixels::SurfaceTexture::new(
+        let surface = SurfaceTexture::new(
             size.width as u32,
             size.height as u32,
             Arc::clone(&self.window),
@@ -77,7 +83,9 @@ impl App {
                 winit::event::Event::WindowEvent { event, .. } => match event {
                     WindowEvent::CloseRequested => window_target.exit(),
                     WindowEvent::RedrawRequested => {
-                        self.widget.render(&mut pixmap);
+                        // self.widget.render(&mut pixmap);
+                        let view = self.widget.view();
+                        view.render(&mut pixmap);
                         pixels.frame_mut().copy_from_slice(pixmap.data());
                         pixels.render().unwrap();
                     }
@@ -106,18 +114,16 @@ impl App {
 
 pub struct Page {
     mouse_pos: Position,
-    layout: Box<dyn crystal::Layout>,
     widget: Box<dyn Widget>,
 }
 
 impl Page {
     /// Create a new [`Page`]
     pub fn new(widget: impl Widget + 'static, renderer: &mut Renderer) -> Self {
-        let body = widget.build(renderer);
-        let layout = body.layout();
+        // let layout = body.layout();
         Self {
             mouse_pos: Position::default(),
-            layout,
+            // layout,
             widget: Box::new(widget),
         }
     }
@@ -126,29 +132,20 @@ impl Page {
         self.widget.update();
     }
 
-    /// Dispatch the `winit` events to the `Widget`'s.
-    fn dispatch_event(&mut self, event: &winit::event::WindowEvent) {
-        match event {
-            WindowEvent::CursorMoved { position, .. } => self.mouse_pos = Position::from(*position),
-            _ => {}
-        }
-        self.widget
-            .dispatch_event(self.mouse_pos, &*self.layout, event);
-    }
 
     /// Draw the contents of the [`Page`] to the screen
     fn draw(&mut self, renderer: &mut Renderer, size: Size) {
-        let widget_body = self.widget.build(renderer);
+        // let widget_body = self.widget.build(renderer);
 
         // Solve the Layout tree
-        let mut layout = widget_body.layout();
-        LayoutSolver::solve(&mut *layout, size);
-        self.layout = layout;
+        // let mut layout = widget_body.layout();
+        // LayoutSolver::solve(&mut *layout, size);
+        // self.layout = layout;
 
-        let mut primitives = vec![widget_body.primitive()];
-        primitives.extend(widget_body.children().iter().map(|child| child.primitive()));
+        // let mut primitives = vec![widget_body.primitive()];
+        // primitives.extend(widget_body.children().iter().map(|child| child.primitive()));
 
-        renderer.draw(primitives);
+        // renderer.draw(primitives);
 
         // self.widget.iter().for_each(|w| {
         // 	if let Some(layout) = layout.get(w.id()) {
@@ -160,4 +157,18 @@ impl Page {
         //
         // });
     }
+}
+
+#[cfg(test)]
+fn test_setup(){
+    use winit::platform::windows::WindowBuilderExtWindows;
+    
+    let event_loop = EventLoopBuilder::new()
+        .with_any_thread(true)
+        .build()
+        .unwrap();
+    let window = WindowBuilder::new().build(&event_loop).unwrap();
+    let surface = SurfaceTexture::new(1000,1000,window);
+    let pixels = Pixels::new(1000,1000,surface).unwrap();
+    let pixmap = Pixmap::new(500,500).unwrap();
 }

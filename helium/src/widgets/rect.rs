@@ -1,14 +1,8 @@
-use super::{LayoutConfig, LayoutType, Widget, WidgetBody};
+use super::{Widget};
 use crate::Color;
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use helium_core::{GlobalId, IntoColor, Rgba, colors::WHITE};
-use helium_renderer::IntoSurface;
-use nanoid::nanoid;
-use resvg::tiny_skia;
-use resvg::tiny_skia::{FillRule, Paint, PathBuilder, Pixmap, Transform};
 
-// TODO add BoxStyle struct
-/// A simple rectangle
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Rect {
     id: GlobalId,
@@ -57,42 +51,12 @@ impl Rect {
 }
 
 impl Widget for Rect {
-    fn render(&self, pixmap: &mut Pixmap) {
-        pixmap.fill(tiny_skia::Color::WHITE);
-        let mut paint = Paint::default();
-        paint.set_color(tiny_skia::Color::BLACK);
-        let rect = tiny_skia::Rect::from_xywh(0.0, 0.0, 50.0, 50.0).unwrap();
-        let path = PathBuilder::from_rect(rect);
-        pixmap.fill_path(
-            &path,
-            &paint,
-            FillRule::Winding,
-            Transform::identity(),
-            None,
-        );
-    }
     fn id(&self) -> GlobalId {
         self.id
     }
 
-    fn build(&self, _renderer: &mut helium_renderer::Renderer) -> WidgetBody {
-        let primitive = helium_renderer::RectSurface::new(100.0, 100.0)
-            .color(self.color.clone())
-            .into_surface();
 
-        let layout = LayoutConfig::new()
-            .layout(LayoutType::EmptyLayout)
-            .intrinsic_size(self.intrinsic_size);
-
-        WidgetBody {
-            id: self.id.clone(),
-            layout,
-            primitive,
-            children: vec![],
-        }
-    }
-
-    fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
+    fn layout(&self) -> Box<dyn Layout> {
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size = self.intrinsic_size;
         layout.id = self.id.clone();
@@ -100,12 +64,4 @@ impl Widget for Rect {
         Box::new(layout)
     }
 
-    fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {
-        renderer.draw([helium_renderer::RectSurface::new(
-            layout.size().width,
-            layout.size().height,
-        )
-        .position(layout.position().x, layout.position().y)
-        .color(self.color.clone())]);
-    }
 }

@@ -732,7 +732,6 @@ name = "crystal"
 version = "0.1.0"
 dependencies = [
  "helium_core",
- "log",
  "thiserror 2.0.11",
 ]
 
@@ -1395,6 +1394,7 @@ dependencies = [
  "bytemuck",
  "rand 0.9.1",
  "thiserror 2.0.11",
+ "tiny-skia",
  "winit",
 ]
 

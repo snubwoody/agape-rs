@@ -279,64 +279,9 @@ pub(crate) async fn setup() -> (wgpu::Device, wgpu::Queue) {
     (device, queue)
 }
 
-pub fn render() {
-    dbg!("Building window");
-    use winit::platform::windows::EventLoopBuilderExtWindows;
-    let event_loop = EventLoopBuilder::new()
-        .with_any_thread(true)
-        .build()
-        .unwrap();
-    event_loop.set_control_flow(ControlFlow::Poll);
-
-    let window = WindowBuilder::new()
-        .with_visible(true)
-        .build(&event_loop)
-        .unwrap();
-    dbg!("Finished building window");
-
-    let surface = pixels::SurfaceTexture::new(500, 500, window);
-    let mut pixels = Pixels::new(500, 500, surface).unwrap();
-    let mut pixmap = Pixmap::new(500, 500).unwrap();
-    pixmap.fill(tiny_skia::Color::WHITE);
-
-    dbg!("Running app");
-    event_loop
-        .run(move |event, window_target| match event {
-            winit::event::Event::WindowEvent { event, .. } => match event {
-                WindowEvent::CloseRequested => {
-                    window_target.exit();
-                }
-                WindowEvent::RedrawRequested => {
-                    let mut paint = Paint::default();
-                    paint.set_color(tiny_skia::Color::BLACK);
-                    let rect = tiny_skia::Rect::from_xywh(0.0, 0.0, 50.0, 50.0).unwrap();
-                    let path = PathBuilder::from_rect(rect);
-                    pixmap.fill_path(
-                        &path,
-                        &paint,
-                        FillRule::Winding,
-                        Transform::identity(),
-                        None,
-                    );
-                    pixels.frame_mut().copy_from_slice(pixmap.data());
-                    pixels.render().unwrap();
-                }
-                _ => {}
-            },
-            _ => {}
-        })
-        .unwrap();
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn tiny_skia() {
-        dbg!("Starting");
-        render();
-    }
 
     #[tokio::test]
     async fn setup_works() {

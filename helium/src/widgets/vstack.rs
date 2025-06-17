@@ -1,52 +1,7 @@
 use crate::{Color, impl_layout, impl_style, widgets::Widget};
 use crystal::{AxisAlignment, Layout, VerticalLayout};
 use helium_core::{GlobalId, Rgba, colors::TRANSPARENT};
-use helium_renderer::{IntoSurface, RectSurface};
 
-use super::{LayoutConfig, LayoutType, WidgetBody};
-
-/// A [`Widget`] that places it's children vertically. The `vstack!` macro
-/// provides convienient initialization and is likely how you will be creating an
-/// `VStack` most of the time.
-///
-/// # Example using `vstack!`
-///
-/// ```
-/// use helium::{vstack,widgets::{Circle,Text}};
-///
-/// vstack!{
-/// 	Circle::new(15),
-/// 	Text::new("Hello world")
-/// };
-///
-/// ```
-///
-/// You can also simply use the struct method for initialization if you choose to,
-/// which is what `vstack!` expands to
-///
-/// ```
-/// use helium::widgets::{Text,VStack};
-///
-/// VStack::new()
-/// 	.add_child(Text::new("Hello"))
-/// 	.add_child(Text::new("World"));
-///
-/// ```
-///
-/// # Scrolling
-/// `VStack`'s are not scrollable by default, to enable scrolling use the `scrollable()`
-/// method.
-///
-/// ```
-/// use helium::{vstack,widgets::Text};
-///
-/// vstack!{
-/// 	Text::new("Hello"),
-/// 	Text::new("world!"),
-/// }
-/// .scrollable();
-/// ```
-///
 pub struct VStack {
     id: GlobalId,
     children: Vec<Box<dyn Widget>>,
@@ -135,51 +90,11 @@ impl Widget for VStack {
         self.layout.scroll(delta.y * scroll_speed);
     }
 
-    fn build(&self, renderer: &mut helium_renderer::Renderer) -> WidgetBody {
-        let VerticalLayout {
-            spacing,
-            padding,
-            intrinsic_size,
-            main_axis_alignment,
-            cross_axis_alignment,
-            scroll_offset,
-            ..
-        } = self.layout;
-
-        let children: Vec<Box<WidgetBody>> = self
-            .children
-            .iter()
-            .map(|widget| Box::new(widget.build(renderer)))
-            .collect();
-
-        let layout = LayoutConfig::new()
-            .spacing(spacing)
-            .padding(padding)
-            .intrinsic_size(intrinsic_size)
-            .main_axis_alignment(main_axis_alignment)
-            .cross_axis_alignment(cross_axis_alignment)
-            .scroll_offset(scroll_offset)
-            .layout(LayoutType::VerticalLayout);
-
-        // FIXME
-        let primitive = RectSurface::new(0.0, 0.0)
-            .color(self.color.clone())
-            .corner_radius(self.corner_radius as f32)
-            .into_surface();
-
-        WidgetBody {
-            id: self.id.clone(),
-            primitive,
-            layout,
-            children,
-        }
-    }
-
-    fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
+    fn layout(&self) -> Box<dyn Layout> {
         let children_layout: Vec<Box<dyn Layout>> = self
             .children
             .iter()
-            .map(|widget| widget.layout(renderer))
+            .map(|widget| widget.layout())
             .collect();
 
         let VerticalLayout {
@@ -210,14 +125,6 @@ impl Widget for VStack {
         Box::new(layout)
     }
 
-    fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
-        let primitive = RectSurface::from(layout)
-            .color(self.color.clone())
-            .corner_radius(self.corner_radius as f32);
-
-        renderer.draw([primitive]);
-    }
-
     fn children(&self) -> Vec<&dyn Widget> {
         self.children
             .iter()
@@ -230,33 +137,6 @@ impl Widget for VStack {
     }
 }
 
-/// Creates an [`VStack`].  
-///
-/// `vstack!` allows [`VStack`]'s to be declared in a more declarative manner.  
-///
-/// ```
-/// use helium::{vstack,widgets::{Button,Text}};
-///
-/// vstack!{
-/// 	Text::new("Hello"),
-/// 	Text::new("world")
-/// };
-/// ```
-///
-/// # Scrolling
-/// `VStack`'s are not scrollable by default, to enable scrolling use the `scrollable()`
-/// method.
-///
-/// ```
-/// use helium::{vstack,widgets::Text};
-///
-/// vstack!{
-/// 	Text::new("Hello"),
-/// 	Text::new("world!"),
-/// }
-/// .scrollable();
-/// ```
-///
 #[macro_export]
 macro_rules! vstack {
 	($($child:expr), + $(,)?) => {

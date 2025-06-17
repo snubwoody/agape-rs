@@ -55,7 +55,7 @@ impl Rgba {
 pub struct Color<C>(C);
 
 impl Color<Rgba> {
-    /// Create a new rgb [`Colour`]
+    /// Create a new rgb [`Colour`].
     ///
     /// # Example
     ///
@@ -74,7 +74,7 @@ impl Color<Rgba> {
         Color(color)
     }
 
-    /// Create a new rgba [`Colour`]
+    /// Create a new rgba [`Color`]
     ///
     /// # Example
     ///
@@ -86,6 +86,16 @@ impl Color<Rgba> {
     /// assert_eq!(color.r(),175);
     /// assert_eq!(color.g(),225);
     /// assert_eq!(color.b(),90);
+    /// assert_eq!(color.a(),100);
+    /// ```
+    /// 
+    /// The alpha channel is from 0-100, any values above 100 will 
+    /// be clipped to 100.
+    /// 
+    /// ```
+    /// use helium_core::Color;
+    /// let color = Color::rgba(0,0,0,235);
+    /// 
     /// assert_eq!(color.a(),100);
     /// ```
     pub const fn rgba(r: u8, g: u8, b: u8, a: u8) -> Color<Rgba> {
@@ -271,7 +281,7 @@ impl IntoColor<Rgba> for u8 {
     /// # Example
     ///
     /// ```
-    /// use helium_core::Color;
+    /// use helium_core::{Color, IntoColor};
     ///
     /// let color = 27.into_color();
     ///
