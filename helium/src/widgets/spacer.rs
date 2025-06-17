@@ -41,20 +41,20 @@ impl Widget for Spacer {
         self.id
     }
 
-	fn build(&self,_renderer: &mut Renderer) -> WidgetBody {
-		let primitive = RectSurface::new(250.0, 250.0).into_surface();
+    fn build(&self, _renderer: &mut Renderer) -> WidgetBody {
+        let primitive = RectSurface::new(250.0, 250.0).into_surface();
 
-		let layout = LayoutConfig::new()
-			.layout(LayoutType::EmptyLayout)
-			.intrinsic_size(IntrinsicSize::fill());
+        let layout = LayoutConfig::new()
+            .layout(LayoutType::EmptyLayout)
+            .intrinsic_size(IntrinsicSize::fill());
 
-		WidgetBody{
-			id: self.id,
-			layout,
-			primitive,
-			children: vec![]
-		}
-	}
+        WidgetBody {
+            id: self.id,
+            layout,
+            primitive,
+            children: vec![],
+        }
+    }
 
     fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn crystal::Layout> {
         let mut layout = EmptyLayout::new();
@@ -66,8 +66,8 @@ impl Widget for Spacer {
     }
 
     fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
-		let primitive = RectSurface::new(layout.size().width, layout.size().height)
-			.position(layout.position().x, layout.position().y);
+        let primitive = RectSurface::new(layout.size().width, layout.size().height)
+            .position(layout.position().x, layout.position().y);
         renderer.draw([primitive]);
     }
 }

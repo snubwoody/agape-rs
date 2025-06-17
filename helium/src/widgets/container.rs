@@ -50,24 +50,23 @@ where
         self.id
     }
 
-	fn build(&self,renderer: &mut helium_renderer::Renderer) -> WidgetBody {
-		let primitive = helium_renderer::RectSurface::new(0.0,0.0)
-			.color(self.color.clone())
-			.corner_radius(self.corner_radius as f32)
-			.into_surface();
+    fn build(&self, renderer: &mut helium_renderer::Renderer) -> WidgetBody {
+        let primitive = helium_renderer::RectSurface::new(0.0, 0.0)
+            .color(self.color.clone())
+            .corner_radius(self.corner_radius as f32)
+            .into_surface();
 
-		let child = self.child.build(renderer);
+        let child = self.child.build(renderer);
 
-		let layout = LayoutConfig::block()
-			.padding(self.padding);
+        let layout = LayoutConfig::block().padding(self.padding);
 
-		WidgetBody{
-			id: self.id.clone(),
-			primitive,
-			layout,
-			children: vec![Box::new(child)]
-		}
-	}
+        WidgetBody {
+            id: self.id.clone(),
+            primitive,
+            layout,
+            children: vec![Box::new(child)],
+        }
+    }
 
     fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
         let child_layout = self.child.layout(renderer);
@@ -78,12 +77,13 @@ where
     }
 
     fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {
-		let primitive = helium_renderer::RectSurface::new(layout.size().width, layout.size().height)
-			.position(layout.position().x, layout.position().y)
-			.color(self.color.clone())
-			.corner_radius(self.corner_radius as f32);
-        
-		renderer.draw([primitive]);
+        let primitive =
+            helium_renderer::RectSurface::new(layout.size().width, layout.size().height)
+                .position(layout.position().x, layout.position().y)
+                .color(self.color.clone())
+                .corner_radius(self.corner_radius as f32);
+
+        renderer.draw([primitive]);
     }
 
     fn children(&self) -> Vec<&dyn Widget> {

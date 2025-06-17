@@ -1,5 +1,5 @@
 use super::{IntoSurface, Surface};
-use helium_core::{colors::BLACK, Color, IntoColor, Position, Rgba};
+use helium_core::{Color, IntoColor, Position, Rgba, colors::BLACK};
 
 #[derive(Clone, PartialEq)]
 pub struct IconSurface {
@@ -34,12 +34,12 @@ impl IntoSurface for IconSurface {
     }
 }
 
-impl std::fmt::Debug for IconSurface{
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		f.debug_struct("Icon")
-			.field("color", &self.color)
-			.field("position", &self.position)
-			.field("image", &"ImageBuffer<...>")
-			.finish()
-	}
+impl std::fmt::Debug for IconSurface {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Icon")
+            .field("color", &self.color)
+            .field("position", &self.position)
+            .field("image", &"ImageBuffer<...>")
+            .finish()
+    }
 }

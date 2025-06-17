@@ -39,14 +39,14 @@ impl ImageSurface {
     }
 }
 
-impl std::fmt::Debug for ImageSurface{
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		f.debug_struct("ImageSurface")
-			.field("size", &self.size)
-			.field("position", &self.position)
-			.field("data", &"ImageBuffer<...>")
-			.finish()
-	}
+impl std::fmt::Debug for ImageSurface {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ImageSurface")
+            .field("size", &self.size)
+            .field("position", &self.position)
+            .field("data", &"ImageBuffer<...>")
+            .finish()
+    }
 }
 
 impl IntoSurface for ImageSurface {

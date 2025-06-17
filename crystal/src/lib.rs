@@ -52,7 +52,7 @@ pub trait Layout: Debug + Send + Sync {
 
     /// Get the `id` of the [`Layout`]
     fn id(&self) -> GlobalId;
-    
+
     /// Get the [`BoxConstraints`] of the [`Layout`]
     fn constraints(&self) -> BoxConstraints;
 
@@ -64,11 +64,11 @@ pub trait Layout: Debug + Send + Sync {
 
     /// Get the `Position` of the [`Layout`]
     fn position(&self) -> Position;
-	
+
     /// Get the `Bounds` of the [`Layout`]
-    fn bounds(&self) -> Bounds{
-		Bounds::new(self.position(), self.size())
-	}
+    fn bounds(&self) -> Bounds {
+        Bounds::new(self.position(), self.size())
+    }
 
     fn children(&self) -> &[Box<dyn Layout>];
 
@@ -141,8 +141,8 @@ pub enum AxisAlignment {
     End,
 }
 
-/// Describes the maximum and minimum size of a [`Layout`] 
-#[derive(Debug, Clone, Copy, Default, PartialEq,PartialOrd)]
+/// Describes the maximum and minimum size of a [`Layout`]
+#[derive(Debug, Clone, Copy, Default, PartialEq, PartialOrd)]
 pub struct BoxConstraints {
     pub max_width: f32,
     pub max_height: f32,
@@ -151,7 +151,7 @@ pub struct BoxConstraints {
 }
 
 impl BoxConstraints {
-	/// Create new [`BoxConstraints`]
+    /// Create new [`BoxConstraints`]
     pub fn new() -> Self {
         Self::default()
     }
@@ -167,11 +167,11 @@ pub struct IntrinsicSize {
     pub height: BoxSizing,
 }
 
-impl IntrinsicSize{
-	pub fn fill() -> Self{
-		Self { 
-			width: BoxSizing::Flex(1), 
-			height: BoxSizing::Flex(1) 
-		}
-	}
+impl IntrinsicSize {
+    pub fn fill() -> Self {
+        Self {
+            width: BoxSizing::Flex(1),
+            height: BoxSizing::Flex(1),
+        }
+    }
 }

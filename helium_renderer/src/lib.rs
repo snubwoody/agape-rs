@@ -8,17 +8,17 @@ use helium_core::Size;
 use pipeline::{
     CirclePipeline, GlobalResources, IconPipeline, ImagePipeline, RectPipeline, TextPipeline,
 };
+use pixels::Pixels;
 pub use primitives::*;
 use std::{
     rc::Rc,
     time::{Duration, Instant},
 };
-use pixels::Pixels;
 use tiny_skia::{FillRule, Paint, PathBuilder, Pixmap, Transform};
+pub use vertex::Vertex;
 use winit::event::WindowEvent;
 use winit::event_loop::{ControlFlow, EventLoop, EventLoopBuilder};
 use winit::platform::windows::EventLoopBuilderExtWindows;
-pub use vertex::Vertex;
 use winit::window::{Window, WindowBuilder};
 
 pub struct Renderer<'r> {
@@ -279,10 +279,13 @@ pub(crate) async fn setup() -> (wgpu::Device, wgpu::Queue) {
     (device, queue)
 }
 
-pub fn render(){
+pub fn render() {
     dbg!("Building window");
     use winit::platform::windows::EventLoopBuilderExtWindows;
-    let event_loop = EventLoopBuilder::new().with_any_thread(true).build().unwrap();
+    let event_loop = EventLoopBuilder::new()
+        .with_any_thread(true)
+        .build()
+        .unwrap();
     event_loop.set_control_flow(ControlFlow::Poll);
 
     let window = WindowBuilder::new()
@@ -291,32 +294,38 @@ pub fn render(){
         .unwrap();
     dbg!("Finished building window");
 
-    let surface = pixels::SurfaceTexture::new(500,500,window);
-    let mut pixels = Pixels::new(500,500, surface).unwrap();
-    let mut pixmap = Pixmap::new(500,500).unwrap();
+    let surface = pixels::SurfaceTexture::new(500, 500, window);
+    let mut pixels = Pixels::new(500, 500, surface).unwrap();
+    let mut pixmap = Pixmap::new(500, 500).unwrap();
     pixmap.fill(tiny_skia::Color::WHITE);
 
     dbg!("Running app");
-    event_loop.run(move |event, window_target| {
-       match event {
-           winit::event::Event::WindowEvent { event, .. } => match event {
-               WindowEvent::CloseRequested => {
-                   window_target.exit();
-               },
-               WindowEvent::RedrawRequested => {
-                   let mut paint = Paint::default();
-                   paint.set_color(tiny_skia::Color::BLACK);
-                   let rect = tiny_skia::Rect::from_xywh(0.0,0.0,50.0,50.0).unwrap();
-                   let path = PathBuilder::from_rect(rect);
-                   pixmap.fill_path(&path,&paint,FillRule::Winding,Transform::identity(), None);
-                   pixels.frame_mut().copy_from_slice(pixmap.data());
-                   pixels.render().unwrap();
-               },
-               _ => {}
-           }
-           _ =>{}
-       }
-    }).unwrap();
+    event_loop
+        .run(move |event, window_target| match event {
+            winit::event::Event::WindowEvent { event, .. } => match event {
+                WindowEvent::CloseRequested => {
+                    window_target.exit();
+                }
+                WindowEvent::RedrawRequested => {
+                    let mut paint = Paint::default();
+                    paint.set_color(tiny_skia::Color::BLACK);
+                    let rect = tiny_skia::Rect::from_xywh(0.0, 0.0, 50.0, 50.0).unwrap();
+                    let path = PathBuilder::from_rect(rect);
+                    pixmap.fill_path(
+                        &path,
+                        &paint,
+                        FillRule::Winding,
+                        Transform::identity(),
+                        None,
+                    );
+                    pixels.frame_mut().copy_from_slice(pixmap.data());
+                    pixels.render().unwrap();
+                }
+                _ => {}
+            },
+            _ => {}
+        })
+        .unwrap();
 }
 
 #[cfg(test)]
@@ -324,7 +333,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn tiny_skia(){
+    fn tiny_skia() {
         dbg!("Starting");
         render();
     }

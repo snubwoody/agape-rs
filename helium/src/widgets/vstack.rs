@@ -1,6 +1,6 @@
-use crate::{impl_layout, impl_style, widgets::Widget, Color};
+use crate::{Color, impl_layout, impl_style, widgets::Widget};
 use crystal::{AxisAlignment, Layout, VerticalLayout};
-use helium_core::{colors::TRANSPARENT, GlobalId, Rgba};
+use helium_core::{GlobalId, Rgba, colors::TRANSPARENT};
 use helium_renderer::{IntoSurface, RectSurface};
 
 use super::{LayoutConfig, LayoutType, WidgetBody};
@@ -32,14 +32,14 @@ use super::{LayoutConfig, LayoutType, WidgetBody};
 /// 	.add_child(Text::new("World"));
 ///
 /// ```
-/// 
+///
 /// # Scrolling
 /// `VStack`'s are not scrollable by default, to enable scrolling use the `scrollable()`
 /// method.
-/// 
+///
 /// ```
 /// use helium::{vstack,widgets::Text};
-/// 
+///
 /// vstack!{
 /// 	Text::new("Hello"),
 /// 	Text::new("world!"),
@@ -53,8 +53,8 @@ pub struct VStack {
     color: Color<Rgba>,
     layout: VerticalLayout,
     corner_radius: u32,
-	/// Whether the `VStack` should be scrollable, false by default
-	scollable:bool
+    /// Whether the `VStack` should be scrollable, false by default
+    scollable: bool,
 }
 
 impl VStack {
@@ -65,7 +65,7 @@ impl VStack {
             children: vec![],
             layout: VerticalLayout::new(),
             corner_radius: 0,
-			scollable: false
+            scollable: false,
         }
     }
 
@@ -93,11 +93,11 @@ impl VStack {
         self
     }
 
-	/// Enable scrolling
-	pub fn scrollable(mut self) -> Self{
-		self.scollable = true;
-		self
-	}
+    /// Enable scrolling
+    pub fn scrollable(mut self) -> Self {
+        self.scollable = true;
+        self
+    }
 
     pub fn align_center(mut self) -> Self {
         self.layout.main_axis_alignment = AxisAlignment::Center;
@@ -124,55 +124,56 @@ impl Widget for VStack {
         self.id
     }
 
-	fn scroll(&mut self,delta:crystal::Position) {
-		if !self.scollable {return}
+    fn scroll(&mut self, delta: crystal::Position) {
+        if !self.scollable {
+            return;
+        }
 
-		// The delta is usually small values so we must scale it
-		let scroll_speed = 5.0;
-		// TODO change the scroll speeed based on whether it's a mouse pad or touch pad
-		self.layout.scroll(delta.y * scroll_speed);
-	}
+        // The delta is usually small values so we must scale it
+        let scroll_speed = 5.0;
+        // TODO change the scroll speeed based on whether it's a mouse pad or touch pad
+        self.layout.scroll(delta.y * scroll_speed);
+    }
 
-	fn build(&self,renderer: &mut helium_renderer::Renderer) -> WidgetBody {
+    fn build(&self, renderer: &mut helium_renderer::Renderer) -> WidgetBody {
         let VerticalLayout {
             spacing,
             padding,
             intrinsic_size,
             main_axis_alignment,
             cross_axis_alignment,
-			scroll_offset,
+            scroll_offset,
             ..
         } = self.layout;
 
-		let children: Vec<Box<WidgetBody>> = self
-			.children
-			.iter()
-			.map(|widget| Box::new(widget.build(renderer)))
-			.collect();
+        let children: Vec<Box<WidgetBody>> = self
+            .children
+            .iter()
+            .map(|widget| Box::new(widget.build(renderer)))
+            .collect();
 
-		let layout = LayoutConfig::new()
-			.spacing(spacing)
-			.padding(padding)
-			.intrinsic_size(intrinsic_size)
-			.main_axis_alignment(main_axis_alignment)
-			.cross_axis_alignment(cross_axis_alignment)
-			.scroll_offset(scroll_offset)
-			.layout(LayoutType::VerticalLayout);
+        let layout = LayoutConfig::new()
+            .spacing(spacing)
+            .padding(padding)
+            .intrinsic_size(intrinsic_size)
+            .main_axis_alignment(main_axis_alignment)
+            .cross_axis_alignment(cross_axis_alignment)
+            .scroll_offset(scroll_offset)
+            .layout(LayoutType::VerticalLayout);
 
-		
-		// FIXME
-		let primitive = RectSurface::new(0.0, 0.0)
-			.color(self.color.clone())
-			.corner_radius(self.corner_radius as f32)
-			.into_surface();
+        // FIXME
+        let primitive = RectSurface::new(0.0, 0.0)
+            .color(self.color.clone())
+            .corner_radius(self.corner_radius as f32)
+            .into_surface();
 
-        WidgetBody{
-			id: self.id.clone(),
-			primitive,
-			layout,
-			children
-		}
-	}
+        WidgetBody {
+            id: self.id.clone(),
+            primitive,
+            layout,
+            children,
+        }
+    }
 
     fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
         let children_layout: Vec<Box<dyn Layout>> = self
@@ -181,7 +182,6 @@ impl Widget for VStack {
             .map(|widget| widget.layout(renderer))
             .collect();
 
-		
         let VerticalLayout {
             spacing,
             padding,
@@ -189,7 +189,7 @@ impl Widget for VStack {
             main_axis_alignment,
             cross_axis_alignment,
             constraints,
-			scroll_offset,
+            scroll_offset,
             ..
         } = self.layout;
 
@@ -202,7 +202,7 @@ impl Widget for VStack {
             cross_axis_alignment,
             main_axis_alignment,
             constraints,
-			scroll_offset,
+            scroll_offset,
             children: children_layout,
             ..Default::default()
         };
@@ -211,11 +211,11 @@ impl Widget for VStack {
     }
 
     fn draw(&self, layout: &dyn crystal::Layout, renderer: &mut helium_renderer::Renderer) {
-		let primitive = RectSurface::from(layout)
-			.color(self.color.clone())
-			.corner_radius(self.corner_radius as f32);
-        
-		renderer.draw([primitive]);
+        let primitive = RectSurface::from(layout)
+            .color(self.color.clone())
+            .corner_radius(self.corner_radius as f32);
+
+        renderer.draw([primitive]);
     }
 
     fn children(&self) -> Vec<&dyn Widget> {
@@ -242,14 +242,14 @@ impl Widget for VStack {
 /// 	Text::new("world")
 /// };
 /// ```
-/// 
+///
 /// # Scrolling
 /// `VStack`'s are not scrollable by default, to enable scrolling use the `scrollable()`
 /// method.
-/// 
+///
 /// ```
 /// use helium::{vstack,widgets::Text};
-/// 
+///
 /// vstack!{
 /// 	Text::new("Hello"),
 /// 	Text::new("world!"),

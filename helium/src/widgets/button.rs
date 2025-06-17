@@ -101,33 +101,33 @@ impl<W: Widget> Widget for Button<W> {
         }
     }
 
-	fn build(&self,renderer: &mut helium_renderer::Renderer) -> WidgetBody{
-		let mut layout = BlockLayout::new(self.child.layout(renderer));
+    fn build(&self, renderer: &mut helium_renderer::Renderer) -> WidgetBody {
+        let mut layout = BlockLayout::new(self.child.layout(renderer));
         layout.intrinsic_size = self.modifiers.intrinsic_size;
         layout.padding = self.padding;
         layout.main_axis_alignment = AxisAlignment::Center; // TODO expose this
         layout.cross_axis_alignment = AxisAlignment::Center;
         layout.id = self.id.clone();
 
-		let primitive = helium_renderer::RectSurface::new(0.0,0.0)
+        let primitive = helium_renderer::RectSurface::new(0.0, 0.0)
             .color(self.color.clone())
             .corner_radius(self.corner_radius as f32)
-			.into_surface();
-		let child = self.child.build(renderer);
+            .into_surface();
+        let child = self.child.build(renderer);
 
-		let layout = LayoutConfig::block()
-			.padding(self.padding)
-			.main_axis_alignment(AxisAlignment::Center)
-			.cross_axis_alignment(AxisAlignment::Center)
-			.intrinsic_size(self.modifiers.intrinsic_size);
+        let layout = LayoutConfig::block()
+            .padding(self.padding)
+            .main_axis_alignment(AxisAlignment::Center)
+            .cross_axis_alignment(AxisAlignment::Center)
+            .intrinsic_size(self.modifiers.intrinsic_size);
 
-		WidgetBody{
-			id: self.id.clone(),
-			primitive,
-			layout,
-			children: vec![Box::new(child)]
-		}
-	}
+        WidgetBody {
+            id: self.id.clone(),
+            primitive,
+            layout,
+            children: vec![Box::new(child)],
+        }
+    }
 
     fn layout(&self, renderer: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
         let mut layout = BlockLayout::new(self.child.layout(renderer));
@@ -145,11 +145,12 @@ impl<W: Widget> Widget for Button<W> {
     }
 
     fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {
-        renderer.draw([
-            helium_renderer::RectSurface::new(layout.size().width, layout.size().height)
-                .position(layout.position().x, layout.position().y)
-                .color(self.color.clone())
-                .corner_radius(self.corner_radius as f32),
-        ]);
+        renderer.draw([helium_renderer::RectSurface::new(
+            layout.size().width,
+            layout.size().height,
+        )
+        .position(layout.position().x, layout.position().y)
+        .color(self.color.clone())
+        .corner_radius(self.corner_radius as f32)]);
     }
 }

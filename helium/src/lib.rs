@@ -1,22 +1,22 @@
 #![doc = include_str!("../../README.md")]
 pub mod colors;
 pub mod error;
-pub mod widgets;
 mod view;
+pub mod widgets;
 
-use std::sync::Arc;
-use helium_renderer::{Renderer, TextSurface};
 pub use crystal;
 use crystal::LayoutSolver;
 pub use error::{Error, Result};
 pub use helium_core::*;
 pub use helium_macros::hex; // TODO move to colors mod
 pub use helium_renderer as renderer;
+use helium_renderer::{Renderer, TextSurface};
 pub use nanoid::nanoid;
-use std::time::{Duration, Instant};
 use pixels::Pixels;
 use resvg::tiny_skia;
 use resvg::tiny_skia::Pixmap;
+use std::sync::Arc;
+use std::time::{Duration, Instant};
 use widgets::Widget;
 use winit::{
     event::WindowEvent,
@@ -34,7 +34,7 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(widget: impl Widget + 'static,) -> Self {
+    pub fn new(widget: impl Widget + 'static) -> Self {
         // FIXME handle the errors
         let event_loop = EventLoop::new().unwrap();
         event_loop.set_control_flow(ControlFlow::Poll);
@@ -61,21 +61,14 @@ impl App {
         // Not quite sure how accurate this is
         let mut previous_duration = Duration::new(0, 0);
         let mut size = Size::from(self.window.inner_size());
-        
+
         let surface = pixels::SurfaceTexture::new(
             size.width as u32,
             size.height as u32,
-            Arc::clone(&self.window)
+            Arc::clone(&self.window),
         );
-        let mut pixels = Pixels::new(
-            size.width as u32,
-            size.height as u32, 
-            surface
-        ).unwrap();
-        let mut pixmap = Pixmap::new(
-            size.width as u32,
-            size.height as u32,
-        ).unwrap();
+        let mut pixels = Pixels::new(size.width as u32, size.height as u32, surface).unwrap();
+        let mut pixmap = Pixmap::new(size.width as u32, size.height as u32).unwrap();
         pixmap.fill(tiny_skia::Color::WHITE);
 
         self.event_loop.run(|event, window_target| {
@@ -118,10 +111,10 @@ pub struct Page {
 }
 
 impl Page {
-	/// Create a new [`Page`]
+    /// Create a new [`Page`]
     pub fn new(widget: impl Widget + 'static, renderer: &mut Renderer) -> Self {
-		let body = widget.build(renderer);
-		let layout = body.layout();
+        let body = widget.build(renderer);
+        let layout = body.layout();
         Self {
             mouse_pos: Position::default(),
             layout,
@@ -133,7 +126,7 @@ impl Page {
         self.widget.update();
     }
 
-	/// Dispatch the `winit` events to the `Widget`'s.
+    /// Dispatch the `winit` events to the `Widget`'s.
     fn dispatch_event(&mut self, event: &winit::event::WindowEvent) {
         match event {
             WindowEvent::CursorMoved { position, .. } => self.mouse_pos = Position::from(*position),
@@ -143,31 +136,28 @@ impl Page {
             .dispatch_event(self.mouse_pos, &*self.layout, event);
     }
 
-	/// Draw the contents of the [`Page`] to the screen
+    /// Draw the contents of the [`Page`] to the screen
     fn draw(&mut self, renderer: &mut Renderer, size: Size) {
         let widget_body = self.widget.build(renderer);
-		
-		// Solve the Layout tree
-		let mut layout = widget_body.layout();
+
+        // Solve the Layout tree
+        let mut layout = widget_body.layout();
         LayoutSolver::solve(&mut *layout, size);
-		self.layout = layout;
+        self.layout = layout;
 
-		let mut primitives = vec![widget_body.primitive()];
-		primitives.extend(
-			widget_body.children().iter().map(|child|child.primitive())
-		);
-		
-		renderer.draw(primitives);
+        let mut primitives = vec![widget_body.primitive()];
+        primitives.extend(widget_body.children().iter().map(|child| child.primitive()));
 
-		// self.widget.iter().for_each(|w| {
-		// 	if let Some(layout) = layout.get(w.id()) {
-		// 		w.draw(layout, renderer);
+        renderer.draw(primitives);
+
+        // self.widget.iter().for_each(|w| {
+        // 	if let Some(layout) = layout.get(w.id()) {
+        // 		w.draw(layout, renderer);
         //     } else {
-		// 		log::warn!("Widget is missing it's Layout")
+        // 		log::warn!("Widget is missing it's Layout")
         //     }
         //     pixels.frame_mut().copy_from_slice(pixmap.data());
-        //     
+        //
         // });
-       
     }
 }

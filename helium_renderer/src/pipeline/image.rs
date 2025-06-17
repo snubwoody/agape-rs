@@ -7,7 +7,7 @@ use crate::{
     primitives::ImageSurface,
     vertex::Vertex,
 };
-use helium_core::{colors::TRANSPARENT, Position, Size};
+use helium_core::{Position, Size, colors::TRANSPARENT};
 use image::{ImageBuffer, Rgba};
 use std::rc::Rc;
 use wgpu::Extent3d;

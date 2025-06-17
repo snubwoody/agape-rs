@@ -2,19 +2,18 @@ mod color;
 mod position;
 mod size;
 
-pub use {size::*, color::*, position::*};
+pub use {color::*, position::*, size::*};
 
 /// A global unique identifier
-#[derive(Copy, Clone,PartialOrd, PartialEq,Eq,Debug,Ord,Hash)]
+#[derive(Copy, Clone, PartialOrd, PartialEq, Eq, Debug, Ord, Hash)]
 pub struct GlobalId(u32);
 
 impl GlobalId {
-    pub fn new() -> Self { 
+    pub fn new() -> Self {
         let id = rand::random();
         Self(id)
     }
 }
-
 
 impl Default for GlobalId {
     fn default() -> Self {

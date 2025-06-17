@@ -116,7 +116,7 @@ impl TextPipeline {
         }
     }
 
-	/// Get the [`Size`] of a string of text
+    /// Get the [`Size`] of a string of text
     pub fn text_size(&mut self, text: &TextSurface) -> Size {
         let font_system = &mut self.font_system;
 

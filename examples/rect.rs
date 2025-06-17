@@ -1,4 +1,4 @@
-use helium::{widgets::{Rect}, App};
+use helium::{App, widgets::Rect};
 
 #[tokio::main]
 async fn main() -> Result<(), helium::Error> {

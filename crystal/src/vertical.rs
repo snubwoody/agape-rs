@@ -1,6 +1,6 @@
 use crate::{
-    error::OverflowAxis, AxisAlignment, BoxConstraints, BoxSizing, IntrinsicSize, Layout,
-    LayoutError, LayoutIter,
+    AxisAlignment, BoxConstraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter,
+    error::OverflowAxis,
 };
 use helium_core::{GlobalId, Position, Size};
 // TODO maybe make some items private
@@ -368,13 +368,13 @@ impl Layout for VerticalLayout {
 
         // TODO check for padding and spacing
         let width_sum: f32 = self.children.iter().map(|child| child.size().width).sum();
-		let mut height_sum = (self.padding * 2) as f32;
-		for (i,child) in self.children.iter().enumerate(){
-			height_sum += child.size().height;
-			if i != self.children.len() - 1{
-				height_sum += self.spacing as f32;
-			}
-		}
+        let mut height_sum = (self.padding * 2) as f32;
+        for (i, child) in self.children.iter().enumerate() {
+            height_sum += child.size().height;
+            if i != self.children.len() - 1 {
+                height_sum += self.spacing as f32;
+            }
+        }
 
         let main_axis_error = LayoutError::overflow(self.id, OverflowAxis::MainAxis);
         let cross_axis_error = LayoutError::overflow(self.id, OverflowAxis::CrossAxis);
@@ -499,15 +499,14 @@ mod test {
         LayoutSolver::solve(&mut root, window);
         assert!(root.main_axis_overflow());
         assert!(!root.cross_axis_overflow());
-    
-	}
+    }
     #[test]
     fn include_spacing_and_padding_main_axis_overflow() {
         let window = Size::unit(500.0);
 
         let mut root = VerticalLayout::new();
-		root.spacing = 20;
-		root.padding = 20;
+        root.spacing = 20;
+        root.padding = 20;
         root.intrinsic_size = IntrinsicSize {
             height: BoxSizing::Fixed(200.0),
             ..Default::default()

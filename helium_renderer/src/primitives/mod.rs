@@ -22,8 +22,8 @@ pub trait IntoSurface {
     fn into_surface(self) -> Surface;
 }
 
-impl IntoSurface for Surface{
-	fn into_surface(self) -> Surface {
-		self
-	}
+impl IntoSurface for Surface {
+    fn into_surface(self) -> Surface {
+        self
+    }
 }

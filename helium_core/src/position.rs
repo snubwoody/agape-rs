@@ -42,9 +42,9 @@ impl Position {
     }
 
     /// Translate the position by `x` and `y` amount.
-	/// 
+    ///
     /// # Example
-	/// 
+    ///
     /// ```
     /// use helium_core::Position;
     ///

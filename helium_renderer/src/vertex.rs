@@ -52,8 +52,8 @@ impl Vertex {
     /// assert_eq!(vertices[0].position[0],position.x);
     /// assert_eq!(vertices[5].position[0],position.x + size.width);
     /// ```
-    pub fn quad(size: Size, position: Position, color: impl IntoColor<Rgba>) -> Vec<Self>{
-		let color:Color<Rgba> = color.into_color();
+    pub fn quad(size: Size, position: Position, color: impl IntoColor<Rgba>) -> Vec<Self> {
+        let color: Color<Rgba> = color.into_color();
         let color = color.normalize();
         let width = size.width;
         let height = size.height;
@@ -109,8 +109,8 @@ impl Vertex {
         position: Position,
         color: impl IntoColor<Rgba>,
         uv: [[f32; 2]; 4],
-    ) -> Vec<Self>{
-		let color = color.into_color().normalize();
+    ) -> Vec<Self> {
+        let color = color.into_color().normalize();
         let width = size.width;
         let height = size.height;
         let x = position.x;
