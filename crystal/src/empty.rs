@@ -1,5 +1,5 @@
 use crate::{BoxConstraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
-use helium_core::{Position, Size};
+use helium_core::{GlobalId, Position, Size};
 
 /// An [`Layout`] with no children.  
 /// Common use cases are
@@ -9,7 +9,7 @@ use helium_core::{Position, Size};
 /// - Icons
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct EmptyLayout {
-    pub id: String,
+    pub id: GlobalId,
     pub size: Size,
     pub position: Position,
     // TODO could probably just inline this
@@ -29,12 +29,13 @@ impl Layout for EmptyLayout {
         self.size
     }
 
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self) -> GlobalId {
+        self.id
     }
 
-	fn set_id(&mut self,id: &str) {
-		self.id = id.to_string();
+	fn set_id(&mut self,id: GlobalId) {
+		
+        self.id = id
 	}
 
     fn set_position(&mut self, position: Position) {

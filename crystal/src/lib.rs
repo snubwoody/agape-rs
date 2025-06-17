@@ -7,7 +7,7 @@ mod vertical;
 pub use block::BlockLayout;
 pub use empty::EmptyLayout;
 pub use error::LayoutError;
-use helium_core::Bounds;
+use helium_core::{Bounds, GlobalId};
 pub use helium_core::{Position, Size};
 pub use horizontal::HorizontalLayout;
 use std::fmt::Debug;
@@ -17,7 +17,7 @@ pub struct LayoutSolver;
 // TODO maybe just make it a function
 impl LayoutSolver {
     /// Calculates the layout of all the layout nodes
-    pub fn solve(root: &mut dyn Layout, window_size: Size) -> Vec<crate::LayoutError> {
+    pub fn solve(root: &mut dyn Layout, window_size: Size) -> Vec<LayoutError> {
         root.set_max_width(window_size.width);
         root.set_max_height(window_size.height);
 
@@ -51,10 +51,10 @@ pub trait Layout: Debug + Send + Sync {
     fn collect_errors(&mut self) -> Vec<LayoutError>;
 
     /// Get the `id` of the [`Layout`]
-    fn id(&self) -> &str;
+    fn id(&self) -> GlobalId;
     
     /// Set the `id` of the [`Layout`]
-	fn set_id(&mut self,id: &str);
+	fn set_id(&mut self,id: GlobalId);
 
     /// Get the [`BoxConstraints`] of the [`Layout`]
     fn constraints(&self) -> BoxConstraints;
@@ -86,7 +86,7 @@ pub trait Layout: Debug + Send + Sync {
     fn iter(&self) -> LayoutIter;
 
     /// Get a [`Layout`] by it's `id`.
-    fn get(&self, id: &str) -> Option<&dyn Layout> {
+    fn get(&self, id: GlobalId) -> Option<&dyn Layout> {
         for layout in self.iter() {
             if layout.id() == id {
                 return Some(layout);
@@ -161,7 +161,7 @@ impl BoxConstraints {
 }
 
 /// This is the size that a [`Layout`] will try to be,  
-/// the actual final size is dependant on the space
+/// the actual final size is dependent on the space
 /// available.
 #[derive(Debug, Clone, Copy, Default, PartialEq, PartialOrd)]
 pub struct IntrinsicSize {

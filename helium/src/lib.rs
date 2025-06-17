@@ -2,6 +2,7 @@
 pub mod colors;
 pub mod error;
 pub mod widgets;
+mod element;
 
 use std::sync::Arc;
 use helium_renderer::{Renderer, TextSurface};
@@ -156,7 +157,6 @@ impl Page {
 			widget_body.children().iter().map(|child|child.primitive())
 		);
 		
-		dbg!(&primitives);
 		renderer.draw(primitives);
 
 		// self.widget.iter().for_each(|w| {

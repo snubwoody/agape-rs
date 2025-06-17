@@ -2,13 +2,13 @@ use crate::{
     error::OverflowAxis, AxisAlignment, BoxConstraints, BoxSizing, IntrinsicSize, Layout,
     LayoutError, LayoutIter,
 };
-use helium_core::{Position, Size};
+use helium_core::{GlobalId, Position, Size};
 // TODO maybe make some items private
 // TODO if min width is larger than max width then it's an overflow
 /// A [`Layout`] that arranges it's children vertically.
 #[derive(Default, Debug)]
 pub struct VerticalLayout {
-    pub id: String,
+    pub id: GlobalId,
     pub size: Size,
     pub position: Position,
     pub spacing: u32,
@@ -55,14 +55,14 @@ impl VerticalLayout {
     /// (y-axis).
     pub fn main_axis_overflow(&self) -> bool {
         self.errors
-            .contains(&LayoutError::overflow(&self.id, OverflowAxis::MainAxis))
+            .contains(&LayoutError::overflow(self.id, OverflowAxis::MainAxis))
     }
 
     /// Returns `true` if a [`VerticalLayout`]'s children are overflowing it's cross-axis
     /// (x-axis).
     pub fn cross_axis_overflow(&self) -> bool {
         self.errors
-            .contains(&LayoutError::overflow(&self.id, OverflowAxis::CrossAxis))
+            .contains(&LayoutError::overflow(self.id, OverflowAxis::CrossAxis))
     }
 
     fn fixed_size_sum(&self) -> Size {
@@ -156,12 +156,12 @@ impl VerticalLayout {
 }
 
 impl Layout for VerticalLayout {
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self) -> GlobalId {
+        self.id
     }
 
-	fn set_id(&mut self,id: &str) {
-		self.id = id.to_string();
+	fn set_id(&mut self,id: GlobalId) {
+		self.id = id;
 	}
 
     fn position(&self) -> Position {
@@ -380,8 +380,8 @@ impl Layout for VerticalLayout {
 			}
 		}
 
-        let main_axis_error = LayoutError::overflow(&self.id, OverflowAxis::MainAxis);
-        let cross_axis_error = LayoutError::overflow(&self.id, OverflowAxis::CrossAxis);
+        let main_axis_error = LayoutError::overflow(self.id, OverflowAxis::MainAxis);
+        let cross_axis_error = LayoutError::overflow(self.id, OverflowAxis::CrossAxis);
 
         // Prevent duplicate errors
         if !self.errors.contains(&cross_axis_error) {

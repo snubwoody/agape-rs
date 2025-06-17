@@ -527,29 +527,3 @@ macro_rules! impl_layout {
     };
 }
 
-#[cfg(test)]
-mod tests{
-    use crystal::{AxisAlignment, IntrinsicSize};
-    use helium_renderer::IntoSurface;
-
-    use super::*;
-
-	// #[test]
-	// fn build_layout_from_config(){
-	// 	let config = LayoutConfig::vertical()
-	// 		.padding(12)
-	// 		.spacing(12)
-	// 		.cross_axis_alignment(AxisAlignment::End)
-	// 		.main_axis_alignment(AxisAlignment::End)
-	// 		.intrinsic_size(IntrinsicSize::fill());
-
-	// 	let primitive = helium_renderer::Rect::new(0.0, 0.0).into_surface();
-
-	// 	let body = WidgetBody{
-	// 		id: String::default(),
-	// 		layout: config,
-	// 		primitive,
-	// 		children: vec![]
-	// 	};
-	// }
-}

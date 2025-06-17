@@ -1,12 +1,13 @@
 use crate::{
     AxisAlignment, BoxConstraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter,
 };
-use helium_core::{Position, Size};
+use helium_core::{GlobalId, Position, Size};
 
+// TODO make these private
 /// A [`Layout`] that only has one child.
 #[derive(Debug)]
 pub struct BlockLayout {
-    pub id: String,
+    pub id: GlobalId,
     pub size: Size,
     pub position: Position,
     pub padding: u32,
@@ -25,7 +26,7 @@ pub struct BlockLayout {
 impl BlockLayout {
     pub fn new(child: Box<dyn Layout>) -> Self {
         Self {
-            id: String::default(),
+            id: GlobalId::new(),
             size: Size::default(),
             padding: 0,
             position: Position::default(),
@@ -77,12 +78,12 @@ impl BlockLayout {
 }
 
 impl Layout for BlockLayout {
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self) -> GlobalId {
+        self.id
     }
 
-	fn set_id(&mut self,id: &str) {
-		self.id = id.to_string();
+	fn set_id(&mut self,id: GlobalId) {
+		self.id = id;
 	}
 
     fn size(&self) -> Size {

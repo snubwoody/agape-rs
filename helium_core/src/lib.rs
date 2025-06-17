@@ -15,9 +15,16 @@ impl GlobalId {
     }
 }
 
+
 impl Default for GlobalId {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl std::fmt::Display for GlobalId {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 /// Map value from one range to another. Any overflow is clipped to the min or max
