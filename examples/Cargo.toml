@@ -6,15 +6,7 @@ publish = false
 
 [dev-dependencies]
 helium = { path = "../helium", features = ["icon-sets"]}
-helium_renderer = {path = "../helium_renderer"}
-ruby = {path = "../ruby"}
-env_logger.workspace = true
-log = "0.4.22"
 tokio.workspace = true
-dotenv = "0.15.0"
-winit.workspace = true
-image.workspace = true
-reqwest = {version = "0.12.12",features = ["blocking","stream","json"]}
 
 [[example]]
 name = "rect"

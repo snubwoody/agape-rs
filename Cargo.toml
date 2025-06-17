@@ -8,8 +8,6 @@ members = [
 	"helium_core", 
 	"crystal",
 	"helium_renderer", 
-	"helium_cli",
-	"ruby"
 ]
 
 [workspace.dependencies]
