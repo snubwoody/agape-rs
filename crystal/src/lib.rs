@@ -53,9 +53,6 @@ pub trait Layout: Debug + Send + Sync {
     /// Get the `id` of the [`Layout`]
     fn id(&self) -> GlobalId;
     
-    /// Set the `id` of the [`Layout`]
-	fn set_id(&mut self,id: GlobalId);
-
     /// Get the [`BoxConstraints`] of the [`Layout`]
     fn constraints(&self) -> BoxConstraints;
 

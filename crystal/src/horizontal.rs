@@ -137,10 +137,6 @@ impl Layout for HorizontalLayout {
         self.id
     }
 
-	fn set_id(&mut self,id: GlobalId) {
-		self.id = id;
-	}
-	
     fn set_position(&mut self, position: Position) {
         self.position = position;
     }
