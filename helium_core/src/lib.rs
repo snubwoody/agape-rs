@@ -1,8 +1,25 @@
 mod color;
 mod position;
 mod size;
-pub use {size::*,color::*,position::*};
 
+pub use {size::*, color::*, position::*};
+
+/// A global unique identifier
+#[derive(Copy, Clone,PartialOrd, PartialEq,Eq,Debug,Ord,Hash)]
+pub struct GlobalId(u32);
+
+impl GlobalId {
+    pub fn new() -> Self { 
+        let id = rand::random();
+        Self(id)
+    }
+}
+
+impl Default for GlobalId {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 /// Map value from one range to another. Any overflow is clipped to the min or max
 pub fn map(mut value: f32, input_range: [f32; 2], output_range: [f32; 2]) -> f32 {
     if value > input_range[1] {

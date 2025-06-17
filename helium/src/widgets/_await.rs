@@ -5,7 +5,7 @@ use std::future::Future;
 use tokio::sync::mpsc::{self, Receiver};
 
 /// A [`Widget`] that runs a [`Future`](https://doc.rust-lang.org/std/future/trait.Future.html) in
-/// the background allowing you to display a `Widget` while the future is still pending. When the
+/// the background allowing you to display a temporary `Widget` while the future is still pending. When the
 /// future has completed the completed `Widget` will be displayed instead.
 ///
 /// # Example

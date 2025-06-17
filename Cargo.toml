@@ -23,5 +23,6 @@ env_logger = "0.11.5"
 log = "0.4.22"
 async-std = {version = "1.13.0",features = ["attributes"]}
 pixels = "0.15.0"
+rand = "0.9.1"
 tiny-skia = "0.11.4"
 
