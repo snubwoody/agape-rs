@@ -13,7 +13,6 @@ pub use nanoid::nanoid;
 use pixels::{Pixels, SurfaceTexture};
 use resvg::tiny_skia::Pixmap;
 use std::sync::Arc;
-use tiny_skia::{Paint, PixmapPaint};
 use widgets::Widget;
 use winit::application::ApplicationHandler;
 use winit::event_loop::ActiveEventLoop;
