@@ -27,7 +27,7 @@ impl HStack {
             layout: HorizontalLayout::new(),
         }
     }
-    
+
     pub fn corner_radius(mut self, corner_radius: u32) -> Self {
         self.corner_radius = corner_radius;
         self
@@ -123,7 +123,7 @@ impl Widget for HStack {
 /// Creates an [`HStack`].  
 ///
 /// `hstack!` allows [`HStack`]'s to be declared in a more declarative manner.
-/// 
+///
 /// ```
 /// use helium::{hstack,widgets::{Rect}};
 ///
@@ -141,7 +141,7 @@ macro_rules! hstack {
 			$(.add_child($child))*
 		}
 	};
-    
+
 
 	()=>{
 		$crate::widgets::HStack::new()
@@ -149,37 +149,37 @@ macro_rules! hstack {
 }
 
 #[cfg(test)]
-mod test{
+mod test {
     use super::*;
     use crate::widgets::{Circle, Rect};
-    
+
     #[test]
-    fn hstack_expansion(){
+    fn hstack_expansion() {
         let hstack = hstack! {
             Rect::new(200.0,100.0),
             Rect::new(200.0,100.0),
         };
-        
-        assert_eq!(hstack.children.len(),2);
+
+        assert_eq!(hstack.children.len(), 2);
     }
-    
+
     #[test]
-    fn empty_hstack_expansion(){
+    fn empty_hstack_expansion() {
         let hstack = hstack! {};
         assert!(hstack.children.is_empty());
     }
 
     #[test]
-    fn get_children(){
-        let widget = hstack! {  
+    fn get_children() {
+        let widget = hstack! {
             Rect::new(100.0,100.0),
             Circle::new(100)
         };
-        let id1 = widget.children()[0].id();        
-        let id2 = widget.children()[1].id();        
-        
+        let id1 = widget.children()[0].id();
+        let id2 = widget.children()[1].id();
+
         let children = widget.children();
-        
+
         assert_eq!(children[0].id(), id1);
         assert_eq!(children[1].id(), id2);
     }

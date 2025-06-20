@@ -74,15 +74,12 @@ impl App<'_> {
             pixels: None,
         }
     }
-    
+
     fn render(&mut self) {
         let pixmap = self.pixmap.as_mut().unwrap();
         let pixels = self.pixels.as_mut().unwrap();
         let mut view = self.widget.view();
-        let views: Vec<Box<dyn View>> = self.widget
-            .iter()
-            .map(|w|w.view())
-            .collect();
+        let views: Vec<Box<dyn View>> = self.widget.iter().map(|w| w.view()).collect();
 
         let mut layout = self.widget.layout();
         LayoutSolver::solve(

@@ -1,8 +1,8 @@
 use super::Widget;
 use crate::Color;
+use crate::view::{RectView, View};
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use helium_core::{GlobalId, IntoColor, Rgba, colors::WHITE};
-use crate::view::{RectView, View};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Rect {
@@ -72,25 +72,24 @@ impl Widget for Rect {
 }
 
 #[cfg(test)]
-mod test{
+mod test {
     use super::*;
-    
+
     #[test]
-    fn correct_ids(){
+    fn correct_ids() {
         let rect = Rect::new(100.0, 100.0);
         let layout = rect.layout();
         let view = rect.view();
-        
-        assert_eq!(rect.id,layout.id());
-        assert_eq!(rect.id,view.id());
+
+        assert_eq!(rect.id, layout.id());
+        assert_eq!(rect.id, view.id());
     }
-    
+
     #[test]
-    fn view_has_correct_color(){
-        let color = Color::rgba(24,145,110,100);
+    fn view_has_correct_color() {
+        let color = Color::rgba(24, 145, 110, 100);
         let rect = Rect::new(100.0, 100.0).color(color.clone());
         let view = rect.view();
-        assert_eq!(view.color(),&color);
+        assert_eq!(view.color(), &color);
     }
 }
-
