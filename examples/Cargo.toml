@@ -6,9 +6,13 @@ publish = false
 
 [dev-dependencies]
 helium = { path = "../helium", features = ["icon-sets"]}
-tokio.workspace = true
 
 [[example]]
 name = "rect"
 path = "rect.rs"
+
+
+[[example]]
+name = "hstack"
+path = "hstack.rs"
 
