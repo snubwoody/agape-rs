@@ -2,6 +2,7 @@ use crate::map;
 use std::num::ParseIntError;
 use thiserror::Error;
 
+#[deprecated = "use constants from the Color struct instead"]
 pub mod colors {
     use super::*;
     pub const WHITE: Color<Rgba> = Color::rgb(255, 255, 255);
@@ -56,6 +57,15 @@ impl Rgba {
 pub struct Color<C>(C);
 
 impl Color<Rgba> {
+    const WHITE: Color<Rgba> = Color::rgb(255, 255, 255);
+    const BLACK: Color<Rgba> = Color::rgb(0, 0, 0);
+    const RED: Color<Rgba> = Color::rgb(255, 0, 0);
+    const GREEN: Color<Rgba> = Color::rgb(0, 255, 0);
+    const BLUE: Color<Rgba> = Color::rgb(0, 0, 255);
+    const AMBER: Color<Rgba> = Color::rgb(245, 158, 11);
+    const TEAL: Color<Rgba> = Color::rgb(128, 225, 214);
+    const TRANSPARENT: Color<Rgba> = Color::rgba(0, 0, 0,0);
+    
     /// Create a new rgb [`Colour`].
     ///
     /// # Example
