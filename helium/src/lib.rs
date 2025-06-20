@@ -1,5 +1,4 @@
 //! GUI library
-pub mod colors;
 pub mod error;
 mod view;
 pub mod widgets;
