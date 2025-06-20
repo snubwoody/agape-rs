@@ -14,6 +14,8 @@ pub use nanoid::nanoid;
 use pixels::{Pixels, SurfaceTexture};
 use resvg::tiny_skia::Pixmap;
 use std::sync::Arc;
+use tiny_skia::{Paint, PixmapPaint};
+use wgpu::hal::DynQueue;
 use widgets::Widget;
 use winit::application::ApplicationHandler;
 use winit::event_loop::ActiveEventLoop;
@@ -76,22 +78,24 @@ impl App<'_> {
     }
 
     fn render(&mut self) {
-        let pixmap = self.pixmap.as_mut().unwrap();
-        let pixels = self.pixels.as_mut().unwrap();
-        let mut view = self.widget.view();
-        let views: Vec<Box<dyn View>> = self.widget.iter().map(|w| w.view()).collect();
+        let mut views: Vec<Box<dyn View>> = self.widget.iter().map(|w| w.view()).collect();
 
         let mut layout = self.widget.layout();
         LayoutSolver::solve(
             &mut *layout,
             self.window.as_ref().unwrap().inner_size().into(),
         );
-        let layout = layout.get(view.id()).unwrap();
-        view.set_size(layout.size());
-        view.set_position(layout.position());
 
-        view.render(pixmap);
-        pixels.frame_mut().copy_from_slice(pixmap.data());
+        let pixels = self.pixels.as_mut().unwrap();
+        let pixmap = self.pixmap.as_mut().unwrap();
+        pixmap.fill(tiny_skia::Color::WHITE);
+        for view in &mut views {
+            let layout = layout.get(view.id()).unwrap();
+            view.set_size(layout.size());
+            view.set_position(layout.position());
+            view.render(pixmap);
+            pixels.frame_mut().copy_from_slice(pixmap.data());
+        }
         pixels.render().unwrap();
     }
 

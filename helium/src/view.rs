@@ -66,7 +66,7 @@ impl View for RectView {
     }
 
     fn render(&self, pixmap: &mut Pixmap) {
-        pixmap.fill(tiny_skia::Color::WHITE);
+        // pixmap.fill(tiny_skia::Color::WHITE);
         let (r, g, b, a) = self.color.inner();
 
         // Map the color since we clip the alpha to 100
