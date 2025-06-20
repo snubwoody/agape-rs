@@ -11,8 +11,11 @@ helium = { path = "../helium", features = ["icon-sets"]}
 name = "rect"
 path = "rect.rs"
 
-
 [[example]]
 name = "hstack"
 path = "hstack.rs"
+
+[[example]]
+name = "vstack"
+path = "vstack.rs"
 
