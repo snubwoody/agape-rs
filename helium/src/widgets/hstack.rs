@@ -152,7 +152,7 @@ macro_rules! hstack {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::widgets::{Circle, Rect};
+    use crate::widgets::{Rect};
 
     #[test]
     fn hstack_expansion() {
@@ -174,8 +174,9 @@ mod test {
     fn get_children() {
         let widget = hstack! {
             Rect::new(100.0,100.0),
-            Circle::new(100)
+            Rect::new(0.0,0.0)
         };
+        
         let id1 = widget.children()[0].id();
         let id2 = widget.children()[1].id();
 
@@ -184,7 +185,7 @@ mod test {
         assert_eq!(children[0].id(), id1);
         assert_eq!(children[1].id(), id2);
     }
-    
+
     #[test]
     fn get_view(){
         let hstack = hstack! {};
