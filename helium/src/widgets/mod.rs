@@ -1,13 +1,11 @@
 //! [`Widget`]'s describe what you want to present onto the screen. Helium tries to provide
 //! as many [`Widget`]'s as possible for various uses such as [`Text`],[`Button`],[`HStack`]
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
-mod container;
 mod hstack;
 mod rect;
 mod vstack;
 
 use crate::view::{RectView, View};
-pub use container::*;
 use crystal::Layout;
 use helium_core::{Bounds, Color, GlobalId, Position, Rgba};
 pub use hstack::*;
