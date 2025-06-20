@@ -1,20 +1,15 @@
 use crate::{Color, impl_layout, impl_style, widgets::Widget};
 use crystal::{AxisAlignment, HorizontalLayout, Layout};
 use helium_core::{GlobalId, Rgba, colors::TRANSPARENT};
+use crate::view::{RectView, View};
 
+#[derive(Default)]
 pub struct HStack {
     id: GlobalId,
     children: Vec<Box<dyn Widget>>,
     color: Color<Rgba>,
     corner_radius: u32,
     layout: HorizontalLayout,
-}
-
-// TODO add get methods
-impl Default for HStack {
-    fn default() -> Self {
-        Self::new()
-    }
 }
 
 impl HStack {
@@ -76,6 +71,12 @@ impl HStack {
 impl Widget for HStack {
     fn id(&self) -> GlobalId {
         self.id
+    }
+
+    fn view(&self) -> Box<dyn View> {
+        let mut view = RectView::new(self.color.clone());
+        view.set_id(self.id);
+        Box::new(view)
     }
 
     fn layout(&self) -> Box<dyn Layout> {
@@ -182,5 +183,13 @@ mod test {
 
         assert_eq!(children[0].id(), id1);
         assert_eq!(children[1].id(), id2);
+    }
+    
+    #[test]
+    fn get_view(){
+        let hstack = hstack! {};
+        let view = hstack.view();
+        assert_eq!(view.color(),&hstack.color);
+        assert_eq!(view.id(),hstack.id);
     }
 }
