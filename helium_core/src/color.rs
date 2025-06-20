@@ -31,6 +31,7 @@ pub enum ColorError {
     ParseIntError(#[from] ParseIntError),
 }
 
+// TODO change this to static string and make color copy
 /// Container for Hex [`Color`]'s
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Hex(String);

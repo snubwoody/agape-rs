@@ -19,7 +19,6 @@ pub use rect::*;
 pub use spacer::*;
 pub use vstack::*;
 use winit::event::{ElementState, MouseButton, MouseScrollDelta, WindowEvent};
-// TODO maybe have a build function that returns a layout and surface
 
 pub trait Widget: WidgetIterator {
     fn view(&self) -> Box<dyn View> {
@@ -131,7 +130,7 @@ impl dyn Widget {
 }
 
 // TODO test this
-/// An iterator for the [`Widget`] tree.
+/// An iterator over the [`Widget`] tree.
 pub struct WidgetIter<'a> {
     stack: Vec<&'a dyn Widget>,
 }

@@ -57,13 +57,7 @@ impl ApplicationHandler for App<'_> {
                 event_loop.exit();
             }
             WindowEvent::RedrawRequested => {
-                let pixmap = self.pixmap.as_mut().unwrap();
-                let pixels = self.pixels.as_mut().unwrap();
-                let view = self.widget.view();
-                view.render(pixmap);
-                pixels.frame_mut().copy_from_slice(pixmap.data());
-                pixels.render().unwrap();
-
+                self.render();
                 self.window.as_mut().unwrap().request_redraw();
             }
             _ => (),
@@ -80,8 +74,16 @@ impl App<'_> {
             pixels: None,
         }
     }
+    
+    fn render(&mut self) {
+        let pixmap = self.pixmap.as_mut().unwrap();
+        let pixels = self.pixels.as_mut().unwrap();
+        let mut view = self.widget.view();
+        let views: Vec<Box<dyn View>> = self.widget
+            .iter()
+            .map(|w|w.view())
+            .collect();
 
-    fn update_view(&self, view: &mut dyn View) {
         let mut layout = self.widget.layout();
         LayoutSolver::solve(
             &mut *layout,
@@ -90,6 +92,10 @@ impl App<'_> {
         let layout = layout.get(view.id()).unwrap();
         view.set_size(layout.size());
         view.set_position(layout.position());
+
+        view.render(pixmap);
+        pixels.frame_mut().copy_from_slice(pixmap.data());
+        pixels.render().unwrap();
     }
 
     pub fn run(mut self) -> Result<()> {
