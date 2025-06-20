@@ -1,15 +1,12 @@
-use super::{LayoutConfig, LayoutType, Widget, WidgetBody};
+use super::Widget;
 use crate::Color;
+use crate::view::{RectView, View};
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
-use helium_core::{colors::WHITE, IntoColor, Rgba};
-use helium_renderer::IntoSurface;
-use nanoid::nanoid;
+use helium_core::{GlobalId, IntoColor, Rgba, colors::WHITE};
 
-// TODO add BoxStyle struct
-/// A simple rectangle
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Rect {
-    id: String,
+    id: GlobalId,
     intrinsic_size: crystal::IntrinsicSize,
     color: Color<Rgba>,
     corner_radius: u32,
@@ -23,7 +20,7 @@ impl Rect {
         };
 
         Self {
-            id: nanoid!(),
+            id: GlobalId::default(),
             color: WHITE,
             intrinsic_size,
             corner_radius: 0,
@@ -41,13 +38,13 @@ impl Rect {
         self
     }
 
-	/// Set the intrinsic width to `BoxSixing::Flex`.
+    /// Set the intrinsic width to `BoxSixing::Flex`.
     pub fn flex_width(mut self, factor: u8) -> Self {
         self.intrinsic_size.width = BoxSizing::Flex(factor);
         self
     }
 
-	/// Set the intrinsic height to `BoxSixing::Flex`.
+    /// Set the intrinsic height to `BoxSixing::Flex`.
     pub fn flex_height(mut self, factor: u8) -> Self {
         self.intrinsic_size.height = BoxSizing::Flex(factor);
         self
@@ -55,40 +52,44 @@ impl Rect {
 }
 
 impl Widget for Rect {
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self) -> GlobalId {
+        self.id
     }
 
-	fn build(&self,_renderer: &mut helium_renderer::Renderer) -> WidgetBody {
-		let primitive = helium_renderer::RectSurface::new(100.0, 100.0)
-			.color(self.color.clone())
-			.into_surface();
-
-		let layout = LayoutConfig::new()
-			.layout(LayoutType::EmptyLayout)
-			.intrinsic_size(self.intrinsic_size);
-
-		WidgetBody { 
-			id: self.id.clone(), 
-			layout, 
-			primitive, 
-			children: vec![]
-		}
-	}
-
-    fn layout(&self, _: &mut helium_renderer::Renderer) -> Box<dyn Layout> {
+    fn layout(&self) -> Box<dyn Layout> {
         let mut layout = EmptyLayout::new();
         layout.intrinsic_size = self.intrinsic_size;
-        layout.id = self.id.clone();
+        layout.id = self.id;
 
         Box::new(layout)
     }
 
-    fn draw(&self, layout: &dyn Layout, renderer: &mut helium_renderer::Renderer) {
-        renderer.draw([
-            helium_renderer::RectSurface::new(layout.size().width, layout.size().height)
-                .position(layout.position().x, layout.position().y)
-                .color(self.color.clone()),
-        ]);
+    fn view(&self) -> Box<dyn View> {
+        let mut view = RectView::new(self.color.clone());
+        view.set_id(self.id);
+        Box::new(view)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn correct_ids() {
+        let rect = Rect::new(100.0, 100.0);
+        let layout = rect.layout();
+        let view = rect.view();
+
+        assert_eq!(rect.id, layout.id());
+        assert_eq!(rect.id, view.id());
+    }
+
+    #[test]
+    fn view_has_correct_color() {
+        let color = Color::rgba(24, 145, 110, 100);
+        let rect = Rect::new(100.0, 100.0).color(color.clone());
+        let view = rect.view();
+        assert_eq!(view.color(), &color);
     }
 }

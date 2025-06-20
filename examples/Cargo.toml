@@ -2,35 +2,20 @@
 name = "examples"
 version = "0.1.0"
 edition = "2024"
+publish = false
 
 [dev-dependencies]
 helium = { path = "../helium", features = ["icon-sets"]}
-helium_renderer = {path = "../helium_renderer"}
-ruby = {path = "../ruby"}
-env_logger.workspace = true
-log = "0.4.22"
-tokio.workspace = true
-dotenv = "0.15.0"
-winit.workspace = true
-image.workspace = true
-reqwest = {version = "0.12.12",features = ["blocking","stream","json"]}
 
 [[example]]
-name = "counter"
-path = "counter.rs"
+name = "rect"
+path = "rect.rs"
 
 [[example]]
-name = "scroll"
-path = "scroll.rs"
+name = "hstack"
+path = "hstack.rs"
 
 [[example]]
-name = "spotify"
-path = "spotify/spotify.rs"
+name = "vstack"
+path = "vstack.rs"
 
-[[example]]
-name = "sign_in"
-path = "pages/sign_in.rs"
-
-[[example]]
-name = "renderer"
-path = "renderer.rs"

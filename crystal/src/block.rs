@@ -1,12 +1,13 @@
 use crate::{
     AxisAlignment, BoxConstraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter,
 };
-use helium_core::{Position, Size};
+use helium_core::{GlobalId, Position, Size};
 
+// TODO make these private
 /// A [`Layout`] that only has one child.
 #[derive(Debug)]
 pub struct BlockLayout {
-    pub id: String,
+    pub id: GlobalId,
     pub size: Size,
     pub position: Position,
     pub padding: u32,
@@ -25,7 +26,7 @@ pub struct BlockLayout {
 impl BlockLayout {
     pub fn new(child: Box<dyn Layout>) -> Self {
         Self {
-            id: String::default(),
+            id: GlobalId::new(),
             size: Size::default(),
             padding: 0,
             position: Position::default(),
@@ -77,13 +78,9 @@ impl BlockLayout {
 }
 
 impl Layout for BlockLayout {
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self) -> GlobalId {
+        self.id
     }
-
-	fn set_id(&mut self,id: &str) {
-		self.id = id.to_string();
-	}
 
     fn size(&self) -> Size {
         self.size
@@ -150,32 +147,20 @@ impl Layout for BlockLayout {
         min_size += self.padding as f32 * 2.0;
 
         // Solve the fix size first
-        match self.intrinsic_size.width {
-            BoxSizing::Fixed(width) => {
-                self.constraints.min_width = width;
-            }
-            _ => {}
+        if let BoxSizing::Fixed(width) = self.intrinsic_size.width {
+            self.constraints.min_width = width;
         }
 
-        match self.intrinsic_size.height {
-            BoxSizing::Fixed(height) => {
-                self.constraints.min_height = height;
-            }
-            _ => {}
+        if let BoxSizing::Fixed(height) = self.intrinsic_size.height {
+            self.constraints.min_height = height;
         }
 
-        match self.child.intrinsic_size().width {
-            BoxSizing::Fixed(width) => {
-                self.constraints.min_width = width + self.padding as f32 * 2.0;
-            }
-            _ => {}
+        if let BoxSizing::Fixed(width) = self.child.intrinsic_size().width {
+            self.constraints.min_width = width + self.padding as f32 * 2.0;
         }
 
-        match self.child.intrinsic_size().height {
-            BoxSizing::Fixed(height) => {
-                self.constraints.min_height = height + self.padding as f32 * 2.0;
-            }
-            _ => {}
+        if let BoxSizing::Fixed(height) = self.child.intrinsic_size().height {
+            self.constraints.min_height = height + self.padding as f32 * 2.0;
         }
 
         let (min_width, min_height) = self.child.solve_min_constraints();
@@ -274,7 +259,7 @@ impl Layout for BlockLayout {
             || self.child.position().y > self.position.y + self.size.height
         {
             self.errors.push(LayoutError::OutOfBounds {
-                parent_id: self.id.clone(),
+                parent_id: self.id,
                 child_id: self.child.id().to_owned(),
             });
         }

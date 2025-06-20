@@ -1,14 +1,14 @@
 use crate::{
-    error::OverflowAxis, AxisAlignment, BoxConstraints, BoxSizing, IntrinsicSize, Layout,
-    LayoutError, LayoutIter,
+    AxisAlignment, BoxConstraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter,
+    error::OverflowAxis,
 };
-use helium_core::{Position, Size};
+use helium_core::{GlobalId, Position, Size};
 // TODO maybe make some items private
 // TODO if min width is larger than max width then it's an overflow
 /// A [`Layout`] that arranges it's children vertically.
 #[derive(Default, Debug)]
 pub struct VerticalLayout {
-    pub id: String,
+    pub id: GlobalId,
     pub size: Size,
     pub position: Position,
     pub spacing: u32,
@@ -55,25 +55,22 @@ impl VerticalLayout {
     /// (y-axis).
     pub fn main_axis_overflow(&self) -> bool {
         self.errors
-            .contains(&LayoutError::overflow(&self.id, OverflowAxis::MainAxis))
+            .contains(&LayoutError::overflow(self.id, OverflowAxis::MainAxis))
     }
 
     /// Returns `true` if a [`VerticalLayout`]'s children are overflowing it's cross-axis
     /// (x-axis).
     pub fn cross_axis_overflow(&self) -> bool {
         self.errors
-            .contains(&LayoutError::overflow(&self.id, OverflowAxis::CrossAxis))
+            .contains(&LayoutError::overflow(self.id, OverflowAxis::CrossAxis))
     }
 
     fn fixed_size_sum(&self) -> Size {
         let mut sum = Size::default();
 
-        for (_, child) in self.children.iter().enumerate() {
-            match child.intrinsic_size().width {
-                BoxSizing::Fixed(width) => {
-                    sum.width = sum.width.max(width);
-                }
-                _ => {}
+        for child in self.children.iter() {
+            if let BoxSizing::Fixed(width) = child.intrinsic_size().width {
+                sum.width = sum.width.max(width);
             }
 
             match child.intrinsic_size().height {
@@ -156,13 +153,9 @@ impl VerticalLayout {
 }
 
 impl Layout for VerticalLayout {
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self) -> GlobalId {
+        self.id
     }
-
-	fn set_id(&mut self,id: &str) {
-		self.id = id.to_string();
-	}
 
     fn position(&self) -> Position {
         self.position
@@ -310,7 +303,7 @@ impl Layout for VerticalLayout {
             }
         }
 
-        for (_, child) in self.children.iter_mut().enumerate() {
+        for child in self.children.iter_mut() {
             match child.intrinsic_size().width {
                 BoxSizing::Flex(_) => {
                     child.set_max_width(available_width);
@@ -372,28 +365,24 @@ impl Layout for VerticalLayout {
 
         // TODO check for padding and spacing
         let width_sum: f32 = self.children.iter().map(|child| child.size().width).sum();
-		let mut height_sum = (self.padding * 2) as f32;
-		for (i,child) in self.children.iter().enumerate(){
-			height_sum += child.size().height;
-			if i != self.children.len() - 1{
-				height_sum += self.spacing as f32;
-			}
-		}
-
-        let main_axis_error = LayoutError::overflow(&self.id, OverflowAxis::MainAxis);
-        let cross_axis_error = LayoutError::overflow(&self.id, OverflowAxis::CrossAxis);
-
-        // Prevent duplicate errors
-        if !self.errors.contains(&cross_axis_error) {
-            if width_sum > self.size.width {
-                self.errors.push(cross_axis_error);
+        let mut height_sum = (self.padding * 2) as f32;
+        for (i, child) in self.children.iter().enumerate() {
+            height_sum += child.size().height;
+            if i != self.children.len() - 1 {
+                height_sum += self.spacing as f32;
             }
         }
 
-        if !self.errors.contains(&main_axis_error) {
-            if height_sum > self.size.height {
-                self.errors.push(main_axis_error);
-            }
+        let main_axis_error = LayoutError::overflow(self.id, OverflowAxis::MainAxis);
+        let cross_axis_error = LayoutError::overflow(self.id, OverflowAxis::CrossAxis);
+
+        // Prevent duplicate errors
+        if !self.errors.contains(&cross_axis_error) && width_sum > self.size.width {
+            self.errors.push(cross_axis_error);
+        }
+
+        if !self.errors.contains(&main_axis_error) && height_sum > self.size.height {
+            self.errors.push(main_axis_error);
         }
     }
 
@@ -421,7 +410,7 @@ impl Layout for VerticalLayout {
 
             if child.position().y > self.position.y + self.size.height {
                 self.errors.push(LayoutError::OutOfBounds {
-                    parent_id: self.id.clone(),
+                    parent_id: self.id,
                     child_id: child.id().to_owned(),
                 });
             }
@@ -503,15 +492,14 @@ mod test {
         LayoutSolver::solve(&mut root, window);
         assert!(root.main_axis_overflow());
         assert!(!root.cross_axis_overflow());
-    
-	}
+    }
     #[test]
     fn include_spacing_and_padding_main_axis_overflow() {
         let window = Size::unit(500.0);
 
         let mut root = VerticalLayout::new();
-		root.spacing = 20;
-		root.padding = 20;
+        root.spacing = 20;
+        root.padding = 20;
         root.intrinsic_size = IntrinsicSize {
             height: BoxSizing::Fixed(200.0),
             ..Default::default()

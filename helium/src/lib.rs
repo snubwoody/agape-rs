@@ -1,159 +1,105 @@
-#![doc = include_str!("../../README.md")]
-pub mod colors;
+//! GUI library
 pub mod error;
+mod view;
 pub mod widgets;
-use helium_renderer::{Renderer, TextSurface};
+
+use crate::view::View;
 pub use crystal;
 use crystal::LayoutSolver;
 pub use error::{Error, Result};
 pub use helium_core::*;
 pub use helium_macros::hex; // TODO move to colors mod
-pub use helium_renderer as renderer;
 pub use nanoid::nanoid;
-use std::time::{Duration, Instant};
+use pixels::{Pixels, SurfaceTexture};
+use resvg::tiny_skia::Pixmap;
+use std::sync::Arc;
 use widgets::Widget;
+use winit::application::ApplicationHandler;
+use winit::event_loop::ActiveEventLoop;
+use winit::window::WindowId;
 use winit::{
     event::WindowEvent,
     event_loop::{ControlFlow, EventLoop},
-    window::{Window, WindowBuilder},
+    window::Window,
 };
-// TODO re-export the winit event modules
 
 /// An [`App`]'s is the point of entry for your program they are responsible
 /// for the overall management of rendering, resources,
 /// [`Widget`]'s etc.
-pub struct App {
-    event_loop: EventLoop<()>,
-    window: Window,
-    pages: Vec<Page>,
-    index: usize,
-}
-
-impl App {
-    pub fn new() -> Self {
-        // FIXME handle the errors
-        let event_loop = EventLoop::new().unwrap();
-        event_loop.set_control_flow(ControlFlow::Poll);
-
-        let window = WindowBuilder::new()
-            .with_visible(false)
-            .build(&event_loop)
-            .unwrap();
-
-        Self {
-            event_loop,
-            window,
-            pages: vec![],
-            index: 0,
-        }
-    }
-
-    pub fn add_page(&mut self, widget: impl Widget + 'static) {
-        // Create a temp renderer for initial layout
-        let mut renderer = async_std::task::block_on(Renderer::new(&self.window));
-        self.pages.push(Page::new(widget, &mut renderer));
-    }
-
-    // FIXME app panics if there are no views
-    pub async fn run(mut self) -> Result<()> {
-        self.window.set_visible(true);
-
-        let mut renderer = Renderer::new(&self.window).await;
-        log::info!("Running app");
-
-        // Not quite sure how accurate this is
-        let mut previous_duration = Duration::new(0, 0);
-        let mut size = Size::from(self.window.inner_size());
-
-        self.event_loop.run(|event, window_target| {
-            let instant = Instant::now();
-            match event {
-                winit::event::Event::WindowEvent { event, .. } => match event {
-                    WindowEvent::CloseRequested => window_target.exit(),
-                    WindowEvent::RedrawRequested => {
-                        self.pages[0].draw(&mut renderer, size);
-                        renderer.draw([TextSurface::new(format!("{:?}", previous_duration).as_str())]);
-                        renderer.render();
-                    }
-                    WindowEvent::Resized(window_size) => {
-                        size = Size::from(window_size);
-                        renderer.resize(window_size.into());
-                        // I think resizing already causes a redraw request but i'm not sure
-                        self.window.request_redraw();
-                    }
-                    event => {
-                        self.pages[self.index].dispatch_event(&event);
-                        self.window.request_redraw();
-                    }
-                },
-                _ => {
-                    self.pages[self.index].update();
-                    self.window.request_redraw();
-                }
-            }
-            previous_duration = instant.elapsed();
-        })?;
-
-        Ok(())
-    }
-}
-
-pub struct Page {
-    mouse_pos: Position,
-    layout: Box<dyn crystal::Layout>,
+pub struct App<'app> {
     widget: Box<dyn Widget>,
+    window: Option<Arc<Window>>,
+    pixels: Option<Pixels<'app>>,
+    pixmap: Option<Pixmap>,
 }
 
-impl Page {
-	/// Create a new [`Page`]
-    pub fn new(widget: impl Widget + 'static, renderer: &mut Renderer) -> Self {
-		let body = widget.build(renderer);
-		let layout = body.layout();
-        Self {
-            mouse_pos: Position::default(),
-            layout,
-            widget: Box::new(widget),
-        }
+impl ApplicationHandler for App<'_> {
+    fn resumed(&mut self, event_loop: &ActiveEventLoop) {
+        log::info!("Initializing resources");
+        let window = event_loop.create_window(Default::default()).unwrap();
+        let window = Arc::new(window);
+        let size = Size::from(window.inner_size());
+
+        let surface =
+            SurfaceTexture::new(size.width as u32, size.height as u32, Arc::clone(&window));
+        let pixels = Pixels::new(size.width as u32, size.height as u32, surface).unwrap();
+        let pixmap = Pixmap::new(size.width as u32, size.height as u32).unwrap();
+        self.pixels = Some(pixels);
+        self.window = Some(Arc::clone(&window));
+        self.pixmap = Some(pixmap);
     }
 
-    fn update(&mut self) {
-        self.widget.update();
-    }
-
-	/// Dispatch the `winit` events to the `Widget`'s.
-    fn dispatch_event(&mut self, event: &winit::event::WindowEvent) {
+    fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
         match event {
-            WindowEvent::CursorMoved { position, .. } => self.mouse_pos = Position::from(*position),
-            _ => {}
+            WindowEvent::CloseRequested => {
+                println!("Exiting app");
+                event_loop.exit();
+            }
+            WindowEvent::RedrawRequested => {
+                self.render();
+                self.window.as_mut().unwrap().request_redraw();
+            }
+            _ => (),
         }
-        self.widget
-            .dispatch_event(self.mouse_pos, &*self.layout, event);
+    }
+}
+
+impl App<'_> {
+    pub fn new(widget: impl Widget + 'static) -> Self {
+        Self {
+            widget: Box::new(widget),
+            window: None,
+            pixmap: None,
+            pixels: None,
+        }
     }
 
-	/// Draw the contents of the [`Page`] to the screen
-    fn draw(&mut self, renderer: &mut Renderer, size: Size) {
-        let widget_body = self.widget.build(renderer);
-		
-		// Solve the Layout tree
-		let mut layout = widget_body.layout();
-        LayoutSolver::solve(&mut *layout, size);
-		self.layout = layout;
+    fn render(&mut self) {
+        let mut views: Vec<Box<dyn View>> = self.widget.iter().map(|w| w.view()).collect();
 
-		let mut primitives = vec![widget_body.primitive()];
-		primitives.extend(
-			widget_body.children().iter().map(|child|child.primitive())
-		);
-		
-		dbg!(&primitives);
-		renderer.draw(primitives);
-		
+        let mut layout = self.widget.layout();
+        LayoutSolver::solve(
+            &mut *layout,
+            self.window.as_ref().unwrap().inner_size().into(),
+        );
 
-		// self.widget.iter().for_each(|w| {
-		// 	if let Some(layout) = layout.get(w.id()) {
-		// 		w.draw(layout, renderer);
-        //     } else {
-		// 		log::warn!("Widget is missing it's Layout")
-        //     }
-        // });
+        let pixels = self.pixels.as_mut().unwrap();
+        let pixmap = self.pixmap.as_mut().unwrap();
+        pixmap.fill(tiny_skia::Color::WHITE);
+        for view in &mut views {
+            let layout = layout.get(view.id()).unwrap();
+            view.set_size(layout.size());
+            view.set_position(layout.position());
+            view.render(pixmap);
+            pixels.frame_mut().copy_from_slice(pixmap.data());
+        }
+        pixels.render().unwrap();
+    }
+
+    pub fn run(mut self) -> Result<()> {
+        let event_loop = EventLoop::new()?;
+        event_loop.set_control_flow(ControlFlow::Poll);
+        event_loop.run_app(&mut self)?;
+        Ok(())
     }
 }

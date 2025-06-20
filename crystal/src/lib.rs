@@ -7,7 +7,7 @@ mod vertical;
 pub use block::BlockLayout;
 pub use empty::EmptyLayout;
 pub use error::LayoutError;
-use helium_core::Bounds;
+use helium_core::{Bounds, GlobalId};
 pub use helium_core::{Position, Size};
 pub use horizontal::HorizontalLayout;
 use std::fmt::Debug;
@@ -17,7 +17,7 @@ pub struct LayoutSolver;
 // TODO maybe just make it a function
 impl LayoutSolver {
     /// Calculates the layout of all the layout nodes
-    pub fn solve(root: &mut dyn Layout, window_size: Size) -> Vec<crate::LayoutError> {
+    pub fn solve(root: &mut dyn Layout, window_size: Size) -> Vec<LayoutError> {
         root.set_max_width(window_size.width);
         root.set_max_height(window_size.height);
 
@@ -51,10 +51,7 @@ pub trait Layout: Debug + Send + Sync {
     fn collect_errors(&mut self) -> Vec<LayoutError>;
 
     /// Get the `id` of the [`Layout`]
-    fn id(&self) -> &str;
-    
-    /// Set the `id` of the [`Layout`]
-	fn set_id(&mut self,id: &str);
+    fn id(&self) -> GlobalId;
 
     /// Get the [`BoxConstraints`] of the [`Layout`]
     fn constraints(&self) -> BoxConstraints;
@@ -67,11 +64,11 @@ pub trait Layout: Debug + Send + Sync {
 
     /// Get the `Position` of the [`Layout`]
     fn position(&self) -> Position;
-	
+
     /// Get the `Bounds` of the [`Layout`]
-    fn bounds(&self) -> Bounds{
-		Bounds::new(self.position(), self.size())
-	}
+    fn bounds(&self) -> Bounds {
+        Bounds::new(self.position(), self.size())
+    }
 
     fn children(&self) -> &[Box<dyn Layout>];
 
@@ -86,13 +83,8 @@ pub trait Layout: Debug + Send + Sync {
     fn iter(&self) -> LayoutIter;
 
     /// Get a [`Layout`] by it's `id`.
-    fn get(&self, id: &str) -> Option<&dyn Layout> {
-        for layout in self.iter() {
-            if layout.id() == id {
-                return Some(layout);
-            }
-        }
-        None
+    fn get(&self, id: GlobalId) -> Option<&dyn Layout> {
+        self.iter().find(|&layout| layout.id() == id)
     }
 }
 
@@ -110,7 +102,7 @@ impl<'a> Iterator for LayoutIter<'a> {
 
             let k = children.iter().map(|child| {
                 // Type gymnastics indeed
-                &*child.as_ref()
+                child.as_ref()
             });
 
             self.stack.extend(k.rev());
@@ -144,8 +136,8 @@ pub enum AxisAlignment {
     End,
 }
 
-/// Describes the maximum and minimum size of a [`Layout`] 
-#[derive(Debug, Clone, Copy, Default, PartialEq,PartialOrd)]
+/// Describes the maximum and minimum size of a [`Layout`]
+#[derive(Debug, Clone, Copy, Default, PartialEq, PartialOrd)]
 pub struct BoxConstraints {
     pub max_width: f32,
     pub max_height: f32,
@@ -154,14 +146,14 @@ pub struct BoxConstraints {
 }
 
 impl BoxConstraints {
-	/// Create new [`BoxConstraints`]
+    /// Create new [`BoxConstraints`]
     pub fn new() -> Self {
         Self::default()
     }
 }
 
 /// This is the size that a [`Layout`] will try to be,  
-/// the actual final size is dependant on the space
+/// the actual final size is dependent on the space
 /// available.
 #[derive(Debug, Clone, Copy, Default, PartialEq, PartialOrd)]
 pub struct IntrinsicSize {
@@ -170,11 +162,11 @@ pub struct IntrinsicSize {
     pub height: BoxSizing,
 }
 
-impl IntrinsicSize{
-	pub fn fill() -> Self{
-		Self { 
-			width: BoxSizing::Flex(1), 
-			height: BoxSizing::Flex(1) 
-		}
-	}
+impl IntrinsicSize {
+    pub fn fill() -> Self {
+        Self {
+            width: BoxSizing::Flex(1),
+            height: BoxSizing::Flex(1),
+        }
+    }
 }

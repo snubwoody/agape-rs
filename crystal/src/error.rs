@@ -1,3 +1,4 @@
+use helium_core::GlobalId;
 use thiserror::Error;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -15,24 +16,24 @@ impl std::fmt::Display for OverflowAxis {
 #[derive(Debug, Clone, Error, PartialEq, Eq)]
 pub enum LayoutError {
     #[error("Widget(id:{child_id}) is out of it's parent's (id:{parent_id}) bounds")]
-    OutOfBounds { parent_id: String, child_id: String },
+    OutOfBounds {
+        parent_id: GlobalId,
+        child_id: GlobalId,
+    },
 
     #[error("Widget(id:{id})'s children have overflown in the {axis}")]
-    Overflow { id: String, axis: OverflowAxis },
+    Overflow { id: GlobalId, axis: OverflowAxis },
 }
 
 impl LayoutError {
-    pub fn out_of_bound(parent_id: &str, child_id: &str) -> Self {
+    pub fn out_of_bound(parent_id: GlobalId, child_id: GlobalId) -> Self {
         Self::OutOfBounds {
-            parent_id: String::from(parent_id),
-            child_id: String::from(child_id),
+            parent_id,
+            child_id,
         }
     }
 
-    pub fn overflow(id: &str, axis: OverflowAxis) -> Self {
-        Self::Overflow {
-            id: String::from(id),
-            axis,
-        }
+    pub fn overflow(id: GlobalId, axis: OverflowAxis) -> Self {
+        Self::Overflow { id, axis }
     }
 }

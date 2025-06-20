@@ -1,13 +1,13 @@
 use crate::{
     AxisAlignment, BoxConstraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter,
 };
-use helium_core::{Position, Size};
+use helium_core::{GlobalId, Position, Size};
 
 // TODO add example
 /// A [`HorizontalLayout`] arranges it's children horizontally.
 #[derive(Default, Debug)]
 pub struct HorizontalLayout {
-    pub id: String,
+    pub id: GlobalId,
     pub size: Size,
     pub position: Position,
     pub spacing: u32,
@@ -20,7 +20,7 @@ pub struct HorizontalLayout {
     /// The cross axis is the `y-axis`
     pub cross_axis_alignment: AxisAlignment,
     pub children: Vec<Box<dyn Layout>>,
-    pub errors: Vec<crate::LayoutError>,
+    pub errors: Vec<LayoutError>,
 }
 
 impl HorizontalLayout {
@@ -57,11 +57,8 @@ impl HorizontalLayout {
                 _ => {}
             }
 
-            match child.intrinsic_size().height {
-                BoxSizing::Fixed(height) => {
-                    sum.height = sum.height.max(height);
-                }
-                _ => {}
+            if let BoxSizing::Fixed(height) = child.intrinsic_size().height {
+                sum.height = sum.height.max(height);
             }
 
             // Add the spacing between layouts
@@ -133,14 +130,10 @@ impl HorizontalLayout {
 }
 
 impl Layout for HorizontalLayout {
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self) -> GlobalId {
+        self.id
     }
 
-	fn set_id(&mut self,id: &str) {
-		self.id = id.to_string();
-	}
-	
     fn set_position(&mut self, position: Position) {
         self.position = position;
     }
@@ -363,7 +356,7 @@ impl Layout for HorizontalLayout {
         for child in &mut self.children {
             if child.position().x > self.position.x + self.size.width {
                 self.errors.push(LayoutError::OutOfBounds {
-                    parent_id: self.id.clone(),
+                    parent_id: self.id,
                     child_id: child.id().to_owned(),
                 });
             }

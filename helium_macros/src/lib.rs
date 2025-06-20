@@ -11,10 +11,10 @@ pub fn hex(item: TokenStream) -> TokenStream {
     let s = item.to_string().replace("\"", "");
 
     match helium_core::Color::hex(&s) {
-        Ok(_) => return quote! {helium::Color::hex(#s).unwrap()}.into(),
+        Ok(_) => quote! {helium::Color::hex(#s).unwrap()}.into(),
         Err(err) => {
-			let message = format!("{err}");
-            return quote! {
+            let message = format!("{err}");
+            quote! {
                 compile_error!(#message)
             }
             .into()
@@ -24,7 +24,7 @@ pub fn hex(item: TokenStream) -> TokenStream {
 
 /// This macro does the very tedius job of defining a function for each icon in a
 /// directory. The icon must be in svg format, all non-svg files in the directory will be ignored.
-/// 
+///
 /// Files that start with reserved keywords will be prefixed with `_`.
 /// eg `box.svg -> _box()`
 #[proc_macro]
@@ -91,8 +91,8 @@ pub fn include_icons(dir: TokenStream) -> TokenStream {
         }
     }
 
-    return quote! {
+    quote! {
         #(#icons)*
     }
-    .into();
+    .into()
 }
