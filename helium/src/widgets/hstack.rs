@@ -1,7 +1,7 @@
+use crate::view::{RectView, View};
 use crate::{Color, impl_layout, impl_style, widgets::Widget};
 use crystal::{AxisAlignment, HorizontalLayout, Layout};
 use helium_core::{GlobalId, Rgba};
-use crate::view::{RectView, View};
 
 #[derive(Default)]
 pub struct HStack {
@@ -152,7 +152,7 @@ macro_rules! hstack {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::widgets::{Rect};
+    use crate::widgets::Rect;
 
     #[test]
     fn hstack_expansion() {
@@ -176,7 +176,7 @@ mod test {
             Rect::new(100.0,100.0),
             Rect::new(0.0,0.0)
         };
-        
+
         let id1 = widget.children()[0].id();
         let id2 = widget.children()[1].id();
 
@@ -187,10 +187,10 @@ mod test {
     }
 
     #[test]
-    fn get_view(){
+    fn get_view() {
         let hstack = hstack! {};
         let view = hstack.view();
-        assert_eq!(view.color(),&hstack.color);
-        assert_eq!(view.id(),hstack.id);
+        assert_eq!(view.color(), &hstack.color);
+        assert_eq!(view.id(), hstack.id);
     }
 }

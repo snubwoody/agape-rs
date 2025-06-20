@@ -1,4 +1,4 @@
-use helium::{App, widgets::Rect, Color};
+use helium::{App, Color, widgets::Rect};
 
 fn main() -> Result<(), helium::Error> {
     let rect = Rect::new(200.0, 200.0).color(Color::BLUE);

@@ -64,8 +64,8 @@ impl Color<Rgba> {
     pub const BLUE: Color<Rgba> = Color::rgb(0, 0, 255);
     pub const AMBER: Color<Rgba> = Color::rgb(245, 158, 11);
     pub const TEAL: Color<Rgba> = Color::rgb(128, 225, 214);
-    pub const TRANSPARENT: Color<Rgba> = Color::rgba(0, 0, 0,0);
-    
+    pub const TRANSPARENT: Color<Rgba> = Color::rgba(0, 0, 0, 0);
+
     /// Create a new rgb [`Colour`].
     ///
     /// # Example

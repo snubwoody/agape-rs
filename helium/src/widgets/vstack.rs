@@ -1,7 +1,7 @@
+use crate::view::{RectView, View};
 use crate::{Color, impl_layout, impl_style, widgets::Widget};
 use crystal::{AxisAlignment, Layout, VerticalLayout};
 use helium_core::{GlobalId, Rgba, colors::TRANSPARENT};
-use crate::view::{RectView, View};
 
 pub struct VStack {
     id: GlobalId,
@@ -163,43 +163,43 @@ macro_rules! vstack {
 }
 
 #[cfg(test)]
-mod test{
-    use crate::widgets::Rect;
+mod test {
     use super::*;
-    
+    use crate::widgets::Rect;
+
     #[test]
-    fn vstack_expansion(){
-        let vstack = vstack!{
+    fn vstack_expansion() {
+        let vstack = vstack! {
             Rect::new(100.0,100.0),
             Rect::new(100.0,100.0),
             Rect::new(100.0,100.0),
         };
-        
+
         assert_eq!(vstack.children.len(), 3);
     }
-    
+
     #[test]
-    fn get_children(){
-        let vstack = vstack!{
+    fn get_children() {
+        let vstack = vstack! {
             Rect::new(100.0,100.0),
             Rect::new(100.0,100.0),
         };
-        
+
         let id1 = vstack.children()[0].id();
         let id2 = vstack.children()[1].id();
-        
+
         let children = vstack.children();
-        
+
         assert_eq!(id1, children[0].id());
         assert_eq!(id2, children[1].id());
     }
-    
+
     #[test]
-    fn get_view(){
-        let vstack = vstack!{};
+    fn get_view() {
+        let vstack = vstack! {};
         let view = vstack.view();
-        
-        assert_eq!(view.color(),&vstack.color);
-        assert_eq!(view.id(),vstack.id());
+
+        assert_eq!(view.color(), &vstack.color);
+        assert_eq!(view.id(), vstack.id());
     }
 }
