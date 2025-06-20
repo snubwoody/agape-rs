@@ -1,0 +1,10 @@
+root = true
+
+[*]
+indent_style = space
+
+[*.rs]
+indent_size = 4
+
+[*.{yml,yaml}]
+indent_size = 2
