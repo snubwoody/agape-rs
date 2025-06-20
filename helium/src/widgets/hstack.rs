@@ -1,6 +1,6 @@
 use crate::{Color, impl_layout, impl_style, widgets::Widget};
 use crystal::{AxisAlignment, HorizontalLayout, Layout};
-use helium_core::{GlobalId, Rgba, colors::TRANSPARENT};
+use helium_core::{GlobalId, Rgba};
 use crate::view::{RectView, View};
 
 #[derive(Default)]
@@ -16,7 +16,7 @@ impl HStack {
     pub fn new() -> Self {
         HStack {
             id: GlobalId::default(),
-            color: TRANSPARENT,
+            color: Color::TRANSPARENT,
             children: vec![],
             corner_radius: 0,
             layout: HorizontalLayout::new(),
