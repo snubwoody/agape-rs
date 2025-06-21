@@ -1,9 +1,9 @@
-use fontdue::Font;
-use tiny_skia::{BlendMode, FilterQuality, IntSize, Mask, Paint, Path, PathBuilder, Pixmap, PixmapMut, PixmapPaint, PremultipliedColor, Rect, Transform};
-use helium_core::{Color, GlobalId, Position, Rgba, Size};
 use super::View;
+use fontdue::Font;
+use helium_core::{Color, GlobalId, Position, Rgba, Size};
+use tiny_skia::{FilterQuality, IntSize, Pixmap, PixmapPaint, Transform};
 
-pub struct TextView{
+pub struct TextView {
     id: GlobalId,
     position: Position,
     size: Size,
@@ -24,18 +24,18 @@ impl TextView {
     pub fn new(text: &str) -> Self {
         let bytes = include_bytes!("../../fonts/Inter/static/Inter-Regular.ttf") as &[u8];
         let font = Font::from_bytes(bytes, fontdue::FontSettings::default()).unwrap();
-        
-        Self{
+
+        Self {
             id: GlobalId::new(),
             position: Position::default(),
             size: Size::default(),
             foreground_color: Color::BLACK,
             text: text.to_owned(),
             font,
-            font_size: 16
+            font_size: 16,
         }
     }
-    
+
     /// Get the total size of a string of text
     pub fn text_size(&self) -> Size {
         let font_size = self.font_size as f32;
@@ -43,14 +43,14 @@ impl TextView {
         let mut width = 0.0;
         let mut height = 0.0;
         for c in self.text.chars() {
-            let metrics = self.font.metrics(c,font_size);
+            let metrics = self.font.metrics(c, font_size);
             width += metrics.advance_width;
-            if metrics.height as f32 > height{
+            if metrics.height as f32 > height {
                 height = metrics.height as f32;
             }
         }
-        
-        Size::new(width,height)
+
+        Size::new(width, height)
     }
 }
 
@@ -80,17 +80,17 @@ impl View for TextView {
         let bytes = include_bytes!("../../fonts/Inter/static/Inter-Regular.ttf") as &[u8];
         let font = Font::from_bytes(bytes, fontdue::FontSettings::default()).unwrap();
         let font_size = 16.0;
-        
+
         let mut x_pos: i32 = self.position.x as i32;
-        let mut y_pos: i32 = self.position.y as i32;
+        let y_pos: i32 = self.position.y as i32;
 
         let font_metrics = font.horizontal_line_metrics(font_size).unwrap();
         let ascent = font_metrics.ascent.round() as i32;
-        
+
         // Draw each character onto a pixmap then
         // draw that pixmap onto the root pixmap
         for c in self.text.chars() {
-            let (metrics,bitmap) = font.rasterize(c,font_size);
+            let (metrics, bitmap) = font.rasterize(c, font_size);
 
             // Skip spaces to avoid panicking
             if metrics.width == 0 {
@@ -112,10 +112,10 @@ impl View for TextView {
                 colors.push(*a);
             }
 
-            let glyph_pixmap = Pixmap::from_vec(colors,size).unwrap();
+            let glyph_pixmap = Pixmap::from_vec(colors, size).unwrap();
             let mut paint = PixmapPaint::default();
             paint.quality = FilterQuality::Bicubic;
-            
+
             pixmap.draw_pixmap(
                 x_pos,
                 y_pos,
@@ -133,19 +133,19 @@ impl View for TextView {
 }
 
 #[cfg(test)]
-mod test{
+mod test {
     use super::*;
 
     #[test]
-    fn text_size(){
+    fn text_size() {
         let view = TextView::new("he");
         let size = view.text_size();
     }
 
     #[test]
-    fn text_rendering(){
+    fn text_rendering() {
         let view = TextView::new("Hello world!");
-        let mut pixmap = Pixmap::new(500,500).unwrap();
+        let mut pixmap = Pixmap::new(500, 500).unwrap();
         view.render(&mut pixmap);
     }
 }

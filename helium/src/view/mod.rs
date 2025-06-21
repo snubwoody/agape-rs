@@ -6,7 +6,7 @@
 //! - [`RectView`]
 //!
 
-use helium_core::{Color, GlobalId, IntoColor, Position, Rgba, Size};
+use helium_core::{Color, GlobalId, Position, Rgba, Size};
 use tiny_skia::Pixmap;
 mod rect;
 mod text;

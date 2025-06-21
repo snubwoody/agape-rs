@@ -169,19 +169,19 @@ impl IntrinsicSize {
             height: BoxSizing::Flex(1),
         }
     }
-    
+
     /// Create a new fixed intrinsic size.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use crystal::{IntrinsicSize,BoxSizing};
-    /// 
+    ///
     /// let intrinsic_size = IntrinsicSize::fixed(100.0,50.0);
-    /// 
+    ///
     /// assert_eq!(intrinsic_size.width,BoxSizing::Fixed(100.0));
     /// assert_eq!(intrinsic_size.height,BoxSizing::Fixed(50.0));
     /// ```
-    pub fn fixed(width: f32,height: f32) -> Self {
+    pub fn fixed(width: f32, height: f32) -> Self {
         Self {
             width: BoxSizing::Fixed(width),
             height: BoxSizing::Fixed(height),

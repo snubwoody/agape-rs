@@ -1,4 +1,4 @@
-use helium::{App};
+use helium::App;
 use helium::widgets::Text;
 
 fn main() -> Result<(), helium::Error> {
