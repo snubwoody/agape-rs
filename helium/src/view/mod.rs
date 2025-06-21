@@ -12,6 +12,7 @@ mod rect;
 mod text;
 
 pub use rect::RectView;
+pub use text::TextView;
 
 /// A [`View`] is a primitive object that performs the rendering to the screen.
 pub trait View {

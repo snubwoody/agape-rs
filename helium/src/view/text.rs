@@ -37,7 +37,7 @@ impl TextView {
     }
     
     /// Get the total size of a string of text
-    fn text_size(&self) -> Size {
+    pub fn text_size(&self) -> Size {
         let font_size = self.font_size as f32;
 
         let mut width = 0.0;
@@ -129,8 +129,6 @@ impl View for TextView {
             // This is essentially letter spacing
             x_pos += metrics.advance_width.round() as i32;
         }
-
-        pixmap.save_png("../temp/text.png").unwrap()
     }
 }
 

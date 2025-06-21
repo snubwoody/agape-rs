@@ -4,6 +4,7 @@
 mod hstack;
 mod rect;
 mod vstack;
+mod text;
 
 use crate::view::{RectView, View};
 use crystal::Layout;
@@ -11,6 +12,7 @@ use helium_core::{Bounds, Color, GlobalId, Position, Rgba};
 pub use hstack::*;
 pub use rect::*;
 pub use vstack::*;
+pub use text::Text;
 use winit::event::{ElementState, MouseButton, MouseScrollDelta, WindowEvent};
 
 pub trait Widget: WidgetIterator {
