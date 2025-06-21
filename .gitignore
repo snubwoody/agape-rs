@@ -1,5 +1,14 @@
-/target
+# Cargo output
+target/
+
+# IDE settings
+.idea
+.vscode
+
+# Secrets
 .env
 .env.*
+
+# Temporary stuff
 temp/
 tmp/
