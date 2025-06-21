@@ -7,7 +7,7 @@ use helium_core::{GlobalId, IntoColor, Rgba, colors::WHITE};
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Rect {
     id: GlobalId,
-    intrinsic_size: crystal::IntrinsicSize,
+    intrinsic_size: IntrinsicSize,
     color: Color<Rgba>,
     corner_radius: u32,
 }

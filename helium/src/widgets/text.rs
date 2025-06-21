@@ -44,6 +44,7 @@ impl Text{
 impl Widget for Text{
     fn view(&self) -> Box<dyn View> {
         let mut view = TextView::new(&self.text);
+        view.set_id(self.id);
         view.font_size = self.font_size;
         Box::new(view)
     }
@@ -74,5 +75,12 @@ mod test{
         let text = Text::new("Hello");
         let layout = text.layout();
         assert_eq!(text.id, layout.id());
+    }
+    
+    #[test]
+    fn view_has_correct_id(){
+        let text = Text::new("Hello");
+        let view = text.view();
+        assert_eq!(text.id, view.id());
     }
 }

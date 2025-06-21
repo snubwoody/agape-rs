@@ -19,3 +19,7 @@ path = "hstack.rs"
 name = "vstack"
 path = "vstack.rs"
 
+[[example]]
+name = "text"
+path = "text.rs"
+
