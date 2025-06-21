@@ -20,6 +20,7 @@
 pub mod error;
 mod view;
 pub mod widgets;
+mod macros;
 
 use crate::view::View;
 pub use crystal;
@@ -77,6 +78,9 @@ impl ApplicationHandler for App<'_> {
                 self.render();
                 self.window.as_mut().unwrap().request_redraw();
             }
+            WindowEvent::KeyboardInput {..} | 
+            WindowEvent::MouseInput {..} |
+            WindowEvent::DroppedFile {..} => self.widget.handle_event(&event),
             _ => (),
         }
     }
