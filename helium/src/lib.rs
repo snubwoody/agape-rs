@@ -1,7 +1,25 @@
 //! GUI library
+//! 
+//! ## Architecture
+//! Widgets are high level objects that can contain any kind of data like text, buttons and 
+//! scrollbars.
+//! 
+//! Layouts describe how the widgets prefer to be arranged, like the size, position, vertical or
+//! horizontal, and so on.
+//! 
+//! Views are the final item and hold only basic information, like color, size and position, and
+//! are responsible for drawing the widgets to the screen.
+//! 
+//! You will most likely only have to deal with widgets unless you are creating your own widgets.
+//! 
+//! ## Creating custom widgets
+//! 
+//! There are two ways of creating custom widgets, functions and structs. Prefer functions if 
+//! you just need a wrapper around existing widgets, if you need highly custom functionality
+//! then you may implement the [`Widget`] trait yourself.
 pub mod error;
-mod view;
 pub mod widgets;
+mod view;
 
 use crate::view::View;
 pub use crystal;
@@ -97,6 +115,7 @@ impl App<'_> {
     }
 
     pub fn run(mut self) -> Result<()> {
+        log::info!("Running app");
         let event_loop = EventLoop::new()?;
         event_loop.set_control_flow(ControlFlow::Poll);
         event_loop.run_app(&mut self)?;

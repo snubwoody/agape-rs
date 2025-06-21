@@ -15,6 +15,7 @@ thiserror.workspace = true
 winit.workspace = true
 tokio.workspace = true
 log.workspace = true
+fontdue = "0.9.3"
 nanoid = "0.4.0"
 helium_core = {path = "../helium_core"}
 helium_macros = {path = "../helium_macros"}
