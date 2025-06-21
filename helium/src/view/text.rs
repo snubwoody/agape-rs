@@ -48,7 +48,8 @@ impl View for TextView {
         let font = fontdue::Font::from_bytes(bytes, fontdue::FontSettings::default()).unwrap();
         let font_size = 56.0;
 
-        let mut x_pos = 0;
+        let mut x_pos: i32 = 0;
+        let baseline = 56;
         
         // Draw each character onto a pixmap then 
         // draw that pixmap onto the root pixmap
@@ -57,28 +58,37 @@ impl View for TextView {
 
             // Skip spaces to avoid panicking
             if metrics.width == 0 {
-                // x_pos += metrics.advance_width;
+                x_pos += metrics.advance_width as i32;
                 continue;
             }
-
+            
+            // This will make every character lie on the baseline
+            let mut y_pos: i32 = baseline - metrics.height as i32;
+            dbg!(metrics,c);
             let size = IntSize::from_wh(metrics.width as u32, metrics.height as u32).unwrap();
             let mut colors = vec![];
+            
             for a in bitmap.iter() {
                 colors.push(0);
                 colors.push(0);
                 colors.push(0);
                 colors.push(*a);
             }
+            
             let glyph_pixmap = Pixmap::from_vec(colors,size).unwrap();
             
             pixmap.draw_pixmap(
-                0,
-                0,
+                x_pos,
+                y_pos,
                 glyph_pixmap.as_ref(),
                 &PixmapPaint::default(),
                 Transform::default(),
                 None,
             );
+            
+            // Move the cursor to the next character
+            // This is essentially letter spacing
+            x_pos += metrics.advance_width.round() as i32;
         }
 
         pixmap.save_png("../temp/text.png").unwrap()
@@ -90,9 +100,9 @@ mod test{
     use super::*;
 
     #[test]
-    fn render(){
+    fn text_rendering(){
         let view = TextView::new("hello world");
-        let mut pixmap = Pixmap::new(250,250).unwrap();
+        let mut pixmap = Pixmap::new(500,500).unwrap();
         view.render(&mut pixmap);
     }
 }
