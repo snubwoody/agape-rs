@@ -3,6 +3,7 @@
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
 mod hstack;
 mod rect;
+mod text;
 mod vstack;
 
 use crate::view::{RectView, View};
@@ -10,6 +11,7 @@ use crystal::Layout;
 use helium_core::{Bounds, Color, GlobalId, Position, Rgba};
 pub use hstack::*;
 pub use rect::*;
+pub use text::Text;
 pub use vstack::*;
 use winit::event::{ElementState, MouseButton, MouseScrollDelta, WindowEvent};
 
