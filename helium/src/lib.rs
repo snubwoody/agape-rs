@@ -18,7 +18,9 @@
 //! you just need a wrapper around existing widgets, if you need highly custom functionality
 //! then you may implement the [`Widget`] trait yourself.
 pub mod error;
-mod view;
+pub mod event;
+mod macros;
+pub mod view;
 pub mod widgets;
 
 use crate::view::View;
@@ -27,7 +29,6 @@ use crystal::LayoutSolver;
 pub use error::{Error, Result};
 pub use helium_core::*;
 pub use helium_macros::hex; // TODO move to colors mod
-pub use nanoid::nanoid;
 use pixels::{Pixels, SurfaceTexture};
 use resvg::tiny_skia::Pixmap;
 use std::sync::Arc;
@@ -77,7 +78,11 @@ impl ApplicationHandler for App<'_> {
                 self.render();
                 self.window.as_mut().unwrap().request_redraw();
             }
-            _ => (),
+            event => {
+                if let Some(event) = event::Event::from_window_event(&event) {
+                    self.widget.handle_event(&event);
+                }
+            }
         }
     }
 }

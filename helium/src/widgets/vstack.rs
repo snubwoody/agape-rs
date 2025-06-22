@@ -92,17 +92,6 @@ impl Widget for VStack {
         Box::new(view)
     }
 
-    fn scroll(&mut self, delta: crystal::Position) {
-        if !self.scollable {
-            return;
-        }
-
-        // The delta is usually small values so we must scale it
-        let scroll_speed = 5.0;
-        // TODO change the scroll speeed based on whether it's a mouse pad or touch pad
-        self.layout.scroll(delta.y * scroll_speed);
-    }
-
     fn layout(&self) -> Box<dyn Layout> {
         let children_layout: Vec<Box<dyn Layout>> =
             self.children.iter().map(|widget| widget.layout()).collect();
