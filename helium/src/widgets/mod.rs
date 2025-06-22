@@ -9,7 +9,7 @@ mod vstack;
 use crate::event::Event;
 use crate::view::{RectView, View};
 use crystal::Layout;
-use helium_core::{Color, GlobalId};
+use helium_core::{Color, GlobalId, Position};
 pub use hstack::*;
 pub use rect::*;
 pub use text::Text;
@@ -58,7 +58,7 @@ pub trait Widget: WidgetIterator {
 
                 self.handle_mouse_button(button, state);
             }
-            Event::CursorMoved(position) => {}
+            Event::CursorMoved(position) => self.handle_cursor(*position),
             _ => {}
         }
 
@@ -71,6 +71,8 @@ pub trait Widget: WidgetIterator {
 
     /// Occurs when the left mouse button has been pressed.
     fn handle_click(&mut self) {}
+    /// Occurs when the cursor has moved within the window.
+    fn handle_cursor(&mut self,position: Position) {}
 
     /// Occurs when any mouse button has been pressed/released.
     fn handle_mouse_button(&mut self, button: &MouseButton, state: &ElementState) {}

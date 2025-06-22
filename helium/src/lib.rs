@@ -80,7 +80,7 @@ impl ApplicationHandler for App<'_> {
             }
             event => {
                 if let Some(event) = event::Event::from_window_event(&event) {
-                    self.widget.handle_event(&event)
+                    self.widget.handle_event(&event);
                 }
             }
         }
