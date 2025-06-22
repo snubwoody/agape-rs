@@ -1,7 +1,7 @@
 use helium_core::Position;
 use winit::event::{ElementState, MouseButton, WindowEvent};
 
-#[derive(Debug,Clone,Copy,PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Event {
     /// The cursor has moved in the window.
     ///

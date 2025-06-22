@@ -11,7 +11,7 @@ struct MockWidget {
 
 impl MockWidget {
     pub fn new() -> Self {
-        Self { 
+        Self {
             pressed: false,
             mouse_pos: Position::default(),
         }
@@ -65,10 +65,10 @@ fn handle_left_click() {
 }
 
 #[test]
-fn handle_cursor(){
+fn handle_cursor() {
     let mut widget = MockWidget::new();
     let event = Event::CursorMoved(Position::unit(100.0));
     widget.handle_event(&event);
-    
+
     assert_eq!(widget.mouse_pos, Position::unit(100.0));
 }

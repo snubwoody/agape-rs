@@ -72,7 +72,7 @@ pub trait Widget: WidgetIterator {
     /// Occurs when the left mouse button has been pressed.
     fn handle_click(&mut self) {}
     /// Occurs when the cursor has moved within the window.
-    fn handle_cursor(&mut self,position: Position) {}
+    fn handle_cursor(&mut self, position: Position) {}
 
     /// Occurs when any mouse button has been pressed/released.
     fn handle_mouse_button(&mut self, button: &MouseButton, state: &ElementState) {}
