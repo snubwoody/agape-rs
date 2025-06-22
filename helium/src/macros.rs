@@ -1,4 +1,3 @@
-
 /// Implement common styling attributes
 #[macro_export]
 macro_rules! impl_style {
