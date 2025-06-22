@@ -47,21 +47,21 @@ impl Widget for MockWidget {
 #[test]
 fn handle_left_click() {
     let mut widget = MockWidget::new();
-    assert_eq!(widget.pressed, false);
+    assert!(!widget.pressed);
 
     let event = Event::MouseInput {
         button: MouseButton::Left,
         state: ElementState::Pressed,
     };
     widget.handle_event(&event);
-    assert_eq!(widget.pressed, true);
+    assert!(widget.pressed);
 
     let event = Event::MouseInput {
         button: MouseButton::Left,
         state: ElementState::Released,
     };
     widget.handle_event(&event);
-    assert_eq!(widget.pressed, true);
+    assert!(widget.pressed);
 }
 
 #[test]
