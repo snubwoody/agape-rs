@@ -5,6 +5,7 @@ mod hstack;
 mod rect;
 mod text;
 mod vstack;
+mod button;
 
 use crate::event::Event;
 use crate::view::{RectView, View};
