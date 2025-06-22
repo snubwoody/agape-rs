@@ -19,7 +19,7 @@ pub enum Event{
 }
 
 impl Event{
-    fn from_winit(event: &WindowEvent) -> Option<Self> {
+    pub fn from_window_event(event: &WindowEvent) -> Option<Self> {
         match event {
             WindowEvent::CursorMoved {position,..} => Some(Event::CursorMoved(position.into())),
             WindowEvent::CursorEntered{..} => Some(Event::CursorEntered),

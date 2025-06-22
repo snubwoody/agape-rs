@@ -6,14 +6,15 @@ mod rect;
 mod text;
 mod vstack;
 
+use winit::event::{ElementState, MouseButton};
 use crate::view::{RectView, View};
 use crystal::Layout;
-use helium_core::{Bounds, Color, GlobalId, Position, Rgba};
+use helium_core::{Color, GlobalId};
 pub use hstack::*;
 pub use rect::*;
 pub use text::Text;
 pub use vstack::*;
-use winit::event::{ElementState, Event, MouseButton, MouseScrollDelta, WindowEvent};
+use crate::event::Event;
 
 pub trait Widget: WidgetIterator {
     fn view(&self) -> Box<dyn View> {
@@ -37,9 +38,7 @@ pub trait Widget: WidgetIterator {
         todo!()
     }
 
-    // TODO maybe make a test macro to make sure all widgets
-    // handle this right
-    /// Get the direct children of the [`Widget`]
+    /// Get the widgets children.
     fn children(&self) -> Vec<&dyn Widget> {
         vec![]
     }
@@ -47,27 +46,35 @@ pub trait Widget: WidgetIterator {
     fn children_mut(&mut self) -> &mut [Box<dyn Widget>] {
         &mut []
     }
-    
-    fn handle_text_input(&mut self, text: &str){
-        
-    }
-}
 
-impl dyn Widget {
-    pub fn handle_event(&mut self, event: &WindowEvent) {
-        match event { 
-            &WindowEvent::KeyboardInput {ref event,..} => {
-                if let Some(text) = &event.text{
-                    self.handle_text_input(text);
+    fn handle_event(&mut self, event: &Event) {
+        match event {
+            Event::MouseInput {button,state} => {
+                if let ElementState::Pressed = state {
+                    if *button == MouseButton::Left {
+                        self.handle_click()
+                    }
                 }
+
+                self.handle_mouse_button(button, state);
             },
-            _ => (),
-        }   
-        
+            _ => {}
+        }
+
         for child in self.children_mut(){
             child.handle_event(event);
         }
     }
+    
+    fn handle_text_input(&mut self, text: &str){
+        
+    }
+    
+    /// Occurs when the left mouse button has been pressed.
+    fn handle_click(&mut self){}
+    
+    /// Occurs when any mouse button has been pressed/released.
+    fn handle_mouse_button(&mut self, button: &MouseButton, state: &ElementState) {}
 }
 
 // TODO test this

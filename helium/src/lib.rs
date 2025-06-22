@@ -21,7 +21,7 @@ pub mod error;
 pub mod view;
 pub mod widgets;
 mod macros;
-mod event;
+pub mod event;
 
 use crate::view::View;
 pub use crystal;
@@ -29,7 +29,6 @@ use crystal::LayoutSolver;
 pub use error::{Error, Result};
 pub use helium_core::*;
 pub use helium_macros::hex; // TODO move to colors mod
-pub use nanoid::nanoid;
 use pixels::{Pixels, SurfaceTexture};
 use resvg::tiny_skia::Pixmap;
 use std::sync::Arc;
@@ -79,10 +78,11 @@ impl ApplicationHandler for App<'_> {
                 self.render();
                 self.window.as_mut().unwrap().request_redraw();
             }
-            WindowEvent::KeyboardInput {..} | 
-            WindowEvent::MouseInput {..} |
-            WindowEvent::DroppedFile {..} => self.widget.handle_event(&event),
-            _ => (),
+            event => {
+                if let Some(event) = event::Event::from_window_event(&event){
+                    self.widget.handle_event(&event)
+                }
+            },
         }
     }
 }
