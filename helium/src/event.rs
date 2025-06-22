@@ -1,4 +1,4 @@
-use winit::event::{ElementState, MouseButton};
+use winit::event::{ElementState, MouseButton, WindowEvent};
 use helium_core::Position;
 
 pub enum Event{
@@ -15,10 +15,19 @@ pub enum Event{
     MouseInput{
         state: ElementState,
         button: MouseButton,
-    },
-    /// A touch event.
-    Touch{
-        
+    }
+}
+
+impl Event{
+    fn from_winit(event: &WindowEvent) -> Option<Self> {
+        match event {
+            WindowEvent::CursorMoved {position,..} => Some(Event::CursorMoved(position.into())),
+            WindowEvent::CursorEntered{..} => Some(Event::CursorEntered),
+            WindowEvent::CursorLeft {..} => Some(Event::CursorLeft),
+            WindowEvent::MouseInput {state,button,..} => 
+                Some(Event::MouseInput{state: *state, button: *button}),
+            _ => None
+        }
     }
 }
 
