@@ -28,7 +28,7 @@ pub use crystal;
 use crystal::LayoutSolver;
 pub use error::{Error, Result};
 pub use helium_core::*;
-pub use helium_macros::hex; // TODO move to colors mod
+pub use helium_macros::hex; 
 use pixels::{Pixels, SurfaceTexture};
 use resvg::tiny_skia::Pixmap;
 use std::sync::Arc;
@@ -69,6 +69,7 @@ impl ApplicationHandler for App<'_> {
     }
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
+        // FIXME update surface on resizing
         match event {
             WindowEvent::CloseRequested => {
                 println!("Exiting app");
