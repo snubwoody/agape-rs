@@ -18,9 +18,10 @@
 //! you just need a wrapper around existing widgets, if you need highly custom functionality
 //! then you may implement the [`Widget`] trait yourself.
 pub mod error;
-mod view;
+pub mod view;
 pub mod widgets;
 mod macros;
+mod event;
 
 use crate::view::View;
 pub use crystal;
