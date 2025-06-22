@@ -1,24 +1,20 @@
-use std::ops::Not;
-use winit::event::{ElementState, MouseButton};
 use crystal::Layout;
-use helium::{widgets::Widget,view::View};
 use helium::event::Event;
+use helium::{view::View, widgets::Widget};
 use helium_core::GlobalId;
+use winit::event::{ElementState, MouseButton};
 
-
-struct MockWidget{
+struct MockWidget {
     pressed: bool,
 }
 
-impl MockWidget{
-    pub fn new() -> Self{
-        Self{
-            pressed: false,
-        }
+impl MockWidget {
+    pub fn new() -> Self {
+        Self { pressed: false }
     }
 }
 
-impl Widget for MockWidget{
+impl Widget for MockWidget {
     fn id(&self) -> GlobalId {
         todo!()
     }
@@ -41,16 +37,21 @@ impl Widget for MockWidget{
 }
 
 #[test]
-fn handle_left_click(){
+fn handle_left_click() {
     let mut widget = MockWidget::new();
     assert_eq!(widget.pressed, false);
-    
-    let event = Event::MouseInput { button: MouseButton::Left, state: ElementState::Pressed };
+
+    let event = Event::MouseInput {
+        button: MouseButton::Left,
+        state: ElementState::Pressed,
+    };
     widget.handle_event(&event);
     assert_eq!(widget.pressed, true);
 
-    let event = Event::MouseInput { button: MouseButton::Left, state: ElementState::Released };
+    let event = Event::MouseInput {
+        button: MouseButton::Left,
+        state: ElementState::Released,
+    };
     widget.handle_event(&event);
     assert_eq!(widget.pressed, true);
 }
-

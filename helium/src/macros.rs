@@ -1,5 +1,5 @@
-use helium_core::Color;
 use crate::widgets::Widget;
+use helium_core::Color;
 
 /// Implement common styling attributes
 #[macro_export]

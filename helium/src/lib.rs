@@ -18,10 +18,10 @@
 //! you just need a wrapper around existing widgets, if you need highly custom functionality
 //! then you may implement the [`Widget`] trait yourself.
 pub mod error;
+pub mod event;
+mod macros;
 pub mod view;
 pub mod widgets;
-mod macros;
-pub mod event;
 
 use crate::view::View;
 pub use crystal;
@@ -79,10 +79,10 @@ impl ApplicationHandler for App<'_> {
                 self.window.as_mut().unwrap().request_redraw();
             }
             event => {
-                if let Some(event) = event::Event::from_window_event(&event){
+                if let Some(event) = event::Event::from_window_event(&event) {
                     self.widget.handle_event(&event)
                 }
-            },
+            }
         }
     }
 }

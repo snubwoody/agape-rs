@@ -1,4 +1,7 @@
-use helium::{App, Color, hstack, widgets::{Rect,Text}};
+use helium::{
+    App, Color, hstack,
+    widgets::{Rect, Text},
+};
 
 fn main() -> Result<(), helium::Error> {
     let hstack = hstack! {
@@ -6,8 +9,8 @@ fn main() -> Result<(), helium::Error> {
         Rect::new(200.0, 200.0).color(Color::BLACK),
         Text::new("Hello")
     }
-        .fill()
-        .align_center()
+    .fill()
+    .align_center()
     .spacing(12)
     .padding(12)
     .color(Color::RED);

@@ -6,7 +6,7 @@ mod rect;
 mod text;
 mod vstack;
 
-use winit::event::{ElementState, MouseButton};
+use crate::event::Event;
 use crate::view::{RectView, View};
 use crystal::Layout;
 use helium_core::{Color, GlobalId};
@@ -14,7 +14,7 @@ pub use hstack::*;
 pub use rect::*;
 pub use text::Text;
 pub use vstack::*;
-use crate::event::Event;
+use winit::event::{ElementState, MouseButton};
 
 pub trait Widget: WidgetIterator {
     fn view(&self) -> Box<dyn View> {
@@ -49,7 +49,7 @@ pub trait Widget: WidgetIterator {
 
     fn handle_event(&mut self, event: &Event) {
         match event {
-            Event::MouseInput {button,state} => {
+            Event::MouseInput { button, state } => {
                 if let ElementState::Pressed = state {
                     if *button == MouseButton::Left {
                         self.handle_click()
@@ -57,22 +57,21 @@ pub trait Widget: WidgetIterator {
                 }
 
                 self.handle_mouse_button(button, state);
-            },
+            }
+            Event::CursorMoved(position) => {}
             _ => {}
         }
 
-        for child in self.children_mut(){
+        for child in self.children_mut() {
             child.handle_event(event);
         }
     }
-    
-    fn handle_text_input(&mut self, text: &str){
-        
-    }
-    
+
+    fn handle_text_input(&mut self, text: &str) {}
+
     /// Occurs when the left mouse button has been pressed.
-    fn handle_click(&mut self){}
-    
+    fn handle_click(&mut self) {}
+
     /// Occurs when any mouse button has been pressed/released.
     fn handle_mouse_button(&mut self, button: &MouseButton, state: &ElementState) {}
 }
@@ -104,4 +103,3 @@ impl<T: Widget> WidgetIterator for T {
         WidgetIter { stack: vec![self] }
     }
 }
-
