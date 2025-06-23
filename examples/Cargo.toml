@@ -23,3 +23,7 @@ path = "vstack.rs"
 name = "text"
 path = "text.rs"
 
+[[example]]
+name = "button"
+path = "button.rs"
+
