@@ -1,6 +1,9 @@
 //! [`Widget`]'s describe what you want to present onto the screen. Helium tries to provide
 //! as many [`Widget`]'s as possible for various uses such as [`Text`],[`Button`],[`HStack`]
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
+//! 
+//! # Custom widgets
+//! 
 mod hstack;
 mod rect;
 mod text;
@@ -15,6 +18,7 @@ pub use hstack::*;
 pub use rect::*;
 pub use text::Text;
 pub use vstack::*;
+pub use button::Button;
 use winit::event::{ElementState, MouseButton};
 
 pub trait Widget: WidgetIterator {
