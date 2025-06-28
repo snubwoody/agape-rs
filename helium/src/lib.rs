@@ -22,6 +22,7 @@ pub mod event;
 mod macros;
 pub mod view;
 pub mod widgets;
+mod context;
 
 use crate::view::View;
 pub use crystal;
@@ -29,6 +30,7 @@ use crystal::LayoutSolver;
 pub use error::{Error, Result};
 pub use helium_core::*;
 pub use helium_macros::hex; 
+pub(crate) use context::Context;
 use pixels::{Pixels, SurfaceTexture};
 use resvg::tiny_skia::Pixmap;
 use std::sync::Arc;
@@ -41,6 +43,7 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::Window,
 };
+use crate::event::Event;
 
 /// An [`App`]'s is the point of entry for your program they are responsible
 /// for the overall management of rendering, resources,
@@ -50,6 +53,7 @@ pub struct App<'app> {
     window: Option<Arc<Window>>,
     pixels: Option<Pixels<'app>>,
     pixmap: Option<Pixmap>,
+    context: Context,
 }
 
 impl ApplicationHandler for App<'_> {
@@ -80,11 +84,17 @@ impl ApplicationHandler for App<'_> {
                 self.window.as_mut().unwrap().request_redraw();
             }
             event => {
+
                 if let Some(event) = event::Event::from_window_event(&event) {
+                    if let Event::CursorMoved(position) = event{
+                        self.context.update_mouse_pos(position);
+                    }
                     self.widget.handle_event(&event);
                 }
             }
         }
+        
+        self.widget.tick(&self.context);
     }
 }
 
@@ -95,6 +105,7 @@ impl App<'_> {
             window: None,
             pixmap: None,
             pixels: None,
+            context: Context::new(),
         }
     }
 
@@ -128,3 +139,6 @@ impl App<'_> {
         Ok(())
     }
 }
+
+
+
