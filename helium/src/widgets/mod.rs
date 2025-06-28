@@ -9,6 +9,7 @@ mod rect;
 mod text;
 mod vstack;
 mod button;
+mod gesture;
 
 use crate::event::Event;
 use crate::view::{RectView, View};
@@ -20,6 +21,7 @@ pub use text::Text;
 pub use vstack::*;
 pub use button::Button;
 use winit::event::{ElementState, MouseButton};
+use crate::Context;
 
 pub trait Widget: WidgetIterator {
     fn view(&self) -> Box<dyn View> {
@@ -39,9 +41,7 @@ pub trait Widget: WidgetIterator {
 
     /// Runs every frame allowing [`Widget`]'s to manage any
     /// state they may have
-    fn tick(&mut self) {
-        todo!()
-    }
+    fn tick(&mut self,cx: &Context) {}
 
     /// Get the widgets children.
     fn children(&self) -> Vec<&dyn Widget> {
@@ -81,6 +81,13 @@ pub trait Widget: WidgetIterator {
 
     /// Occurs when any mouse button has been pressed/released.
     fn handle_mouse_button(&mut self, button: &MouseButton, state: &ElementState) {}
+}
+
+#[derive(Debug,Clone,Copy,PartialEq,Eq,PartialOrd,Ord)]
+pub enum WidgetState{
+    Resting,
+    Hovered,
+    Clicked
 }
 
 // TODO test this
