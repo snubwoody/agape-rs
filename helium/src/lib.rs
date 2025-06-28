@@ -101,11 +101,11 @@ impl ApplicationHandler for App<'_> {
 impl App<'_> {
     pub fn new(widget: impl Widget + 'static) -> Self {
         Self {
+            context: Context::new(&widget),
             widget: Box::new(widget),
             window: None,
             pixmap: None,
             pixels: None,
-            context: Context::new(),
         }
     }
 
