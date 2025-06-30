@@ -1,20 +1,25 @@
 //! [`Widget`]'s describe what you want to present onto the screen. Helium tries to provide
 //! as many [`Widget`]'s as possible for various uses such as [`Text`],[`Button`],[`HStack`]
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
+//!
+//! # Custom widgets
+//!
+mod button;
+mod gesture;
 mod hstack;
 mod rect;
 mod text;
 mod vstack;
 
-use crate::event::Event;
+use crate::Context;
 use crate::view::{RectView, View};
+pub use button::Button;
 use crystal::Layout;
-use helium_core::{Color, GlobalId, Position};
+use helium_core::{Color, GlobalId};
 pub use hstack::*;
 pub use rect::*;
 pub use text::Text;
 pub use vstack::*;
-use winit::event::{ElementState, MouseButton};
 
 pub trait Widget: WidgetIterator {
     fn view(&self) -> Box<dyn View> {
@@ -34,9 +39,7 @@ pub trait Widget: WidgetIterator {
 
     /// Runs every frame allowing [`Widget`]'s to manage any
     /// state they may have
-    fn tick(&mut self) {
-        todo!()
-    }
+    fn tick(&mut self, _cx: &Context) {}
 
     /// Get the widgets children.
     fn children(&self) -> Vec<&dyn Widget> {
@@ -47,35 +50,20 @@ pub trait Widget: WidgetIterator {
         &mut []
     }
 
-    fn handle_event(&mut self, event: &Event) {
-        match event {
-            Event::MouseInput { button, state } => {
-                if let ElementState::Pressed = state {
-                    if *button == MouseButton::Left {
-                        self.handle_click()
-                    }
-                }
+    fn click(&mut self) {}
+    fn hover(&mut self) {}
+}
 
-                self.handle_mouse_button(button, state);
-            }
-            Event::CursorMoved(position) => self.handle_cursor(*position),
-            _ => {}
-        }
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Event {
+    Hovered(GlobalId),
+}
 
-        for child in self.children_mut() {
-            child.handle_event(event);
-        }
-    }
-
-    fn handle_text_input(&mut self, text: &str) {}
-
-    /// Occurs when the left mouse button has been pressed.
-    fn handle_click(&mut self) {}
-    /// Occurs when the cursor has moved within the window.
-    fn handle_cursor(&mut self, position: Position) {}
-
-    /// Occurs when any mouse button has been pressed/released.
-    fn handle_mouse_button(&mut self, button: &MouseButton, state: &ElementState) {}
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum WidgetState {
+    Resting,
+    Hovered,
+    Clicked,
 }
 
 // TODO test this

@@ -6,6 +6,8 @@ publish = false
 
 [dev-dependencies]
 helium = { path = "../helium", features = ["icon-sets"]}
+env_logger = "0.11.8"
+dotenv = "0.15.0"
 
 [[example]]
 name = "rect"
@@ -22,4 +24,8 @@ path = "vstack.rs"
 [[example]]
 name = "text"
 path = "text.rs"
+
+[[example]]
+name = "button"
+path = "button.rs"
 

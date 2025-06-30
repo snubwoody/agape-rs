@@ -80,3 +80,5 @@ The `HStack` is a `Widget` that arranges it's children horizontally.
 ## Names
 - cracoa
 - coco
+- agape
+- philia

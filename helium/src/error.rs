@@ -4,7 +4,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, Error)]
 pub enum Error {
-    /* Third party wrappers */
+    // Third party errors
     #[error(transparent)]
     ReqwestError(#[from] reqwest::Error),
     #[error(transparent)]

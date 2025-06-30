@@ -1,3 +1,4 @@
+//! Core types
 mod color;
 mod position;
 mod size;
