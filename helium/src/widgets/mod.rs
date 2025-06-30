@@ -39,7 +39,7 @@ pub trait Widget: WidgetIterator {
 
     /// Runs every frame allowing [`Widget`]'s to manage any
     /// state they may have
-    fn tick(&mut self,cx: &Context) {}
+    fn tick(&mut self,_cx: &Context) {}
 
     /// Get the widgets children.
     fn children(&self) -> Vec<&dyn Widget> {
@@ -52,20 +52,6 @@ pub trait Widget: WidgetIterator {
 
     fn click(&mut self) {}
     fn hover(&mut self) {}
-    
-    fn handle_event(&mut self,event: Event) {
-        match event{
-            Event::Hovered(id) => {
-                if id == self.id(){
-                    self.hover();
-                }
-            }
-        }
-        
-        self.children_mut()
-            .iter_mut()
-            .for_each(|child| child.handle_event(event));
-    }
 }
 
 #[derive(Clone,Copy,PartialEq,Eq,Debug)]

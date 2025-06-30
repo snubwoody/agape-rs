@@ -1,7 +1,7 @@
 use crystal::{BlockLayout, Layout};
 use helium_core::{Color, GlobalId, Position, Rgba};
-use crate::context::{AppEvent, Context};
-use crate::impl_style;
+use crate::context::{Context};
+use crate::{impl_style,AppEvent};
 use crate::view::{RectView, View};
 use crate::widgets::{Text, Widget};
 

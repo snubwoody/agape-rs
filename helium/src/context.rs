@@ -1,14 +1,8 @@
 use std::collections::HashMap;
 use crystal::Layout;
 use helium_core::{GlobalId, Position};
-use crate::App;
 use crate::widgets::{Widget, WidgetState};
-
-#[derive(Debug,Clone,Copy,PartialEq)]
-pub enum AppEvent{
-    /// Emitted when the cursor is over a widget
-    Hovered(GlobalId),
-}
+use crate::AppEvent;
 
 /// Global app context which keeps track of important
 /// information such as the current mouse position and

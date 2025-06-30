@@ -18,7 +18,6 @@
 //! you just need a wrapper around existing widgets, if you need highly custom functionality
 //! then you may implement the [`Widget`] trait yourself.
 pub mod error;
-pub mod event;
 mod macros;
 pub mod view;
 pub mod widgets;
@@ -43,6 +42,12 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::Window,
 };
+
+#[derive(Debug,Clone,Copy,PartialEq)]
+pub enum AppEvent{
+    /// Emitted when the cursor is over a widget
+    Hovered(GlobalId),
+}
 
 pub struct App<'app> {
     widget: Box<dyn Widget>,
