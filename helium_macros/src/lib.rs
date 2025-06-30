@@ -3,9 +3,7 @@ use proc_macro2::{Literal, Span};
 use quote::quote;
 use std::{fs, path::Path};
 
-// TODO compile but dont run?
-// TODO change name and provide wrapper in helium
-/// A macro for create compile time verified hex colors.
+/// A macro for creating compile time verified hex colors.
 #[proc_macro]
 pub fn hex(item: TokenStream) -> TokenStream {
     let s = item.to_string().replace("\"", "");

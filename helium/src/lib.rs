@@ -30,7 +30,7 @@ use crystal::LayoutSolver;
 pub use error::{Error, Result};
 pub use helium_core::*;
 pub use helium_macros::hex; 
-pub(crate) use context::Context;
+pub use context::Context;
 use pixels::{Pixels, SurfaceTexture};
 use resvg::tiny_skia::Pixmap;
 use std::sync::Arc;
@@ -43,11 +43,7 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::Window,
 };
-use crate::event::Event;
 
-/// An [`App`]'s is the point of entry for your program they are responsible
-/// for the overall management of rendering, resources,
-/// [`Widget`]'s etc.
 pub struct App<'app> {
     widget: Box<dyn Widget>,
     window: Option<Arc<Window>>,
@@ -74,32 +70,37 @@ impl ApplicationHandler for App<'_> {
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
         // FIXME update surface on resizing
+        log::trace!("WindowEvent: {:?}", event);
+        
         match event {
             WindowEvent::CloseRequested => {
-                println!("Exiting app");
+                log::info!("Exiting app");
                 event_loop.exit();
-            }
+            },
             WindowEvent::RedrawRequested => {
                 self.render();
                 self.window.as_mut().unwrap().request_redraw();
+            },
+            WindowEvent::CursorMoved { position, .. } => {
+                self.context.update_mouse_pos(position.into());
+            },
+            WindowEvent::MouseInput { button, state, .. } => {
             }
-            event => {
-
-                if let Some(event) = event::Event::from_window_event(&event) {
-                    if let Event::CursorMoved(position) = event{
-                        self.context.update_mouse_pos(position);
-                    }
-                    self.widget.handle_event(&event);
-                }
+            _ => {
             }
         }
-        
+
+        self.context.update_state();
         self.widget.tick(&self.context);
+        self.context.clear_events();
     }
 }
 
 impl App<'_> {
     pub fn new(widget: impl Widget + 'static) -> Self {
+        let len = widget.iter().count();
+        log::info!("Creating widget tree with {} widgets", len);
+        
         Self {
             context: Context::new(&widget),
             widget: Box::new(widget),
@@ -121,6 +122,8 @@ impl App<'_> {
         let pixels = self.pixels.as_mut().unwrap();
         let pixmap = self.pixmap.as_mut().unwrap();
         pixmap.fill(tiny_skia::Color::WHITE);
+        
+        // Draw each view(widget) to the pixmap
         for view in &mut views {
             let layout = layout.get(view.id()).unwrap();
             view.set_size(layout.size());
@@ -128,17 +131,25 @@ impl App<'_> {
             view.render(pixmap);
             pixels.frame_mut().copy_from_slice(pixmap.data());
         }
+
+        self.context.set_layout(layout);
         pixels.render().unwrap();
     }
 
+    /// Run the app.
+    ///
+    /// # Panics
+    /// The app will panic if it is run in another thread, this is
+    /// because accessing windows in other threads is unsafe on
+    /// certain platforms.
     pub fn run(mut self) -> Result<()> {
-        log::info!("Running app");
         let event_loop = EventLoop::new()?;
         event_loop.set_control_flow(ControlFlow::Poll);
         event_loop.run_app(&mut self)?;
         Ok(())
     }
 }
+
 
 
 

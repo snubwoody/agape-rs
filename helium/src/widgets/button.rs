@@ -1,6 +1,7 @@
 use crystal::{BlockLayout, Layout};
 use helium_core::{Color, GlobalId, Position, Rgba};
-use crate::context::Context;
+use crate::context::{AppEvent, Context};
+use crate::impl_style;
 use crate::view::{RectView, View};
 use crate::widgets::{Text, Widget};
 
@@ -10,7 +11,7 @@ pub struct Button{
     child: Box<dyn Widget>,
     padding: u32,
     click_fn: Option<Box<dyn FnMut()>>,
-    mouse_pos: Position,
+    hover_fn: Option<Box<dyn FnMut()>>,
 }
 
 impl Default for Button{
@@ -21,7 +22,7 @@ impl Default for Button{
             padding: 0,
             child: Box::new(Text::new("")),
             click_fn: None,
-            mouse_pos: Position::default(),
+            hover_fn: None,
         }
     }
 }
@@ -34,15 +35,17 @@ impl Button{
         }
     }
     
-    /// Check if the mouse position is over the button
-    fn is_hovered(&self) -> bool{
-        self.layout().bounds().within(&self.mouse_pos)
-    }
-    
     pub fn on_click(mut self, callback: impl FnMut() + 'static) -> Self{
         self.click_fn = Some(Box::new(callback));
         self
     }
+    
+    pub fn on_hover(mut self, callback: impl FnMut() + 'static) -> Self{
+        self.hover_fn = Some(Box::new(callback));
+        self
+    }
+    
+    impl_style!();
 }
 
 impl Widget for Button{
@@ -51,7 +54,27 @@ impl Widget for Button{
     }
 
     fn tick(&mut self, cx: &Context) {
-        dbg!(cx);
+        for event in cx.query_events(){
+            match event{
+                AppEvent::Hovered(id) => {
+                    if *id == self.id(){
+                        self.hover()
+                    }
+                }
+            }
+        }
+    }
+
+    fn click(&mut self) {
+        if let Some(func) = &mut self.click_fn{
+            func();
+        }
+    }
+    
+    fn hover(&mut self) {
+        if let Some(func) = &mut self.hover_fn{
+            func();
+        }
     }
     
     fn view(&self) -> Box<dyn View> {
@@ -67,30 +90,11 @@ impl Widget for Button{
         layout.padding = self.padding;
         Box::new(layout)
     }
-
-    fn handle_click(&mut self) {
-        if let Some(func) = &mut self.click_fn{  
-            func();
-        }
-    }
-
-    fn handle_cursor(&mut self, position: Position) {
-        dbg!(position);
-    }
 }
 
 #[cfg(test)]
 mod test{
-    use crate::widgets::Rect;
     use super::*;
-    
-    #[test]
-    fn is_hovered(){
-        let mut button = Button::new(Rect::new(100.0,100.0));
-        button.mouse_pos = Position::new(24.0,42.4);
-        dbg!(button.layout());
-        assert!(button.is_hovered());
-    }
     
     #[test]
     fn view_and_layout(){

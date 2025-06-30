@@ -11,16 +11,14 @@ mod vstack;
 mod button;
 mod gesture;
 
-use crate::event::Event;
 use crate::view::{RectView, View};
 use crystal::Layout;
-use helium_core::{Color, GlobalId, Position};
+use helium_core::{Color, GlobalId};
 pub use hstack::*;
 pub use rect::*;
 pub use text::Text;
 pub use vstack::*;
 pub use button::Button;
-use winit::event::{ElementState, MouseButton};
 use crate::Context;
 
 pub trait Widget: WidgetIterator {
@@ -52,35 +50,27 @@ pub trait Widget: WidgetIterator {
         &mut []
     }
 
-    fn handle_event(&mut self, event: &Event) {
-        match event {
-            Event::MouseInput { button, state } => {
-                if let ElementState::Pressed = state {
-                    if *button == MouseButton::Left {
-                        self.handle_click()
-                    }
+    fn click(&mut self) {}
+    fn hover(&mut self) {}
+    
+    fn handle_event(&mut self,event: Event) {
+        match event{
+            Event::Hovered(id) => {
+                if id == self.id(){
+                    self.hover();
                 }
-
-                self.handle_mouse_button(button, state);
             }
-            Event::CursorMoved(position) => self.handle_cursor(*position),
-            _ => {}
         }
-
-        for child in self.children_mut() {
-            child.handle_event(event);
-        }
+        
+        self.children_mut()
+            .iter_mut()
+            .for_each(|child| child.handle_event(event));
     }
+}
 
-    fn handle_text_input(&mut self, text: &str) {}
-
-    /// Occurs when the left mouse button has been pressed.
-    fn handle_click(&mut self) {}
-    /// Occurs when the cursor has moved within the window.
-    fn handle_cursor(&mut self, position: Position) {}
-
-    /// Occurs when any mouse button has been pressed/released.
-    fn handle_mouse_button(&mut self, button: &MouseButton, state: &ElementState) {}
+#[derive(Clone,Copy,PartialEq,Eq,Debug)]
+pub enum Event{
+    Hovered(GlobalId)
 }
 
 #[derive(Debug,Clone,Copy,PartialEq,Eq,PartialOrd,Ord)]
