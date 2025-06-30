@@ -17,19 +17,19 @@
 //! There are two ways of creating custom widgets, functions and structs. Prefer functions if
 //! you just need a wrapper around existing widgets, if you need highly custom functionality
 //! then you may implement the [`Widget`] trait yourself.
+mod context;
 pub mod error;
 mod macros;
 pub mod view;
 pub mod widgets;
-mod context;
 
 use crate::view::View;
+pub use context::Context;
 pub use crystal;
 use crystal::LayoutSolver;
 pub use error::{Error, Result};
 pub use helium_core::*;
-pub use helium_macros::hex; 
-pub use context::Context;
+pub use helium_macros::hex;
 use pixels::{Pixels, SurfaceTexture};
 use resvg::tiny_skia::Pixmap;
 use std::sync::Arc;
@@ -43,8 +43,8 @@ use winit::{
     window::Window,
 };
 
-#[derive(Debug,Clone,Copy,PartialEq)]
-pub enum AppEvent{
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum AppEvent {
     /// Emitted when the cursor is over a widget
     Hovered(GlobalId),
 }
@@ -76,23 +76,21 @@ impl ApplicationHandler for App<'_> {
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
         // FIXME update surface on resizing
         log::trace!("WindowEvent: {:?}", event);
-        
+
         match event {
             WindowEvent::CloseRequested => {
                 log::info!("Exiting app");
                 event_loop.exit();
-            },
+            }
             WindowEvent::RedrawRequested => {
                 self.render();
                 self.window.as_mut().unwrap().request_redraw();
-            },
+            }
             WindowEvent::CursorMoved { position, .. } => {
                 self.context.update_mouse_pos(position.into());
-            },
-            WindowEvent::MouseInput { button, state, .. } => {
             }
-            _ => {
-            }
+            WindowEvent::MouseInput { button, state, .. } => {}
+            _ => {}
         }
 
         self.context.update_state();
@@ -105,7 +103,7 @@ impl App<'_> {
     pub fn new(widget: impl Widget + 'static) -> Self {
         let len = widget.iter().count();
         log::info!("Creating widget tree with {} widgets", len);
-        
+
         Self {
             context: Context::new(&widget),
             widget: Box::new(widget),
@@ -127,7 +125,7 @@ impl App<'_> {
         let pixels = self.pixels.as_mut().unwrap();
         let pixmap = self.pixmap.as_mut().unwrap();
         pixmap.fill(tiny_skia::Color::WHITE);
-        
+
         // Draw each view(widget) to the pixmap
         for view in &mut views {
             let layout = layout.get(view.id()).unwrap();
@@ -154,7 +152,3 @@ impl App<'_> {
         Ok(())
     }
 }
-
-
-
-

@@ -1,11 +1,11 @@
-use crystal::{BlockLayout, Layout};
-use helium_core::{Color, GlobalId, Position, Rgba};
-use crate::context::{Context};
-use crate::{impl_style,AppEvent};
+use crate::context::Context;
 use crate::view::{RectView, View};
 use crate::widgets::{Text, Widget};
+use crate::{AppEvent, impl_style};
+use crystal::{BlockLayout, Layout};
+use helium_core::{Color, GlobalId, Position, Rgba};
 
-pub struct Button{
+pub struct Button {
     id: GlobalId,
     color: Color<Rgba>,
     child: Box<dyn Widget>,
@@ -14,9 +14,9 @@ pub struct Button{
     hover_fn: Option<Box<dyn FnMut()>>,
 }
 
-impl Default for Button{
-    fn default() -> Button{
-        Button{
+impl Default for Button {
+    fn default() -> Button {
+        Button {
             id: GlobalId::new(),
             color: Color::TRANSPARENT,
             padding: 0,
@@ -27,37 +27,37 @@ impl Default for Button{
     }
 }
 
-impl Button{
-    pub fn new(widget: impl Widget + 'static) -> Self{
-        Self{
+impl Button {
+    pub fn new(widget: impl Widget + 'static) -> Self {
+        Self {
             child: Box::new(widget),
             ..Self::default()
         }
     }
-    
-    pub fn on_click(mut self, callback: impl FnMut() + 'static) -> Self{
+
+    pub fn on_click(mut self, callback: impl FnMut() + 'static) -> Self {
         self.click_fn = Some(Box::new(callback));
         self
     }
-    
-    pub fn on_hover(mut self, callback: impl FnMut() + 'static) -> Self{
+
+    pub fn on_hover(mut self, callback: impl FnMut() + 'static) -> Self {
         self.hover_fn = Some(Box::new(callback));
         self
     }
-    
+
     impl_style!();
 }
 
-impl Widget for Button{
+impl Widget for Button {
     fn id(&self) -> GlobalId {
         self.id
     }
 
     fn tick(&mut self, cx: &Context) {
-        for event in cx.query_events(){
-            match event{
+        for event in cx.query_events() {
+            match event {
                 AppEvent::Hovered(id) => {
-                    if *id == self.id(){
+                    if *id == self.id() {
                         self.hover()
                     }
                 }
@@ -66,17 +66,17 @@ impl Widget for Button{
     }
 
     fn click(&mut self) {
-        if let Some(func) = &mut self.click_fn{
+        if let Some(func) = &mut self.click_fn {
             func();
         }
     }
-    
+
     fn hover(&mut self) {
-        if let Some(func) = &mut self.hover_fn{
+        if let Some(func) = &mut self.hover_fn {
             func();
         }
     }
-    
+
     fn view(&self) -> Box<dyn View> {
         let mut view = RectView::new(self.color.clone());
         view.set_id(self.id);
@@ -93,13 +93,13 @@ impl Widget for Button{
 }
 
 #[cfg(test)]
-mod test{
+mod test {
     use super::*;
-    
+
     #[test]
-    fn view_and_layout(){
+    fn view_and_layout() {
         let button = Button::new(Text::new("Click me"));
         assert_eq!(button.layout().id(), button.id);
-        assert_eq!(button.view().id(),button.id)
+        assert_eq!(button.view().id(), button.id)
     }
 }

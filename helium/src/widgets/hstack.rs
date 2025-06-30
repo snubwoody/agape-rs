@@ -4,27 +4,27 @@ use crystal::{AxisAlignment, HorizontalLayout, Layout};
 use helium_core::{GlobalId, Rgba};
 
 /// A horizontal stack of widgets, placed one after another.
-/// 
+///
 /// `Hstack`s will most commonly be used with the [`hstack!`] macro
 /// as a more convenient way to construct them.
-/// 
+///
 /// ```
 /// use helium::{hstack,widgets::{Rect,Text}};
-/// 
+///
 /// let hstack = hstack! {
 ///     Rect::new(100.0,150.0),
 ///     Text::new("Hi there!"),
 /// };
 /// ```
-/// 
+///
 /// You can, as well, construct them manually.
-/// 
+///
 /// ```
 /// use helium::widgets::{HStack,Text};
-/// 
+///
 /// let mut hstack = HStack::new()
-///     .add_child(Text::new("Hello ")) 
-///     .add_child(Text::new("world!")); 
+///     .add_child(Text::new("Hello "))
+///     .add_child(Text::new("world!"));
 /// ```
 #[derive(Default)]
 pub struct HStack {
