@@ -99,12 +99,12 @@ impl Widget for Button {
 #[cfg(test)]
 mod test {
     use super::*;
-    
+
     #[test]
-    fn expose_children(){
+    fn expose_children() {
         let text = Text::new("Hello");
         let id = text.id();
-        
+
         let mut button = Button::new(text);
         assert_eq!(button.children()[0].id(), id);
     }
