@@ -133,6 +133,7 @@ impl App<'_> {
             view.set_position(layout.position());
             view.render(pixmap);
             pixels.frame_mut().copy_from_slice(pixmap.data());
+            dbg!("Rendering view with id: {}",view.id());
         }
 
         self.context.set_layout(layout);
