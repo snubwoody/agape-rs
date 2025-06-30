@@ -46,10 +46,6 @@ pub trait Widget: WidgetIterator {
         vec![]
     }
 
-    fn children_mut(&mut self) -> &mut [Box<dyn Widget>] {
-        &mut []
-    }
-
     fn click(&mut self) {}
     fn hover(&mut self) {}
 }

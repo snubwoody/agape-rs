@@ -130,10 +130,6 @@ impl Widget for VStack {
             .map(|child| child.as_ref())
             .collect::<Vec<_>>()
     }
-
-    fn children_mut(&mut self) -> &mut [Box<dyn Widget>] {
-        self.children.as_mut_slice()
-    }
 }
 
 #[macro_export]
