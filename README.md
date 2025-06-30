@@ -55,15 +55,16 @@ The `HStack` is a `Widget` that arranges it's children horizontally.
 ✅: Fully supported  
 ➖: Assumed but has not been tested  
 🚧: Planned but not yet supported  
-*For MacOS and Linux, all the libraries that `helium` uses, i.e `wgpu` and `winit`, are fully cross platform, however they have not been tested so support is not guaranteed. 
 
 ## Roadmap
-- [ ] buttons
 - [x] text rendering
-- [ ] grids
-- [x] rows and column layouts
-- [ ] input handling
-- [ ] scrolling
+- [ ] Grids
+- [x] Row and column layouts
+- [ ] Input handling
+  - [x] Hover events
+  - [ ] Click events
+  - [ ] Text input
+- [ ] Scrolling
 
 ## Commit
 
