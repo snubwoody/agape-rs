@@ -47,6 +47,9 @@ use winit::{
 pub enum AppEvent {
     /// Emitted when the cursor is over a widget
     Hovered(GlobalId),
+    /// Emitted when the left mouse button is pressed
+    /// while the [`Widget`] is in a hovered state.
+    Clicked(GlobalId)
 }
 
 pub struct App<'app> {
@@ -62,12 +65,15 @@ impl ApplicationHandler for App<'_> {
         log::info!("Initializing resources");
         let window = event_loop.create_window(Default::default()).unwrap();
         let window = Arc::new(window);
+        
         let size = Size::from(window.inner_size());
-
-        let surface =
-            SurfaceTexture::new(size.width as u32, size.height as u32, Arc::clone(&window));
-        let pixels = Pixels::new(size.width as u32, size.height as u32, surface).unwrap();
-        let pixmap = Pixmap::new(size.width as u32, size.height as u32).unwrap();
+        let width = size.width as u32;
+        let height = size.height as u32;
+        
+        let surface = SurfaceTexture::new(width, height, Arc::clone(&window));
+        let pixels = Pixels::new(width, height, surface).unwrap();
+        let pixmap = Pixmap::new(width, height).unwrap();
+        
         self.pixels = Some(pixels);
         self.window = Some(Arc::clone(&window));
         self.pixmap = Some(pixmap);
@@ -77,6 +83,8 @@ impl ApplicationHandler for App<'_> {
         // FIXME update surface on resizing
         log::trace!("WindowEvent: {:?}", event);
 
+        self.context.handle_event(event.clone());
+        
         match event {
             WindowEvent::CloseRequested => {
                 log::info!("Exiting app");
@@ -86,8 +94,11 @@ impl ApplicationHandler for App<'_> {
                 self.render();
                 self.window.as_mut().unwrap().request_redraw();
             }
-            WindowEvent::CursorMoved { position, .. } => {
-                self.context.update_mouse_pos(position.into());
+            WindowEvent::Resized(size) => {
+                self.pixels.as_mut()
+                    .unwrap()
+                    .resize_surface(size.width, size.height)
+                    .expect("Failed to resize the pixel buffer");
             }
             WindowEvent::MouseInput { .. } => {}
             _ => {}
