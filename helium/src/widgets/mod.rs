@@ -5,7 +5,6 @@
 //! # Custom widgets
 //!
 mod button;
-mod gesture;
 mod hstack;
 mod rect;
 mod text;

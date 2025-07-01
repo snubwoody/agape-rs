@@ -170,9 +170,9 @@ impl Color<Hex> {
     /// use helium_core::{Color,ColorError};
     ///
     /// fn main() -> Result<(),ColorError>{
-    /// 	let color = Color::hex("#FFFFFF")?;
+    ///     let color = Color::hex("#FFFFFF")?;
     ///
-    /// 	Ok(())
+    ///     Ok(())
     /// }
     ///
     /// ```
@@ -219,14 +219,14 @@ impl Color<Hex> {
     /// use helium_core::{Color,ColorError};
     ///
     /// fn main() -> Result<(),ColorError>{
-    /// 	let hex = Color::hex("#FFFFFF")?;
-    /// 	let rgba = hex.to_rgba();
+    ///     let hex = Color::hex("#FFFFFF")?;
+    ///     let rgba = hex.to_rgba();
     ///
-    /// 	assert_eq!(rgba.r(),255);
-    /// 	assert_eq!(rgba.g(),255);
-    /// 	assert_eq!(rgba.b(),255);
-    ///
-    /// 	Ok(())
+    ///     assert_eq!(rgba.r(),255);
+    ///     assert_eq!(rgba.g(),255);
+    ///     assert_eq!(rgba.b(),255);
+    /// 
+    ///     Ok(())
     /// }
     /// ```
     pub fn to_rgba(&self) -> Color<Rgba> {
@@ -253,11 +253,11 @@ impl Color<Hex> {
     }
 }
 
-impl ToString for Color<Hex> {
-    fn to_string(&self) -> String {
-        self.0.0.clone()
+impl std::fmt::Display for Color<Hex> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
     }
-}
+} 
 
 impl Default for Color<Rgba> {
     fn default() -> Color<Rgba> {

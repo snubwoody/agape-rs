@@ -2,7 +2,7 @@ use super::Widget;
 use crate::Color;
 use crate::view::{RectView, View};
 use crystal::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
-use helium_core::{GlobalId, IntoColor, Rgba, colors::WHITE};
+use helium_core::{GlobalId, IntoColor, Rgba};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Rect {
@@ -21,7 +21,7 @@ impl Rect {
 
         Self {
             id: GlobalId::default(),
-            color: WHITE,
+            color: Color::WHITE,
             intrinsic_size,
             corner_radius: 0,
         }

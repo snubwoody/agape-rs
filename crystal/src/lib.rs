@@ -1,4 +1,4 @@
-#![doc = include_str!("../README.md")]
+//! Layout engine
 mod block;
 mod empty;
 mod error;

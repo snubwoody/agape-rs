@@ -1,7 +1,7 @@
 use super::View;
 use fontdue::Font;
 use helium_core::{Color, GlobalId, Position, Rgba, Size};
-use tiny_skia::{FilterQuality, IntSize, Pixmap, PixmapPaint, Transform};
+use tiny_skia::{IntSize, Pixmap, PixmapPaint, Transform};
 
 pub struct TextView {
     id: GlobalId,
@@ -113,8 +113,7 @@ impl View for TextView {
             }
 
             let glyph_pixmap = Pixmap::from_vec(colors, size).unwrap();
-            let mut paint = PixmapPaint::default();
-            paint.quality = FilterQuality::Bicubic;
+            let paint = PixmapPaint::default();
 
             pixmap.draw_pixmap(
                 x_pos,

@@ -89,7 +89,7 @@ impl ApplicationHandler for App<'_> {
             WindowEvent::CursorMoved { position, .. } => {
                 self.context.update_mouse_pos(position.into());
             }
-            WindowEvent::MouseInput { button, state, .. } => {}
+            WindowEvent::MouseInput { .. } => {}
             _ => {}
         }
 

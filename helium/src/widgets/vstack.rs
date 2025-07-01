@@ -1,7 +1,7 @@
 use crate::view::{RectView, View};
 use crate::{Color, impl_layout, impl_style, widgets::Widget};
 use crystal::{AxisAlignment, Layout, VerticalLayout};
-use helium_core::{GlobalId, Rgba, colors::TRANSPARENT};
+use helium_core::{GlobalId, Rgba};
 
 pub struct VStack {
     id: GlobalId,
@@ -9,8 +9,6 @@ pub struct VStack {
     color: Color<Rgba>,
     layout: VerticalLayout,
     corner_radius: u32,
-    /// Whether the `VStack` should be scrollable, false by default
-    scollable: bool,
 }
 
 impl Default for VStack {
@@ -23,11 +21,10 @@ impl VStack {
     pub fn new() -> Self {
         VStack {
             id: GlobalId::new(),
-            color: TRANSPARENT,
+            color: Color::TRANSPARENT,
             children: vec![],
             layout: VerticalLayout::new(),
             corner_radius: 0,
-            scollable: false,
         }
     }
 
@@ -52,12 +49,6 @@ impl VStack {
 
     pub fn spacing(mut self, spacing: u32) -> Self {
         self.layout.spacing = spacing;
-        self
-    }
-
-    /// Enable scrolling
-    pub fn scrollable(mut self) -> Self {
-        self.scollable = true;
         self
     }
 

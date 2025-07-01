@@ -56,7 +56,7 @@ impl Context {
 
     /// Get the state of a [`Widget`].
     pub fn get_state(&self, id: &GlobalId) -> Option<&WidgetState> {
-        self.state.get(&id)
+        self.state.get(id)
     }
 
     /// Set the state of a [`Widget`].
