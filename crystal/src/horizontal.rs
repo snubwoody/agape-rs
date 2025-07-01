@@ -88,6 +88,7 @@ impl HorizontalLayout {
             .iter()
             .map(|child| child.size().width)
             .sum::<f32>();
+        // FIXME panics with no children
         width_sum += (self.spacing * (self.children.len() as u32 - 1)) as f32;
         let mut center_start = self.position.x + (self.size.width - width_sum) / 2.0;
 

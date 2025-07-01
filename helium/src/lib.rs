@@ -128,6 +128,7 @@ impl App<'_> {
 
         // Draw each view(widget) to the pixmap
         for view in &mut views {
+            // TODO don't unwrap
             let layout = layout.get(view.id()).unwrap();
             view.set_size(layout.size());
             view.set_position(layout.position());

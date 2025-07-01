@@ -13,11 +13,10 @@ fn main() -> Result<(), helium::Error> {
         Rect::new(200.0, 200.0).color(Color::BLACK),
         Text::new("Hello")
     }
-    .fill()
     .align_center()
     .spacing(12)
     .padding(12)
-    .color(Color::RED);
+    .color(Color::rgb(210, 210, 210));
 
     let app = App::new(hstack);
     app.run()

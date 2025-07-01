@@ -150,7 +150,9 @@ impl Widget for HStack {
 /// hstack!{
 ///     Rect::new(100.0,200.0),
 ///     Rect::new(100.0,200.0),
-/// };
+/// }
+/// .spacing(12)
+/// .padding(24);
 ///
 /// ```
 #[macro_export]

@@ -27,7 +27,15 @@ impl std::fmt::Display for GlobalId {
         write!(f, "{}", self.0)
     }
 }
-/// Map value from one range to another. Any overflow is clipped to the min or max
+
+/// Map value from one range to another. Any overflow or underflow is clipped to the min or max
+///
+/// # Example
+/// ```
+/// use helium_core::map;
+/// let mapped_half = map(5.0,[0.0,10.0],[10.0,20.0]);
+/// assert_eq!(mapped_half,15.0);
+/// ```
 pub fn map(mut value: f32, input_range: [f32; 2], output_range: [f32; 2]) -> f32 {
     if value > input_range[1] {
         value = input_range[1]
@@ -39,4 +47,21 @@ pub fn map(mut value: f32, input_range: [f32; 2], output_range: [f32; 2]) -> f32
     let offset = input_range[0] * (scale) + output_range[0];
 
     value * scale + offset
+}
+
+#[cfg(test)]
+mod test {
+    use crate::GlobalId;
+    use std::collections::HashSet;
+
+    #[test]
+    fn global_ids_are_unique() {
+        // Just checking that the ids are unique (enough)
+        // in case it's ever changed
+
+        let mut ids = HashSet::new();
+        for _ in 0..10_000 {
+            assert!(ids.insert(GlobalId::new()));
+        }
+    }
 }

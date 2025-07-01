@@ -76,7 +76,7 @@ impl View for TextView {
     }
 
     fn render(&self, pixmap: &mut Pixmap) {
-        pixmap.fill(tiny_skia::Color::WHITE);
+        // pixmap.fill(tiny_skia::Color::WHITE); //  FIXME remove this
         let bytes = include_bytes!("../../fonts/Inter/static/Inter-Regular.ttf") as &[u8];
         let font = Font::from_bytes(bytes, fontdue::FontSettings::default()).unwrap();
         let font_size = 16.0;
