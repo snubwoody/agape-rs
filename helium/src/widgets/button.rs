@@ -3,7 +3,7 @@ use crate::view::{RectView, View};
 use crate::widgets::{Text, Widget};
 use crate::{AppEvent, impl_style};
 use crystal::{BlockLayout, Layout};
-use helium_core::{Color, GlobalId, Position, Rgba};
+use helium_core::{Color, GlobalId, Rgba};
 
 pub struct Button {
     id: GlobalId,

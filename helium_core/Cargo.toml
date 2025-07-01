@@ -8,4 +8,3 @@ thiserror.workspace = true
 bytemuck.workspace = true
 winit.workspace = true
 rand.workspace = true
-tiny-skia.workspace = true
