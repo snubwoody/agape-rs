@@ -3,6 +3,7 @@ use crate::widgets::{Widget, WidgetState};
 use crystal::Layout;
 use helium_core::{GlobalId, Position};
 use std::collections::HashMap;
+use winit::event::{ElementState, MouseButton, WindowEvent};
 
 /// Global app context which keeps track of important
 /// information such as the current mouse position and
@@ -19,7 +20,7 @@ pub struct Context {
 
 impl Context {
     /// Create a new context object
-    pub(crate) fn new(widget: &impl Widget) -> Self {
+    pub fn new(widget: &impl Widget) -> Self {
         let mut state = HashMap::new();
         for w in widget.iter() {
             state.insert(w.id(), WidgetState::Resting);
@@ -33,12 +34,12 @@ impl Context {
             events: Vec::new(),
         }
     }
-
-    pub fn update_mouse_pos(&mut self, mouse_position: Position) {
+    
+    pub(crate) fn update_mouse_pos(&mut self, mouse_position: Position) {
         self.mouse_position = mouse_position;
     }
 
-    pub fn set_layout(&mut self, layout: Box<dyn Layout>) {
+    pub(crate) fn set_layout(&mut self, layout: Box<dyn Layout>) {
         self.layout = layout;
     }
 
@@ -64,9 +65,32 @@ impl Context {
         self.state.insert(id, state);
     }
 
+    pub(crate) fn handle_event(&mut self, event: WindowEvent) {
+        match event { 
+            WindowEvent::CursorMoved { position, .. } => {
+                self.mouse_position = position.into();
+            },
+            WindowEvent::MouseInput {state, button, .. } => self.handle_click(state, button),
+            _ => {}
+        }
+    }
+    
+    fn handle_click(&mut self,state: ElementState,button: MouseButton) {
+        for layout in self.layout.iter(){
+            let widget_state = self.get_state(&layout.id()).unwrap();
+            
+            if let ElementState::Pressed = state
+                && MouseButton::Left == button
+                && WidgetState::Hovered == *widget_state 
+            {
+                dbg!("clicked");
+            }
+        }
+    }
+    
     /// Go over every widget and update its state based on current
     /// conditions like the mouse position. This is called every frame.
-    pub(crate) fn update_state(&mut self) {
+    pub fn update_state(&mut self) {
         let position = self.mouse_position;
 
         let hovered_ids: Vec<GlobalId> = self
@@ -101,6 +125,7 @@ impl Context {
         self.events.as_slice()
     }
 
+    /// Clear all the events.
     pub(crate) fn clear_events(&mut self) {
         self.events.clear();
     }
@@ -113,7 +138,7 @@ mod test {
     use crate::{hstack, vstack};
     use crystal::LayoutSolver;
     use helium_core::Size;
-
+    
     #[test]
     fn init_context() {
         let widget = hstack! {
@@ -149,19 +174,6 @@ mod test {
     }
 
     #[test]
-    fn default_resting_state() {
-        let widget = Rect::new(100.0, 100.0);
-        let id = widget.id();
-        let mut layout = widget.layout();
-
-        LayoutSolver::solve(&mut *layout, Size::unit(300.0));
-
-        let mut ctx = Context::new(&widget);
-        ctx.set_layout(layout);
-        assert_eq!(ctx.get_state(&id).unwrap(), &WidgetState::Resting);
-    }
-
-    #[test]
     fn hover_widget() {
         let widget = Rect::new(100.0, 100.0);
         let id = widget.id();
@@ -174,5 +186,27 @@ mod test {
         ctx.update_mouse_pos(Position::unit(50.0));
         ctx.update_state();
         assert_eq!(ctx.get_state(&id).unwrap(), &WidgetState::Hovered);
+    }
+    
+    #[test]
+    fn click_widget() {
+        let widget = Rect::new(100.0, 100.0);
+        let id = widget.id();
+
+        let mut ctx = Context::new(&widget);
+        ctx.set_state(id, WidgetState::Hovered);
+    }
+    
+    #[test]
+    fn dont_click_widget_if_not_hovered(){
+        
+    }
+
+    #[test]
+    fn default_resting_state(){
+        let widget = hstack! {};
+        let cx = Context::new(&widget);
+        let state = cx.get_state(&widget.id()).unwrap();
+        assert_eq!(state,&WidgetState::Resting);
     }
 }

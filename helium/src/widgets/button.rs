@@ -60,7 +60,8 @@ impl Widget for Button {
                     if *id == self.id() {
                         self.hover()
                     }
-                }
+                },
+                _ => {}
             }
         }
     }
