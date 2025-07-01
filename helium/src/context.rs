@@ -76,6 +76,8 @@ impl Context {
     }
     
     fn handle_click(&mut self,state: ElementState,button: MouseButton) {
+        let mut clicked_ids = vec![];
+        
         for layout in self.layout.iter(){
             let widget_state = self.get_state(&layout.id()).unwrap();
             
@@ -83,9 +85,14 @@ impl Context {
                 && MouseButton::Left == button
                 && WidgetState::Hovered == *widget_state 
             {
-                dbg!("clicked");
+                clicked_ids.push(layout.id());
             }
         }
+        
+        clicked_ids.iter().for_each(|&id| {
+            self.events.push(AppEvent::Clicked(id));
+            self.set_state(id, WidgetState::Clicked)
+        });
     }
     
     /// Go over every widget and update its state based on current
@@ -193,8 +200,13 @@ mod test {
         let widget = Rect::new(100.0, 100.0);
         let id = widget.id();
 
-        let mut ctx = Context::new(&widget);
-        ctx.set_state(id, WidgetState::Hovered);
+        let mut cx = Context::new(&widget);
+        cx.set_state(id, WidgetState::Hovered);
+        cx.handle_click(ElementState::Pressed, MouseButton::Left);
+        let state = cx.get_state(&id).unwrap();
+        
+        assert_eq!(state, &WidgetState::Clicked);
+        assert!(cx.query_events().contains(&AppEvent::Clicked(id)));
     }
     
     #[test]
