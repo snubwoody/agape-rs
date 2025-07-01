@@ -50,12 +50,12 @@ pub fn map(mut value: f32, input_range: [f32; 2], output_range: [f32; 2]) -> f32
 }
 
 #[cfg(test)]
-mod test{
-    use std::collections::HashSet;
+mod test {
     use crate::GlobalId;
+    use std::collections::HashSet;
 
     #[test]
-    fn global_ids_are_unique(){
+    fn global_ids_are_unique() {
         // Just checking that the ids are unique (enough)
         // in case it's ever changed
 

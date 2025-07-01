@@ -16,7 +16,7 @@ fn main() -> Result<(), helium::Error> {
     .align_center()
     .spacing(12)
     .padding(12)
-    .color(Color::rgb(210,210,210));
+    .color(Color::rgb(210, 210, 210));
 
     let app = App::new(hstack);
     app.run()
