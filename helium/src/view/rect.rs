@@ -1,6 +1,6 @@
 use super::View;
 use helium_core::{Color, GlobalId, IntoColor, Position, Rgba, Size, map};
-use tiny_skia::{Paint, Pixmap, Transform};
+use tiny_skia::{BlendMode, Paint, Pixmap, Transform};
 
 #[derive(Default)]
 pub struct RectView {
@@ -47,10 +47,11 @@ impl View for RectView {
     fn render(&self, pixmap: &mut Pixmap) {
         let (r, g, b, a) = self.color.inner();
 
-        // Map the color since we clip the alpha to 100
-        let a = map(a as f32, [0.0, 100.0], [0.0, 255.0]);
+        // Map the alpha since it's clipped to 100
+        let a = map(a as f32, [0.0, 100.0], [0.0, 255.0]) as u8;
         let mut paint = Paint::default();
-        paint.set_color_rgba8(r, g, b, a as u8);
+        paint.blend_mode = BlendMode::SourceOver;
+        paint.set_color_rgba8(r, g, b, a);
 
         let Position { x, y } = self.position;
         let Size { width, height } = self.size;

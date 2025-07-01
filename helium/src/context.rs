@@ -7,11 +7,6 @@ use std::collections::HashMap;
 /// Global app context which keeps track of important
 /// information such as the current mouse position and
 /// the state of each widget.
-///
-/// The context contains a couple of things:
-/// - The mouse position
-/// - The gesture state of each widget
-/// - The position and size of all the widgets
 #[derive(Debug)]
 pub struct Context {
     mouse_position: Position,
@@ -23,7 +18,8 @@ pub struct Context {
 }
 
 impl Context {
-    pub fn new(widget: &impl Widget) -> Self {
+    /// Create a new context object
+    pub(crate) fn new(widget: &impl Widget) -> Self {
         let mut state = HashMap::new();
         for w in widget.iter() {
             state.insert(w.id(), WidgetState::Resting);
@@ -68,9 +64,8 @@ impl Context {
         self.state.insert(id, state);
     }
 
-    /// Go over every widget and update its state
-    /// based on current conditions like the mouse
-    /// position. This is called every frame.
+    /// Go over every widget and update its state based on current
+    /// conditions like the mouse position. This is called every frame.
     pub(crate) fn update_state(&mut self) {
         let position = self.mouse_position;
 
@@ -101,6 +96,7 @@ impl Context {
         }
     }
 
+    /// Get a slice of the current app events.
     pub fn query_events(&self) -> &[AppEvent] {
         self.events.as_slice()
     }

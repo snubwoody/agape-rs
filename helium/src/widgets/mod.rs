@@ -50,11 +50,7 @@ pub trait Widget: WidgetIterator {
     fn hover(&mut self) {}
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum Event {
-    Hovered(GlobalId),
-}
-
+/// The current state of the widget
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum WidgetState {
     Resting,
