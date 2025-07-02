@@ -1,4 +1,4 @@
-use crate::context::Context;
+use crate::Context;
 use crate::view::{RectView, View};
 use crate::widgets::{Text, Widget};
 use crate::{AppEvent, impl_style};
@@ -111,7 +111,7 @@ mod test {
         let text = Text::new("Hello");
         let id = text.id();
 
-        let mut button = Button::new(text);
+        let button = Button::new(text);
         assert_eq!(button.children()[0].id(), id);
     }
 
