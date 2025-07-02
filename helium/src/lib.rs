@@ -44,7 +44,7 @@ use winit::{
     window::Window,
 };
 
-
+type System = Box<dyn FnMut(&mut Context)>;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AppEvent {
@@ -61,6 +61,7 @@ pub struct App<'app> {
     pixels: Option<Pixels<'app>>,
     pixmap: Option<Pixmap>,
     context: Context,
+    systems: Vec<System>,
 }
 
 impl ApplicationHandler for App<'_> {
@@ -107,6 +108,10 @@ impl ApplicationHandler for App<'_> {
             _ => {}
         }
 
+        for system in self.systems.iter_mut() {
+            system(&mut self.context)
+        }
+        
         self.context.update_state();
         self.widget.tick(&self.context);
         self.context.clear_events();
@@ -124,7 +129,13 @@ impl App<'_> {
             window: None,
             pixmap: None,
             pixels: None,
+            systems: Vec::new(),
         }
+    }
+    
+    pub fn add_system(mut self, system: impl FnMut(&mut Context) + 'static) -> Self{
+        self.systems.push(Box::new(system));
+        self
     }
 
     fn render(&mut self) {
