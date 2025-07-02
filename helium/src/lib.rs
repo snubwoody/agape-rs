@@ -17,24 +17,21 @@
 //! There are two ways of creating custom widgets, functions and structs. Prefer functions if
 //! you just need a wrapper around existing widgets, if you need highly custom functionality
 //! then you may implement the [`Widget`] trait yourself.
-mod context;
 pub mod error;
 mod macros;
 pub mod view;
 pub mod widgets;
-mod system;
 
+use std::collections::HashMap;
 use crate::view::View;
-pub use context::Context;
 pub use crystal;
-use crystal::LayoutSolver;
+use crystal::{Layout, LayoutSolver};
 pub use error::{Error, Result};
 pub use helium_core::*;
 pub use helium_macros::hex;
 use pixels::{Pixels, SurfaceTexture};
 use resvg::tiny_skia::Pixmap;
 use std::sync::Arc;
-use std::time::Instant;
 use widgets::Widget;
 use winit::application::ApplicationHandler;
 use winit::event_loop::ActiveEventLoop;
@@ -44,6 +41,8 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::Window,
 };
+use winit::event::MouseButton;
+use crate::widgets::WidgetState;
 
 type System = Box<dyn FnMut(&mut Context)>;
 
@@ -89,8 +88,6 @@ impl ApplicationHandler for App<'_> {
         // FIXME update surface on resizing
         log::trace!("WindowEvent: {:?}", event);
 
-        self.context.handle_event(event.clone());
-        
         match event {
             WindowEvent::CloseRequested => {
                 log::info!("Exiting app");
@@ -114,7 +111,6 @@ impl ApplicationHandler for App<'_> {
             system(&mut self.context)
         }
         
-        self.context.update_state();
         self.widget.tick(&self.context);
         self.context.clear_events();
     }
@@ -147,12 +143,7 @@ impl App<'_> {
 
     fn render(&mut self) {
         let mut views: Vec<Box<dyn View>> = self.widget.iter().map(|w| w.view()).collect();
-
-        let mut layout = self.context.layout();
-        // LayoutSolver::solve(
-        //     &mut *layout,
-        //     self.window.as_ref().unwrap().inner_size().into(),
-        // );
+        let layout = self.context.layout();
 
         let pixels = self.pixels.as_mut().unwrap();
         let pixmap = self.pixmap.as_mut().unwrap();
@@ -185,9 +176,98 @@ impl App<'_> {
     }
 }
 
+/// Global app context which keeps track of important
+/// information such as the current mouse position and
+/// the state of each widget.
+pub struct Context {
+    mouse_position: Position,
+    /// Keeps track of the state of all widgets in the
+    /// widget tree.
+    state: HashMap<GlobalId, WidgetState>,
+    layout: Box<dyn Layout>,
+    events: Vec<AppEvent>,
+    pub window_size: Size,
+    views: Vec<Box<dyn View>>,
+}
+
+impl Context {
+    /// Create a new context object
+    pub fn new(widget: &impl Widget,views: Vec<Box<dyn View>>) -> Self {
+        let mut state = HashMap::new();
+        for w in widget.iter() {
+            state.insert(w.id(), WidgetState::Resting);
+        }
+        let layout = widget.layout();
+
+        Self {
+            mouse_position: Position::default(),
+            layout,
+            state,
+            views,
+            window_size: Size::default(),
+            events: Vec::new(),
+        }
+    }
+
+    pub fn query_events(&self) -> &[AppEvent]{
+        self.events.as_slice()
+    }
+
+    pub(crate) fn clear_events(&mut self) {
+        self.events.clear();
+    }
+
+    fn resize(&mut self, size: Size) {
+        self.window_size = size;
+    }
+
+    pub(crate) fn update_mouse_pos(&mut self, mouse_position: Position) {
+        self.mouse_position = mouse_position;
+    }
+
+    pub(crate) fn set_layout(&mut self, layout: Box<dyn Layout>) {
+        self.layout = layout;
+    }
+
+    pub fn layout(&self) -> &dyn Layout {
+        &*self.layout
+    }
+
+    pub fn layout_mut(&mut self) -> &mut dyn Layout {
+        &mut *self.layout
+    }
+
+    pub fn mouse_pos(&self) -> Position {
+        self.mouse_position
+    }
+
+    pub fn state(&self) -> &HashMap<GlobalId, WidgetState> {
+        &self.state
+    }
+
+    /// Get the state of a [`Widget`].
+    pub fn get_state(&self, id: &GlobalId) -> Option<&WidgetState> {
+        self.state.get(id)
+    }
+
+    /// Set the state of a [`Widget`].
+    pub fn set_state(&mut self, id: GlobalId, state: WidgetState) {
+        self.state.insert(id, state);
+    }
+}
+
+
 fn layout_system(cx: &mut Context) {
-    let instant = Instant::now();
     let size = cx.window_size;
     LayoutSolver::solve(cx.layout_mut(), size);
-    println!("Frame time: {:?}",instant.elapsed());
+}
+
+fn event_system(cx: &mut Context,event: &WindowEvent) {
+    match event {
+        &WindowEvent::CursorMoved {position,..} => cx.update_mouse_pos(position.into()),
+        &WindowEvent::MouseInput { state, button, .. } => {
+            
+        }
+        _ => {}
+    }
 }

@@ -21,9 +21,7 @@ pub use text::Text;
 pub use vstack::*;
 
 pub trait Widget: WidgetIterator {
-    fn view(&self) -> Box<dyn View> {
-        Box::new(RectView::new(Color::BLACK))
-    }
+    fn view(&self) -> Box<dyn View>;
 
     /// Get the widget's [`Layout`]
     fn layout(&self) -> Box<dyn Layout>;
