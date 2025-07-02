@@ -1,14 +1,15 @@
 use crate::AppEvent;
 use crate::widgets::{Widget, WidgetState};
 use crystal::Layout;
-use helium_core::{GlobalId, Position};
+use helium_core::{GlobalId, Position, Size};
 use std::collections::HashMap;
 use winit::event::{ElementState, MouseButton, WindowEvent};
+use crate::view::View;
 
+// TODO move this to lib after converting to systems
 /// Global app context which keeps track of important
 /// information such as the current mouse position and
 /// the state of each widget.
-#[derive(Debug)]
 pub struct Context {
     mouse_position: Position,
     /// Keeps track of the state of all widgets in the
@@ -16,11 +17,13 @@ pub struct Context {
     state: HashMap<GlobalId, WidgetState>,
     layout: Box<dyn Layout>,
     events: Vec<AppEvent>,
+    pub window_size: Size,
+    views: Vec<Box<dyn View>>,
 }
 
 impl Context {
     /// Create a new context object
-    pub fn new(widget: &impl Widget) -> Self {
+    pub fn new(widget: &impl Widget,views: Vec<Box<dyn View>>) -> Self {
         let mut state = HashMap::new();
         for w in widget.iter() {
             state.insert(w.id(), WidgetState::Resting);
@@ -31,8 +34,14 @@ impl Context {
             mouse_position: Position::default(),
             layout,
             state,
+            views,
+            window_size: Size::default(),
             events: Vec::new(),
         }
+    }
+
+    fn resize(&mut self, size: Size) {
+        self.window_size = size;
     }
 
     pub(crate) fn update_mouse_pos(&mut self, mouse_position: Position) {
@@ -45,6 +54,10 @@ impl Context {
 
     pub fn layout(&self) -> &dyn Layout {
         &*self.layout
+    }
+    
+    pub fn layout_mut(&mut self) -> &mut dyn Layout {
+        &mut *self.layout
     }
 
     pub fn mouse_pos(&self) -> Position {
@@ -157,7 +170,7 @@ mod test {
         let id1 = widget.children()[0].id();
         let id2 = widget.children()[1].id();
 
-        let ctx = Context::new(&widget);
+        let ctx = Context::new(&widget,vec![]);
 
         assert!(ctx.state.get(&root_id).is_some());
         assert!(ctx.state.get(&id1).is_some());
@@ -176,7 +189,7 @@ mod test {
         let vstack = widget.children()[1];
         let rect_id = vstack.children()[0].id();
 
-        let ctx = Context::new(&widget);
+        let ctx = Context::new(&widget,vec![]);
         assert!(ctx.state.get(&rect_id).is_some());
     }
 
@@ -188,7 +201,7 @@ mod test {
 
         LayoutSolver::solve(&mut *layout, Size::unit(300.0));
 
-        let mut ctx = Context::new(&widget);
+        let mut ctx = Context::new(&widget,vec![]);
         ctx.set_layout(layout);
         ctx.update_mouse_pos(Position::unit(50.0));
         ctx.update_state();
@@ -200,7 +213,7 @@ mod test {
         let widget = Rect::new(100.0, 100.0);
         let id = widget.id();
 
-        let mut cx = Context::new(&widget);
+        let mut cx = Context::new(&widget,vec![]);
         cx.set_state(id, WidgetState::Hovered);
         cx.handle_click(ElementState::Pressed, MouseButton::Left);
         let state = cx.get_state(&id).unwrap();
@@ -210,14 +223,9 @@ mod test {
     }
 
     #[test]
-    fn dont_click_widget_if_not_hovered(){
-
-    }
-
-    #[test]
     fn default_resting_state(){
         let widget = hstack! {};
-        let cx = Context::new(&widget);
+        let cx = Context::new(&widget,vec![]);
         let state = cx.get_state(&widget.id()).unwrap();
         assert_eq!(state,&WidgetState::Resting);
     }

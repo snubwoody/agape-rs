@@ -34,6 +34,7 @@ pub use helium_macros::hex;
 use pixels::{Pixels, SurfaceTexture};
 use resvg::tiny_skia::Pixmap;
 use std::sync::Arc;
+use std::time::Instant;
 use widgets::Widget;
 use winit::application::ApplicationHandler;
 use winit::event_loop::ActiveEventLoop;
@@ -78,6 +79,7 @@ impl ApplicationHandler for App<'_> {
         let pixels = Pixels::new(width, height, surface).unwrap();
         let pixmap = Pixmap::new(width, height).unwrap();
         
+        self.context.window_size = size;
         self.pixels = Some(pixels);
         self.window = Some(Arc::clone(&window));
         self.pixmap = Some(pixmap);
@@ -123,13 +125,18 @@ impl App<'_> {
         let len = widget.iter().count();
         log::info!("Creating widget tree with {} widgets", len);
 
+        let views = widget.iter().map(|w|w.view()).collect();
+        let systems: Vec<System> = vec![
+            Box::new(layout_system)
+        ];
+        
         Self {
-            context: Context::new(&widget),
+            context: Context::new(&widget,views),
             widget: Box::new(widget),
             window: None,
             pixmap: None,
             pixels: None,
-            systems: Vec::new(),
+            systems
         }
     }
     
@@ -141,11 +148,11 @@ impl App<'_> {
     fn render(&mut self) {
         let mut views: Vec<Box<dyn View>> = self.widget.iter().map(|w| w.view()).collect();
 
-        let mut layout = self.widget.layout();
-        LayoutSolver::solve(
-            &mut *layout,
-            self.window.as_ref().unwrap().inner_size().into(),
-        );
+        let mut layout = self.context.layout();
+        // LayoutSolver::solve(
+        //     &mut *layout,
+        //     self.window.as_ref().unwrap().inner_size().into(),
+        // );
 
         let pixels = self.pixels.as_mut().unwrap();
         let pixmap = self.pixmap.as_mut().unwrap();
@@ -161,7 +168,6 @@ impl App<'_> {
             pixels.frame_mut().copy_from_slice(pixmap.data());
         }
 
-        self.context.set_layout(layout);
         pixels.render().unwrap();
     }
 
@@ -177,4 +183,11 @@ impl App<'_> {
         event_loop.run_app(&mut self)?;
         Ok(())
     }
+}
+
+fn layout_system(cx: &mut Context) {
+    let instant = Instant::now();
+    let size = cx.window_size;
+    LayoutSolver::solve(cx.layout_mut(), size);
+    println!("Frame time: {:?}",instant.elapsed());
 }
