@@ -34,7 +34,7 @@ impl Context {
             events: Vec::new(),
         }
     }
-    
+
     pub(crate) fn update_mouse_pos(&mut self, mouse_position: Position) {
         self.mouse_position = mouse_position;
     }
@@ -66,7 +66,7 @@ impl Context {
     }
 
     pub(crate) fn handle_event(&mut self, event: WindowEvent) {
-        match event { 
+        match event {
             WindowEvent::CursorMoved { position, .. } => {
                 self.mouse_position = position.into();
             },
@@ -74,27 +74,27 @@ impl Context {
             _ => {}
         }
     }
-    
+
     fn handle_click(&mut self,state: ElementState,button: MouseButton) {
         let mut clicked_ids = vec![];
-        
+
         for layout in self.layout.iter(){
             let widget_state = self.get_state(&layout.id()).unwrap();
-            
+
             if let ElementState::Pressed = state
                 && MouseButton::Left == button
-                && WidgetState::Hovered == *widget_state 
+                && WidgetState::Hovered == *widget_state
             {
                 clicked_ids.push(layout.id());
             }
         }
-        
+
         clicked_ids.iter().for_each(|&id| {
             self.events.push(AppEvent::Clicked(id));
             self.set_state(id, WidgetState::Clicked)
         });
     }
-    
+
     /// Go over every widget and update its state based on current
     /// conditions like the mouse position. This is called every frame.
     pub fn update_state(&mut self) {
@@ -145,7 +145,7 @@ mod test {
     use crate::{hstack, vstack};
     use crystal::LayoutSolver;
     use helium_core::Size;
-    
+
     #[test]
     fn init_context() {
         let widget = hstack! {
@@ -194,7 +194,7 @@ mod test {
         ctx.update_state();
         assert_eq!(ctx.get_state(&id).unwrap(), &WidgetState::Hovered);
     }
-    
+
     #[test]
     fn click_widget() {
         let widget = Rect::new(100.0, 100.0);
@@ -204,14 +204,14 @@ mod test {
         cx.set_state(id, WidgetState::Hovered);
         cx.handle_click(ElementState::Pressed, MouseButton::Left);
         let state = cx.get_state(&id).unwrap();
-        
+
         assert_eq!(state, &WidgetState::Clicked);
         assert!(cx.query_events().contains(&AppEvent::Clicked(id)));
     }
-    
+
     #[test]
     fn dont_click_widget_if_not_hovered(){
-        
+
     }
 
     #[test]
