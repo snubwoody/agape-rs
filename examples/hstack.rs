@@ -1,9 +1,9 @@
-use helium::{
+use agape::{
     App, Color, hstack,
     widgets::{Rect, Text},
 };
 
-fn main() -> Result<(), helium::Error> {
+fn main() -> Result<(), agape::Error> {
     let hstack = hstack! {
         Rect::new(200.0, 200.0).color(Color::BLACK),
         Rect::new(200.0, 200.0).color(Color::BLACK),

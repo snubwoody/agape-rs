@@ -1,17 +1,17 @@
-# helium
+# agape
 An easy to use rust GUI library built using `wgpu`.
 
-Helium is inspired by SwiftUI and Flutter and aims to be a fully featured rust gui library.
+agape is inspired by SwiftUI and Flutter and aims to be a fully featured rust gui library.
 
-![example workflow](https://github.com/snubwoody/Helium/actions/workflows/rust.yml/badge.svg?branch=main)
+![example workflow](https://github.com/snubwoody/agape/actions/workflows/rust.yml/badge.svg?branch=main)
 
 ## Quick start
 
 ```rust
-use helium::{App,widgets::Text,}
+use agape::{App,widgets::Text,}
 
 #[tokio::main]
-async fn main() -> Result<(),helium::Error>{
+async fn main() -> Result<(),agape::Error>{
 	let text = Text::new("Hello world");
 
 	let mut app = App::new();

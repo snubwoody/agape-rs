@@ -34,6 +34,52 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "512761e0bb2578dd7380c6baaa0f4ce03e84f95e960231d1dec8bf4d7d6e2627"
 
 [[package]]
+name = "agape"
+version = "0.1.0"
+dependencies = [
+ "agape_core",
+ "agape_layout",
+ "agape_macros",
+ "fontdue",
+ "image",
+ "log",
+ "pixels",
+ "reqwest",
+ "resvg",
+ "thiserror 2.0.11",
+ "tiny-skia",
+ "winit",
+]
+
+[[package]]
+name = "agape_core"
+version = "0.1.0"
+dependencies = [
+ "bytemuck",
+ "rand 0.9.1",
+ "thiserror 2.0.11",
+ "winit",
+]
+
+[[package]]
+name = "agape_layout"
+version = "0.1.0"
+dependencies = [
+ "agape_core",
+ "thiserror 2.0.11",
+]
+
+[[package]]
+name = "agape_macros"
+version = "0.1.0"
+dependencies = [
+ "agape_core",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.104",
+]
+
+[[package]]
 name = "ahash"
 version = "0.8.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -596,14 +642,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43da5946c66ffcc7745f48db692ffbb10a83bfe0afd96235c5c2a4fb23994929"
 
 [[package]]
-name = "crystal"
-version = "0.1.0"
-dependencies = [
- "helium_core",
- "thiserror 2.0.11",
-]
-
-[[package]]
 name = "cursor-icon"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -741,9 +779,9 @@ dependencies = [
 name = "examples"
 version = "0.1.0"
 dependencies = [
+ "agape",
  "dotenv",
  "env_logger 0.11.8",
- "helium",
  "pretty_env_logger",
 ]
 
@@ -1154,44 +1192,6 @@ name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
-
-[[package]]
-name = "helium"
-version = "0.1.0"
-dependencies = [
- "crystal",
- "fontdue",
- "helium_core",
- "helium_macros",
- "image",
- "log",
- "pixels",
- "reqwest",
- "resvg",
- "thiserror 2.0.11",
- "tiny-skia",
- "winit",
-]
-
-[[package]]
-name = "helium_core"
-version = "0.1.0"
-dependencies = [
- "bytemuck",
- "rand 0.9.1",
- "thiserror 2.0.11",
- "winit",
-]
-
-[[package]]
-name = "helium_macros"
-version = "0.1.0"
-dependencies = [
- "helium_core",
- "proc-macro2",
- "quote",
- "syn 2.0.104",
-]
 
 [[package]]
 name = "hermit-abi"

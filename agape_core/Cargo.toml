@@ -1,0 +1,10 @@
+[package]
+name = "agape_core"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+thiserror.workspace = true
+bytemuck.workspace = true
+winit.workspace = true
+rand.workspace = true

@@ -1,0 +1,8 @@
+[package]
+name = "agape_layout"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+agape_core = {path = "../agape_core"}
+thiserror.workspace = true

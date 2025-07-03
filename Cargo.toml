@@ -2,11 +2,11 @@
 resolver = "3"
 
 members = [
-	"helium", 
+	"agape",
 	"examples", 
-	"helium_macros", 
-	"helium_core", 
-	"crystal",
+	"agape_macros",
+	"agape_core",
+	"agape_layout",
 ]
 
 [workspace.dependencies]
