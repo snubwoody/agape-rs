@@ -225,7 +225,7 @@ impl Color<Hex> {
     ///     assert_eq!(rgba.r(),255);
     ///     assert_eq!(rgba.g(),255);
     ///     assert_eq!(rgba.b(),255);
-    /// 
+    ///
     ///     Ok(())
     /// }
     /// ```
@@ -257,7 +257,7 @@ impl std::fmt::Display for Color<Hex> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{}", self.as_str())
     }
-} 
+}
 
 impl Default for Color<Rgba> {
     fn default() -> Color<Rgba> {

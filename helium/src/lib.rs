@@ -14,13 +14,12 @@
 //!
 pub mod error;
 mod macros;
+pub mod system;
 pub mod view;
 pub mod widgets;
-pub mod system;
 
-use system::{System,IntoSystem};
-use std::collections::HashMap;
 use crate::view::View;
+use crate::widgets::WidgetState;
 pub use crystal;
 use crystal::{Layout, LayoutSolver};
 pub use error::{Error, Result};
@@ -28,7 +27,9 @@ pub use helium_core::*;
 pub use helium_macros::hex;
 use pixels::{Pixels, SurfaceTexture};
 use resvg::tiny_skia::Pixmap;
+use std::collections::HashMap;
 use std::sync::Arc;
+use system::{IntoSystem, System};
 use widgets::Widget;
 use winit::application::ApplicationHandler;
 use winit::event_loop::ActiveEventLoop;
@@ -38,8 +39,6 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::Window,
 };
-use crate::widgets::WidgetState;
-
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AppEvent {
@@ -47,7 +46,7 @@ pub enum AppEvent {
     Hovered(GlobalId),
     /// Emitted when the left mouse button is pressed
     /// while the [`Widget`] is in a hovered state.
-    Clicked(GlobalId)
+    Clicked(GlobalId),
 }
 
 /// An `App` is a single program.
@@ -65,11 +64,11 @@ impl ApplicationHandler for App<'_> {
         log::info!("Initializing resources");
         let window = event_loop.create_window(Default::default()).unwrap();
         let window = Arc::new(window);
-        
+
         let size = Size::from(window.inner_size());
         let width = size.width as u32;
         let height = size.height as u32;
-        
+
         let surface = SurfaceTexture::new(width, height, Arc::clone(&window));
         let pixels = Pixels::new(width, height, surface).unwrap();
         let pixmap = Pixmap::new(width, height).unwrap();
@@ -94,7 +93,8 @@ impl ApplicationHandler for App<'_> {
                 self.window.as_mut().unwrap().request_redraw();
             }
             WindowEvent::Resized(size) => {
-                self.pixels.as_mut()
+                self.pixels
+                    .as_mut()
                     .unwrap()
                     .resize_surface(size.width, size.height)
                     .expect("Failed to resize the pixel buffer");
@@ -117,9 +117,7 @@ impl App<'_> {
         let len = widget.iter().count();
         log::info!("Creating widget tree with {} widgets", len);
 
-        let systems = vec![
-            Box::new(layout_system.into_system()) as Box<dyn System>,
-        ];
+        let systems = vec![Box::new(layout_system.into_system()) as Box<dyn System>];
 
         Self {
             context: Context::new(&widget),
@@ -127,11 +125,11 @@ impl App<'_> {
             window: None,
             pixmap: None,
             pixels: None,
-            systems
+            systems,
         }
     }
 
-    pub fn add_system(mut self, f: impl IntoSystem + 'static) -> Self{
+    pub fn add_system(mut self, f: impl IntoSystem + 'static) -> Self {
         self.systems.push(Box::new(f.into_system()));
         self
     }
@@ -206,7 +204,7 @@ impl Context {
         }
     }
 
-    pub fn query_events(&self) -> &[AppEvent]{
+    pub fn query_events(&self) -> &[AppEvent] {
         self.events.as_slice()
     }
 
@@ -253,18 +251,17 @@ impl Context {
     }
 }
 
-
 fn layout_system(cx: &mut Context) {
     let size = cx.window_size;
     LayoutSolver::solve(cx.layout_mut(), size);
 }
 
-fn event_system(cx: &mut Context,event: &WindowEvent) {
+fn event_system(cx: &mut Context, event: &WindowEvent) {
     match event {
-        &WindowEvent::CursorMoved {position,..} => cx.update_mouse_pos(position.into()),
+        &WindowEvent::CursorMoved { position, .. } => cx.update_mouse_pos(position.into()),
         &WindowEvent::MouseInput { state, button, .. } => {
-            for layout in cx.layout.iter(){
-                if !layout.bounds().within(&cx.mouse_pos()){
+            for layout in cx.layout.iter() {
+                if !layout.bounds().within(&cx.mouse_pos()) {
                     continue;
                 }
 
@@ -275,14 +272,13 @@ fn event_system(cx: &mut Context,event: &WindowEvent) {
     }
 }
 
-
 #[cfg(test)]
-mod test{
+mod test {
     use super::*;
     use crate::hstack;
-    
+
     #[test]
-    fn init_systems(){
+    fn init_systems() {
         let app = App::new(hstack! {});
         assert_eq!(app.systems.len(), 1);
     }
