@@ -1,4 +1,6 @@
-use agape_layout::{BlockLayout, BoxSizing, EmptyLayout, HorizontalLayout, Layout, LayoutSolver, Size};
+use agape_layout::{
+    BlockLayout, BoxSizing, EmptyLayout, HorizontalLayout, Layout, LayoutSolver, Size,
+};
 
 #[test]
 fn test_horizontal_layout() {

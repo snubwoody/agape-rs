@@ -1,7 +1,7 @@
 use super::Widget;
 use crate::view::{TextView, View};
-use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
 use agape_core::GlobalId;
+use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
 
 pub struct Text {
     id: GlobalId,
