@@ -81,7 +81,7 @@ impl ApplicationHandler for App<'_> {
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
         // FIXME update surface on resizing
-        log::trace!("WindowEvent: {:?}", event);
+        log::trace!("WindowEvent: {event:?}");
 
         match event {
             WindowEvent::CloseRequested => {
@@ -115,7 +115,7 @@ impl ApplicationHandler for App<'_> {
 impl App<'_> {
     pub fn new(widget: impl Widget + 'static) -> Self {
         let len = widget.iter().count();
-        log::info!("Creating widget tree with {} widgets", len);
+        log::info!("Creating widget tree with {len} widgets");
 
         let systems = vec![Box::new(layout_system.into_system()) as Box<dyn System>];
 
@@ -181,7 +181,6 @@ pub struct Context {
     layout: Box<dyn Layout>,
     events: Vec<AppEvent>,
     pub window_size: Size,
-    views: Vec<Box<dyn View>>,
 }
 
 impl Context {
@@ -192,13 +191,11 @@ impl Context {
             state.insert(w.id(), WidgetState::Resting);
         }
         let layout = widget.layout();
-        let views = widget.iter().map(|w| w.view()).collect();
 
         Self {
             mouse_position: Position::default(),
             layout,
             state,
-            views,
             window_size: Size::default(),
             events: Vec::new(),
         }
@@ -210,18 +207,6 @@ impl Context {
 
     pub(crate) fn clear_events(&mut self) {
         self.events.clear();
-    }
-
-    fn resize(&mut self, size: Size) {
-        self.window_size = size;
-    }
-
-    pub(crate) fn update_mouse_pos(&mut self, mouse_position: Position) {
-        self.mouse_position = mouse_position;
-    }
-
-    pub(crate) fn set_layout(&mut self, layout: Box<dyn Layout>) {
-        self.layout = layout;
     }
 
     pub fn layout(&self) -> &dyn Layout {
@@ -254,22 +239,6 @@ impl Context {
 fn layout_system(cx: &mut Context) {
     let size = cx.window_size;
     LayoutSolver::solve(cx.layout_mut(), size);
-}
-
-fn event_system(cx: &mut Context, event: &WindowEvent) {
-    match event {
-        &WindowEvent::CursorMoved { position, .. } => cx.update_mouse_pos(position.into()),
-        &WindowEvent::MouseInput { state, button, .. } => {
-            for layout in cx.layout.iter() {
-                if !layout.bounds().within(&cx.mouse_pos()) {
-                    continue;
-                }
-
-                println!("Clicked")
-            }
-        }
-        _ => {}
-    }
 }
 
 #[cfg(test)]

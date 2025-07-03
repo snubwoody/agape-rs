@@ -11,10 +11,10 @@ mod text;
 mod vstack;
 
 use crate::Context;
-use crate::view::{RectView, View};
+use crate::view::View;
 pub use button::Button;
 use crystal::Layout;
-use helium_core::{Color, GlobalId};
+use helium_core::GlobalId;
 pub use hstack::*;
 pub use rect::*;
 pub use text::Text;
