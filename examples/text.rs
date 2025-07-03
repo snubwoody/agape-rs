@@ -1,7 +1,7 @@
-use helium::App;
-use helium::widgets::Text;
+use agape::App;
+use agape::widgets::Text;
 
-fn main() -> Result<(), helium::Error> {
+fn main() -> Result<(), agape::Error> {
     let text = Text::new("Hello, world!");
 
     let app = App::new(text);

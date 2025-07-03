@@ -7,16 +7,16 @@
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "Debug unit tests in library 'helium'",
+			"name": "Debug unit tests in library 'agape'",
 			"cargo": {
 				"args": [
 					"test",
 					"--no-run",
 					"--lib",
-					"--package=helium"
+					"--package=agape"
 				],
 				"filter": {
-					"name": "helium",
+					"name": "agape",
 					"kind": "lib"
 				}
 			},
@@ -26,16 +26,16 @@
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "Debug unit tests in library 'helium_core'",
+			"name": "Debug unit tests in library 'agape_core'",
 			"cargo": {
 				"args": [
 					"test",
 					"--no-run",
 					"--lib",
-					"--package=helium_core"
+					"--package=agape_core"
 				],
 				"filter": {
-					"name": "helium_core",
+					"name": "agape_core",
 					"kind": "lib"
 				}
 			},

@@ -1,0 +1,19 @@
+[package]
+name = "agape"
+version = "0.1.0"
+edition = "2024"
+readme = "../README.md"
+
+[dependencies]
+image.workspace = true
+thiserror.workspace = true
+winit.workspace = true
+log.workspace = true
+fontdue = "0.9.3"
+agape_core = {path = "../agape_core"}
+agape_macros = {path = "../agape_macros"}
+agape_layout = {path = "../agape_layout"}
+resvg = "0.44.0"
+reqwest = {version = "0.12.12",features = ["blocking","stream","json"]}
+tiny-skia.workspace = true
+pixels.workspace = true
