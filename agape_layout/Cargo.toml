@@ -1,5 +1,6 @@
 [package]
 name = "agape_layout"
+description = "Layout engine for agape"
 repository.workspace = true
 version.workspace = true
 edition.workspace = true
