@@ -17,7 +17,7 @@ use winit::dpi::PhysicalPosition;
 /// assert_eq!(position.y,270.0);
 /// ```
 ///
-/// You can also add and subtract arbitrary values to and from `Position`'s
+/// You can also add and subtract arbitrary floats to and from `Position`'s
 /// ```
 /// use agape_core::Position;
 ///
@@ -126,8 +126,7 @@ impl From<PhysicalPosition<f64>> for Position {
     }
 }
 
-/// The bounds of any object that has a [`Size`]
-/// and [`Position`].
+/// The bounds of any object that has a [`Size`] and [`Position`].
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Default)]
 pub struct Bounds {
     pub x: [f32; 2],
@@ -157,7 +156,6 @@ impl Bounds {
     /// assert!(!bounds.within(&Position::new(1550.0,445.5)));
     /// ```
     pub fn within(&self, position: &Position) -> bool {
-        // TODO change the name of this to has and move within to position
         if position.x > self.x[0]
             && position.x < self.x[1]
             && position.y > self.y[0]
@@ -167,5 +165,26 @@ impl Bounds {
         }
 
         false
+    }
+}
+
+#[cfg(test)]
+mod test{
+    use super::*;
+    
+    #[test]
+    fn add_assign(){
+        let mut pos = Position::new(1.0, 2.0);
+        pos += 5.0;
+        
+        assert_eq!(pos,Position::new(6.0,7.0));
+    }
+    
+    #[test]
+    fn sub_assign(){
+        let mut pos = Position::new(0.0, 15.0);
+        pos -= 15.0;
+        
+        assert_eq!(pos,Position::new(-15.0,0.0));
     }
 }

@@ -32,6 +32,7 @@ pub mod system;
 pub mod view;
 pub mod widgets;
 
+use std::any::Any;
 use crate::view::View;
 use crate::widgets::WidgetState;
 pub use agape_core::*;

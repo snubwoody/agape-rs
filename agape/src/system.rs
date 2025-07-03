@@ -1,6 +1,20 @@
 //! Systems are functions that are stored in the [`App`] and run every frame.
 //! They have a `&mut` to the global [`Context`] allowing it to be modified.
+//! 
+//! # Create a system
+//! ```
+//! use agape::{hstack, App, Context};
+//! use agape::system::{IntoSystem,System};
+//!
+//! fn current_mouse_position(cx: &mut Context){
+//!     println!("Current mouse position: {}",cx.mouse_pos());
+//! }
+//!
+//! let app = App::new(hstack! {});
+//! app.add_system(current_mouse_position);
+//! ```
 
+use std::marker::PhantomData;
 use crate::Context;
 
 // EventReader<E>
@@ -47,5 +61,20 @@ pub struct FunctionSystem<F> {
 impl<F: FnMut(&mut Context)> System for FunctionSystem<F> {
     fn run(&mut self, cx: &mut Context) {
         (self.f)(cx)
+    }
+}
+
+pub struct Event<T>{
+    marker:PhantomData<T>,
+}
+
+pub struct EventSystem<F,E>{
+    f:F,
+    marker: PhantomData<E>,
+}
+
+impl<F:FnMut(&mut Context,E),E> System for EventSystem<F,E> {
+    fn run(&mut self, cx: &mut Context) {
+        // (self.f)(cx);
     }
 }
