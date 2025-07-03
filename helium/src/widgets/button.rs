@@ -60,7 +60,7 @@ impl Widget for Button {
                     if *id == self.id() {
                         self.hover()
                     }
-                },
+                }
                 AppEvent::Clicked(id) => {
                     if *id == self.id() {
                         self.click()
