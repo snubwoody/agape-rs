@@ -1,7 +1,12 @@
-# agape
+# Agape
 An easy to use rust GUI library.
 
 ![example workflow](https://github.com/snubwoody/agape/actions/workflows/rust.yml/badge.svg?branch=main)
+
+## Add to your project
+```bash
+cargo add agape
+```
 
 ## Quick start
 
@@ -18,24 +23,6 @@ fn main() -> Result<(),agape::Error>{
 
 ## Widgets
 
-### Alignment
-
-There are two axes for each widget, the main axis and the cross axis, for most widgets the main axis is in the x-direction with the cross axis.
-
-<div align='center'>
-
-![Axis Alignment Start](<docs/assets/Axis Alignment Start.svg>)
-![Axis Alignment Center](<docs/assets/Axis Alignment Center.svg>)
-![Axis Alignment End](<docs/assets/Axis Alignment End.svg>)
-</div>
-
-### HStack
-
-The `HStack` is a `Widget` that arranges it's children horizontally.
-
-![Illustration](<docs/assets/HStack Illustration.svg>)
-
-
 
 ## Support
 
@@ -44,7 +31,6 @@ The `HStack` is a `Widget` that arranges it's children horizontally.
 |Windows|  ✅ |
 |MacOS|  ✅|
 |Linux|  ✅ |
-|Web|  🚧 |
 |Android|  🚧 |
 |IOS|  🚧 |
 
@@ -56,13 +42,8 @@ The `HStack` is a `Widget` that arranges it's children horizontally.
 - [ ] Grids
 - [x] Row and column layouts
 - [ ] Input handling
-  - [x] Hover events
+  - [ ] Hover events
   - [ ] Click events
   - [ ] Text input
 - [ ] Scrolling
 
-## Names
-- cracoa
-- coco
-- agape
-- philia
