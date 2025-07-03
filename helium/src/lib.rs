@@ -16,10 +16,10 @@ pub mod error;
 mod macros;
 pub mod view;
 pub mod widgets;
+pub mod system;
 
-use std::any::{Any, TypeId};
+use system::{System,IntoSystem};
 use std::collections::HashMap;
-use std::marker::PhantomData;
 use crate::view::View;
 pub use crystal;
 use crystal::{Layout, LayoutSolver};
@@ -50,13 +50,14 @@ pub enum AppEvent {
     Clicked(GlobalId)
 }
 
+/// An `App` is a single program.
 pub struct App<'app> {
     widget: Box<dyn Widget>,
     window: Option<Arc<Window>>,
     pixels: Option<Pixels<'app>>,
     pixmap: Option<Pixmap>,
     context: Context,
-    systems: Vec<Box<dyn FnMut(&mut Context)>>,
+    systems: Vec<Box<dyn System>>,
 }
 
 impl ApplicationHandler for App<'_> {
@@ -103,7 +104,7 @@ impl ApplicationHandler for App<'_> {
         }
 
         for system in self.systems.iter_mut() {
-            system(&mut self.context)
+            system.run(&mut self.context)
         }
 
         self.widget.tick(&self.context);
@@ -116,8 +117,8 @@ impl App<'_> {
         let len = widget.iter().count();
         log::info!("Creating widget tree with {} widgets", len);
 
-        let systems: Vec<Box<dyn FnMut(&mut Context)>> = vec![
-            Box::new(layout_system),
+        let systems = vec![
+            Box::new(layout_system.into_system()) as Box<dyn System>,
         ];
 
         Self {
@@ -130,14 +131,15 @@ impl App<'_> {
         }
     }
 
-    pub fn add_system(mut self, system: impl FnMut(&mut Context) + 'static) -> Self{
-        self.systems.push(Box::new(system));
+    pub fn add_system(mut self, f: impl IntoSystem + 'static) -> Self{
+        self.systems.push(Box::new(f.into_system()));
         self
     }
 
     fn render(&mut self) {
         let mut views: Vec<Box<dyn View>> = self.widget.iter().map(|w| w.view()).collect();
         let layout = self.context.layout();
+        // let mut views = &mut self.context.views;
 
         let pixels = self.pixels.as_mut().unwrap();
         let pixmap = self.pixmap.as_mut().unwrap();
@@ -273,54 +275,6 @@ fn event_system(cx: &mut Context,event: &WindowEvent) {
     }
 }
 
-/// A trait for creating systems
-trait IntoSystem{
-    type System: System;
-    
-    /// Convert a closure or function into a [`System`].
-    fn into_system(self) -> Self::System;
-}
-
-impl<F:FnMut(&mut Context)> IntoSystem for F{
-    type System = FunctionSystem<Self>;
-
-    fn into_system(self) -> Self::System {
-        FunctionSystem{
-            f: self,
-        }
-    }
-}
-
-struct FunctionSystem<F>{
-    f: F,
-}
-
-trait System{
-    fn run(&mut self, cx: &mut Context);
-    
-    fn run_on(&self){
-        // Run on a specific event
-        todo!()
-    }
-}
-
-
-impl<F:FnMut(&mut Context)> System for FunctionSystem<F> {
-    fn run(&mut self, cx: &mut Context){
-        (self.f)(cx)
-    }
-}
-
-// EventReader<E>
-// EventWriter<E>
-//
-//  Only run on the event
-//  fn event(cx: Context, event: Event<T>){
-//
-//  }
-//
-//
-
 
 #[cfg(test)]
 mod test{
@@ -328,17 +282,8 @@ mod test{
     use crate::hstack;
     
     #[test]
-    fn function_system(){
-        let widget = hstack! {};
-        let mut cx = Context::new(&widget);
-        let func = |cx: &mut Context|println!("I am a function system");
-        let mut system = func.into_system();
-        system.run(&mut cx)
-    }
-
-    #[test]
     fn init_systems(){
         let app = App::new(hstack! {});
-        assert_eq!(app.systems.len(), 2);
+        assert_eq!(app.systems.len(), 1);
     }
 }
