@@ -2,8 +2,8 @@ use crate::Context;
 use crate::view::{RectView, View};
 use crate::widgets::{Text, Widget};
 use crate::{AppEvent, impl_style};
-use agape_layout::{BlockLayout, Layout};
 use agape_core::{Color, GlobalId, Rgba};
+use agape_layout::{BlockLayout, Layout};
 
 pub struct Button {
     id: GlobalId,

@@ -1,7 +1,7 @@
 use crate::view::{RectView, View};
 use crate::{Color, impl_layout, impl_style, widgets::Widget};
-use agape_layout::{AxisAlignment, HorizontalLayout, Layout};
 use agape_core::{GlobalId, Rgba};
+use agape_layout::{AxisAlignment, HorizontalLayout, Layout};
 
 /// A horizontal stack of widgets, placed one after another.
 ///

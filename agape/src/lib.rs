@@ -3,7 +3,7 @@
 //! # Getting started
 //! ```
 //! use agape::{App,hstack,widgets::Text};
-//! 
+//!
 //! let hstack = hstack! {
 //!     Text::new("Hello"),
 //!     Text::new("world")
@@ -11,11 +11,11 @@
 //! .padding(12)
 //! .spacing(12)
 //! .align_center();
-//! 
+//!
 //! let app = App::new(hstack);
 //! app.run().unwrap();
 //! ```
-//! 
+//!
 //! # Architecture
 //! Widgets are high level objects that can contain any kind of data like text, buttons and
 //! scrollbars.
@@ -34,11 +34,11 @@ pub mod widgets;
 
 use crate::view::View;
 use crate::widgets::WidgetState;
+pub use agape_core::*;
 pub use agape_layout;
 use agape_layout::{Layout, LayoutSolver};
-pub use error::{Error, Result};
-pub use agape_core::*;
 pub use agape_macros::hex;
+pub use error::{Error, Result};
 use pixels::{Pixels, SurfaceTexture};
 use resvg::tiny_skia::Pixmap;
 use std::collections::HashMap;

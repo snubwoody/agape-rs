@@ -12,9 +12,9 @@ mod vstack;
 
 use crate::Context;
 use crate::view::View;
-pub use button::Button;
-use agape_layout::Layout;
 use agape_core::GlobalId;
+use agape_layout::Layout;
+pub use button::Button;
 pub use hstack::*;
 pub use rect::*;
 pub use text::Text;

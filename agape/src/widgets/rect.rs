@@ -1,8 +1,8 @@
 use super::Widget;
 use crate::Color;
 use crate::view::{RectView, View};
-use agape_layout::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 use agape_core::{GlobalId, IntoColor, Rgba};
+use agape_layout::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Rect {

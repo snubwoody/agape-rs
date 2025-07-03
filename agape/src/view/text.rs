@@ -1,6 +1,6 @@
 use super::View;
-use fontdue::Font;
 use agape_core::{Color, GlobalId, Position, Rgba, Size};
+use fontdue::Font;
 use tiny_skia::{IntSize, Pixmap, PixmapPaint, Transform};
 
 pub struct TextView {
