@@ -1,7 +1,7 @@
 //! GUI library
 //!
 //! # Getting started
-//! ```
+//! ```no_run
 //! use agape::{App,hstack,widgets::Text};
 //!
 //! let hstack = hstack! {
