@@ -12,17 +12,14 @@
 //!
 //! You will most likely only have to deal with widgets unless you are creating your own widgets.
 //!
-//! ## Creating custom widgets
-//!
-//! There are two ways of creating custom widgets, functions and structs. Prefer functions if
-//! you just need a wrapper around existing widgets, if you need highly custom functionality
-//! then you may implement the [`Widget`] trait yourself.
 pub mod error;
 mod macros;
 pub mod view;
 pub mod widgets;
 
+use std::any::{Any, TypeId};
 use std::collections::HashMap;
+use std::marker::PhantomData;
 use crate::view::View;
 pub use crystal;
 use crystal::{Layout, LayoutSolver};
@@ -41,10 +38,8 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::Window,
 };
-use winit::event::MouseButton;
 use crate::widgets::WidgetState;
 
-type System = Box<dyn FnMut(&mut Context)>;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AppEvent {
@@ -61,7 +56,7 @@ pub struct App<'app> {
     pixels: Option<Pixels<'app>>,
     pixmap: Option<Pixmap>,
     context: Context,
-    systems: Vec<System>,
+    systems: Vec<Box<dyn FnMut(&mut Context)>>,
 }
 
 impl ApplicationHandler for App<'_> {
@@ -77,7 +72,7 @@ impl ApplicationHandler for App<'_> {
         let surface = SurfaceTexture::new(width, height, Arc::clone(&window));
         let pixels = Pixels::new(width, height, surface).unwrap();
         let pixmap = Pixmap::new(width, height).unwrap();
-        
+
         self.context.window_size = size;
         self.pixels = Some(pixels);
         self.window = Some(Arc::clone(&window));
@@ -110,7 +105,7 @@ impl ApplicationHandler for App<'_> {
         for system in self.systems.iter_mut() {
             system(&mut self.context)
         }
-        
+
         self.widget.tick(&self.context);
         self.context.clear_events();
     }
@@ -121,13 +116,12 @@ impl App<'_> {
         let len = widget.iter().count();
         log::info!("Creating widget tree with {} widgets", len);
 
-        let views = widget.iter().map(|w|w.view()).collect();
-        let systems: Vec<System> = vec![
-            Box::new(layout_system)
+        let systems: Vec<Box<dyn FnMut(&mut Context)>> = vec![
+            Box::new(layout_system),
         ];
-        
+
         Self {
-            context: Context::new(&widget,views),
+            context: Context::new(&widget),
             widget: Box::new(widget),
             window: None,
             pixmap: None,
@@ -135,7 +129,7 @@ impl App<'_> {
             systems
         }
     }
-    
+
     pub fn add_system(mut self, system: impl FnMut(&mut Context) + 'static) -> Self{
         self.systems.push(Box::new(system));
         self
@@ -192,12 +186,13 @@ pub struct Context {
 
 impl Context {
     /// Create a new context object
-    pub fn new(widget: &impl Widget,views: Vec<Box<dyn View>>) -> Self {
+    pub fn new(widget: &impl Widget) -> Self {
         let mut state = HashMap::new();
         for w in widget.iter() {
             state.insert(w.id(), WidgetState::Resting);
         }
         let layout = widget.layout();
+        let views = widget.iter().map(|w| w.view()).collect();
 
         Self {
             mouse_position: Position::default(),
@@ -266,8 +261,84 @@ fn event_system(cx: &mut Context,event: &WindowEvent) {
     match event {
         &WindowEvent::CursorMoved {position,..} => cx.update_mouse_pos(position.into()),
         &WindowEvent::MouseInput { state, button, .. } => {
-            
+            for layout in cx.layout.iter(){
+                if !layout.bounds().within(&cx.mouse_pos()){
+                    continue;
+                }
+
+                println!("Clicked")
+            }
         }
         _ => {}
+    }
+}
+
+/// A trait for creating systems
+trait IntoSystem{
+    type System: System;
+    
+    /// Convert a closure or function into a [`System`].
+    fn into_system(self) -> Self::System;
+}
+
+impl<F:FnMut(&mut Context)> IntoSystem for F{
+    type System = FunctionSystem<Self>;
+
+    fn into_system(self) -> Self::System {
+        FunctionSystem{
+            f: self,
+        }
+    }
+}
+
+struct FunctionSystem<F>{
+    f: F,
+}
+
+trait System{
+    fn run(&mut self, cx: &mut Context);
+    
+    fn run_on(&self){
+        // Run on a specific event
+        todo!()
+    }
+}
+
+
+impl<F:FnMut(&mut Context)> System for FunctionSystem<F> {
+    fn run(&mut self, cx: &mut Context){
+        (self.f)(cx)
+    }
+}
+
+// EventReader<E>
+// EventWriter<E>
+//
+//  Only run on the event
+//  fn event(cx: Context, event: Event<T>){
+//
+//  }
+//
+//
+
+
+#[cfg(test)]
+mod test{
+    use super::*;
+    use crate::hstack;
+    
+    #[test]
+    fn function_system(){
+        let widget = hstack! {};
+        let mut cx = Context::new(&widget);
+        let func = |cx: &mut Context|println!("I am a function system");
+        let mut system = func.into_system();
+        system.run(&mut cx)
+    }
+
+    #[test]
+    fn init_systems(){
+        let app = App::new(hstack! {});
+        assert_eq!(app.systems.len(), 2);
     }
 }
