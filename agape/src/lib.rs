@@ -1,6 +1,22 @@
 //! GUI library
 //!
-//! ## Architecture
+//! # Getting started
+//! ```
+//! use agape::{App,hstack,widgets::Text};
+//! 
+//! let hstack = hstack! {
+//!     Text::new("Hello"),
+//!     Text::new("world")
+//! }
+//! .padding(12)
+//! .spacing(12)
+//! .align_center();
+//! 
+//! let app = App::new(hstack);
+//! app.run().unwrap();
+//! ```
+//! 
+//! # Architecture
 //! Widgets are high level objects that can contain any kind of data like text, buttons and
 //! scrollbars.
 //!
@@ -9,8 +25,6 @@
 //!
 //! Views are the final item and hold only basic information, like color, size and position, and
 //! are responsible for drawing the widgets to the screen.
-//!
-//! You will most likely only have to deal with widgets unless you are creating your own widgets.
 //!
 pub mod error;
 mod macros;
