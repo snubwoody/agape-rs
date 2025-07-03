@@ -1,7 +1,9 @@
 [package]
 name = "agape_layout"
-version = "0.1.0"
-edition = "2024"
+repository.workspace = true
+version.workspace = true
+edition.workspace = true
+license.workspace = true
 
 [dependencies]
 agape_core = {path = "../agape_core"}
