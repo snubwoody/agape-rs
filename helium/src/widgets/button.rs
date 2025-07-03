@@ -66,7 +66,6 @@ impl Widget for Button {
                         self.click()
                     }
                 }
-                _ => {}
             }
         }
     }

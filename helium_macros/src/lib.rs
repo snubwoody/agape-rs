@@ -63,7 +63,7 @@ pub fn include_icons(dir: TokenStream) -> TokenStream {
 
                 // Filter reserved keywords
                 match file_name.as_str() {
-                    "box" | "move" | "type" | "let" => file_name = format!("_{}", file_name),
+                    "box" | "move" | "type" | "let" => file_name = format!("_{file_name}"),
                     _ => {}
                 }
 

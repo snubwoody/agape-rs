@@ -1,4 +1,3 @@
-use dotenv::dotenv;
 use helium::{
     App, Color, hstack,
     widgets::{Rect, Text},
