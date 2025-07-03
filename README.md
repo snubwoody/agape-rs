@@ -1,22 +1,18 @@
 # agape
-An easy to use rust GUI library built using `wgpu`.
-
-agape is inspired by SwiftUI and Flutter and aims to be a fully featured rust gui library.
+An easy to use rust GUI library.
 
 ![example workflow](https://github.com/snubwoody/agape/actions/workflows/rust.yml/badge.svg?branch=main)
 
 ## Quick start
 
 ```rust
-use agape::{App,widgets::Text,}
+use agape::{App,widgets::Text};
 
-#[tokio::main]
-async fn main() -> Result<(),agape::Error>{
+fn main() -> Result<(),agape::Error>{
 	let text = Text::new("Hello world");
 
-	let mut app = App::new();
-	app.add_page(text)
-	app.run().await
+	let mut app = App::new(text);
+	app.run()
 }
 ```
 
@@ -44,16 +40,15 @@ The `HStack` is a `Widget` that arranges it's children horizontally.
 ## Support
 
 |Platform|Status|
-|--|:--:|
-|Windows|✅|
-|MacOS|➖|
-|Linux|➖|
-|Web|🚧|
-|Android|🚧|
-|IOS|🚧|
+|--|:-:|
+|Windows|  ✅ |
+|MacOS|  ✅|
+|Linux|  ✅ |
+|Web|  🚧 |
+|Android|  🚧 |
+|IOS|  🚧 |
 
 ✅: Fully supported  
-➖: Assumed but has not been tested  
 🚧: Planned but not yet supported  
 
 ## Roadmap
@@ -65,18 +60,6 @@ The `HStack` is a `Widget` that arranges it's children horizontally.
   - [ ] Click events
   - [ ] Text input
 - [ ] Scrolling
-
-## Commit
-
-- refactor
-- docs
-- feat
-- fix
-- style
-- chore
-- test
-- perf
-- build
 
 ## Names
 - cracoa
