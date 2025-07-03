@@ -1,5 +1,6 @@
 [package]
 name = "agape_macros"
+description = "Macros for agape"
 repository.workspace = true
 version.workspace = true
 edition.workspace = true
