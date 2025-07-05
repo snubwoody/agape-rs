@@ -1,4 +1,4 @@
-//! GUI library
+//! A GUI library that feels like writing regular rust.
 //!
 //! # Getting started
 //! ```no_run
@@ -32,7 +32,6 @@ pub mod system;
 pub mod view;
 pub mod widgets;
 
-use std::any::Any;
 use crate::view::View;
 use crate::widgets::WidgetState;
 pub use agape_core::*;
@@ -43,6 +42,7 @@ pub use error::{Error, Result};
 use pixels::{Pixels, SurfaceTexture};
 use resvg::tiny_skia::Pixmap;
 use std::collections::HashMap;
+use std::ops::Index;
 use std::sync::Arc;
 use system::{IntoSystem, System};
 use widgets::Widget;
@@ -71,7 +71,7 @@ pub struct App<'app> {
     pixels: Option<Pixels<'app>>,
     pixmap: Option<Pixmap>,
     context: Context,
-    systems: Vec<Box<dyn System>>,
+    // systems: Vec<Box<dyn System>>,
 }
 
 impl ApplicationHandler for App<'_> {
@@ -118,9 +118,10 @@ impl ApplicationHandler for App<'_> {
             _ => {}
         }
 
-        for system in self.systems.iter_mut() {
-            system.run(&mut self.context)
-        }
+        // for system in self.systems.iter_mut() {
+        //     // Pass in a dummy event
+        //     system.run(&mut self.context,AppEvent::Hovered(GlobalId::new()))
+        // }
 
         self.widget.tick(&self.context);
         self.context.clear_events();
@@ -132,7 +133,7 @@ impl App<'_> {
         let len = widget.iter().count();
         log::info!("Creating widget tree with {len} widgets");
 
-        let systems = vec![Box::new(layout_system.into_system()) as Box<dyn System>];
+        // let systems = vec![Box::new(layout_system.into_system()) as Box<dyn System>];
 
         Self {
             context: Context::new(&widget),
@@ -140,12 +141,12 @@ impl App<'_> {
             window: None,
             pixmap: None,
             pixels: None,
-            systems,
+            // systems,
         }
     }
 
     pub fn add_system(mut self, f: impl IntoSystem + 'static) -> Self {
-        self.systems.push(Box::new(f.into_system()));
+        // self.systems.push(Box::new(f.into_system()));
         self
     }
 
@@ -256,6 +257,9 @@ fn layout_system(cx: &mut Context) {
     LayoutSolver::solve(cx.layout_mut(), size);
 }
 
+fn event_system(cx: &mut Context) {
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -264,6 +268,6 @@ mod test {
     #[test]
     fn init_systems() {
         let app = App::new(hstack! {});
-        assert_eq!(app.systems.len(), 1);
+        // assert_eq!(app.systems.len(), 1);
     }
 }
