@@ -55,7 +55,7 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::Window,
 };
-use crate::resources::{CursorPosition, WindowSize};
+use crate::resources::{CursorPosition, EventQueue, WindowSize};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AppEvent {
@@ -74,6 +74,7 @@ pub struct App<'app> {
     pixmap: Option<Pixmap>,
     context: Context,
     resources: Resources,
+    event_queue: EventQueue,
     systems: Vec<Box<dyn System>>,
 }
 
@@ -122,7 +123,7 @@ impl ApplicationHandler for App<'_> {
         }
 
         for system in self.systems.iter_mut() {
-            system.run(&mut self.resources)
+            system.run(&mut self.resources,&self.event_queue);
         }
 
         self.widget.tick(&self.context);
@@ -140,25 +141,27 @@ impl App<'_> {
         resources.insert(CursorPosition::default());
         resources.insert(WindowSize::default());
         resources.insert(layout);
+        resources.insert(EventQueue::new());
         
         let systems = vec![Box::new(layout_system.into_system()) as Box<dyn System>];
 
         Self {
             context: Context::new(&widget),
             widget: Box::new(widget),
+            event_queue: EventQueue::new(),
             window: None,
             pixmap: None,
-            resources,
             pixels: None,
+            resources,
             systems,
         }
     }
 
     /// Add a [`System`].
-    /// 
+    ///
     /// # Example
     /// ```
-    /// use agape::{hstack, App};    
+    /// use agape::{hstack, App};
     /// use agape::resources::{CursorPosition, Resources};
     ///
     /// fn cursor_position(resources: &mut Resources){
@@ -169,7 +172,7 @@ impl App<'_> {
     /// let app = App::new(hstack!{})
     ///     .add_system(cursor_position);
     /// ```
-    pub fn add_system(mut self, f: impl IntoSystem + 'static) -> Self {
+    pub fn add_system<Input: 'static>(mut self, f: impl IntoSystem<Input> + 'static) -> Self {
         self.systems.push(Box::new(f.into_system()));
         self
     }
@@ -311,6 +314,7 @@ mod test {
         app.resources.get::<CursorPosition>().unwrap();
         app.resources.get::<WindowSize>().unwrap();
         app.resources.get::<Box<dyn Layout>>().unwrap();
+        app.resources.get::<EventQueue>().unwrap();
     }
     
     #[test]
