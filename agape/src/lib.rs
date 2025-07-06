@@ -145,7 +145,7 @@ impl App<'_> {
         }
     }
 
-    pub fn add_system(mut self, f: impl IntoSystem + 'static) -> Self {
+    pub fn add_system<Input>(mut self, f: impl IntoSystem + 'static) -> Self {
         // self.systems.push(Box::new(f.into_system()));
         self
     }

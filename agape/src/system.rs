@@ -1,46 +1,24 @@
 //! Systems are functions that are stored in the [`App`] and run every frame.
-//! They have a `&mut` to the global [`Context`] allowing it to be modified.
+//! They have a `&mut` to the global [`Resources`] allowing it to be modified.
 //! 
 //! # Create a system
 //! ```
 //! use agape::{hstack, App, Context};
-//! use agape::system::{IntoSystem,System};
+//! use agape::system::{IntoSystem, Resources, System};
 //!
-//! fn current_mouse_position(cx: &mut Context){
-//!     println!("Current mouse position: {}",cx.mouse_pos());
+//! fn current_mouse_position(resources: &mut Resources){
 //! }
 //!
 //! let app = App::new(hstack! {})
 //!     .add_system(current_mouse_position);
 //! ```
 
-use std::any::{Any, TypeId};
+use std::any::{Any};
 use agape_core::{Position, Size};
-use crate::{AppEvent, Context};
 
-// EventReader<E>
-// EventWriter<E>
-//
-//  Only run on the event
-//  fn event(cx: Context, event: Event<T>){
-//
-//  }
-//
-//
-
-// .add_system(Event<T>,fn)
-// .add_system(Update,fn)
-
-
-/// A [`System`] is a stored procedure that has mutable access
-/// to the global [`Context`] object.
+/// A [`System`] is a stored procedure.
 pub trait System {
-    
-    fn run(&mut self, cx: &mut Context,event: AppEvent);
-
-    fn event_type(&self) -> Option<TypeId>{
-        None
-    }
+    fn run(&mut self, resources: &mut Resources);
 }
 
 /// A trait for creating systems
@@ -51,23 +29,10 @@ pub trait IntoSystem {
     fn into_system(self) -> Self::System;
 }
 
-trait IntoSystemParts{
-    fn into_system_parts(self) -> Self;
-}
-
-impl IntoSystemParts for &mut Context{
-    fn into_system_parts(self) -> Self {
-        self
-    }
-}
-
-impl IntoSystemParts for AppEvent{
-    fn into_system_parts(self) -> Self{
-        self
-    }
-}
-
-impl<F: FnMut(&mut Context)> IntoSystem for F {
+impl<F> IntoSystem for F 
+where
+    F: FnMut(&mut Resources),
+{
     type System = FunctionSystem<Self>;
 
     fn into_system(self) -> Self::System {
@@ -79,46 +44,35 @@ pub struct FunctionSystem<F> {
     f: F,
 }
 
-impl<F: FnMut(&mut Context)> System for FunctionSystem<F> {
-    fn run(&mut self, cx: &mut Context,_: AppEvent) {
-        (self.f)(cx)
-    }
-}
-
-/// A system that runs only when a specific event is emitted.
-pub struct EventSystem<F>{
-    f:F,
-}
-
-impl<F> System for EventSystem<F>
+impl<F> System for FunctionSystem<F> 
 where 
-    F: FnMut(&mut Context,&AppEvent),
+    F:FnMut(&mut Resources),
 {
-    fn run(&mut self, cx: &mut Context,event: AppEvent) {
-        (self.f)(cx,&event);
+    fn run(&mut self, resources: &mut Resources) {
+        (self.f)(resources)
     }
 }
 
-
-#[derive(Debug)]
-struct MousePosition(Position);
-
-struct WindowSize(Size);
-
-
-struct Resources{
+/// Global resources
+pub struct Resources{
     items: Vec<Box<dyn Any>>,
 }
 
 impl Resources{
-    fn insert<T:'static>(&mut self,item: T){
+    pub fn new() -> Resources{
+        Self{items: vec![]}
+    }
+    
+    /// Insert a resource. 
+    pub fn insert<T:'static>(&mut self,item: T){
         // Don't insert the same resource twice
         if let None = self.get::<T>(){
             self.items.push(Box::new(item));
         }
     }
     
-    fn get<T:'static>(&self) -> Option<&T>{
+    /// Retrieve a resource of type `T`.
+    pub fn get<T:'static>(&self) -> Option<&T>{
         for items in &self.items{
             match items.downcast_ref::<T>(){
                 Some(item) => return Some(item),
@@ -128,29 +82,25 @@ impl Resources{
         
         None
     }
-}
-
-#[cfg(test)]
-mod test{
-    use std::time::Instant;
-    use agape_core::GlobalId;
-    use super::*;
     
-    #[test]
-    fn get_resource(){
-        let instance = Instant::now();
-        let mut resources = Resources{items: vec![]};
-        resources.items.push(Box::new(MousePosition(Position::default())));
+    /// Retrieve a resource of type `T`.
+    pub fn get_mut<T:'static>(&mut self) -> Option<&mut T>{
+        for items in &mut self.items{
+            match items.downcast_mut::<T>(){
+                Some(item) => return Some(item),
+                None => continue,
+            }    
+        }
         
-        let position = resources.get::<MousePosition>();    
-        assert!(position.is_some());        
+        None
     }
-
-    #[test]
-    fn event_type(){
-        let id = AppEvent::Hovered(GlobalId::new()).type_id();
-        let id2 = AppEvent::Hovered(GlobalId::new()).type_id();
-        dbg!(id,id2);
-    }
-    
 }
+
+/// The current cursor position.
+#[derive(Debug,Default)]
+pub struct CursorPosition(Position);
+
+/// The window size.
+#[derive(Debug,Default)]
+pub struct WindowSize(Size);
+
