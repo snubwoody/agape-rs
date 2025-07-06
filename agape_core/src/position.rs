@@ -169,22 +169,22 @@ impl Bounds {
 }
 
 #[cfg(test)]
-mod test{
+mod test {
     use super::*;
-    
+
     #[test]
-    fn add_assign(){
+    fn add_assign() {
         let mut pos = Position::new(1.0, 2.0);
         pos += 5.0;
-        
-        assert_eq!(pos,Position::new(6.0,7.0));
+
+        assert_eq!(pos, Position::new(6.0, 7.0));
     }
-    
+
     #[test]
-    fn sub_assign(){
+    fn sub_assign() {
         let mut pos = Position::new(0.0, 15.0);
         pos -= 15.0;
-        
-        assert_eq!(pos,Position::new(-15.0,0.0));
+
+        assert_eq!(pos, Position::new(-15.0, 0.0));
     }
 }

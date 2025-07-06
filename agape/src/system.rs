@@ -1,6 +1,6 @@
 //! Systems are functions that are stored in the [`App`] and run every frame.
 //! They have a `&mut` to the global [`Resources`] allowing it to be modified.
-//! 
+//!
 //! # Create a system
 //! ```
 //! use agape::{hstack, App, Context};
@@ -13,8 +13,8 @@
 //!     .add_system(current_mouse_position);
 //! ```
 
-use std::any::{Any};
 use agape_core::{Position, Size};
+use std::any::Any;
 
 /// A [`System`] is a stored procedure.
 pub trait System {
@@ -29,7 +29,7 @@ pub trait IntoSystem {
     fn into_system(self) -> Self::System;
 }
 
-impl<F> IntoSystem for F 
+impl<F> IntoSystem for F
 where
     F: FnMut(&mut Resources),
 {
@@ -44,9 +44,9 @@ pub struct FunctionSystem<F> {
     f: F,
 }
 
-impl<F> System for FunctionSystem<F> 
-where 
-    F:FnMut(&mut Resources),
+impl<F> System for FunctionSystem<F>
+where
+    F: FnMut(&mut Resources),
 {
     fn run(&mut self, resources: &mut Resources) {
         (self.f)(resources)
@@ -54,53 +54,52 @@ where
 }
 
 /// Global resources
-pub struct Resources{
+pub struct Resources {
     items: Vec<Box<dyn Any>>,
 }
 
-impl Resources{
-    pub fn new() -> Resources{
-        Self{items: vec![]}
+impl Resources {
+    pub fn new() -> Resources {
+        Self { items: vec![] }
     }
-    
-    /// Insert a resource. 
-    pub fn insert<T:'static>(&mut self,item: T){
+
+    /// Insert a resource.
+    pub fn insert<T: 'static>(&mut self, item: T) {
         // Don't insert the same resource twice
-        if let None = self.get::<T>(){
+        if let None = self.get::<T>() {
             self.items.push(Box::new(item));
         }
     }
-    
+
     /// Retrieve a resource of type `T`.
-    pub fn get<T:'static>(&self) -> Option<&T>{
-        for items in &self.items{
-            match items.downcast_ref::<T>(){
+    pub fn get<T: 'static>(&self) -> Option<&T> {
+        for items in &self.items {
+            match items.downcast_ref::<T>() {
                 Some(item) => return Some(item),
                 None => continue,
-            }    
+            }
         }
-        
+
         None
     }
-    
+
     /// Retrieve a resource of type `T`.
-    pub fn get_mut<T:'static>(&mut self) -> Option<&mut T>{
-        for items in &mut self.items{
-            match items.downcast_mut::<T>(){
+    pub fn get_mut<T: 'static>(&mut self) -> Option<&mut T> {
+        for items in &mut self.items {
+            match items.downcast_mut::<T>() {
                 Some(item) => return Some(item),
                 None => continue,
-            }    
+            }
         }
-        
+
         None
     }
 }
 
 /// The current cursor position.
-#[derive(Debug,Default)]
+#[derive(Debug, Default)]
 pub struct CursorPosition(Position);
 
 /// The window size.
-#[derive(Debug,Default)]
+#[derive(Debug, Default)]
 pub struct WindowSize(Size);
-
