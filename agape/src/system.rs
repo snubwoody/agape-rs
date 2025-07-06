@@ -12,15 +12,18 @@
 //! let app = App::new(hstack! {})
 //!     .add_system(current_mouse_position);
 //! ```
+
+use std::marker::PhantomData;
 use crate::Resources;
+use crate::resources::EventQueue;
 
 /// A [`System`] is a stored procedure.
 pub trait System {
-    fn run(&mut self, resources: &mut Resources);
+    fn run(&mut self, resources: &mut Resources,event_queue: &EventQueue);
 }
 
 /// A trait for creating systems
-pub trait IntoSystem {
+pub trait IntoSystem<Input> {
     type System: System;
 
     /// Convert a closure or function into a [`System`].
@@ -34,10 +37,10 @@ pub struct FunctionSystem<F> {
 
 pub struct EventSystem<F,E>{
     f: F,
-    event: E
+    _marker: PhantomData<E>,
 }
 
-impl<F> IntoSystem for F
+impl<F> IntoSystem<()> for F
 where
     F: FnMut(&mut Resources),
 {
@@ -48,16 +51,34 @@ where
     }
 }
 
+
+impl<F,E> IntoSystem<(E,)> for F
+where
+    F: FnMut(&mut Resources,&E),
+    E: 'static
+{
+    type System = EventSystem<Self,E>;
+
+    fn into_system(self) -> Self::System {
+        EventSystem { f: self,_marker: PhantomData}
+    }
+}
+
 impl<F> System for FunctionSystem<F>
 where F: FnMut(&mut Resources) {
-    fn run(&mut self, resources: &mut Resources) {
+    fn run(&mut self, resources: &mut Resources,_: &EventQueue) {
         (self.f)(resources)
     }
 }
 
 impl<F,E> System for EventSystem<F,E>
-where F: FnMut(&mut Resources,&E) {
-    fn run(&mut self, resources: &mut Resources) {
-        // get the event queue and check for e
+where 
+    F: FnMut(&mut Resources,&E),
+    E:'static
+{
+    fn run(&mut self, resources: &mut Resources,event_queue: &EventQueue) {
+        for event in event_queue.get_all::<E>(){
+            (self.f)(resources,event);
+        }
     }    
 }
