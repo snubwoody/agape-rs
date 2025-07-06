@@ -257,8 +257,7 @@ fn layout_system(cx: &mut Context) {
     LayoutSolver::solve(cx.layout_mut(), size);
 }
 
-fn event_system(cx: &mut Context) {
-}
+fn event_system(cx: &mut Context) {}
 
 #[cfg(test)]
 mod test {
