@@ -44,6 +44,7 @@ use resvg::tiny_skia::Pixmap;
 use std::collections::HashMap;
 use std::ops::Index;
 use std::sync::Arc;
+use std::time::Instant;
 use system::{IntoSystem, System};
 use widgets::Widget;
 use winit::application::ApplicationHandler;
@@ -54,6 +55,7 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::Window,
 };
+use crate::system::{CursorPosition, Resources, WindowSize};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AppEvent {
@@ -71,7 +73,8 @@ pub struct App<'app> {
     pixels: Option<Pixels<'app>>,
     pixmap: Option<Pixmap>,
     context: Context,
-    // systems: Vec<Box<dyn System>>,
+    resources: Resources,
+    systems: Vec<Box<dyn System>>,
 }
 
 impl ApplicationHandler for App<'_> {
@@ -118,10 +121,9 @@ impl ApplicationHandler for App<'_> {
             _ => {}
         }
 
-        // for system in self.systems.iter_mut() {
-        //     // Pass in a dummy event
-        //     system.run(&mut self.context,AppEvent::Hovered(GlobalId::new()))
-        // }
+        for system in self.systems.iter_mut() {
+            system.run(&mut self.resources)
+        }
 
         self.widget.tick(&self.context);
         self.context.clear_events();
@@ -132,16 +134,23 @@ impl App<'_> {
     pub fn new(widget: impl Widget + 'static) -> Self {
         let len = widget.iter().count();
         log::info!("Creating widget tree with {len} widgets");
-
-        // let systems = vec![Box::new(layout_system.into_system()) as Box<dyn System>];
+        
+        let layout = widget.layout();
+        let mut resources = Resources::new();
+        resources.insert(CursorPosition::default());
+        resources.insert(WindowSize::default());
+        resources.insert(layout);
+        
+        let systems = vec![Box::new(layout_system.into_system()) as Box<dyn System>];
 
         Self {
             context: Context::new(&widget),
             widget: Box::new(widget),
             window: None,
             pixmap: None,
+            resources,
             pixels: None,
-            // systems,
+            systems,
         }
     }
 
@@ -152,7 +161,7 @@ impl App<'_> {
 
     fn render(&mut self) {
         let mut views: Vec<Box<dyn View>> = self.widget.iter().map(|w| w.view()).collect();
-        let layout = self.context.layout();
+        let layout = self.resources.get::<Box<dyn Layout>>().unwrap();
         // let mut views = &mut self.context.views;
 
         let pixels = self.pixels.as_mut().unwrap();
@@ -166,6 +175,7 @@ impl App<'_> {
             view.set_size(layout.size());
             view.set_position(layout.position());
             view.render(pixmap);
+            // TODO copy data after
             pixels.frame_mut().copy_from_slice(pixmap.data());
         }
 
@@ -252,21 +262,45 @@ impl Context {
     }
 }
 
-fn layout_system(cx: &mut Context) {
-    let size = cx.window_size;
-    LayoutSolver::solve(cx.layout_mut(), size);
+fn layout_system(resources: &mut Resources) {
+    let WindowSize(size) = resources.get_owned::<WindowSize>().unwrap();
+    
+    let layout: &mut Box<dyn Layout> = resources.get_mut().unwrap();
+    LayoutSolver::solve(&mut **layout, size);
 }
 
-fn event_system(cx: &mut Context) {}
 
 #[cfg(test)]
 mod test {
     use super::*;
     use crate::hstack;
+    
+    #[test]
+    fn layout_system_works(){
+        let hstack = hstack!{}.fill();
+        let layout = hstack.layout();
+        
+        let mut resources = Resources::new();
+        resources.insert(layout);
+        resources.insert(WindowSize(Size::unit(500.0)));
+    
+        layout_system(&mut resources);
+        
+        let layout  = resources.get::<Box<dyn Layout>>().unwrap();
+        assert_eq!(layout.size(),Size::unit(500.0));
+    }
 
+    #[test]
+    fn initial_resources() {
+        let app = App::new(hstack! {});
+        app.resources.get::<CursorPosition>().unwrap();
+        app.resources.get::<WindowSize>().unwrap();
+        app.resources.get::<Box<dyn Layout>>().unwrap();
+    }
+    
     #[test]
     fn init_systems() {
         let app = App::new(hstack! {});
-        // assert_eq!(app.systems.len(), 1);
+        assert_eq!(app.systems.len(), 1);
     }
 }

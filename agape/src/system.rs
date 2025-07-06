@@ -15,6 +15,7 @@
 
 use agape_core::{Position, Size};
 use std::any::Any;
+use agape_layout::Layout;
 
 /// A [`System`] is a stored procedure.
 pub trait System {
@@ -73,8 +74,8 @@ impl Resources {
 
     /// Retrieve a resource of type `T`.
     pub fn get<T: 'static>(&self) -> Option<&T> {
-        for items in &self.items {
-            match items.downcast_ref::<T>() {
+        for item in &self.items {
+            match item.downcast_ref::<T>() {
                 Some(item) => return Some(item),
                 None => continue,
             }
@@ -82,8 +83,16 @@ impl Resources {
 
         None
     }
+    
+    /// Retrieve an owned resource of type `T`.
+    pub fn get_owned<T: Clone + 'static>(&self) -> Option<T> {
+        match self.get::<T>() { 
+            Some(item) => Some(item.clone()),
+            None => None,
+        }
+    }
 
-    /// Retrieve a resource of type `T`.
+    /// Retrieve a mutable reference to a resource of type `T`.
     pub fn get_mut<T: 'static>(&mut self) -> Option<&mut T> {
         for items in &mut self.items {
             match items.downcast_mut::<T>() {
@@ -97,9 +106,10 @@ impl Resources {
 }
 
 /// The current cursor position.
-#[derive(Debug, Default)]
-pub struct CursorPosition(Position);
+#[derive(Debug, Default,Copy, Clone)]
+pub struct CursorPosition(pub Position);
 
 /// The window size.
-#[derive(Debug, Default)]
-pub struct WindowSize(Size);
+#[derive(Debug, Default,Copy, Clone)]
+pub struct WindowSize(pub Size);
+
