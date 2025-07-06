@@ -1,6 +1,8 @@
-use agape::hstack;
-use agape::system::Resources;
-use agape::system::{IntoSystem, System};
+use agape::{
+    Resources,
+    hstack,
+    system::{IntoSystem,System}
+};
 use agape::widgets::Widget;
 use agape_core::{Position, Size};
 use agape_layout::Layout;

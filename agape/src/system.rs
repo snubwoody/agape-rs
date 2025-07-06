@@ -3,8 +3,8 @@
 //!
 //! # Create a system
 //! ```
-//! use agape::{hstack, App, Context};
-//! use agape::system::{IntoSystem, Resources, System};
+//! use agape::{hstack, App, Context,Resources};
+//! use agape::system::{IntoSystem, System};
 //!
 //! fn current_mouse_position(resources: &mut Resources){
 //! }
@@ -12,9 +12,6 @@
 //! let app = App::new(hstack! {})
 //!     .add_system(current_mouse_position);
 //! ```
-
-use agape_core::{Position, Size};
-use std::any::Any;
 use crate::Resources;
 
 /// A [`System`] is a stored procedure.
@@ -30,6 +27,16 @@ pub trait IntoSystem {
     fn into_system(self) -> Self::System;
 }
 
+
+pub struct FunctionSystem<F> {
+    f: F,
+}
+
+pub struct EventSystem<F,E>{
+    f: F,
+    event: E
+}
+
 impl<F> IntoSystem for F
 where
     F: FnMut(&mut Resources),
@@ -41,15 +48,16 @@ where
     }
 }
 
-pub struct FunctionSystem<F> {
-    f: F,
-}
-
 impl<F> System for FunctionSystem<F>
-where
-    F: FnMut(&mut Resources),
-{
+where F: FnMut(&mut Resources) {
     fn run(&mut self, resources: &mut Resources) {
         (self.f)(resources)
     }
+}
+
+impl<F,E> System for EventSystem<F,E>
+where F: FnMut(&mut Resources,&E) {
+    fn run(&mut self, resources: &mut Resources) {
+        // get the event queue and check for e
+    }    
 }
