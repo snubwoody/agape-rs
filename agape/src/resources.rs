@@ -1,3 +1,5 @@
+//! A resource is anything that needs to be accessed globally by different 
+//! systems, common items such as the cursor position or the window size.
 use std::any::Any;
 use agape_core::{Position, Size};
 
@@ -60,3 +62,62 @@ pub struct CursorPosition(pub Position);
 #[derive(Debug, Default,Copy, Clone)]
 pub struct WindowSize(pub Size);
 
+
+#[derive(Debug, Default)]
+pub struct EventQueue{
+    events: Vec<Box<dyn Any>>
+}
+
+impl EventQueue{
+    pub fn new() -> Self {
+        Self { events: vec![] }
+    }
+
+    /// Push an event to the queue.
+    pub fn push<T: 'static>(&mut self, item: T) {
+        self.events.push(Box::new(item));
+    }
+
+    /// Get an event from the queue.
+    pub fn get<T: 'static>(&self) -> Option<&T> {
+        for event in &self.events {
+            match event.downcast_ref::<T>() {
+                Some(item) => return Some(item),
+                None => continue,
+            }
+        }
+
+        None
+    }
+    
+    /// Get all events of type `T` from the queue.
+    pub fn get_all<T: 'static>(&self) -> Vec<&T> {
+        let mut events = vec![];
+        
+        for event in &self.events {
+            match event.downcast_ref::<T>() {
+                Some(item) => events.push(item),
+                None => continue,
+            }
+        }
+
+        events
+    }
+}
+
+#[cfg(test)]
+mod test{
+    use super::*;
+    
+    #[test]
+    fn get_all_events(){
+        let mut event_queue = EventQueue::new();
+        struct DummyEvent;
+        event_queue.push(DummyEvent);
+        event_queue.push(DummyEvent);
+        event_queue.push(DummyEvent);
+        
+        let events = event_queue.get_all::<DummyEvent>();
+        assert_eq!(events.len(), 3);
+    }
+}
