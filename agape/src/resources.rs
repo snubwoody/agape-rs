@@ -103,21 +103,36 @@ impl EventQueue{
 
         events
     }
+    
+    /// Clear all the events.
+    pub fn clear(&mut self) {
+        self.events.clear();
+    }
 }
 
 #[cfg(test)]
 mod test{
     use super::*;
+    struct DummyEvent;
     
     #[test]
     fn get_all_events(){
         let mut event_queue = EventQueue::new();
-        struct DummyEvent;
         event_queue.push(DummyEvent);
         event_queue.push(DummyEvent);
         event_queue.push(DummyEvent);
         
         let events = event_queue.get_all::<DummyEvent>();
         assert_eq!(events.len(), 3);
+    }
+    
+    #[test]
+    fn clear_events(){
+        let mut event_queue = EventQueue::new();
+        event_queue.push(DummyEvent);
+        assert_eq!(event_queue.events.len(),1);
+        
+        event_queue.clear();
+        assert_eq!(event_queue.events.len(),0);
     }
 }
