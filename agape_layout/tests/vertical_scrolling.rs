@@ -35,7 +35,6 @@ fn dont_scroll_if_no_overflow() {
         EmptyLayout::new(),
     ];
 
-    let scroll_offset = 100.0;
     let mut layout = VerticalLayout::new();
     layout.add_children(children);
     layout.scroll(12.0);

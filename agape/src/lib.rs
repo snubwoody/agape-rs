@@ -31,7 +31,9 @@ mod macros;
 pub mod system;
 pub mod view;
 pub mod widgets;
+pub mod resources;
 
+pub use resources::Resources;
 use crate::view::View;
 use crate::widgets::WidgetState;
 pub use agape_core::*;
@@ -40,11 +42,9 @@ use agape_layout::{Layout, LayoutSolver};
 pub use agape_macros::hex;
 pub use error::{Error, Result};
 use pixels::{Pixels, SurfaceTexture};
-use resvg::tiny_skia::Pixmap;
+use tiny_skia::Pixmap;
 use std::collections::HashMap;
-use std::ops::Index;
 use std::sync::Arc;
-use std::time::Instant;
 use system::{IntoSystem, System};
 use widgets::Widget;
 use winit::application::ApplicationHandler;
@@ -55,7 +55,7 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::Window,
 };
-use crate::system::{CursorPosition, Resources, WindowSize};
+use crate::resources::{CursorPosition, WindowSize};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AppEvent {
@@ -154,8 +154,23 @@ impl App<'_> {
         }
     }
 
-    pub fn add_system<Input>(mut self, f: impl IntoSystem + 'static) -> Self {
-        // self.systems.push(Box::new(f.into_system()));
+    /// Add a [`System`].
+    /// 
+    /// # Example
+    /// ```
+    /// use agape::{hstack, App};    
+    /// use agape::resources::{CursorPosition, Resources};
+    ///
+    /// fn cursor_position(resources: &mut Resources){
+    ///     let position = resources.get::<CursorPosition>().unwrap();
+    ///     println!("Current position: {:?}",position);
+    /// }
+    ///
+    /// let app = App::new(hstack!{})
+    ///     .add_system(cursor_position);
+    /// ```
+    pub fn add_system(mut self, f: impl IntoSystem + 'static) -> Self {
+        self.systems.push(Box::new(f.into_system()));
         self
     }
 
