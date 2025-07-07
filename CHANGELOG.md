@@ -8,9 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Added `Resources` struct to share global resources
-- Added `EventQueue`
-- Added event systems i.e. systems that run when a specific event is emmitted
+- Added `Resources` struct to keep share global resources.
 
 ### Changed
-- Systems now have a `&mut Resources` parameter instead of the previous `&mut Context`
+- Systems now have a `&mut Resources` instead of the previous `&mut Context`.
+- Most of the functionality, like layout and state, is now handled in systems. 
+
+### Removed
+- Removed `Context` object, use `Resources` instead.
