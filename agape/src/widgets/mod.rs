@@ -7,7 +7,6 @@ mod rect;
 mod text;
 mod vstack;
 
-use crate::Context;
 use crate::view::View;
 use agape_core::GlobalId;
 use agape_layout::Layout;
@@ -30,10 +29,6 @@ pub trait Widget: WidgetIterator {
     fn get(&self, id: GlobalId) -> Option<&dyn Widget> {
         self.iter().find(|&widget| widget.id() == id)
     }
-
-    /// Runs every frame allowing [`Widget`]'s to manage any
-    /// state they may have
-    fn tick(&mut self, _cx: &Context) {}
     
     /// Get the widgets children.
     fn children(&self) -> Vec<&dyn Widget> {
@@ -42,6 +37,11 @@ pub trait Widget: WidgetIterator {
 
     fn click(&mut self) {}
     fn hover(&mut self) {}
+}
+
+pub enum WidgetEvent{
+    Hovered(GlobalId),
+    Clicked(GlobalId),
 }
 
 /// The current state of the widget
