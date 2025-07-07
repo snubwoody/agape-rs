@@ -81,6 +81,10 @@ impl Widget for Button {
     fn children(&self) -> Vec<&dyn Widget> {
         vec![&*self.child]
     }
+
+    fn children_mut(&mut self) -> Vec<&mut dyn Widget> {
+        vec![&mut *self.child]
+    }
 }
 
 #[cfg(test)]

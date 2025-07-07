@@ -3,7 +3,7 @@
 //!
 //! # Create a system
 //! ```
-//! use agape::{hstack, App, Context,Resources};
+//! use agape::{hstack, App, Resources};
 //! use agape::system::{IntoSystem, System};
 //!
 //! fn current_mouse_position(resources: &mut Resources){
@@ -21,7 +21,7 @@
 //! use agape::{hstack, App, Resources};
 //! use agape::system::{System,IntoSystem};
 //!
-//! fn window_event(res: &mut Resources,event: WindowEvent){
+//! fn window_event(res: &mut Resources,event: &WindowEvent){
 //!
 //! }
 //!
