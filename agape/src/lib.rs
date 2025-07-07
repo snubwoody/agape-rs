@@ -101,6 +101,11 @@ impl ApplicationHandler for App<'_> {
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
         // FIXME update surface on resizing
         log::trace!("WindowEvent: {event:?}");
+        self.event_queue.push(event.clone());
+
+        for system in self.systems.iter_mut() {
+            system.run(&mut self.resources,&self.event_queue);
+        }
 
         match event {
             WindowEvent::CloseRequested => {
@@ -122,12 +127,9 @@ impl ApplicationHandler for App<'_> {
             _ => {}
         }
 
-        for system in self.systems.iter_mut() {
-            system.run(&mut self.resources,&self.event_queue);
-        }
-
         self.widget.tick(&self.context);
         self.context.clear_events();
+        self.event_queue.clear();
     }
 }
 
@@ -143,7 +145,9 @@ impl App<'_> {
         resources.insert(layout);
         resources.insert(EventQueue::new());
         
-        let systems = vec![Box::new(layout_system.into_system()) as Box<dyn System>];
+        let systems = vec![
+            Box::new(layout_system.into_system()) as Box<dyn System>
+        ];
 
         Self {
             context: Context::new(&widget),
@@ -207,6 +211,7 @@ impl App<'_> {
     /// because accessing windows in other threads is unsafe on
     /// certain platforms.
     pub fn run(mut self) -> Result<()> {
+        self = self.add_system(update_cursor_position);
         let event_loop = EventLoop::new()?;
         event_loop.set_control_flow(ControlFlow::Poll);
         event_loop.run_app(&mut self)?;
@@ -287,6 +292,12 @@ fn layout_system(resources: &mut Resources) {
     LayoutSolver::solve(&mut **layout, size);
 }
 
+fn update_cursor_position(resources: &mut Resources,event: &WindowEvent) {
+    if let WindowEvent::CursorMoved{ position,..} = event {
+        let cursor_position = resources.get_mut::<CursorPosition>().unwrap();    
+        cursor_position.0 = Position::from(*position);
+    }
+}
 
 #[cfg(test)]
 mod test {
