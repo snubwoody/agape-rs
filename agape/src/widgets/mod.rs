@@ -34,7 +34,7 @@ pub trait Widget: WidgetIterator {
     /// Runs every frame allowing [`Widget`]'s to manage any
     /// state they may have
     fn tick(&mut self, _cx: &Context) {}
-
+    
     /// Get the widgets children.
     fn children(&self) -> Vec<&dyn Widget> {
         vec![]
@@ -52,7 +52,6 @@ pub enum WidgetState {
     Clicked,
 }
 
-// TODO test this
 /// An iterator over the [`Widget`] tree.
 pub struct WidgetIter<'a> {
     stack: Vec<&'a dyn Widget>,
