@@ -144,6 +144,7 @@ impl Widget for HStack {
 ///
 /// `hstack!` allows [`HStack`]'s to be declared in a more declarative manner.
 ///
+/// - Create an [`Hstack`] from a list of widgets.
 /// ```
 /// use agape::{hstack,widgets::{Rect}};
 ///
@@ -155,6 +156,17 @@ impl Widget for HStack {
 /// .padding(24);
 ///
 /// ```
+/// 
+/// - Create an [`Hstack`] from a given widget and size.
+/// ```
+/// use agape::hstack;
+/// use agape::widgets::Rect;
+///
+/// let hstack = hstack![Rect::new(100.0,100.0);10];
+/// ```
+/// 
+/// > Note that to use the repeat syntax the [`Widget`] must implement
+/// > `Clone`.
 #[macro_export]
 macro_rules! hstack {
 	($($child:expr), + $(,)?) => {
@@ -163,17 +175,24 @@ macro_rules! hstack {
 			$(.add_child($child))*
 		}
 	};
-
-
+    ($child:expr;$count:expr) => {
+        {
+            let mut hstack = $crate::widgets::HStack::new();
+            for _ in 0..$count {
+                hstack = hstack.add_child($child.clone());
+            }
+            hstack
+        }        
+    };
 	()=>{
 		$crate::widgets::HStack::new()
-	};
+	}
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::widgets::Rect;
+    use crate::widgets::{Rect, Text};
 
     #[test]
     fn hstack_expansion() {
@@ -183,6 +202,12 @@ mod test {
         };
 
         assert_eq!(hstack.children.len(), 2);
+    }
+    
+    #[test]
+    fn hstack_repeat_syntax(){
+        let hstack = hstack! {Text::new("hello world");10};
+        assert_eq!(hstack.children.len(), 10);
     }
 
     #[test]

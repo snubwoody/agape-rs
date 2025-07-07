@@ -123,6 +123,33 @@ impl Widget for VStack {
     }
 }
 
+/// Creates a [`Vstack`].
+/// 
+/// - Create a [`Vstack`] from a given list of widgets.
+/// ```
+/// use agape::vstack;
+/// use agape::widgets::Text;
+/// 
+/// let vstack = vstack!{
+///     Text::new("Hello"),
+///     Text::new("world!"),
+/// }
+/// .spacing(12)
+/// .align_center()
+/// .fill();
+/// ```
+/// 
+/// - Create a [`Vstack`] from a widget and a size.
+/// ```
+/// use agape::vstack;
+/// use agape::widgets::*;
+/// 
+/// let vstack = vstack![Text::new("Repeat!");100];
+/// assert_eq!(vstack.children().len(),100);
+/// ```
+/// 
+/// > Note that to use the repeat syntax the [`Widget`] must
+/// > implement `Clone`.
 #[macro_export]
 macro_rules! vstack {
 	($($child:expr), + $(,)?) => {
@@ -132,7 +159,15 @@ macro_rules! vstack {
 		}
 
 	};
-
+    ($child:expr;$count:expr) => {
+        {
+            let mut vstack = $crate::widgets::VStack::new();
+            for _ in 0..$count {
+                vstack = vstack.add_child($child.clone());
+            }
+            vstack
+        }        
+    };
 	()=>{
 		$crate::widgets::VStack::new()
 	};
@@ -141,7 +176,7 @@ macro_rules! vstack {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::widgets::Rect;
+    use crate::widgets::{Rect, Text};
 
     #[test]
     fn vstack_expansion() {
@@ -152,6 +187,12 @@ mod test {
         };
 
         assert_eq!(vstack.children.len(), 3);
+    }
+    
+    #[test]
+    fn vstack_repeat_syntax(){
+        let vstack = vstack![Text::new("Repeat!");10];
+        assert_eq!(vstack.children.len(), 10);
     }
 
     #[test]

@@ -3,6 +3,7 @@ use crate::view::{TextView, View};
 use agape_core::GlobalId;
 use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
 
+#[derive(Clone)]
 pub struct Text {
     id: GlobalId,
     pub text: String,
