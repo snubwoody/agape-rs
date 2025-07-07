@@ -21,8 +21,6 @@ fn main() -> Result<(),agape::Error>{
 }
 ```
 
-## Widgets
-
 
 ## Support
 

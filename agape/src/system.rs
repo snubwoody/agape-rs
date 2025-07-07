@@ -12,6 +12,22 @@
 //! let app = App::new(hstack! {})
 //!     .add_system(current_mouse_position);
 //! ```
+//! ## Event systems
+//! An [`EventSystem`] is a system that only runs when a specific event is emitted. You
+//! can create an event system by adding the event (`E`) as a parameter.
+//! 
+//! ```
+//! use winit::event::WindowEvent;
+//! use agape::{hstack, App, Resources};
+//! use agape::system::{System,IntoSystem};
+//!
+//! fn window_event(res: &mut Resources,event: WindowEvent){
+//!
+//! }
+//!
+//! let app = App::new(hstack! {})
+//!     .add_system(window_event);
+//! ```
 
 use std::marker::PhantomData;
 use crate::Resources;

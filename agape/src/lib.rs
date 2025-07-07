@@ -68,11 +68,9 @@ pub enum AppEvent {
 
 /// An `App` is a single program.
 pub struct App<'app> {
-    widget: Box<dyn Widget>,
     window: Option<Arc<Window>>,
     pixels: Option<Pixels<'app>>,
     pixmap: Option<Pixmap>,
-    context: Context,
     resources: Resources,
     event_queue: EventQueue,
     systems: Vec<Box<dyn System>>,
@@ -92,7 +90,6 @@ impl ApplicationHandler for App<'_> {
         let pixels = Pixels::new(width, height, surface).unwrap();
         let pixmap = Pixmap::new(width, height).unwrap();
 
-        self.context.window_size = size;
         self.pixels = Some(pixels);
         self.window = Some(Arc::clone(&window));
         self.pixmap = Some(pixmap);
@@ -127,8 +124,6 @@ impl ApplicationHandler for App<'_> {
             _ => {}
         }
 
-        self.widget.tick(&self.context);
-        self.context.clear_events();
         self.event_queue.clear();
     }
 }
@@ -144,14 +139,14 @@ impl App<'_> {
         resources.insert(WindowSize::default());
         resources.insert(layout);
         resources.insert(EventQueue::new());
+        let widget: Box<dyn Widget> = Box::new(widget);
+        resources.insert(widget);
         
         let systems = vec![
             Box::new(layout_system.into_system()) as Box<dyn System>
         ];
 
         Self {
-            context: Context::new(&widget),
-            widget: Box::new(widget),
             event_queue: EventQueue::new(),
             window: None,
             pixmap: None,
@@ -182,7 +177,8 @@ impl App<'_> {
     }
 
     fn render(&mut self) {
-        let mut views: Vec<Box<dyn View>> = self.widget.iter().map(|w| w.view()).collect();
+        let widget = self.resources.get::<Box<dyn Widget>>().unwrap();
+        let mut views: Vec<Box<dyn View>> = widget.iter().map(|w| w.view()).collect();
         let layout = self.resources.get::<Box<dyn Layout>>().unwrap();
         // let mut views = &mut self.context.views;
 
@@ -219,72 +215,6 @@ impl App<'_> {
     }
 }
 
-/// Global app context which keeps track of important
-/// information such as the current mouse position and
-/// the state of each widget.
-pub struct Context {
-    mouse_position: Position,
-    /// Keeps track of the state of all widgets in the
-    /// widget tree.
-    state: HashMap<GlobalId, WidgetState>,
-    layout: Box<dyn Layout>,
-    events: Vec<AppEvent>,
-    pub window_size: Size,
-}
-
-impl Context {
-    /// Create a new context object
-    pub fn new(widget: &impl Widget) -> Self {
-        let mut state = HashMap::new();
-        for w in widget.iter() {
-            state.insert(w.id(), WidgetState::Resting);
-        }
-        let layout = widget.layout();
-
-        Self {
-            mouse_position: Position::default(),
-            layout,
-            state,
-            window_size: Size::default(),
-            events: Vec::new(),
-        }
-    }
-
-    pub fn query_events(&self) -> &[AppEvent] {
-        self.events.as_slice()
-    }
-
-    pub(crate) fn clear_events(&mut self) {
-        self.events.clear();
-    }
-
-    pub fn layout(&self) -> &dyn Layout {
-        &*self.layout
-    }
-
-    pub fn layout_mut(&mut self) -> &mut dyn Layout {
-        &mut *self.layout
-    }
-
-    pub fn mouse_pos(&self) -> Position {
-        self.mouse_position
-    }
-
-    pub fn state(&self) -> &HashMap<GlobalId, WidgetState> {
-        &self.state
-    }
-
-    /// Get the state of a [`Widget`].
-    pub fn get_state(&self, id: &GlobalId) -> Option<&WidgetState> {
-        self.state.get(id)
-    }
-
-    /// Set the state of a [`Widget`].
-    pub fn set_state(&mut self, id: GlobalId, state: WidgetState) {
-        self.state.insert(id, state);
-    }
-}
-
 fn layout_system(resources: &mut Resources) {
     let WindowSize(size) = resources.get_owned::<WindowSize>().unwrap();
     
@@ -297,6 +227,9 @@ fn update_cursor_position(resources: &mut Resources,event: &WindowEvent) {
         let cursor_position = resources.get_mut::<CursorPosition>().unwrap();    
         cursor_position.0 = Position::from(*position);
     }
+}
+
+fn widget_hover(resources: &mut Resources,event: &WindowEvent) {
 }
 
 #[cfg(test)]
@@ -326,6 +259,7 @@ mod test {
         app.resources.get::<WindowSize>().unwrap();
         app.resources.get::<Box<dyn Layout>>().unwrap();
         app.resources.get::<EventQueue>().unwrap();
+        app.resources.get::<Box<dyn Widget>>().unwrap();
     }
     
     #[test]

@@ -1,4 +1,3 @@
-use crate::Context;
 use crate::view::{RectView, View};
 use crate::widgets::{Text, Widget};
 use crate::{AppEvent, impl_style};
@@ -51,23 +50,6 @@ impl Button {
 impl Widget for Button {
     fn id(&self) -> GlobalId {
         self.id
-    }
-
-    fn tick(&mut self, cx: &Context) {
-        for event in cx.query_events() {
-            match event {
-                AppEvent::Hovered(id) => {
-                    if *id == self.id() {
-                        self.hover()
-                    }
-                }
-                AppEvent::Clicked(id) => {
-                    if *id == self.id() {
-                        self.click()
-                    }
-                }
-            }
-        }
     }
 
     fn click(&mut self) {
