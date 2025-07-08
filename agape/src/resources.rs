@@ -1,5 +1,10 @@
 //! A resource is anything that needs to be accessed globally by different 
 //! systems, common items such as the cursor position or the window size.
+//! 
+//! ### Resources
+//! - [`CursorPosition`]
+//! - [`WindowSize`]
+//! 
 use std::any::Any;
 use agape_core::{Position, Size};
 
@@ -61,7 +66,6 @@ pub struct CursorPosition(pub Position);
 /// The window size.
 #[derive(Debug, Default,Copy, Clone)]
 pub struct WindowSize(pub Size);
-
 
 #[derive(Debug, Default)]
 pub struct EventQueue{

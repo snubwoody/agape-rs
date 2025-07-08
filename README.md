@@ -45,3 +45,6 @@ fn main() -> Result<(),agape::Error>{
   - [ ] Text input
 - [ ] Scrolling
 
+## License
+This project is dual-licensed under either the Apache license or MIT license at your choice.
+

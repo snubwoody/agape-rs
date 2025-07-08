@@ -57,6 +57,8 @@ use winit::{
 };
 use crate::resources::{CursorPosition, EventQueue, WindowSize};
 
+pub type StateMap = HashMap<GlobalId,WidgetState>;
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AppEvent {
     /// Emitted when the cursor is over a widget
@@ -134,16 +136,20 @@ impl App<'_> {
         log::info!("Creating widget tree with {len} widgets");
         
         let layout = widget.layout();
+        let widget: Box<dyn Widget> = Box::new(widget);
+        let mut state_map: StateMap = HashMap::new();
+        state_map.insert(widget.id(),WidgetState::Resting);
+        
         let mut resources = Resources::new();
         resources.insert(CursorPosition::default());
         resources.insert(WindowSize::default());
         resources.insert(layout);
         resources.insert(EventQueue::new());
-        let widget: Box<dyn Widget> = Box::new(widget);
         resources.insert(widget);
+        resources.insert(state_map);
         
         let systems = vec![
-            Box::new(layout_system.into_system()) as Box<dyn System>
+            Box::new(layout_system.into_system()) as Box<dyn System>,
         ];
 
         Self {
@@ -207,7 +213,9 @@ impl App<'_> {
     /// because accessing windows in other threads is unsafe on
     /// certain platforms.
     pub fn run(mut self) -> Result<()> {
-        self = self.add_system(update_cursor_position);
+        self = 
+            self.add_system(update_cursor_position)
+                .add_system(intersection_observer);
         let event_loop = EventLoop::new()?;
         event_loop.set_control_flow(ControlFlow::Poll);
         event_loop.run_app(&mut self)?;
@@ -229,13 +237,46 @@ fn update_cursor_position(resources: &mut Resources,event: &WindowEvent) {
     }
 }
 
-fn widget_hover(resources: &mut Resources,event: &WindowEvent) {
+fn intersection_observer(resources: &mut Resources) {
+    let cursor_pos = resources.get::<CursorPosition>().unwrap();
+    let layout = resources.get::<Box<dyn Layout>>().unwrap();
+    let hovered_ids: Vec<GlobalId> = layout.iter()
+        .filter(|l|l.bounds().within(&cursor_pos.0))
+        .map(|l|l.id())
+        .collect();
+    
+    let state_map: &mut StateMap = resources.get_mut().unwrap();
+    for id in hovered_ids{
+        state_map.insert(id,WidgetState::Hovered);
+        dbg!("Hovered");
+    }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
     use crate::hstack;
+    use crate::widgets::Rect;
+
+    #[test]
+    fn widget_hover_system(){
+        let rect = Rect::new(100.0,100.0);
+        let mut layout = rect.layout();
+        LayoutSolver::solve(&mut *layout,Size::unit(500.0));
+        
+        let mut state_map: HashMap<GlobalId,WidgetState> = HashMap::new();
+        state_map.insert(rect.id(),WidgetState::Resting);
+        
+        let mut resources = Resources::new();
+        resources.insert(layout);
+        resources.insert(state_map);
+        resources.insert(CursorPosition(Position::unit(50.0)));
+        
+        intersection_observer(&mut resources);
+        
+        let state_map: &StateMap = resources.get().unwrap();
+        assert_eq!(state_map.get(&rect.id()).unwrap(), &WidgetState::Hovered);
+    }
     
     #[test]
     fn layout_system_works(){
