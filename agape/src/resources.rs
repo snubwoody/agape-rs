@@ -60,24 +60,24 @@ impl Resources {
 
         None
     }
-    
+
     /// Returns the number of resources.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use agape::{Resources,Position,Size};
-    /// 
+    ///
     /// let mut resources = Resources::new();
     /// resources.insert(Position::new(0.0,0.0));
     /// resources.insert(Size::new(50.0,0.0));
-    /// 
+    ///
     /// assert_eq!(resources.len(),2);
     /// ```
-    pub fn len(&self) -> usize{
+    pub fn len(&self) -> usize {
         self.items.len()
     }
-    
-    pub fn is_empty(&self) -> bool{
+
+    pub fn is_empty(&self) -> bool {
         self.items.is_empty()
     }
 }
