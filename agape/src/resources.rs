@@ -1,12 +1,12 @@
-//! A resource is anything that needs to be accessed globally by different 
+//! A resource is anything that needs to be accessed globally by different
 //! systems, common items such as the cursor position or the window size.
-//! 
+//!
 //! ### Resources
 //! - [`CursorPosition`]
 //! - [`WindowSize`]
-//! 
-use std::any::Any;
+//!
 use agape_core::{Position, Size};
+use std::any::Any;
 
 /// Global resources
 pub struct Resources {
@@ -60,19 +60,19 @@ impl Resources {
 }
 
 /// The current cursor position.
-#[derive(Debug, Default,Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct CursorPosition(pub Position);
 
 /// The window size.
-#[derive(Debug, Default,Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct WindowSize(pub Size);
 
 #[derive(Debug, Default)]
-pub struct EventQueue{
-    events: Vec<Box<dyn Any>>
+pub struct EventQueue {
+    events: Vec<Box<dyn Any>>,
 }
 
-impl EventQueue{
+impl EventQueue {
     pub fn new() -> Self {
         Self { events: vec![] }
     }
@@ -93,11 +93,11 @@ impl EventQueue{
 
         None
     }
-    
+
     /// Get all events of type `T` from the queue.
     pub fn get_all<T: 'static>(&self) -> Vec<&T> {
         let mut events = vec![];
-        
+
         for event in &self.events {
             match event.downcast_ref::<T>() {
                 Some(item) => events.push(item),
@@ -107,7 +107,7 @@ impl EventQueue{
 
         events
     }
-    
+
     /// Clear all the events.
     pub fn clear(&mut self) {
         self.events.clear();
@@ -115,28 +115,28 @@ impl EventQueue{
 }
 
 #[cfg(test)]
-mod test{
+mod test {
     use super::*;
     struct DummyEvent;
-    
+
     #[test]
-    fn get_all_events(){
+    fn get_all_events() {
         let mut event_queue = EventQueue::new();
         event_queue.push(DummyEvent);
         event_queue.push(DummyEvent);
         event_queue.push(DummyEvent);
-        
+
         let events = event_queue.get_all::<DummyEvent>();
         assert_eq!(events.len(), 3);
     }
-    
+
     #[test]
-    fn clear_events(){
+    fn clear_events() {
         let mut event_queue = EventQueue::new();
         event_queue.push(DummyEvent);
-        assert_eq!(event_queue.events.len(),1);
-        
+        assert_eq!(event_queue.events.len(), 1);
+
         event_queue.clear();
-        assert_eq!(event_queue.events.len(),0);
+        assert_eq!(event_queue.events.len(), 0);
     }
 }

@@ -15,7 +15,7 @@
 //! ## Event systems
 //! An [`EventSystem`] is a system that only runs when a specific event is emitted. You
 //! can create an event system by adding the event (`E`) as a parameter.
-//! 
+//!
 //! ```
 //! use winit::event::WindowEvent;
 //! use agape::{hstack, App, Resources};
@@ -29,13 +29,13 @@
 //!     .add_system(window_event);
 //! ```
 
-use std::marker::PhantomData;
 use crate::Resources;
 use crate::resources::EventQueue;
+use std::marker::PhantomData;
 
 /// A [`System`] is a stored procedure.
 pub trait System {
-    fn run(&mut self, resources: &mut Resources,event_queue: &EventQueue);
+    fn run(&mut self, resources: &mut Resources, event_queue: &EventQueue);
 }
 
 /// A trait for creating systems
@@ -46,12 +46,11 @@ pub trait IntoSystem<Input> {
     fn into_system(self) -> Self::System;
 }
 
-
 pub struct FunctionSystem<F> {
     f: F,
 }
 
-pub struct EventSystem<F,E>{
+pub struct EventSystem<F, E> {
     f: F,
     _marker: PhantomData<E>,
 }
@@ -67,34 +66,38 @@ where
     }
 }
 
-
-impl<F,E> IntoSystem<(E,)> for F
+impl<F, E> IntoSystem<(E,)> for F
 where
-    F: FnMut(&mut Resources,&E),
-    E: 'static
+    F: FnMut(&mut Resources, &E),
+    E: 'static,
 {
-    type System = EventSystem<Self,E>;
+    type System = EventSystem<Self, E>;
 
     fn into_system(self) -> Self::System {
-        EventSystem { f: self,_marker: PhantomData}
+        EventSystem {
+            f: self,
+            _marker: PhantomData,
+        }
     }
 }
 
 impl<F> System for FunctionSystem<F>
-where F: FnMut(&mut Resources) {
-    fn run(&mut self, resources: &mut Resources,_: &EventQueue) {
+where
+    F: FnMut(&mut Resources),
+{
+    fn run(&mut self, resources: &mut Resources, _: &EventQueue) {
         (self.f)(resources)
     }
 }
 
-impl<F,E> System for EventSystem<F,E>
-where 
-    F: FnMut(&mut Resources,&E),
-    E:'static
+impl<F, E> System for EventSystem<F, E>
+where
+    F: FnMut(&mut Resources, &E),
+    E: 'static,
 {
-    fn run(&mut self, resources: &mut Resources,event_queue: &EventQueue) {
-        for event in event_queue.get_all::<E>(){
-            (self.f)(resources,event);
+    fn run(&mut self, resources: &mut Resources, event_queue: &EventQueue) {
+        for event in event_queue.get_all::<E>() {
+            (self.f)(resources, event);
         }
-    }    
+    }
 }

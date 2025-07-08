@@ -28,12 +28,12 @@
 //!
 pub mod error;
 mod macros;
+pub mod resources;
 pub mod system;
 pub mod view;
 pub mod widgets;
-pub mod resources;
 
-pub use resources::Resources;
+use crate::resources::{CursorPosition, EventQueue, WindowSize};
 use crate::view::View;
 use crate::widgets::{WidgetEvent, WidgetState};
 pub use agape_core::*;
@@ -42,10 +42,11 @@ use agape_layout::{Layout, LayoutSolver};
 pub use agape_macros::hex;
 pub use error::{Error, Result};
 use pixels::{Pixels, SurfaceTexture};
-use tiny_skia::Pixmap;
+pub use resources::Resources;
 use std::collections::HashMap;
 use std::sync::Arc;
 use system::{IntoSystem, System};
+use tiny_skia::Pixmap;
 use widgets::Widget;
 use winit::application::ApplicationHandler;
 use winit::event_loop::ActiveEventLoop;
@@ -55,9 +56,8 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::Window,
 };
-use crate::resources::{CursorPosition, EventQueue, WindowSize};
 
-pub type StateMap = HashMap<GlobalId,WidgetState>;
+pub type StateMap = HashMap<GlobalId, WidgetState>;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AppEvent {
@@ -103,7 +103,7 @@ impl ApplicationHandler for App<'_> {
         self.event_queue.push(event.clone());
 
         for system in self.systems.iter_mut() {
-            system.run(&mut self.resources,&self.event_queue);
+            system.run(&mut self.resources, &self.event_queue);
         }
 
         match event {
@@ -134,12 +134,12 @@ impl App<'_> {
     pub fn new(widget: impl Widget + 'static) -> Self {
         let len = widget.iter().count();
         log::info!("Creating widget tree with {len} widgets");
-        
+
         let layout = widget.layout();
         let widget: Box<dyn Widget> = Box::new(widget);
         let mut state_map: StateMap = HashMap::new();
-        state_map.insert(widget.id(),WidgetState::Resting);
-        
+        state_map.insert(widget.id(), WidgetState::Resting);
+
         let mut resources = Resources::new();
         resources.insert(CursorPosition::default());
         resources.insert(WindowSize::default());
@@ -148,10 +148,8 @@ impl App<'_> {
         resources.insert(widget);
         resources.insert(state_map);
         resources.insert::<Vec<WidgetEvent>>(Vec::new());
-        
-        let systems = vec![
-            Box::new(layout_system.into_system()) as Box<dyn System>,
-        ];
+
+        let systems = vec![Box::new(layout_system.into_system()) as Box<dyn System>];
 
         Self {
             event_queue: EventQueue::new(),
@@ -214,11 +212,11 @@ impl App<'_> {
     /// because accessing windows in other threads is unsafe on
     /// certain platforms.
     pub fn run(mut self) -> Result<()> {
-        self = 
-            self.add_system(update_cursor_position)
-                .add_system(intersection_observer)
-                .add_system(handle_widget_event);
-        
+        self = self
+            .add_system(update_cursor_position)
+            .add_system(intersection_observer)
+            .add_system(handle_widget_event);
+
         let event_loop = EventLoop::new()?;
         event_loop.set_control_flow(ControlFlow::Poll);
         event_loop.run_app(&mut self)?;
@@ -228,14 +226,14 @@ impl App<'_> {
 
 fn layout_system(resources: &mut Resources) {
     let WindowSize(size) = resources.get_owned::<WindowSize>().unwrap();
-    
+
     let layout: &mut Box<dyn Layout> = resources.get_mut().unwrap();
     LayoutSolver::solve(&mut **layout, size);
 }
 
-fn update_cursor_position(resources: &mut Resources,event: &WindowEvent) {
-    if let WindowEvent::CursorMoved{ position,..} = event {
-        let cursor_position = resources.get_mut::<CursorPosition>().unwrap();    
+fn update_cursor_position(resources: &mut Resources, event: &WindowEvent) {
+    if let WindowEvent::CursorMoved { position, .. } = event {
+        let cursor_position = resources.get_mut::<CursorPosition>().unwrap();
         cursor_position.0 = Position::from(*position);
     }
 }
@@ -243,30 +241,31 @@ fn update_cursor_position(resources: &mut Resources,event: &WindowEvent) {
 fn intersection_observer(resources: &mut Resources) {
     let cursor_pos = resources.get::<CursorPosition>().unwrap();
     let layout = resources.get::<Box<dyn Layout>>().unwrap();
-    let hovered_ids: Vec<GlobalId> = layout.iter()
-        .filter(|l|l.bounds().within(&cursor_pos.0))
-        .map(|l|l.id())
+    let hovered_ids: Vec<GlobalId> = layout
+        .iter()
+        .filter(|l| l.bounds().within(&cursor_pos.0))
+        .map(|l| l.id())
         .collect();
-    
+
     let state_map: &mut StateMap = resources.get_mut().unwrap();
-    for id in &hovered_ids{
-        state_map.insert(*id,WidgetState::Hovered);
+    for id in &hovered_ids {
+        state_map.insert(*id, WidgetState::Hovered);
     }
-    
-    let events: &mut Vec<WidgetEvent>= resources.get_mut().unwrap();
-    for id in &hovered_ids{
+
+    let events: &mut Vec<WidgetEvent> = resources.get_mut().unwrap();
+    for id in &hovered_ids {
         events.push(WidgetEvent::Hovered(*id));
     }
 }
 
-fn handle_widget_event(resources: &mut Resources){
-    let events:Vec<WidgetEvent> = resources.get_owned().unwrap();
-    let widget:&mut Box<dyn Widget> = resources.get_mut().unwrap();
-    
-    for event in events{
+fn handle_widget_event(resources: &mut Resources) {
+    let events: Vec<WidgetEvent> = resources.get_owned().unwrap();
+    let widget: &mut Box<dyn Widget> = resources.get_mut().unwrap();
+
+    for event in events {
         widget.handle_event(event);
     }
-    
+
     resources.get_mut::<Vec<WidgetEvent>>().unwrap().clear();
 }
 
@@ -277,42 +276,42 @@ mod test {
     use crate::widgets::Rect;
 
     #[test]
-    fn widget_hover_system(){
-        let rect = Rect::new(100.0,100.0);
+    fn widget_hover_system() {
+        let rect = Rect::new(100.0, 100.0);
         let mut layout = rect.layout();
-        LayoutSolver::solve(&mut *layout,Size::unit(500.0));
-        
-        let mut state_map: HashMap<GlobalId,WidgetState> = HashMap::new();
-        state_map.insert(rect.id(),WidgetState::Resting);
-        
+        LayoutSolver::solve(&mut *layout, Size::unit(500.0));
+
+        let mut state_map: HashMap<GlobalId, WidgetState> = HashMap::new();
+        state_map.insert(rect.id(), WidgetState::Resting);
+
         let mut resources = Resources::new();
         resources.insert(layout);
         resources.insert(state_map);
         resources.insert(CursorPosition(Position::unit(50.0)));
         resources.insert::<Vec<WidgetEvent>>(Vec::new());
-        
+
         intersection_observer(&mut resources);
-        
+
         let state_map: &StateMap = resources.get().unwrap();
         assert_eq!(state_map.get(&rect.id()).unwrap(), &WidgetState::Hovered);
-        
+
         let events: &Vec<WidgetEvent> = resources.get().unwrap();
         assert!(events.contains(&WidgetEvent::Hovered(rect.id())));
     }
-    
+
     #[test]
-    fn layout_system_works(){
-        let hstack = hstack!{}.fill();
+    fn layout_system_works() {
+        let hstack = hstack! {}.fill();
         let layout = hstack.layout();
-        
+
         let mut resources = Resources::new();
         resources.insert(layout);
         resources.insert(WindowSize(Size::unit(500.0)));
-    
+
         layout_system(&mut resources);
-        
-        let layout  = resources.get::<Box<dyn Layout>>().unwrap();
-        assert_eq!(layout.size(),Size::unit(500.0));
+
+        let layout = resources.get::<Box<dyn Layout>>().unwrap();
+        assert_eq!(layout.size(), Size::unit(500.0));
     }
 
     #[test]
@@ -324,7 +323,7 @@ mod test {
         app.resources.get::<EventQueue>().unwrap();
         app.resources.get::<Box<dyn Widget>>().unwrap();
     }
-    
+
     #[test]
     fn init_systems() {
         let app = App::new(hstack! {});

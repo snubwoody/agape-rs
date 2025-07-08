@@ -1,9 +1,9 @@
-use agape::{
-    Resources, hstack,
-    system::{IntoSystem,System}
-};
 use agape::resources::EventQueue;
 use agape::widgets::Widget;
+use agape::{
+    Resources, hstack,
+    system::{IntoSystem, System},
+};
 use agape_core::{Position, Size};
 use agape_layout::Layout;
 
@@ -16,7 +16,7 @@ fn insert_and_get_resource() {
 }
 
 #[test]
-fn get_trait_from_resource(){
+fn get_trait_from_resource() {
     let widget = hstack! {};
     let layout = widget.layout();
     let mut resources = Resources::new();
@@ -34,12 +34,12 @@ fn function_system() {
         resources.get::<Position>().unwrap();
     };
     let mut system = func.into_system();
-    system.run(&mut resources,&event_queue);
+    system.run(&mut resources, &event_queue);
 }
 
 #[test]
 fn event_system() {
-    #[derive(PartialEq,Debug)]
+    #[derive(PartialEq, Debug)]
     struct Dummy;
 
     let mut event_queue = EventQueue::new();
@@ -48,23 +48,21 @@ fn event_system() {
     let mut resources = Resources::new();
     resources.insert(Position::unit(20.0));
 
-    let func = |_: &mut Resources,event: &Dummy| {
-        assert_eq!(event,&Dummy)
-    };
+    let func = |_: &mut Resources, event: &Dummy| assert_eq!(event, &Dummy);
 
     let mut system = func.into_system();
-    system.run(&mut resources,&event_queue);
+    system.run(&mut resources, &event_queue);
 }
 
 #[test]
-fn event_system_only_runs_when_present(){
+fn event_system_only_runs_when_present() {
     let event_queue = EventQueue::new();
     let mut resources = Resources::new();
     resources.insert(Position::unit(20.0));
 
-    let func = |_resources: &mut Resources,_event: &()| {
+    let func = |_resources: &mut Resources, _event: &()| {
         panic!();
     };
     let mut system = func.into_system();
-    system.run(&mut resources,&event_queue);
+    system.run(&mut resources, &event_queue);
 }
