@@ -13,6 +13,12 @@ pub struct Resources {
     items: Vec<Box<dyn Any>>,
 }
 
+impl Default for Resources {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Resources {
     pub fn new() -> Resources {
         Self { items: vec![] }
@@ -21,7 +27,7 @@ impl Resources {
     /// Insert a resource.
     pub fn insert<T: 'static>(&mut self, item: T) {
         // Don't insert the same resource twice
-        if let None = self.get::<T>() {
+        if self.get::<T>().is_none() {
             self.items.push(Box::new(item));
         }
     }
@@ -40,10 +46,7 @@ impl Resources {
 
     /// Retrieve an owned resource of type `T`.
     pub fn get_owned<T: Clone + 'static>(&self) -> Option<T> {
-        match self.get::<T>() {
-            Some(item) => Some(item.clone()),
-            None => None,
-        }
+        self.get::<T>().cloned()
     }
 
     /// Retrieve a mutable reference to a resource of type `T`.
@@ -72,6 +75,10 @@ impl Resources {
     /// ```
     pub fn len(&self) -> usize{
         self.items.len()
+    }
+    
+    pub fn is_empty(&self) -> bool{
+        self.items.is_empty()
     }
 }
 

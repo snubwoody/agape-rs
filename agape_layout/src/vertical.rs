@@ -658,9 +658,10 @@ mod test {
         root_size.width += (padding * 2) as f32;
 
         // I feel like the math is slightly wrong due to padding
-        let mut child_2_size = Size::default();
-        child_2_size.width = root_size.width;
-        child_2_size.height = root_size.height;
+        let mut child_2_size = Size{
+            width: root_size.width,
+            height: root_size.height,
+        };
         child_2_size.height -= child_1_size.height;
         child_2_size.height -= spacing as f32;
         child_2_size.height -= (padding * 2) as f32;

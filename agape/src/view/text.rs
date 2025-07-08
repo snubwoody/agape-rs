@@ -136,12 +136,6 @@ mod test {
     use super::*;
 
     #[test]
-    fn text_size() {
-        let view = TextView::new("he");
-        let size = view.text_size();
-    }
-
-    #[test]
     fn text_rendering() {
         let view = TextView::new("Hello world!");
         let mut pixmap = Pixmap::new(500, 500).unwrap();

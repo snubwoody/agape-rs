@@ -63,7 +63,7 @@ impl View for RectView {
 #[cfg(test)]
 mod test {
     use super::*;
-    use agape_core::colors::BLACK;
+    use agape_core::Color;
 
     #[test]
     fn set_correct_pixel_color() {
@@ -92,7 +92,7 @@ mod test {
     fn use_correct_position() {
         let mut pixmap = Pixmap::new(500, 500).unwrap();
         pixmap.fill(tiny_skia::Color::WHITE);
-        let color = BLACK;
+        let color = Color::BLACK;
         let mut rect_view = RectView::new(color);
         rect_view.position = Position::new(50.0, 100.0);
         rect_view.size = Size::unit(500.0);
