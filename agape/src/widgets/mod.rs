@@ -1,6 +1,16 @@
-//! [`Widget`]'s describe what you want to present onto the screen. agape tries to provide
+//! [`Widget`]'s describe what you want to present onto the screen. Agape tries to provide
 //! as many [`Widget`]'s as possible for various uses such as [`Text`],[`Button`],[`HStack`]
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
+//! 
+//! # Creating custom widgets
+//! To create a custom widget you can implement the `Widget` trait, it has three required
+//! methods:
+//! - `id`: Return the widgets [`GlobalId`].
+//! - `view`: Return the widgets [`View`] for rendering.
+//! - `layout`: Return the widgets [`Layout`] for layout calculations.
+//! 
+//! Additionally, if your widget has any children you will need to implement the `children`
+//! method.
 mod button;
 mod hstack;
 mod rect;
@@ -35,14 +45,29 @@ pub trait Widget: WidgetIterator {
         vec![]
     }
     
-    fn children_mut(&mut self) -> Vec<&mut dyn Widget> {
-        vec![]
+    fn children_mut(&mut self) -> &mut [Box<dyn Widget>] {
+        &mut []
+    }
+    
+    fn handle_event(&mut self,event: WidgetEvent){
+        match event { 
+            WidgetEvent::Hovered(id) => {
+                if id == self.id(){
+                    self.hover();
+                }
+            },
+            _ => {}
+        }
+        for child in self.children_mut() {
+            child.handle_event(event)
+        }
     }
 
     fn click(&mut self) {}
     fn hover(&mut self) {}
 }
 
+#[derive(Clone,PartialEq,Debug,Copy)]
 pub enum WidgetEvent{
     Hovered(GlobalId),
     Clicked(GlobalId),
