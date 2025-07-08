@@ -3,7 +3,6 @@ use crate::view::{RectView, View};
 use crate::widgets::{Text, Widget};
 use agape_core::{Color, GlobalId, Rgba};
 use agape_layout::{BlockLayout, Layout};
-use std::ops::DerefMut;
 
 pub struct Button {
     id: GlobalId,
