@@ -1,6 +1,7 @@
+use std::ops::DerefMut;
 use crate::view::{RectView, View};
 use crate::widgets::{Text, Widget};
-use crate::{AppEvent, impl_style};
+use crate::{impl_style};
 use agape_core::{Color, GlobalId, Rgba};
 use agape_layout::{BlockLayout, Layout};
 
@@ -82,8 +83,8 @@ impl Widget for Button {
         vec![&*self.child]
     }
 
-    fn children_mut(&mut self) -> Vec<&mut dyn Widget> {
-        vec![&mut *self.child]
+    fn children_mut(&mut self) -> &mut[Box<dyn Widget>] {
+        std::slice::from_mut(&mut self.child)
     }
 }
 

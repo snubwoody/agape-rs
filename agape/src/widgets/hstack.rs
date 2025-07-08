@@ -136,7 +136,11 @@ impl Widget for HStack {
         self.children
             .iter()
             .map(|child| child.as_ref())
-            .collect::<Vec<_>>()
+            .collect()
+    }
+    
+    fn children_mut(&mut self) -> &mut [Box<dyn Widget>] {
+        self.children.as_mut_slice()
     }
 }
 
@@ -200,7 +204,7 @@ mod test {
             Rect::new(200.0,100.0),
             Rect::new(200.0,100.0),
         };
-
+        
         assert_eq!(hstack.children.len(), 2);
     }
     

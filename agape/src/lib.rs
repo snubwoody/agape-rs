@@ -35,7 +35,7 @@ pub mod resources;
 
 pub use resources::Resources;
 use crate::view::View;
-use crate::widgets::WidgetState;
+use crate::widgets::{WidgetEvent, WidgetState};
 pub use agape_core::*;
 pub use agape_layout;
 use agape_layout::{Layout, LayoutSolver};
@@ -147,6 +147,7 @@ impl App<'_> {
         resources.insert(EventQueue::new());
         resources.insert(widget);
         resources.insert(state_map);
+        resources.insert::<Vec<WidgetEvent>>(Vec::new());
         
         let systems = vec![
             Box::new(layout_system.into_system()) as Box<dyn System>,
@@ -215,7 +216,9 @@ impl App<'_> {
     pub fn run(mut self) -> Result<()> {
         self = 
             self.add_system(update_cursor_position)
-                .add_system(intersection_observer);
+                .add_system(intersection_observer)
+                .add_system(handle_widget_event);
+        
         let event_loop = EventLoop::new()?;
         event_loop.set_control_flow(ControlFlow::Poll);
         event_loop.run_app(&mut self)?;
@@ -246,10 +249,25 @@ fn intersection_observer(resources: &mut Resources) {
         .collect();
     
     let state_map: &mut StateMap = resources.get_mut().unwrap();
-    for id in hovered_ids{
-        state_map.insert(id,WidgetState::Hovered);
-        dbg!("Hovered");
+    for id in &hovered_ids{
+        state_map.insert(*id,WidgetState::Hovered);
     }
+    
+    let events: &mut Vec<WidgetEvent>= resources.get_mut().unwrap();
+    for id in &hovered_ids{
+        events.push(WidgetEvent::Hovered(*id));
+    }
+}
+
+fn handle_widget_event(resources: &mut Resources){
+    let events:Vec<WidgetEvent> = resources.get_owned().unwrap();
+    let widget:&mut Box<dyn Widget> = resources.get_mut().unwrap();
+    
+    for event in events{
+        widget.handle_event(event);
+    }
+    
+    resources.get_mut::<Vec<WidgetEvent>>().unwrap().clear();
 }
 
 #[cfg(test)]
@@ -271,11 +289,15 @@ mod test {
         resources.insert(layout);
         resources.insert(state_map);
         resources.insert(CursorPosition(Position::unit(50.0)));
+        resources.insert::<Vec<WidgetEvent>>(Vec::new());
         
         intersection_observer(&mut resources);
         
         let state_map: &StateMap = resources.get().unwrap();
         assert_eq!(state_map.get(&rect.id()).unwrap(), &WidgetState::Hovered);
+        
+        let events: &Vec<WidgetEvent> = resources.get().unwrap();
+        assert!(events.contains(&WidgetEvent::Hovered(rect.id())));
     }
     
     #[test]
