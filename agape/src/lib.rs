@@ -35,7 +35,7 @@ pub mod widgets;
 
 use crate::resources::{CursorPosition, EventQueue, WindowSize};
 use crate::view::View;
-use crate::widgets::{WidgetEvent, WidgetState};
+use crate::widgets::{StateTracker, WidgetEvent, WidgetState};
 pub use agape_core::*;
 pub use agape_layout;
 use agape_layout::{Layout, LayoutSolver};
@@ -136,11 +136,13 @@ impl App<'_> {
         log::info!("Creating widget tree with {len} widgets");
 
         let layout = widget.layout();
+        let state_tracker = StateTracker::new(&widget);
         let widget: Box<dyn Widget> = Box::new(widget);
         let mut state_map: StateMap = HashMap::new();
         state_map.insert(widget.id(), WidgetState::Resting);
 
         let mut resources = Resources::new();
+        resources.insert(state_tracker);
         resources.insert(CursorPosition::default());
         resources.insert(WindowSize::default());
         resources.insert(layout);
@@ -247,15 +249,23 @@ fn intersection_observer(resources: &mut Resources) {
         .map(|l| l.id())
         .collect();
 
-    let state_map: &mut StateMap = resources.get_mut().unwrap();
+    let state = resources.get_mut::<StateTracker>().unwrap();
+    // let state_map: &mut StateMap = resources.get_mut().unwrap();
     for id in &hovered_ids {
-        state_map.insert(*id, WidgetState::Hovered);
+        state.update_state(*id, WidgetState::Hovered);
+        
     }
 
-    let events: &mut Vec<WidgetEvent> = resources.get_mut().unwrap();
+    let state = resources.get::<StateTracker>().unwrap();
+    let mut events = vec![];
     for id in &hovered_ids {
-        events.push(WidgetEvent::Hovered(*id));
+        if state.previous_state(*id).unwrap() == &WidgetState::Resting{
+            events.push(WidgetEvent::Hovered(*id));
+        }
     }
+    
+    let widget_events: &mut Vec<WidgetEvent> = resources.get_mut().unwrap();
+    widget_events.extend(events);
 }
 
 fn handle_widget_event(resources: &mut Resources) {
@@ -318,10 +328,15 @@ mod test {
     fn initial_resources() {
         let app = App::new(hstack! {});
         app.resources.get::<CursorPosition>().unwrap();
+        app.resources.get::<StateMap>().unwrap();
         app.resources.get::<WindowSize>().unwrap();
         app.resources.get::<Box<dyn Layout>>().unwrap();
         app.resources.get::<EventQueue>().unwrap();
         app.resources.get::<Box<dyn Widget>>().unwrap();
+        app.resources.get::<Vec<WidgetEvent>>().unwrap();
+        app.resources.get::<StateTracker>().unwrap();
+        
+        assert_eq!(app.resources.len(),8);
     }
 
     #[test]

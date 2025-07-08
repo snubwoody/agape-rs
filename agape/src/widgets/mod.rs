@@ -17,6 +17,7 @@ mod rect;
 mod text;
 mod vstack;
 
+use std::collections::HashMap;
 use crate::view::View;
 use agape_core::GlobalId;
 use agape_layout::Layout;
@@ -71,6 +72,45 @@ pub trait Widget: WidgetIterator {
 pub enum WidgetEvent {
     Hovered(GlobalId),
     Clicked(GlobalId),
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub struct StateTracker{
+    previous_state: HashMap<GlobalId, WidgetState>,
+    current_state: HashMap<GlobalId, WidgetState>,
+}
+
+// TODO test these
+impl StateTracker {
+    pub fn new(widget: &dyn Widget) -> Self {
+        let mut previous_state = HashMap::new();
+        let mut current_state = HashMap::new();
+        
+        widget.iter().for_each(|w|{
+            let id = w.id();
+            previous_state.insert(id,WidgetState::Resting);
+            current_state.insert(id,WidgetState::Resting);
+        });
+        
+        Self{
+            previous_state,
+            current_state
+        }
+    }
+    
+    pub fn current_state(&self,id: GlobalId) -> Option<&WidgetState> {
+        self.current_state.get(&id)
+    }
+    
+    pub fn previous_state(&self,id: GlobalId) -> Option<&WidgetState> {
+        self.previous_state.get(&id)
+    }
+    
+    pub fn update_state(&mut self,id: GlobalId,state: WidgetState){
+        let previous_state = self.current_state.get(&id).unwrap();
+        self.previous_state.insert(id,*previous_state);
+        self.current_state.insert(id,state);
+    }
 }
 
 /// The current state of the widget
