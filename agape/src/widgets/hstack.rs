@@ -133,12 +133,9 @@ impl Widget for HStack {
     }
 
     fn children(&self) -> Vec<&dyn Widget> {
-        self.children
-            .iter()
-            .map(|child| child.as_ref())
-            .collect()
+        self.children.iter().map(|child| child.as_ref()).collect()
     }
-    
+
     fn children_mut(&mut self) -> &mut [Box<dyn Widget>] {
         self.children.as_mut_slice()
     }
@@ -160,7 +157,7 @@ impl Widget for HStack {
 /// .padding(24);
 ///
 /// ```
-/// 
+///
 /// - Create an [`Hstack`] from a given widget and size.
 /// ```
 /// use agape::hstack;
@@ -168,7 +165,7 @@ impl Widget for HStack {
 ///
 /// let hstack = hstack![Rect::new(100.0,100.0);10];
 /// ```
-/// 
+///
 /// > Note that to use the repeat syntax the [`Widget`] must implement
 /// > `Clone`.
 #[macro_export]
@@ -186,7 +183,7 @@ macro_rules! hstack {
                 hstack = hstack.add_child($child.clone());
             }
             hstack
-        }        
+        }
     };
 	()=>{
 		$crate::widgets::HStack::new()
@@ -204,12 +201,12 @@ mod test {
             Rect::new(200.0,100.0),
             Rect::new(200.0,100.0),
         };
-        
+
         assert_eq!(hstack.children.len(), 2);
     }
-    
+
     #[test]
-    fn hstack_repeat_syntax(){
+    fn hstack_repeat_syntax() {
         let hstack = hstack! {Text::new("hello world");10};
         assert_eq!(hstack.children.len(), 10);
     }
