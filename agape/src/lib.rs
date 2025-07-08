@@ -248,12 +248,20 @@ fn intersection_observer(resources: &mut Resources) {
         .filter(|l| l.bounds().within(&cursor_pos.0))
         .map(|l| l.id())
         .collect();
+    
+    let not_hovered: Vec<GlobalId> = layout.iter()
+        .filter(|l| !hovered_ids.contains(&l.id()))
+        .map(|l| l.id())
+        .collect();
 
     let state = resources.get_mut::<StateTracker>().unwrap();
     // let state_map: &mut StateMap = resources.get_mut().unwrap();
     for id in &hovered_ids {
         state.update_state(*id, WidgetState::Hovered);
-        
+    }
+    
+    for id in &not_hovered {
+        state.update_state(*id, WidgetState::Resting);
     }
 
     let state = resources.get::<StateTracker>().unwrap();
