@@ -57,8 +57,6 @@ use winit::{
     window::Window,
 };
 
-pub type StateMap = HashMap<GlobalId, WidgetState>;
-
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AppEvent {
     /// Emitted when the cursor is over a widget
@@ -138,8 +136,6 @@ impl App<'_> {
         let layout = widget.layout();
         let state_tracker = StateTracker::new(&widget);
         let widget: Box<dyn Widget> = Box::new(widget);
-        let mut state_map: StateMap = HashMap::new();
-        state_map.insert(widget.id(), WidgetState::Resting);
 
         let mut resources = Resources::new();
         resources.insert(state_tracker);
@@ -148,7 +144,6 @@ impl App<'_> {
         resources.insert(layout);
         resources.insert(EventQueue::new());
         resources.insert(widget);
-        resources.insert(state_map);
         resources.insert::<Vec<WidgetEvent>>(Vec::new());
 
         let systems = vec![Box::new(layout_system.into_system()) as Box<dyn System>];
@@ -248,7 +243,7 @@ fn intersection_observer(resources: &mut Resources) {
         .filter(|l| l.bounds().within(&cursor_pos.0))
         .map(|l| l.id())
         .collect();
-    
+
     let not_hovered: Vec<GlobalId> = layout.iter()
         .filter(|l| !hovered_ids.contains(&l.id()))
         .map(|l| l.id())
@@ -259,7 +254,7 @@ fn intersection_observer(resources: &mut Resources) {
     for id in &hovered_ids {
         state.update_state(*id, WidgetState::Hovered);
     }
-    
+
     for id in &not_hovered {
         state.update_state(*id, WidgetState::Resting);
     }
@@ -271,7 +266,7 @@ fn intersection_observer(resources: &mut Resources) {
             events.push(WidgetEvent::Hovered(*id));
         }
     }
-    
+
     let widget_events: &mut Vec<WidgetEvent> = resources.get_mut().unwrap();
     widget_events.extend(events);
 }
@@ -302,16 +297,15 @@ mod test {
         let mut state_map: HashMap<GlobalId, WidgetState> = HashMap::new();
         state_map.insert(rect.id(), WidgetState::Resting);
 
+        let state_tracker = StateTracker::new(&rect);
         let mut resources = Resources::new();
         resources.insert(layout);
+        resources.insert(state_tracker);
         resources.insert(state_map);
         resources.insert(CursorPosition(Position::unit(50.0)));
         resources.insert::<Vec<WidgetEvent>>(Vec::new());
 
         intersection_observer(&mut resources);
-
-        let state_map: &StateMap = resources.get().unwrap();
-        assert_eq!(state_map.get(&rect.id()).unwrap(), &WidgetState::Hovered);
 
         let events: &Vec<WidgetEvent> = resources.get().unwrap();
         assert!(events.contains(&WidgetEvent::Hovered(rect.id())));
@@ -336,15 +330,14 @@ mod test {
     fn initial_resources() {
         let app = App::new(hstack! {});
         app.resources.get::<CursorPosition>().unwrap();
-        app.resources.get::<StateMap>().unwrap();
         app.resources.get::<WindowSize>().unwrap();
         app.resources.get::<Box<dyn Layout>>().unwrap();
         app.resources.get::<EventQueue>().unwrap();
         app.resources.get::<Box<dyn Widget>>().unwrap();
         app.resources.get::<Vec<WidgetEvent>>().unwrap();
         app.resources.get::<StateTracker>().unwrap();
-        
-        assert_eq!(app.resources.len(),8);
+
+        assert_eq!(app.resources.len(),7);
     }
 
     #[test]
