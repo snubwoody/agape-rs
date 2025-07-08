@@ -43,7 +43,6 @@ pub use agape_macros::hex;
 pub use error::{Error, Result};
 use pixels::{Pixels, SurfaceTexture};
 pub use resources::Resources;
-use std::collections::HashMap;
 use std::sync::Arc;
 use system::{IntoSystem, System};
 use tiny_skia::Pixmap;
@@ -294,14 +293,10 @@ mod test {
         let mut layout = rect.layout();
         LayoutSolver::solve(&mut *layout, Size::unit(500.0));
 
-        let mut state_map: HashMap<GlobalId, WidgetState> = HashMap::new();
-        state_map.insert(rect.id(), WidgetState::Resting);
-
         let state_tracker = StateTracker::new(&rect);
         let mut resources = Resources::new();
         resources.insert(layout);
         resources.insert(state_tracker);
-        resources.insert(state_map);
         resources.insert(CursorPosition(Position::unit(50.0)));
         resources.insert::<Vec<WidgetEvent>>(Vec::new());
 

@@ -51,13 +51,10 @@ pub trait Widget: WidgetIterator {
     }
 
     fn handle_event(&mut self, event: WidgetEvent) {
-        match event {
-            WidgetEvent::Hovered(id) => {
-                if id == self.id() {
-                    self.hover();
-                }
+        if let WidgetEvent::Hovered(id) = event {
+            if id == self.id() {
+                self.hover();
             }
-            _ => {}
         }
         for child in self.children_mut() {
             child.handle_event(event)
