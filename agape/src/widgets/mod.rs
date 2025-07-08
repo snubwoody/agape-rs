@@ -17,13 +17,13 @@ mod rect;
 mod text;
 mod vstack;
 
-use std::collections::HashMap;
 use crate::view::View;
 use agape_core::GlobalId;
 use agape_layout::Layout;
 pub use button::Button;
 pub use hstack::*;
 pub use rect::*;
+use std::collections::HashMap;
 pub use text::Text;
 pub use vstack::*;
 
@@ -71,8 +71,8 @@ pub enum WidgetEvent {
     Clicked(GlobalId),
 }
 
-#[derive(Clone,PartialEq,Debug)]
-pub struct StateTracker{
+#[derive(Clone, PartialEq, Debug)]
+pub struct StateTracker {
     previous_state: HashMap<GlobalId, WidgetState>,
     current_state: HashMap<GlobalId, WidgetState>,
 }
@@ -82,31 +82,31 @@ impl StateTracker {
     pub fn new(widget: &dyn Widget) -> Self {
         let mut previous_state = HashMap::new();
         let mut current_state = HashMap::new();
-        
-        widget.iter().for_each(|w|{
+
+        widget.iter().for_each(|w| {
             let id = w.id();
-            previous_state.insert(id,WidgetState::Resting);
-            current_state.insert(id,WidgetState::Resting);
+            previous_state.insert(id, WidgetState::Resting);
+            current_state.insert(id, WidgetState::Resting);
         });
-        
-        Self{
+
+        Self {
             previous_state,
-            current_state
+            current_state,
         }
     }
-    
-    pub fn current_state(&self,id: GlobalId) -> Option<&WidgetState> {
+
+    pub fn current_state(&self, id: GlobalId) -> Option<&WidgetState> {
         self.current_state.get(&id)
     }
-    
-    pub fn previous_state(&self,id: GlobalId) -> Option<&WidgetState> {
+
+    pub fn previous_state(&self, id: GlobalId) -> Option<&WidgetState> {
         self.previous_state.get(&id)
     }
-    
-    pub fn update_state(&mut self,id: GlobalId,state: WidgetState){
+
+    pub fn update_state(&mut self, id: GlobalId, state: WidgetState) {
         let previous_state = self.current_state.get(&id).unwrap();
-        self.previous_state.insert(id,*previous_state);
-        self.current_state.insert(id,state);
+        self.previous_state.insert(id, *previous_state);
+        self.current_state.insert(id, state);
     }
 }
 

@@ -243,7 +243,8 @@ fn intersection_observer(resources: &mut Resources) {
         .map(|l| l.id())
         .collect();
 
-    let not_hovered: Vec<GlobalId> = layout.iter()
+    let not_hovered: Vec<GlobalId> = layout
+        .iter()
         .filter(|l| !hovered_ids.contains(&l.id()))
         .map(|l| l.id())
         .collect();
@@ -261,7 +262,7 @@ fn intersection_observer(resources: &mut Resources) {
     let state = resources.get::<StateTracker>().unwrap();
     let mut events = vec![];
     for id in &hovered_ids {
-        if state.previous_state(*id).unwrap() == &WidgetState::Resting{
+        if state.previous_state(*id).unwrap() == &WidgetState::Resting {
             events.push(WidgetEvent::Hovered(*id));
         }
     }
@@ -332,7 +333,7 @@ mod test {
         app.resources.get::<Vec<WidgetEvent>>().unwrap();
         app.resources.get::<StateTracker>().unwrap();
 
-        assert_eq!(app.resources.len(),7);
+        assert_eq!(app.resources.len(), 7);
     }
 
     #[test]
