@@ -48,6 +48,7 @@ use system::{IntoSystem, System};
 use tiny_skia::Pixmap;
 use widgets::Widget;
 use winit::application::ApplicationHandler;
+use winit::event::{ElementState, MouseButton};
 use winit::event_loop::ActiveEventLoop;
 use winit::window::WindowId;
 use winit::{
@@ -128,6 +129,7 @@ impl ApplicationHandler for App<'_> {
 }
 
 impl App<'_> {
+    /// Create a new app.
     pub fn new(widget: impl Widget + 'static) -> Self {
         let len = widget.iter().count();
         log::info!("Creating widget tree with {len} widgets");
@@ -210,6 +212,7 @@ impl App<'_> {
     pub fn run(mut self) -> Result<()> {
         self = self
             .add_system(update_cursor_position)
+            .add_system(handle_mouse_button)
             .add_system(intersection_observer)
             .add_system(handle_widget_event);
 
@@ -234,9 +237,41 @@ fn update_cursor_position(resources: &mut Resources, event: &WindowEvent) {
     }
 }
 
+fn handle_mouse_button(resources: &mut Resources, event: &WindowEvent) {
+    match event {
+        &WindowEvent::MouseInput { state, button, .. } => {
+            if state != ElementState::Pressed || button != MouseButton::Left {
+                return;
+            }
+        }
+        _ => return,
+    }
+
+    let layout = resources.get::<Box<dyn Layout>>().unwrap();
+    let cursor_position: &CursorPosition = resources.get().unwrap();
+
+    let ids: Vec<GlobalId> = layout
+        .iter()
+        .filter(|l| l.bounds().within(&cursor_position.0))
+        .map(|l| l.id())
+        .collect();
+
+    let state_tracker = resources.get_mut::<StateTracker>().unwrap();
+    for id in &ids {
+        state_tracker.update_state(*id, WidgetState::Clicked);
+    }
+
+    let event_queue = resources.get_mut::<Vec<WidgetEvent>>().unwrap();
+    for id in ids {
+        event_queue.push(WidgetEvent::Clicked(id));
+    }
+}
+
 fn intersection_observer(resources: &mut Resources) {
     let cursor_pos = resources.get::<CursorPosition>().unwrap();
     let layout = resources.get::<Box<dyn Layout>>().unwrap();
+
+    // TODO combine both iters and just use a for loop
     let hovered_ids: Vec<GlobalId> = layout
         .iter()
         .filter(|l| l.bounds().within(&cursor_pos.0))
@@ -250,7 +285,6 @@ fn intersection_observer(resources: &mut Resources) {
         .collect();
 
     let state = resources.get_mut::<StateTracker>().unwrap();
-    // let state_map: &mut StateMap = resources.get_mut().unwrap();
     for id in &hovered_ids {
         state.update_state(*id, WidgetState::Hovered);
     }

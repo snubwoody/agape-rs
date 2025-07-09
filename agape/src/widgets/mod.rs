@@ -56,6 +56,13 @@ pub trait Widget: WidgetIterator {
                 self.hover();
             }
         }
+
+        if let WidgetEvent::Clicked(id) = event {
+            if id == self.id() {
+                self.click();
+            }
+        }
+
         for child in self.children_mut() {
             child.handle_event(event)
         }

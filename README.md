@@ -1,4 +1,3 @@
-
 <h1 align="center">Agape</h1>
 <p align="center">An easy to use rust GUI library.</p>
 <div align="center">
@@ -11,12 +10,13 @@
 </div>
 
 ## Goals
+
 - Simple, expressive API
 - No heavy use of macros
 - Cross platform
 
-
 ## Add to your project
+
 ```toml
 [dependencies]
 agape = "0.1.0"
@@ -25,42 +25,44 @@ agape = "0.1.0"
 ## Quick start
 
 ```rust
-use agape::{App,widgets::Text};
+use agape::{App, widgets::Text};
 
-fn main() -> Result<(),agape::Error>{
-	let text = Text::new("Hello world");
+fn main() -> Result<(), agape::Error> {
+    let text = Text::new("Hello world");
 
-	let mut app = App::new(text);
-	app.run()
+    let mut app = App::new(text);
+    app.run()
 }
 ```
 
-
 ## Support
 
-|Platform|Status|
-|--|:-:|
-|Windows|  ✅ |
-|MacOS|  ✅|
-|Linux|  ✅ |
-|Android|  🚧 |
-|IOS|  🚧 |
+| Platform | Status |
+|----------|:------:|
+| Windows  |   ✅    |
+| MacOS    |   ✅    |
+| Linux    |   ✅    |
+| Android  |   🚧   |
+| IOS      |   🚧   |
 
 ✅: Fully supported  
-🚧: Planned   
+🚧: Planned
 
 ## Roadmap
+
 - [x] text rendering
 - [ ] Grids
 - [x] Row and column layouts
 - [ ] Input handling
-  - [ ] Hover events
-  - [ ] Click events
-  - [ ] Text input
+    - [x] Hover events
+    - [x] Click events
+    - [ ] Text input
 - [ ] Scrolling
 
 ## License
-This project is dual-licensed under either 
+
+This project is dual-licensed under either
+
 - Apache License, Version 2.0
 - MIT License
 
