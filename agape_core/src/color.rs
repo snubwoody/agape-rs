@@ -2,21 +2,6 @@ use crate::map;
 use std::num::ParseIntError;
 use thiserror::Error;
 
-#[deprecated = "use constants from the Color struct instead"]
-pub mod colors {
-    use super::*;
-    pub const WHITE: Color<Rgba> = Color::rgb(255, 255, 255);
-    pub const BLACK: Color<Rgba> = Color::rgb(0, 0, 0);
-    pub const RED: Color<Rgba> = Color::rgb(255, 0, 0);
-    pub const GREEN: Color<Rgba> = Color::rgb(0, 255, 0);
-    pub const BLUE: Color<Rgba> = Color::rgb(0, 0, 255);
-    pub const AMBER: Color<Rgba> = Color::rgb(245, 158, 11);
-    pub const TEAL: Color<Rgba> = Color::rgb(128, 225, 214);
-    pub const INDIGO: Color<Rgba> = Color::rgb(99, 102, 241);
-    pub const PINK: Color<Rgba> = Color::rgb(236, 72, 153);
-    pub const TRANSPARENT: Color<Rgba> = Color::rgba(0, 0, 0, 0);
-}
-
 /// Trait for generating [`Color`]'s
 pub trait IntoColor<Container> {
     fn into_color(self) -> Color<Container>;
@@ -33,11 +18,11 @@ pub enum ColorError {
 }
 
 // TODO change this to static string and make color copy
-/// Container for Hex [`Color`]'s
+/// Container for Hex [`Color`]s
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Hex(String);
 
-/// Container for Rgba [`Color`]'s
+/// Container for Rgba [`Color`]s
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Rgba {
     r: u8,
@@ -321,8 +306,8 @@ mod test {
         let white = Color::hex("#FFFFFF").unwrap();
         let color = Color::hex("#00000000").unwrap();
 
-        assert!(white.to_string().len() == 9);
-        assert!(color.to_string().len() == 9);
+        assert_eq!(white.to_string().len(), 9);
+        assert_eq!(color.to_string().len(), 9);
     }
 
     #[test]
