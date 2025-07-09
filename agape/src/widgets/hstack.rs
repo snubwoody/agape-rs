@@ -96,6 +96,20 @@ impl Widget for HStack {
         self.id
     }
 
+    fn traverse(&self, f: &mut dyn FnMut(&dyn Widget)) {
+        for child in &self.children {
+            f(child.as_ref());
+            child.traverse(f);
+        }
+    }
+
+    fn traverse_mut(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
+        for child in &mut self.children {
+            f(child.as_mut());
+            child.traverse_mut(f);
+        }
+    }
+
     fn view(&self) -> Box<dyn View> {
         let mut view = RectView::new(self.color.clone());
         view.set_id(self.id);
@@ -194,6 +208,27 @@ macro_rules! hstack {
 mod test {
     use super::*;
     use crate::widgets::{Rect, Text};
+
+    #[test]
+    fn traverse_children() {
+        let mut hstack = hstack! {
+            Text::new("Hello"),
+            Text::new("Hello"),
+            Text::new("Hello"),
+        };
+
+        let mut length = 0;
+        hstack.traverse(&mut |_| {
+            length += 1;
+        });
+        assert_eq!(length, 3);
+
+        hstack.traverse_mut(&mut |_| {
+            length += 1;
+        });
+
+        assert_eq!(length, 6);
+    }
 
     #[test]
     fn hstack_expansion() {
