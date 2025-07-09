@@ -41,6 +41,9 @@ pub trait Widget: WidgetIterator {
         self.iter().find(|&widget| widget.id() == id)
     }
 
+    fn traverse(&self, _f: &mut dyn FnMut(&dyn Widget)) {}
+    fn traverse_mut(&mut self, _f: &mut dyn FnMut(&mut dyn Widget)) {}
+
     /// Get the widgets children.
     fn children(&self) -> Vec<&dyn Widget> {
         vec![]
