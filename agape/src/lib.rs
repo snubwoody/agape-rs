@@ -44,6 +44,7 @@ pub use error::{Error, Result};
 use pixels::{Pixels, SurfaceTexture};
 pub use resources::Resources;
 use std::sync::Arc;
+use std::time::Instant;
 use system::{IntoSystem, System};
 use tiny_skia::Pixmap;
 use widgets::Widget;
@@ -119,6 +120,16 @@ impl ApplicationHandler for App<'_> {
                     .unwrap()
                     .resize_surface(size.width, size.height)
                     .expect("Failed to resize the pixel buffer");
+
+                self.pixels
+                    .as_mut()
+                    .unwrap()
+                    .resize_buffer(size.width, size.height)
+                    .expect("Failed to resize the pixel buffer");
+
+                let pixmap = Pixmap::new(size.width, size.height).unwrap();
+                self.pixmap = Some(pixmap);
+                self.resources.get_mut::<WindowSize>().unwrap().0 = Size::from(size);
             }
             WindowEvent::MouseInput { .. } => {}
             _ => {}
@@ -180,10 +191,10 @@ impl App<'_> {
     }
 
     fn render(&mut self) {
+        let instant = Instant::now();
         let widget = self.resources.get::<Box<dyn Widget>>().unwrap();
         let mut views: Vec<Box<dyn View>> = widget.iter().map(|w| w.view()).collect();
         let layout = self.resources.get::<Box<dyn Layout>>().unwrap();
-        // let mut views = &mut self.context.views;
 
         let pixels = self.pixels.as_mut().unwrap();
         let pixmap = self.pixmap.as_mut().unwrap();
@@ -191,16 +202,15 @@ impl App<'_> {
 
         // Draw each view(widget) to the pixmap
         for view in &mut views {
-            // TODO don't unwrap
             let layout = layout.get(view.id()).unwrap();
             view.set_size(layout.size());
             view.set_position(layout.position());
             view.render(pixmap);
-            // TODO copy data after
-            pixels.frame_mut().copy_from_slice(pixmap.data());
         }
 
+        pixels.frame_mut().copy_from_slice(pixmap.data());
         pixels.render().unwrap();
+        dbg!("Frame time: ", instant.elapsed());
     }
 
     /// Run the app.
