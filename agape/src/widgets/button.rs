@@ -85,11 +85,32 @@ impl Widget for Button {
     fn children_mut(&mut self) -> &mut [Box<dyn Widget>] {
         std::slice::from_mut(&mut self.child)
     }
+
+    fn traverse(&self, f: &mut dyn FnMut(&dyn Widget)) {
+        f(self.child.as_ref());
+        self.child.traverse(f);
+    }
+
+    fn traverse_mut(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
+        f(self.child.as_mut());
+        self.child.traverse_mut(f);
+    }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::hstack;
+
+    #[test]
+    fn traverse_child() {
+        let hstack = hstack! {};
+        let id = hstack.id();
+        let mut button = Button::new(hstack);
+
+        button.traverse(&mut |widget: &dyn Widget| assert_eq!(id, widget.id()));
+        button.traverse_mut(&mut |widget: &mut dyn Widget| assert_eq!(id, widget.id()));
+    }
 
     #[test]
     fn expose_children() {

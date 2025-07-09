@@ -98,14 +98,14 @@ impl Widget for HStack {
 
     fn traverse(&self, f: &mut dyn FnMut(&dyn Widget)) {
         for child in &self.children {
-            f(&**child);
+            f(child.as_ref());
             child.traverse(f);
         }
     }
 
     fn traverse_mut(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
         for child in &mut self.children {
-            f(&mut **child);
+            f(child.as_mut());
             child.traverse_mut(f);
         }
     }
