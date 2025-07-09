@@ -15,6 +15,7 @@ mod button;
 mod hstack;
 mod rect;
 mod text;
+mod text_field;
 mod vstack;
 
 use crate::view::View;
@@ -25,6 +26,7 @@ pub use hstack::*;
 pub use rect::*;
 use std::collections::HashMap;
 pub use text::Text;
+pub use text_field::TextField;
 pub use vstack::*;
 
 pub trait Widget: WidgetIterator {
