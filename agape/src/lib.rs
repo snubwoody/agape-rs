@@ -270,6 +270,8 @@ fn handle_mouse_button(resources: &mut Resources, event: &WindowEvent) {
 fn intersection_observer(resources: &mut Resources) {
     let cursor_pos = resources.get::<CursorPosition>().unwrap();
     let layout = resources.get::<Box<dyn Layout>>().unwrap();
+
+    // TODO combine both iters and just use a for loop
     let hovered_ids: Vec<GlobalId> = layout
         .iter()
         .filter(|l| l.bounds().within(&cursor_pos.0))
