@@ -1,11 +1,25 @@
-# Agape
-An easy to use rust GUI library.
 
-![example workflow](https://github.com/snubwoody/agape/actions/workflows/rust.yml/badge.svg?branch=main)
+<h1 align="center">Agape</h1>
+<p align="center">An easy to use rust GUI library.</p>
+<div align="center">
+  <img alt="Crates.io Version" src="https://img.shields.io/crates/v/agape">
+  <img src="https://img.shields.io/docsrs/agape"/>
+  <img src="https://img.shields.io/github/actions/workflow/status/snubwoody/agape-rs/rust.yml"/>
+  <img alt="Crates.io License" src="https://img.shields.io/crates/l/agape">
+  <img alt="Crates.io Size" src="https://img.shields.io/crates/size/agape">
+
+</div>
+
+## Goals
+- Simple, expressive API
+- No heavy use of macros
+- Cross platform
+
 
 ## Add to your project
-```bash
-cargo add agape
+```toml
+[dependencies]
+agape = "0.1.0"
 ```
 
 ## Quick start
@@ -33,7 +47,7 @@ fn main() -> Result<(),agape::Error>{
 |IOS|  🚧 |
 
 ✅: Fully supported  
-🚧: Planned but not yet supported  
+🚧: Planned   
 
 ## Roadmap
 - [x] text rendering
@@ -46,5 +60,9 @@ fn main() -> Result<(),agape::Error>{
 - [ ] Scrolling
 
 ## License
-This project is dual-licensed under either the Apache license or MIT license at your choice.
+This project is dual-licensed under either 
+- Apache License, Version 2.0
+- MIT License
+
+at your choice.
 
