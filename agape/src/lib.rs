@@ -191,7 +191,6 @@ impl App<'_> {
     }
 
     fn render(&mut self) {
-        let instant = Instant::now();
         let widget = self.resources.get::<Box<dyn Widget>>().unwrap();
         let mut views: Vec<Box<dyn View>> = widget.iter().map(|w| w.view()).collect();
         let layout = self.resources.get::<Box<dyn Layout>>().unwrap();
@@ -210,7 +209,6 @@ impl App<'_> {
 
         pixels.frame_mut().copy_from_slice(pixmap.data());
         pixels.render().unwrap();
-        dbg!("Frame time: ", instant.elapsed());
     }
 
     /// Run the app.
@@ -224,6 +222,7 @@ impl App<'_> {
             .add_system(update_cursor_position)
             .add_system(handle_mouse_button)
             .add_system(intersection_observer)
+            .add_system(handle_key_input)
             .add_system(handle_widget_event);
 
         let event_loop = EventLoop::new()?;
@@ -277,6 +276,13 @@ fn handle_mouse_button(resources: &mut Resources, event: &WindowEvent) {
     }
 }
 
+fn handle_key_input(resources: &mut Resources, event: &WindowEvent) {
+    if let WindowEvent::KeyboardInput { event, .. } = event {
+        let events = resources.get_mut::<Vec<WidgetEvent>>().unwrap();
+        events.push(WidgetEvent::KeyInput(event.clone()));
+    }
+}
+
 fn intersection_observer(resources: &mut Resources) {
     let cursor_pos = resources.get::<CursorPosition>().unwrap();
     let layout = resources.get::<Box<dyn Layout>>().unwrap();
@@ -320,7 +326,7 @@ fn handle_widget_event(resources: &mut Resources) {
     let widget: &mut Box<dyn Widget> = resources.get_mut().unwrap();
 
     for event in events {
-        widget.handle_event(event);
+        widget.handle_event(&event);
     }
 
     resources.get_mut::<Vec<WidgetEvent>>().unwrap().clear();

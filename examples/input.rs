@@ -3,7 +3,7 @@ use agape::{App, hstack, vstack, widgets::*};
 fn main() {
     let widget = hstack! {
         Text::new("Email"),
-        // TextField::new()
+        TextField::new()
     }
     .fill()
     .spacing(12)

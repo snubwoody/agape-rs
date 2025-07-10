@@ -28,6 +28,7 @@ use std::collections::HashMap;
 pub use text::Text;
 pub use text_field::TextField;
 pub use vstack::*;
+use winit::event::KeyEvent;
 
 pub trait Widget: WidgetIterator {
     fn view(&self) -> Box<dyn View>;
@@ -55,32 +56,37 @@ pub trait Widget: WidgetIterator {
         &mut []
     }
 
-    fn handle_event(&mut self, event: WidgetEvent) {
-        if let WidgetEvent::Hovered(id) = event {
-            if id == self.id() {
-                self.hover();
+    fn handle_event(&mut self, event: &WidgetEvent) {
+        match event {
+            WidgetEvent::Hovered(id) => {
+                if id == &self.id() {
+                    self.hover();
+                }
+            }
+            WidgetEvent::Clicked(id) => {
+                if id == &self.id() {
+                    self.click();
+                }
+            }
+            WidgetEvent::KeyInput(event) => {
+                self.key_input(event);
             }
         }
 
-        if let WidgetEvent::Clicked(id) = event {
-            if id == self.id() {
-                self.click();
-            }
-        }
-
-        for child in self.children_mut() {
-            child.handle_event(event)
-        }
+        self.traverse_mut(&mut |child| child.handle_event(event));
     }
 
     fn click(&mut self) {}
     fn hover(&mut self) {}
+
+    fn key_input(&mut self, event: &KeyEvent) {}
 }
 
-#[derive(Clone, PartialEq, Debug, Copy)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum WidgetEvent {
     Hovered(GlobalId),
     Clicked(GlobalId),
+    KeyInput(KeyEvent),
 }
 
 #[derive(Clone, PartialEq, Debug)]
