@@ -1,4 +1,4 @@
-use agape::{App, hex, hstack, vstack, widgets::*};
+use agape::{App, hex, hstack, widgets::*};
 
 fn main() {
     let widget = hstack! {

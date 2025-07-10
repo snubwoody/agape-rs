@@ -2,7 +2,7 @@ use crate::impl_style;
 use crate::view::{RectView, View};
 use crate::widgets::{Text, Widget};
 use agape_core::{Color, GlobalId, Rgba};
-use agape_layout::{BlockLayout, EmptyLayout, Layout};
+use agape_layout::{BlockLayout, Layout};
 use winit::event::KeyEvent;
 
 #[derive(Default, Clone)]

@@ -44,7 +44,6 @@ pub use error::{Error, Result};
 use pixels::{Pixels, SurfaceTexture};
 pub use resources::Resources;
 use std::sync::Arc;
-use std::time::Instant;
 use system::{IntoSystem, System};
 use tiny_skia::Pixmap;
 use widgets::Widget;
