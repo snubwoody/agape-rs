@@ -1,3 +1,4 @@
+use crate::impl_style;
 use crate::view::{RectView, View};
 use crate::widgets::{Text, Widget};
 use agape_core::{Color, GlobalId, Rgba};
@@ -15,6 +16,8 @@ impl TextField {
     pub fn new() -> Self {
         Self::default()
     }
+
+    impl_style!();
 }
 
 impl Widget for TextField {
@@ -29,7 +32,7 @@ impl Widget for TextField {
     }
 
     fn view(&self) -> Box<dyn View> {
-        let mut view = RectView::default();
+        let mut view = RectView::new(self.color.clone());
         view.set_id(self.id);
         Box::new(view)
     }

@@ -1,9 +1,9 @@
-use agape::{App, hstack, vstack, widgets::*};
+use agape::{App, hex, hstack, vstack, widgets::*};
 
 fn main() {
     let widget = hstack! {
         Text::new("Email"),
-        TextField::new()
+        TextField::new().color(hex!("#ffabbc"))
     }
     .fill()
     .spacing(12)

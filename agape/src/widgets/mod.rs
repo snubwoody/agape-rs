@@ -79,7 +79,7 @@ pub trait Widget: WidgetIterator {
     fn click(&mut self) {}
     fn hover(&mut self) {}
 
-    fn key_input(&mut self, event: &KeyEvent) {}
+    fn key_input(&mut self, _: &KeyEvent) {}
 }
 
 #[derive(Clone, PartialEq, Debug)]
