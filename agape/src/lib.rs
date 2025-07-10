@@ -46,7 +46,6 @@ use pixels::{Pixels, SurfaceTexture};
 pub use resources::Resources;
 use std::sync::Arc;
 use std::sync::OnceLock;
-use std::time::Instant;
 use system::{IntoSystem, System};
 use tiny_skia::Pixmap;
 use widgets::Widget;
@@ -195,8 +194,6 @@ impl App<'_> {
     }
 
     fn render(&mut self) {
-        let instant = Instant::now();
-
         let widget = self.resources.get::<Box<dyn Widget>>().unwrap();
         let mut views: Vec<Box<dyn View>> = widget.iter().map(|w| w.view()).collect();
         let layout = self.resources.get::<Box<dyn Layout>>().unwrap();
@@ -205,7 +202,6 @@ impl App<'_> {
         let pixmap = self.pixmap.as_mut().unwrap();
         pixmap.fill(tiny_skia::Color::WHITE);
 
-        let view_instant = Instant::now();
         // Draw each view(widget) to the pixmap
         for view in &mut views {
             let layout = layout.get(view.id()).unwrap();
@@ -213,11 +209,9 @@ impl App<'_> {
             view.set_position(layout.position());
             view.render(pixmap, &self.resources);
         }
-        println!("Rendered views in: {:?}", view_instant.elapsed());
 
         pixels.frame_mut().copy_from_slice(pixmap.data());
         pixels.render().unwrap();
-        println!("Render time: {:?}", instant.elapsed());
     }
 
     /// Run the app.

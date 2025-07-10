@@ -7,9 +7,6 @@ repository = "https://github.com/snubwoody/agape-rs"
 categories = ["gui"]
 keywords = ["gui", "graphics"]
 
-[profile.release]
-debug = true
-
 [workspace]
 resolver = "3"
 
