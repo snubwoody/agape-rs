@@ -70,9 +70,12 @@ impl Widget for Text {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::FONT;
+    use crate::view::init_font;
 
     #[test]
     fn layout_has_correct_id() {
+        let _ = FONT.set(init_font());
         let text = Text::new("Hello");
         let layout = text.layout();
         assert_eq!(text.id, layout.id());

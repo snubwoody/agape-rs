@@ -2,17 +2,15 @@
 //! they hold rendering information such as size, position and color.
 //! Rendering is done using `tiny_skia`.
 //!
-//! There is one kind of view:
-//! - [`RectView`]
-//!
 
 use agape_core::{Color, GlobalId, Position, Rgba, Size};
 use tiny_skia::Pixmap;
 mod rect;
 mod text;
 
+use crate::Resources;
 pub use rect::RectView;
-pub use text::TextView;
+pub use text::*;
 
 /// A [`View`] is a primitive object that performs the rendering to the screen.
 pub trait View {
@@ -26,5 +24,5 @@ pub trait View {
     fn set_position(&mut self, position: Position);
 
     /// Render the view to the screen.
-    fn render(&self, pixmap: &mut Pixmap);
+    fn render(&self, pixmap: &mut Pixmap, resources: &Resources);
 }

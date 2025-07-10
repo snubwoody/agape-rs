@@ -3,7 +3,7 @@ use agape::{
     widgets::{Rect, Text},
 };
 
-fn main() -> Result<(), agape::Error> {
+fn main() {
     let hstack = hstack! {
         Rect::new(200.0, 200.0).color(Color::BLACK),
         Rect::new(200.0, 200.0).color(Color::BLACK),
@@ -15,5 +15,5 @@ fn main() -> Result<(), agape::Error> {
     .color(Color::rgb(210, 210, 210));
 
     let app = App::new(hstack);
-    app.run()
+    app.run().unwrap();
 }

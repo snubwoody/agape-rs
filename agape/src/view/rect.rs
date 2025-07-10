@@ -1,4 +1,5 @@
 use super::View;
+use crate::Resources;
 use agape_core::{Color, GlobalId, IntoColor, Position, Rgba, Size, map};
 use tiny_skia::{Paint, Pixmap, Transform};
 
@@ -44,7 +45,7 @@ impl View for RectView {
         self.size = size
     }
 
-    fn render(&self, pixmap: &mut Pixmap) {
+    fn render(&self, pixmap: &mut Pixmap, _: &Resources) {
         let (r, g, b, a) = self.color.inner();
 
         // Map the alpha since it's clipped to 100
@@ -63,6 +64,7 @@ impl View for RectView {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::Resources;
     use agape_core::Color;
 
     #[test]
@@ -72,7 +74,7 @@ mod test {
         let color = Color::rgb(25, 120, 97);
         let mut rect_view = RectView::new(color);
         rect_view.size = Size::unit(500.0);
-        rect_view.render(&mut pixmap);
+        rect_view.render(&mut pixmap, &Resources::new());
 
         for pixel in pixmap.pixels() {
             let r = pixel.red();
@@ -96,7 +98,7 @@ mod test {
         let mut rect_view = RectView::new(color);
         rect_view.position = Position::new(50.0, 100.0);
         rect_view.size = Size::unit(500.0);
-        rect_view.render(&mut pixmap);
+        rect_view.render(&mut pixmap, &Resources::new());
 
         let x_pos = 50;
         let y_pos = 100;

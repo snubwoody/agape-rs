@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `Resources` struct to share global resources.
 - Added repeat syntax (`hstack![widget;10]`) to `hstack!` and `vstack!` macros.
 - Added `on_click` and `on_hover` gestures.
+- Added `TextField` widget and text input.
 
 ### Changed
 

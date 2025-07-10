@@ -100,7 +100,8 @@ impl Widget for Button {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::hstack;
+    use crate::view::init_font;
+    use crate::{FONT, hstack};
 
     #[test]
     fn traverse_child() {
@@ -114,6 +115,7 @@ mod test {
 
     #[test]
     fn expose_children() {
+        FONT.set(init_font()).unwrap();
         let text = Text::new("Hello");
         let id = text.id();
 
@@ -123,6 +125,7 @@ mod test {
 
     #[test]
     fn view_and_layout() {
+        FONT.set(init_font()).unwrap();
         let button = Button::new(Text::new("Click me"));
         assert_eq!(button.layout().id(), button.id);
         assert_eq!(button.view().id(), button.id)
