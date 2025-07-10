@@ -34,16 +34,18 @@ pub mod view;
 pub mod widgets;
 
 use crate::resources::{CursorPosition, EventQueue, WindowSize};
-use crate::view::View;
+use crate::view::{View, init_font};
 use crate::widgets::{StateTracker, WidgetEvent, WidgetState};
 pub use agape_core::*;
 pub use agape_layout;
 use agape_layout::{Layout, LayoutSolver};
 pub use agape_macros::hex;
 pub use error::{Error, Result};
+use fontdue::Font;
 use pixels::{Pixels, SurfaceTexture};
 pub use resources::Resources;
 use std::sync::Arc;
+use std::sync::OnceLock;
 use system::{IntoSystem, System};
 use tiny_skia::Pixmap;
 use widgets::Widget;
@@ -57,6 +59,9 @@ use winit::{
     window::Window,
 };
 
+static FONT: OnceLock<Font> = OnceLock::new();
+
+/// TODO remove this
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AppEvent {
     /// Emitted when the cursor is over a widget
@@ -96,8 +101,6 @@ impl ApplicationHandler for App<'_> {
     }
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
-        // FIXME update surface on resizing
-        log::trace!("WindowEvent: {event:?}");
         self.event_queue.push(event.clone());
 
         for system in self.systems.iter_mut() {
@@ -141,6 +144,7 @@ impl ApplicationHandler for App<'_> {
 impl App<'_> {
     /// Create a new app.
     pub fn new(widget: impl Widget + 'static) -> Self {
+        FONT.set(init_font()).unwrap();
         let len = widget.iter().count();
         log::info!("Creating widget tree with {len} widgets");
 
@@ -203,7 +207,7 @@ impl App<'_> {
             let layout = layout.get(view.id()).unwrap();
             view.set_size(layout.size());
             view.set_position(layout.position());
-            view.render(pixmap);
+            view.render(pixmap, &self.resources);
         }
 
         pixels.frame_mut().copy_from_slice(pixmap.data());
@@ -232,6 +236,7 @@ impl App<'_> {
 }
 
 fn layout_system(resources: &mut Resources) {
+    // TODO update layout every frame
     let WindowSize(size) = resources.get_owned::<WindowSize>().unwrap();
 
     let layout: &mut Box<dyn Layout> = resources.get_mut().unwrap();

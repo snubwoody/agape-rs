@@ -12,3 +12,6 @@ target/
 # Temporary stuff
 temp/
 tmp/
+
+# Profiling
+**/flamegraph.*

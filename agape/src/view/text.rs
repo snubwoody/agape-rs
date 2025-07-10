@@ -1,6 +1,9 @@
 use super::View;
+use crate::FONT;
+use crate::Resources;
 use agape_core::{Color, GlobalId, Position, Rgba, Size};
-use fontdue::Font;
+use fontdue::{Font, FontSettings};
+use std::default::Default;
 use tiny_skia::{IntSize, Pixmap, PixmapPaint, Transform};
 
 pub struct TextView {
@@ -9,7 +12,6 @@ pub struct TextView {
     size: Size,
     foreground_color: Color<Rgba>,
     text: String,
-    font: Font,
     pub font_size: u8,
 }
 
@@ -22,16 +24,12 @@ impl Default for TextView {
 // TODO add background color
 impl TextView {
     pub fn new(text: &str) -> Self {
-        let bytes = include_bytes!("../../fonts/Inter/static/Inter-Regular.ttf") as &[u8];
-        let font = Font::from_bytes(bytes, fontdue::FontSettings::default()).unwrap();
-
         Self {
             id: GlobalId::new(),
             position: Position::default(),
             size: Size::default(),
             foreground_color: Color::BLACK,
             text: text.to_owned(),
-            font,
             font_size: 16,
         }
     }
@@ -43,7 +41,7 @@ impl TextView {
         let mut width = 0.0;
         let mut height = 0.0;
         for c in self.text.chars() {
-            let metrics = self.font.metrics(c, font_size);
+            let metrics = FONT.get().unwrap().metrics(c, font_size);
             width += metrics.advance_width;
             if metrics.height as f32 > height {
                 height = metrics.height as f32;
@@ -75,10 +73,8 @@ impl View for TextView {
         self.id = id
     }
 
-    fn render(&self, pixmap: &mut Pixmap) {
-        // pixmap.fill(tiny_skia::Color::WHITE); //  FIXME remove this
-        let bytes = include_bytes!("../../fonts/Inter/static/Inter-Regular.ttf") as &[u8];
-        let font = Font::from_bytes(bytes, fontdue::FontSettings::default()).unwrap();
+    fn render(&self, pixmap: &mut Pixmap, _resources: &Resources) {
+        let font = FONT.get().unwrap();
         let font_size = 16.0;
 
         let mut x_pos: i32 = self.position.x as i32;
@@ -131,14 +127,21 @@ impl View for TextView {
     }
 }
 
+pub fn init_font() -> Font {
+    let bytes = include_bytes!("../../fonts/Inter/static/Inter-Regular.ttf") as &[u8];
+    Font::from_bytes(bytes, FontSettings::default()).unwrap()
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
 
     #[test]
     fn text_rendering() {
+        let _ = FONT.set(init_font());
+        let resources = Resources::new();
         let view = TextView::new("Hello world!");
         let mut pixmap = Pixmap::new(500, 500).unwrap();
-        view.render(&mut pixmap);
+        view.render(&mut pixmap, &resources);
     }
 }
