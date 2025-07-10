@@ -3,6 +3,17 @@ use crate::{Color, impl_layout, impl_style, widgets::Widget};
 use agape_core::{GlobalId, Rgba};
 use agape_layout::{AxisAlignment, Layout, VerticalLayout};
 
+/// A vertical stack that places its children vertically one after
+/// another.
+///
+/// ```
+/// use agape::{vstack,widgets::Text};
+///
+/// let vstack = vstack!{
+///     Text::new("Hello"),
+///     Text::new("world!"),
+/// };
+/// ```
 pub struct VStack {
     id: GlobalId,
     children: Vec<Box<dyn Widget>>,
