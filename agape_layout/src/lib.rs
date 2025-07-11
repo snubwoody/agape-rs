@@ -1,4 +1,7 @@
 //! Layout engine
+//!
+//! This is a two pass layout engine that uses constraints to calculate size and
+//! position.
 mod block;
 mod empty;
 mod error;
@@ -113,7 +116,7 @@ impl<'a> Iterator for LayoutIter<'a> {
     }
 }
 
-/// Decribes the size a [`Layout`] will try to be.
+/// Describes the size a [`Layout`] will try to be.
 #[derive(Debug, Clone, Copy, Default, PartialEq, PartialOrd)]
 pub enum BoxSizing {
     /// The [`Layout`] will be a fixed size regardless of any other conditions, this can often
@@ -123,7 +126,7 @@ pub enum BoxSizing {
     #[default]
     Shrink,
     /// Tries to be as big as possible, the behaviour of the flex factor is
-    /// dependant on the type of layout.
+    /// dependent on the type of layout.
     Flex(u8),
 }
 
@@ -152,12 +155,10 @@ impl BoxConstraints {
     }
 }
 
-/// This is the size that a [`Layout`] will try to be,  
-/// the actual final size is dependent on the space
-/// available.
+/// This is the size that a [`Layout`] will try to be, the actual final size is
+/// dependent on the space available.
 #[derive(Debug, Clone, Copy, Default, PartialEq, PartialOrd)]
 pub struct IntrinsicSize {
-    // TODO does this really need to be a seperate struct?
     pub width: BoxSizing,
     pub height: BoxSizing,
 }

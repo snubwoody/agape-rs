@@ -1,15 +1,16 @@
 use super::Widget;
 use crate::Color;
+use crate::style::Border;
 use crate::view::{RectView, View};
 use agape_core::{GlobalId, IntoColor, Rgba};
 use agape_layout::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
 pub struct Rect {
     id: GlobalId,
     intrinsic_size: IntrinsicSize,
     color: Color<Rgba>,
-    corner_radius: u32,
+    border: Option<Border>,
 }
 
 impl Rect {
@@ -20,21 +21,13 @@ impl Rect {
         };
 
         Self {
-            id: GlobalId::default(),
-            color: Color::WHITE,
             intrinsic_size,
-            corner_radius: 0,
+            ..Default::default()
         }
     }
 
     pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
         self.color = color.into_color();
-        self
-    }
-
-    /// Set the corner radius
-    pub fn corner_radius(mut self, corner_radius: u32) -> Self {
-        self.corner_radius = corner_radius;
         self
     }
 
@@ -47,6 +40,22 @@ impl Rect {
     /// Set the intrinsic height to `BoxSixing::Flex`.
     pub fn flex_height(mut self, factor: u8) -> Self {
         self.intrinsic_size.height = BoxSizing::Flex(factor);
+        self
+    }
+
+    pub fn border_width(mut self, width: f32) -> Self {
+        match &mut self.border {
+            Some(border) => {
+                border.width = width;
+            }
+            None => {
+                self.border = Some(Border {
+                    width,
+                    ..Default::default()
+                });
+            }
+        }
+
         self
     }
 }
