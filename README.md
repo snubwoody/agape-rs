@@ -15,6 +15,10 @@
 - No heavy use of macros
 - Cross platform
 
+## Overview
+
+`agape` is a cross platform, CPU-rendered, GUI library. Internally it uses `tiny-skia` for rendering.
+
 ## Add to your project
 
 ```toml
