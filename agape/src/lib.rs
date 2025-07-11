@@ -1,6 +1,6 @@
 //! A GUI library that feels like writing regular rust.
 //!
-//! # Getting started
+//! ## Getting started
 //! ```no_run
 //! use agape::{App,hstack,widgets::Text};
 //!
@@ -16,7 +16,7 @@
 //! app.run().unwrap();
 //! ```
 //!
-//! # Architecture
+//! ## Architecture
 //! Widgets are high level objects that can contain any kind of data like text, buttons and
 //! scrollbars.
 //!
@@ -26,9 +26,12 @@
 //! Views are the final item and hold only basic information, like color, size and position, and
 //! are responsible for drawing the widgets to the screen.
 //!
+//! ## Rendering
+//! `agape` uses [`tiny_skia`](https://github.com/linebender/tiny-skia) for rendering.
 pub mod error;
 mod macros;
 pub mod resources;
+pub mod style;
 pub mod system;
 pub mod view;
 pub mod widgets;
@@ -60,16 +63,6 @@ use winit::{
 };
 
 static FONT: OnceLock<Font> = OnceLock::new();
-
-/// TODO remove this
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum AppEvent {
-    /// Emitted when the cursor is over a widget
-    Hovered(GlobalId),
-    /// Emitted when the left mouse button is pressed
-    /// while the [`Widget`] is in a hovered state.
-    Clicked(GlobalId),
-}
 
 /// An `App` is a single program.
 pub struct App<'app> {

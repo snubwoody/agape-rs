@@ -111,8 +111,11 @@ impl Widget for HStack {
     }
 
     fn view(&self) -> Box<dyn View> {
-        let mut view = RectView::new(self.color.clone());
-        view.set_id(self.id);
+        let view = RectView {
+            id: self.id,
+            color: self.color.clone(),
+            ..Default::default()
+        };
         Box::new(view)
     }
 

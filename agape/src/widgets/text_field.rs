@@ -8,6 +8,7 @@ use winit::event::KeyEvent;
 #[derive(Default, Clone)]
 pub struct TextField {
     id: GlobalId,
+    // TODO rename to value
     text: Text,
     color: Color<Rgba>,
 }
@@ -32,8 +33,11 @@ impl Widget for TextField {
     }
 
     fn view(&self) -> Box<dyn View> {
-        let mut view = RectView::new(self.color.clone());
-        view.set_id(self.id);
+        let view = RectView {
+            id: self.id,
+            color: self.color.clone(),
+            ..Default::default()
+        };
         Box::new(view)
     }
 
