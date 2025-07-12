@@ -1,11 +1,11 @@
 use super::View;
 use crate::Resources;
-use crate::style::Border;
+use crate::style::{Border, BoxStyle};
 use agape_core::{Color, GlobalId, Position, Rgba, Size, map};
 use tiny_skia::{Paint, PathBuilder, Pixmap, Stroke, Transform};
 
 /// Responsible for drawing rectangular shapes to the screen.
-#[derive(Default)]
+#[derive(Default, Debug, Clone, PartialEq)]
 pub struct RectView {
     pub id: GlobalId,
     pub position: Position,
@@ -61,11 +61,11 @@ impl View for RectView {
 
         if let Some(border) = &self.border {
             // TODO turn this into a function
-            let (r, g, b, a) = self.color.inner();
+            let (r, g, b, a) = border.color.inner();
             let a = map(a as f32, [0.0, 100.0], [0.0, 255.0]) as u8;
 
-            let mut stroke_paint = Paint::default();
-            stroke_paint.set_color_rgba8(r, g, b, a);
+            let mut border_paint = Paint::default();
+            border_paint.set_color_rgba8(r, g, b, a);
             let mut path_builder = PathBuilder::new();
             path_builder.push_rect(rect);
             let path = path_builder.finish().unwrap();
@@ -75,7 +75,7 @@ impl View for RectView {
                 ..Default::default()
             };
 
-            pixmap.stroke_path(&path, &stroke_paint, &stroke, Transform::identity(), None);
+            pixmap.stroke_path(&path, &border_paint, &stroke, Transform::identity(), None);
         }
     }
 }

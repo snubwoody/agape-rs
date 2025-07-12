@@ -5,14 +5,16 @@ use agape::{
 
 fn main() {
     let hstack = hstack! {
-        Rect::new(200.0, 200.0).color(Color::BLACK),
-        Rect::new(200.0, 200.0).color(Color::BLACK),
+        Rect::new(200.0, 200.0).background_color(Color::BLACK),
+        Rect::new(200.0, 200.0).background_color(Color::BLACK),
         Text::new("Hello")
     }
     .align_center()
     .spacing(12)
     .padding(12)
-    .color(Color::rgb(210, 210, 210));
+    .border_width(2.0)
+    .border_color(Color::BLACK)
+    .background_color(Color::rgb(210, 210, 210));
 
     let app = App::new(hstack);
     app.run().unwrap();

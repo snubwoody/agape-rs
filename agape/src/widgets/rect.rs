@@ -1,7 +1,7 @@
 use super::Widget;
-use crate::Color;
-use crate::style::Border;
+use crate::style::{Border, BoxStyle};
 use crate::view::{RectView, View};
+use crate::{Color, impl_style};
 use agape_core::{GlobalId, IntoColor, Rgba};
 use agape_layout::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 
@@ -9,8 +9,7 @@ use agape_layout::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 pub struct Rect {
     id: GlobalId,
     intrinsic_size: IntrinsicSize,
-    color: Color<Rgba>,
-    border: Option<Border>,
+    style: BoxStyle,
 }
 
 impl Rect {
@@ -26,38 +25,7 @@ impl Rect {
         }
     }
 
-    pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
-        self.color = color.into_color();
-        self
-    }
-
-    /// Set the intrinsic width to `BoxSixing::Flex`.
-    pub fn flex_width(mut self, factor: u8) -> Self {
-        self.intrinsic_size.width = BoxSizing::Flex(factor);
-        self
-    }
-
-    /// Set the intrinsic height to `BoxSixing::Flex`.
-    pub fn flex_height(mut self, factor: u8) -> Self {
-        self.intrinsic_size.height = BoxSizing::Flex(factor);
-        self
-    }
-
-    pub fn border_width(mut self, width: f32) -> Self {
-        match &mut self.border {
-            Some(border) => {
-                border.width = width;
-            }
-            None => {
-                self.border = Some(Border {
-                    width,
-                    ..Default::default()
-                });
-            }
-        }
-
-        self
-    }
+    impl_style!();
 }
 
 impl Widget for Rect {
@@ -76,9 +44,11 @@ impl Widget for Rect {
     fn view(&self) -> Box<dyn View> {
         let view = RectView {
             id: self.id,
-            color: self.color.clone(),
+            color: self.style.background_color.clone(),
+            border: self.style.border.clone(),
             ..Default::default()
         };
+
         Box::new(view)
     }
 }
@@ -100,7 +70,7 @@ mod test {
     #[test]
     fn view_has_correct_color() {
         let color = Color::rgba(24, 145, 110, 100);
-        let rect = Rect::new(100.0, 100.0).color(color.clone());
+        let rect = Rect::new(100.0, 100.0).background_color(color.clone());
         let view = rect.view();
         assert_eq!(view.color(), &color);
     }

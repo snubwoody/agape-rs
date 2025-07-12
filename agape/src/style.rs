@@ -44,7 +44,7 @@ impl BoxStyle {
         self.intrinsic_size.height = height;
     }
 
-    /// Set the intrinsic width and height to `BoxSizing::Fill`.
+    /// Set the intrinsic width and height to [`BoxSizing::Flex`].
     ///
     /// # Example
     /// ```
@@ -58,6 +58,104 @@ impl BoxStyle {
     pub fn fill(&mut self) {
         self.intrinsic_width(BoxSizing::Flex(1));
         self.intrinsic_height(BoxSizing::Flex(1));
+    }
+
+    /// Set the intrinsic width [`BoxSizing::Flex`].
+    ///
+    /// # Example
+    /// ```
+    /// use agape::{style::BoxStyle,layout::{IntrinsicSize,BoxSizing}};
+    ///
+    /// let mut style = BoxStyle::new();
+    /// style.fill_width();
+    ///
+    /// assert_eq!(style.intrinsic_size.width,BoxSizing::Flex(1));
+    /// assert_eq!(style.intrinsic_size.height,BoxSizing::default());
+    /// ```
+    pub fn fill_width(&mut self) {
+        self.intrinsic_width(BoxSizing::Flex(1));
+    }
+
+    /// Set the intrinsic height [`BoxSizing::Flex`].
+    ///
+    /// # Example
+    /// ```
+    /// use agape::{style::BoxStyle,layout::{IntrinsicSize,BoxSizing}};
+    ///
+    /// let mut style = BoxStyle::new();
+    /// style.fill_height();
+    ///
+    /// assert_eq!(style.intrinsic_size.height,BoxSizing::Flex(1));
+    /// assert_eq!(style.intrinsic_size.width,BoxSizing::default());
+    /// ```
+    pub fn fill_height(&mut self) {
+        self.intrinsic_height(BoxSizing::Flex(1));
+    }
+
+    /// Set the intrinsic width to [`BoxSizing::Shrink`].
+    ///
+    /// # Example
+    /// ```
+    /// use agape::{style::BoxStyle,layout::{IntrinsicSize,BoxSizing}};
+    ///
+    /// let mut style = BoxStyle::new();
+    /// style.fit_width();
+    ///
+    /// assert_eq!(style.intrinsic_size.width,BoxSizing::Shrink);
+    /// assert_eq!(style.intrinsic_size.height,BoxSizing::default());
+    /// ```
+    pub fn fit_width(&mut self) {
+        self.intrinsic_width(BoxSizing::Shrink);
+    }
+
+    /// Set the intrinsic height to [`BoxSizing::Shrink`].
+    ///
+    /// # Example
+    /// ```
+    /// use agape::{style::BoxStyle,layout::{BoxSizing}};
+    ///
+    /// let mut style = BoxStyle::new();
+    /// style.fit_height();
+    ///
+    /// assert_eq!(style.intrinsic_size.height,BoxSizing::Shrink);
+    /// assert_eq!(style.intrinsic_size.width,BoxSizing::default());
+    /// ```
+    pub fn fit_height(&mut self) {
+        self.intrinsic_height(BoxSizing::Shrink);
+    }
+
+    /// Set the intrinsic width and height to [`BoxSizing::Fixed`].
+    ///
+    /// # Example
+    /// ```
+    /// use agape::{style::BoxStyle,layout::{BoxSizing}};
+    /// use agape_layout::IntrinsicSize;
+    ///
+    /// let mut style = BoxStyle::new();
+    /// style.fixed(20.0,50.0);
+    ///
+    /// assert_eq!(style.intrinsic_size,IntrinsicSize::fixed(20.0,50.0));
+    /// ```
+    pub fn fixed(&mut self, width: f32, height: f32) {
+        self.intrinsic_width(BoxSizing::Fixed(width));
+        self.intrinsic_height(BoxSizing::Fixed(height));
+    }
+
+    /// Set the intrinsic width and height to [`BoxSizing::Shrink`].
+    ///
+    /// # Example
+    /// ```
+    /// use agape::{style::BoxStyle,layout::{IntrinsicSize,BoxSizing}};
+    ///
+    /// let mut style = BoxStyle::new();
+    /// style.fit();
+    ///
+    /// assert_eq!(style.intrinsic_size.width,BoxSizing::Shrink);
+    /// assert_eq!(style.intrinsic_size.height,BoxSizing::Shrink);
+    /// ```
+    pub fn fit(&mut self) {
+        self.intrinsic_width(BoxSizing::Shrink);
+        self.intrinsic_height(BoxSizing::Shrink);
     }
 
     /// Set the border width.
