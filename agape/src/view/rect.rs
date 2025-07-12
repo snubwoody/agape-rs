@@ -1,6 +1,6 @@
 use super::View;
 use crate::Resources;
-use crate::style::{Border, BoxStyle};
+use crate::style::Border;
 use agape_core::{Color, GlobalId, Position, Rgba, Size, map};
 use tiny_skia::{Paint, PathBuilder, Pixmap, Stroke, Transform};
 

@@ -1,7 +1,7 @@
 use crate::style::BoxStyle;
 use crate::view::{RectView, View};
-use crate::{Color, impl_style, widgets::Widget};
-use agape_core::{GlobalId, Rgba};
+use crate::{impl_style, widgets::Widget};
+use agape_core::GlobalId;
 use agape_layout::{AxisAlignment, HorizontalLayout, Layout};
 
 /// A horizontal stack of widgets, placed one after another.
@@ -131,7 +131,7 @@ impl Widget for HStack {
             id: self.id,
             spacing,
             padding,
-            intrinsic_size: self.style.intrinsic_size.clone(),
+            intrinsic_size: self.style.intrinsic_size,
             cross_axis_alignment,
             main_axis_alignment,
             constraints,

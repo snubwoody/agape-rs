@@ -1,8 +1,8 @@
 use super::Widget;
-use crate::style::{Border, BoxStyle};
+use crate::impl_style;
+use crate::style::BoxStyle;
 use crate::view::{RectView, View};
-use crate::{Color, impl_style};
-use agape_core::{GlobalId, IntoColor, Rgba};
+use agape_core::GlobalId;
 use agape_layout::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
@@ -56,6 +56,7 @@ impl Widget for Rect {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::Color;
 
     #[test]
     fn correct_ids() {

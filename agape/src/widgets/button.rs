@@ -2,7 +2,7 @@ use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::view::{RectView, View};
 use crate::widgets::{Text, Widget};
-use agape_core::{Color, GlobalId, Rgba};
+use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 
 pub struct Button {
