@@ -211,9 +211,9 @@ mod test {
     #[test]
     fn vstack_expansion() {
         let vstack = vstack! {
-            Rect::new(100.0,100.0),
-            Rect::new(100.0,100.0),
-            Rect::new(100.0,100.0),
+            Rect::new(),
+            Rect::new(),
+            Rect::new(),
         };
 
         assert_eq!(vstack.children.len(), 3);
@@ -228,8 +228,8 @@ mod test {
     #[test]
     fn get_children() {
         let vstack = vstack! {
-            Rect::new(100.0,100.0),
-            Rect::new(100.0,100.0),
+            Rect::new(),
+            Rect::new(),
         };
 
         let id1 = vstack.children()[0].id();

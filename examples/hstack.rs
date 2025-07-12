@@ -5,8 +5,8 @@ use agape::{
 
 fn main() {
     let hstack = hstack! {
-        Rect::new(200.0, 200.0).background_color(Color::BLACK),
-        Rect::new(200.0, 200.0).background_color(Color::BLACK),
+        Rect::new().fixed(500.0,500.0).background_color(Color::BLACK),
+        Rect::new().fixed(500.0,500.0).background_color(Color::BLACK),
         Text::new("Hello")
     }
     .align_center()

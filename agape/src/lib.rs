@@ -337,7 +337,7 @@ mod test {
 
     #[test]
     fn widget_hover_system() {
-        let rect = Rect::new(100.0, 100.0);
+        let rect = Rect::new().fixed(100.0, 100.0);
         let mut layout = rect.layout();
         LayoutSolver::solve(&mut *layout, Size::unit(500.0));
 
