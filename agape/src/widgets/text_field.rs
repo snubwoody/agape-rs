@@ -39,12 +39,14 @@ impl Widget for TextField {
             border: self.style.border.clone(),
             ..Default::default()
         };
+
         Box::new(view)
     }
 
     fn layout(&self) -> Box<dyn Layout> {
         let child_layout = self.text.layout();
         let mut layout = BlockLayout::new(child_layout);
+        layout.intrinsic_size = self.style.intrinsic_size;
         layout.id = self.id;
         Box::new(layout)
     }

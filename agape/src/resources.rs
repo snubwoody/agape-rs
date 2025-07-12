@@ -19,6 +19,7 @@ impl Default for Resources {
     }
 }
 
+// TODO add set (override) method
 impl Resources {
     pub fn new() -> Resources {
         Self { items: vec![] }

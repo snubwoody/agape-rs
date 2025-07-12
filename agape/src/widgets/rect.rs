@@ -3,7 +3,7 @@ use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::view::{RectView, View};
 use agape_core::GlobalId;
-use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
+use agape_layout::{EmptyLayout, Layout};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
 pub struct Rect {
@@ -48,6 +48,7 @@ impl Widget for Rect {
 mod test {
     use super::*;
     use crate::Color;
+    use crate::layout::IntrinsicSize;
 
     #[test]
     fn layout_attributes() {

@@ -232,8 +232,11 @@ fn layout_system(resources: &mut Resources) {
     // TODO update layout every frame
     let WindowSize(size) = resources.get_owned::<WindowSize>().unwrap();
 
-    let layout: &mut Box<dyn Layout> = resources.get_mut().unwrap();
-    LayoutSolver::solve(&mut **layout, size);
+    let widget = resources.get::<Box<dyn Widget>>().unwrap();
+    let mut layout = widget.layout();
+    LayoutSolver::solve(&mut *layout, size);
+
+    *resources.get_mut::<Box<dyn Layout>>().unwrap() = layout;
 }
 
 fn update_cursor_position(resources: &mut Resources, event: &WindowEvent) {
