@@ -1,15 +1,16 @@
 use crate::impl_style;
+use crate::style::BoxStyle;
 use crate::view::{RectView, View};
 use crate::widgets::{Text, Widget};
-use agape_core::{Color, GlobalId, Rgba};
+use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 use winit::event::KeyEvent;
 
 #[derive(Default, Clone)]
 pub struct TextField {
     id: GlobalId,
-    text: Text,
-    color: Color<Rgba>,
+    pub text: Text,
+    pub style: BoxStyle,
 }
 
 impl TextField {
@@ -32,8 +33,12 @@ impl Widget for TextField {
     }
 
     fn view(&self) -> Box<dyn View> {
-        let mut view = RectView::new(self.color.clone());
-        view.set_id(self.id);
+        let view = RectView {
+            id: self.id,
+            color: self.style.background_color.clone(),
+            border: self.style.border.clone(),
+            ..Default::default()
+        };
         Box::new(view)
     }
 

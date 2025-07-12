@@ -1,27 +1,28 @@
 use crate::impl_style;
+use crate::style::BoxStyle;
 use crate::view::{RectView, View};
 use crate::widgets::{Text, Widget};
-use agape_core::{Color, GlobalId, Rgba};
+use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 
 pub struct Button {
     id: GlobalId,
-    color: Color<Rgba>,
     child: Box<dyn Widget>,
     padding: u32,
     click_fn: Option<Box<dyn FnMut()>>,
     hover_fn: Option<Box<dyn FnMut()>>,
+    style: BoxStyle,
 }
 
 impl Default for Button {
     fn default() -> Button {
         Button {
             id: GlobalId::new(),
-            color: Color::TRANSPARENT,
             padding: 0,
             child: Box::new(Text::new("")),
             click_fn: None,
             hover_fn: None,
+            style: BoxStyle::new(),
         }
     }
 }
@@ -65,8 +66,12 @@ impl Widget for Button {
     }
 
     fn view(&self) -> Box<dyn View> {
-        let mut view = RectView::new(self.color.clone());
-        view.set_id(self.id);
+        let view = RectView {
+            id: self.id,
+            color: self.style.background_color.clone(),
+            border: self.style.border.clone(),
+            ..Default::default()
+        };
         Box::new(view)
     }
 

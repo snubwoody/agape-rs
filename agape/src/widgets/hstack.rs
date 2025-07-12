@@ -1,6 +1,7 @@
+use crate::style::BoxStyle;
 use crate::view::{RectView, View};
-use crate::{Color, impl_layout, impl_style, widgets::Widget};
-use agape_core::{GlobalId, Rgba};
+use crate::{impl_style, widgets::Widget};
+use agape_core::GlobalId;
 use agape_layout::{AxisAlignment, HorizontalLayout, Layout};
 
 /// A horizontal stack of widgets, placed one after another.
@@ -30,25 +31,18 @@ use agape_layout::{AxisAlignment, HorizontalLayout, Layout};
 pub struct HStack {
     id: GlobalId,
     children: Vec<Box<dyn Widget>>,
-    color: Color<Rgba>,
-    corner_radius: u32,
     layout: HorizontalLayout,
+    style: BoxStyle,
 }
 
 impl HStack {
     pub fn new() -> Self {
         HStack {
             id: GlobalId::default(),
-            color: Color::TRANSPARENT,
             children: vec![],
-            corner_radius: 0,
             layout: HorizontalLayout::new(),
+            style: BoxStyle::default(),
         }
-    }
-
-    pub fn corner_radius(mut self, corner_radius: u32) -> Self {
-        self.corner_radius = corner_radius;
-        self
     }
 
     pub fn get(&self, index: usize) -> Option<&dyn Widget> {
@@ -86,7 +80,6 @@ impl HStack {
         self
     }
 
-    impl_layout!();
     impl_style!();
 }
 
@@ -111,8 +104,13 @@ impl Widget for HStack {
     }
 
     fn view(&self) -> Box<dyn View> {
-        let mut view = RectView::new(self.color.clone());
-        view.set_id(self.id);
+        let view = RectView {
+            id: self.id,
+            color: self.style.background_color.clone(),
+            border: self.style.border.clone(),
+            ..Default::default()
+        };
+
         Box::new(view)
     }
 
@@ -123,19 +121,17 @@ impl Widget for HStack {
         let HorizontalLayout {
             spacing,
             padding,
-            intrinsic_size,
             main_axis_alignment,
             cross_axis_alignment,
             constraints,
             ..
         } = self.layout;
 
-        // TODO use builder pattern?
         let layout = HorizontalLayout {
             id: self.id,
             spacing,
             padding,
-            intrinsic_size,
+            intrinsic_size: self.style.intrinsic_size,
             cross_axis_alignment,
             main_axis_alignment,
             constraints,
@@ -208,6 +204,16 @@ macro_rules! hstack {
 mod test {
     use super::*;
     use crate::widgets::{Rect, Text};
+    use agape_layout::BoxSizing;
+
+    #[test]
+    fn layout_properties() {
+        let hstack = HStack::new().fill_width();
+
+        let layout = hstack.layout();
+
+        assert_eq!(layout.intrinsic_size().width, BoxSizing::Flex(1));
+    }
 
     #[test]
     fn traverse_children() {
@@ -272,7 +278,7 @@ mod test {
     fn get_view() {
         let hstack = hstack! {};
         let view = hstack.view();
-        assert_eq!(view.color(), &hstack.color);
+        assert_eq!(view.color(), &hstack.style.background_color);
         assert_eq!(view.id(), hstack.id);
     }
 }

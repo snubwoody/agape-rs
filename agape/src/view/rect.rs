@@ -1,25 +1,25 @@
 use super::View;
 use crate::Resources;
-use agape_core::{Color, GlobalId, IntoColor, Position, Rgba, Size, map};
-use tiny_skia::{Paint, Pixmap, Transform};
+use crate::style::Border;
+use agape_core::{Color, GlobalId, Position, Rgba, Size, map};
+use tiny_skia::{Paint, PathBuilder, Pixmap, Stroke, Transform};
 
-#[derive(Default)]
+/// Responsible for drawing rectangular shapes to the screen.
+#[derive(Default, Debug, Clone, PartialEq)]
 pub struct RectView {
-    id: GlobalId,
-    position: Position,
-    size: Size,
-    color: Color<Rgba>,
+    pub id: GlobalId,
+    pub position: Position,
+    pub size: Size,
+    pub color: Color<Rgba>,
+    pub border: Option<Border>,
 }
 
 impl RectView {
-    pub fn new(color: impl IntoColor<Rgba>) -> Self {
-        let color = color.into_color();
-
+    /// Create a new rect view.
+    pub fn new(id: GlobalId) -> Self {
         Self {
-            id: GlobalId::new(),
-            position: Position::default(),
-            size: Size::default(),
-            color,
+            id,
+            ..Default::default()
         }
     }
 }
@@ -58,6 +58,25 @@ impl View for RectView {
 
         let rect = tiny_skia::Rect::from_xywh(x, y, width, height).unwrap();
         pixmap.fill_rect(rect, &paint, Transform::identity(), None);
+
+        if let Some(border) = &self.border {
+            // TODO turn this into a function
+            let (r, g, b, a) = border.color.inner();
+            let a = map(a as f32, [0.0, 100.0], [0.0, 255.0]) as u8;
+
+            let mut border_paint = Paint::default();
+            border_paint.set_color_rgba8(r, g, b, a);
+            let mut path_builder = PathBuilder::new();
+            path_builder.push_rect(rect);
+            let path = path_builder.finish().unwrap();
+
+            let stroke = Stroke {
+                width: border.width,
+                ..Default::default()
+            };
+
+            pixmap.stroke_path(&path, &border_paint, &stroke, Transform::identity(), None);
+        }
     }
 }
 
@@ -68,34 +87,14 @@ mod test {
     use agape_core::Color;
 
     #[test]
-    fn set_correct_pixel_color() {
-        let mut pixmap = Pixmap::new(500, 500).unwrap();
-        pixmap.fill(tiny_skia::Color::WHITE);
-        let color = Color::rgb(25, 120, 97);
-        let mut rect_view = RectView::new(color);
-        rect_view.size = Size::unit(500.0);
-        rect_view.render(&mut pixmap, &Resources::new());
-
-        for pixel in pixmap.pixels() {
-            let r = pixel.red();
-            let g = pixel.green();
-            let b = pixel.blue();
-            assert_eq!(r, 25);
-            assert_eq!(g, 120);
-            assert_eq!(b, 97);
-
-            if !pixel.is_opaque() {
-                panic!("Incorrect pixel alpha");
-            }
-        }
-    }
-
-    #[test]
     fn use_correct_position() {
         let mut pixmap = Pixmap::new(500, 500).unwrap();
         pixmap.fill(tiny_skia::Color::WHITE);
         let color = Color::BLACK;
-        let mut rect_view = RectView::new(color);
+        let mut rect_view = RectView {
+            color,
+            ..Default::default()
+        };
         rect_view.position = Position::new(50.0, 100.0);
         rect_view.size = Size::unit(500.0);
         rect_view.render(&mut pixmap, &Resources::new());

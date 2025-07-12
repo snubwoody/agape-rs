@@ -1,15 +1,15 @@
 use super::Widget;
-use crate::Color;
+use crate::impl_style;
+use crate::style::BoxStyle;
 use crate::view::{RectView, View};
-use agape_core::{GlobalId, IntoColor, Rgba};
+use agape_core::GlobalId;
 use agape_layout::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
 
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
 pub struct Rect {
     id: GlobalId,
     intrinsic_size: IntrinsicSize,
-    color: Color<Rgba>,
-    corner_radius: u32,
+    style: BoxStyle,
 }
 
 impl Rect {
@@ -20,35 +20,12 @@ impl Rect {
         };
 
         Self {
-            id: GlobalId::default(),
-            color: Color::WHITE,
             intrinsic_size,
-            corner_radius: 0,
+            ..Default::default()
         }
     }
 
-    pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
-        self.color = color.into_color();
-        self
-    }
-
-    /// Set the corner radius
-    pub fn corner_radius(mut self, corner_radius: u32) -> Self {
-        self.corner_radius = corner_radius;
-        self
-    }
-
-    /// Set the intrinsic width to `BoxSixing::Flex`.
-    pub fn flex_width(mut self, factor: u8) -> Self {
-        self.intrinsic_size.width = BoxSizing::Flex(factor);
-        self
-    }
-
-    /// Set the intrinsic height to `BoxSixing::Flex`.
-    pub fn flex_height(mut self, factor: u8) -> Self {
-        self.intrinsic_size.height = BoxSizing::Flex(factor);
-        self
-    }
+    impl_style!();
 }
 
 impl Widget for Rect {
@@ -65,8 +42,13 @@ impl Widget for Rect {
     }
 
     fn view(&self) -> Box<dyn View> {
-        let mut view = RectView::new(self.color.clone());
-        view.set_id(self.id);
+        let view = RectView {
+            id: self.id,
+            color: self.style.background_color.clone(),
+            border: self.style.border.clone(),
+            ..Default::default()
+        };
+
         Box::new(view)
     }
 }
@@ -74,6 +56,7 @@ impl Widget for Rect {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::Color;
 
     #[test]
     fn correct_ids() {
@@ -88,7 +71,7 @@ mod test {
     #[test]
     fn view_has_correct_color() {
         let color = Color::rgba(24, 145, 110, 100);
-        let rect = Rect::new(100.0, 100.0).color(color.clone());
+        let rect = Rect::new(100.0, 100.0).background_color(color.clone());
         let view = rect.view();
         assert_eq!(view.color(), &color);
     }

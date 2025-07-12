@@ -1,6 +1,6 @@
 //! A GUI library that feels like writing regular rust.
 //!
-//! # Getting started
+//! ## Getting started
 //! ```no_run
 //! use agape::{App,hstack,widgets::Text};
 //!
@@ -16,7 +16,7 @@
 //! app.run().unwrap();
 //! ```
 //!
-//! # Architecture
+//! ## Architecture
 //! Widgets are high level objects that can contain any kind of data like text, buttons and
 //! scrollbars.
 //!
@@ -26,9 +26,12 @@
 //! Views are the final item and hold only basic information, like color, size and position, and
 //! are responsible for drawing the widgets to the screen.
 //!
+//! ## Rendering
+//! `agape` uses [`tiny_skia`](https://github.com/linebender/tiny-skia) for rendering.
 pub mod error;
 mod macros;
 pub mod resources;
+pub mod style;
 pub mod system;
 pub mod view;
 pub mod widgets;
@@ -37,39 +40,29 @@ use crate::resources::{CursorPosition, EventQueue, WindowSize};
 use crate::view::{View, init_font};
 use crate::widgets::{StateTracker, WidgetEvent, WidgetState};
 pub use agape_core::*;
-pub use agape_layout;
+pub use agape_layout as layout;
 use agape_layout::{Layout, LayoutSolver};
 pub use agape_macros::hex;
 pub use error::{Error, Result};
+pub use resources::Resources;
+use system::{IntoSystem, System};
+use widgets::Widget;
+
 use fontdue::Font;
 use pixels::{Pixels, SurfaceTexture};
-pub use resources::Resources;
 use std::sync::Arc;
 use std::sync::OnceLock;
-use system::{IntoSystem, System};
 use tiny_skia::Pixmap;
-use widgets::Widget;
-use winit::application::ApplicationHandler;
-use winit::event::{ElementState, MouseButton};
 use winit::event_loop::ActiveEventLoop;
-use winit::window::WindowId;
 use winit::{
-    event::WindowEvent,
+    application::ApplicationHandler,
+    event::{ElementState, MouseButton, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::Window,
+    window::WindowId,
 };
 
 static FONT: OnceLock<Font> = OnceLock::new();
-
-/// TODO remove this
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum AppEvent {
-    /// Emitted when the cursor is over a widget
-    Hovered(GlobalId),
-    /// Emitted when the left mouse button is pressed
-    /// while the [`Widget`] is in a hovered state.
-    Clicked(GlobalId),
-}
 
 /// An `App` is a single program.
 pub struct App<'app> {

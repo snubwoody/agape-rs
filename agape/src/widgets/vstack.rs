@@ -1,6 +1,7 @@
+use crate::style::BoxStyle;
 use crate::view::{RectView, View};
-use crate::{Color, impl_layout, impl_style, widgets::Widget};
-use agape_core::{GlobalId, Rgba};
+use crate::{impl_style, widgets::Widget};
+use agape_core::GlobalId;
 use agape_layout::{AxisAlignment, Layout, VerticalLayout};
 
 /// A vertical stack that places its children vertically one after
@@ -17,9 +18,8 @@ use agape_layout::{AxisAlignment, Layout, VerticalLayout};
 pub struct VStack {
     id: GlobalId,
     children: Vec<Box<dyn Widget>>,
-    color: Color<Rgba>,
     layout: VerticalLayout,
-    corner_radius: u32,
+    pub style: BoxStyle,
 }
 
 impl Default for VStack {
@@ -32,16 +32,10 @@ impl VStack {
     pub fn new() -> Self {
         VStack {
             id: GlobalId::new(),
-            color: Color::TRANSPARENT,
             children: vec![],
             layout: VerticalLayout::new(),
-            corner_radius: 0,
+            style: BoxStyle::default(),
         }
-    }
-
-    pub fn corner_radius(mut self, corner_radius: u32) -> Self {
-        self.corner_radius = corner_radius;
-        self
     }
 
     pub fn get(&self, index: usize) -> Option<&dyn Widget> {
@@ -79,7 +73,6 @@ impl VStack {
         self
     }
 
-    impl_layout!();
     impl_style!();
 }
 
@@ -103,8 +96,12 @@ impl Widget for VStack {
     }
 
     fn view(&self) -> Box<dyn View> {
-        let mut view = RectView::new(self.color.clone());
-        view.set_id(self.id);
+        let view = RectView {
+            id: self.id,
+            color: self.style.background_color.clone(),
+            border: self.style.border.clone(),
+            ..Default::default()
+        };
         Box::new(view)
     }
 
@@ -115,7 +112,6 @@ impl Widget for VStack {
         let VerticalLayout {
             spacing,
             padding,
-            intrinsic_size,
             main_axis_alignment,
             cross_axis_alignment,
             constraints,
@@ -123,12 +119,11 @@ impl Widget for VStack {
             ..
         } = self.layout;
 
-        // TODO use builder pattern?
         let layout = VerticalLayout {
             id: self.id,
             spacing,
             padding,
-            intrinsic_size,
+            intrinsic_size: self.style.intrinsic_size,
             cross_axis_alignment,
             main_axis_alignment,
             constraints,
@@ -202,6 +197,16 @@ macro_rules! vstack {
 mod test {
     use super::*;
     use crate::widgets::{Rect, Text};
+    use agape_layout::BoxSizing;
+
+    #[test]
+    fn layout_properties() {
+        let vstack = VStack::new().fixed(100.0, 200.0);
+
+        let layout = vstack.layout();
+        assert_eq!(layout.intrinsic_size().width, BoxSizing::Fixed(100.0));
+        assert_eq!(layout.intrinsic_size().height, BoxSizing::Fixed(200.0));
+    }
 
     #[test]
     fn vstack_expansion() {
@@ -241,7 +246,7 @@ mod test {
         let vstack = vstack! {};
         let view = vstack.view();
 
-        assert_eq!(view.color(), &vstack.color);
+        assert_eq!(view.color(), &vstack.style.background_color);
         assert_eq!(view.id(), vstack.id());
     }
 }
