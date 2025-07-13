@@ -1,12 +1,14 @@
 <h1 align="center">Agape</h1>
 <p align="center">An easy to use rust GUI library.</p>
 <div align="center">
-  <img alt="Crates.io Version" src="https://img.shields.io/crates/v/agape">
-  <img src="https://img.shields.io/docsrs/agape"/>
-  <img src="https://img.shields.io/github/actions/workflow/status/snubwoody/agape-rs/rust.yml"/>
-  <img alt="Crates.io License" src="https://img.shields.io/crates/l/agape">
-  <img alt="Crates.io Size" src="https://img.shields.io/crates/size/agape">
-
+    <img alt="Crates.io Version" src="https://img.shields.io/crates/v/agape">
+    <img src="https://img.shields.io/docsrs/agape"/>
+    <img src="https://img.shields.io/github/actions/workflow/status/snubwoody/agape-rs/rust.yml"/>
+    <img alt="Crates.io License" src="https://img.shields.io/crates/l/agape">
+    <img alt="Crates.io Size" src="https://img.shields.io/crates/size/agape">
+    <a href="https://codecov.io/gh/snubwoody/agape-rs" > 
+        <img src="https://codecov.io/gh/snubwoody/agape-rs/graph/badge.svg?token=FNDNUZ7AGM"/> 
+    </a>
 </div>
 
 ## Goals

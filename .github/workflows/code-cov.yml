@@ -1,5 +1,9 @@
 name: Code Coverage
-on: [ pull_request ]
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "Main" ]
 concurrency:
   group: code-cov-${{github.ref}}
   cancel-in-progress: true
