@@ -1,11 +1,11 @@
 name: CI
 on:
   push:
-    branches: [ "main"]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 concurrency:
-  group: ${{github.ref}}
+  group: ci-${{github.ref}}
   cancel-in-progress: true
 env:
   CARGO_TERM_COLOR: always
@@ -33,24 +33,24 @@ jobs:
   test:
     strategy:
       matrix:
-        os: ['ubuntu-latest','macos-latest','windows-latest']
+        os: [ 'ubuntu-latest','macos-latest','windows-latest' ]
     runs-on: ${{matrix.os}}
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/cache@v4
-      with:
-        key: ${{runner.os}}-cargo-${{hashFiles('Cargo.lock')}}
-        path: |
-          target/
-          ~/.cargo
-        restore-keys: ${{runner.os}}-cargo-
-    - uses: taiki-e/install-action@cargo-nextest
-    - name: Run tests
-      run: cargo nextest run --locked
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          key: ${{runner.os}}-cargo-${{hashFiles('Cargo.lock')}}
+          path: |
+            target/
+            ~/.cargo
+          restore-keys: ${{runner.os}}-cargo-
+      - uses: taiki-e/install-action@cargo-nextest
+      - name: Run tests
+        run: cargo nextest run --locked
   doc-tests:
     strategy:
       matrix:
-        os: ['ubuntu-latest','macos-latest','windows-latest']
+        os: [ 'ubuntu-latest','macos-latest','windows-latest' ]
     runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@v4

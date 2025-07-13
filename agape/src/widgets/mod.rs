@@ -28,7 +28,8 @@ use std::collections::HashMap;
 pub use text::Text;
 pub use text_field::TextField;
 pub use vstack::*;
-use winit::event::KeyEvent;
+use winit::event::{ElementState, KeyEvent};
+use winit::keyboard;
 
 pub trait Widget: WidgetIterator {
     fn view(&self) -> Box<dyn View>;
@@ -68,8 +69,8 @@ pub trait Widget: WidgetIterator {
                     self.click();
                 }
             }
-            WidgetEvent::KeyInput(event) => {
-                self.key_input(event);
+            WidgetEvent::KeyInput { key, state, text } => {
+                self.key_input(key, state, text);
             }
         }
 
@@ -79,14 +80,18 @@ pub trait Widget: WidgetIterator {
     fn click(&mut self) {}
     fn hover(&mut self) {}
 
-    fn key_input(&mut self, _: &KeyEvent) {}
+    fn key_input(&mut self, _key: &keyboard::Key, _state: &ElementState, _text: &Option<String>) {}
 }
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum WidgetEvent {
     Hovered(GlobalId),
     Clicked(GlobalId),
-    KeyInput(KeyEvent),
+    KeyInput {
+        key: keyboard::Key,
+        state: ElementState,
+        text: Option<String>,
+    },
 }
 
 #[derive(Clone, PartialEq, Debug)]

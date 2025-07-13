@@ -1,7 +1,7 @@
 name: Code Coverage
 on: [ pull_request, push ]
 concurrency:
-  group: ${{github.ref}}
+  group: code-cov-${{github.ref}}
   cancel-in-progress: true
 jobs:
   coverage:

@@ -229,7 +229,6 @@ impl App<'_> {
 }
 
 fn layout_system(resources: &mut Resources) {
-    // TODO update layout every frame
     let WindowSize(size) = resources.get_owned::<WindowSize>().unwrap();
 
     let widget = resources.get::<Box<dyn Widget>>().unwrap();
@@ -279,7 +278,13 @@ fn handle_mouse_button(resources: &mut Resources, event: &WindowEvent) {
 fn handle_key_input(resources: &mut Resources, event: &WindowEvent) {
     if let WindowEvent::KeyboardInput { event, .. } = event {
         let events = resources.get_mut::<Vec<WidgetEvent>>().unwrap();
-        events.push(WidgetEvent::KeyInput(event.clone()));
+        let widget_event = WidgetEvent::KeyInput {
+            key: event.logical_key.clone(),
+            state: event.state,
+            text: event.text.clone().map(|t| t.to_string()),
+        };
+
+        events.push(widget_event);
     }
 }
 
@@ -339,6 +344,23 @@ mod test {
     use crate::widgets::Rect;
 
     #[test]
+    fn reconstruct_layout_every_frame() {
+        let hstack = hstack! {}.fill();
+        let layout = hstack.layout();
+        let widget: Box<dyn Widget> = Box::new(hstack);
+
+        let mut resources = Resources::new();
+        resources.insert(layout);
+        resources.insert(widget);
+        resources.insert(WindowSize(Size::unit(500.0)));
+
+        layout_system(&mut resources);
+
+        let layout = resources.get::<Box<dyn Layout>>().unwrap();
+        assert_eq!(layout.size(), Size::unit(500.0));
+    }
+
+    #[test]
     fn widget_hover_system() {
         let rect = Rect::new().fixed(100.0, 100.0);
         let mut layout = rect.layout();
@@ -361,9 +383,11 @@ mod test {
     fn layout_system_works() {
         let hstack = hstack! {}.fill();
         let layout = hstack.layout();
+        let widget: Box<dyn Widget> = Box::new(hstack);
 
         let mut resources = Resources::new();
         resources.insert(layout);
+        resources.insert(widget);
         resources.insert(WindowSize(Size::unit(500.0)));
 
         layout_system(&mut resources);
