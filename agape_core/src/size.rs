@@ -59,14 +59,21 @@ impl Size {
         }
     }
 
+    /// Scale the size by a factor.
+    ///
+    /// # Example
+    /// ```
+    /// use agape_core::Size;
+    ///
+    /// let mut size = Size::new(2.0,100.0);
+    /// size.scale(2.0);
+    ///
+    /// assert_eq!(size.width,4.0);
+    /// assert_eq!(size.height,200.0);
+    /// ```
     pub fn scale(&mut self, factor: f32) {
         self.width *= factor;
         self.height *= factor;
-    }
-
-    pub fn set(&mut self, width: f32, height: f32) {
-        self.width = width;
-        self.height = height;
     }
 }
 
