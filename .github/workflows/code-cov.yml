@@ -1,7 +1,11 @@
 name: Code Coverage
-on: [ pull_request, push ]
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "Main" ]
 concurrency:
-  group: ${{github.ref}}
+  group: code-cov-${{github.ref}}
   cancel-in-progress: true
 jobs:
   coverage:
@@ -25,11 +29,11 @@ jobs:
       - uses: taiki-e/install-action@cargo-nextest
       - uses: taiki-e/install-action@cargo-llvm-cov
       - name: Generate code coverage
-        run: cargo llvm-cov nextest --workspace --output-path lcov.info
+        run: cargo llvm-cov nextest --workspace --codecov --output-path codecov.json
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
           token: ${{secrets.CODECOV_TOKEN}}
           slug: snubwoody/agape-rs
-          files: lcov.info
+          files: codecov.json
           fail_ci_if_error: true

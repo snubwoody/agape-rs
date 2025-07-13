@@ -3,26 +3,17 @@ use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::view::{RectView, View};
 use agape_core::GlobalId;
-use agape_layout::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
+use agape_layout::{EmptyLayout, Layout};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
 pub struct Rect {
     id: GlobalId,
-    intrinsic_size: IntrinsicSize,
     style: BoxStyle,
 }
 
 impl Rect {
-    pub fn new(width: f32, height: f32) -> Self {
-        let intrinsic_size = IntrinsicSize {
-            width: BoxSizing::Fixed(width),
-            height: BoxSizing::Fixed(height),
-        };
-
-        Self {
-            intrinsic_size,
-            ..Default::default()
-        }
+    pub fn new() -> Self {
+        Self::default()
     }
 
     impl_style!();
@@ -35,7 +26,7 @@ impl Widget for Rect {
 
     fn layout(&self) -> Box<dyn Layout> {
         let mut layout = EmptyLayout::new();
-        layout.intrinsic_size = self.intrinsic_size;
+        layout.intrinsic_size = self.style.intrinsic_size;
         layout.id = self.id;
 
         Box::new(layout)
@@ -57,10 +48,18 @@ impl Widget for Rect {
 mod test {
     use super::*;
     use crate::Color;
+    use crate::layout::IntrinsicSize;
+
+    #[test]
+    fn layout_attributes() {
+        let rect = Rect::new().fill();
+        let layout = rect.layout();
+        assert_eq!(layout.intrinsic_size(), IntrinsicSize::fill());
+    }
 
     #[test]
     fn correct_ids() {
-        let rect = Rect::new(100.0, 100.0);
+        let rect = Rect::new();
         let layout = rect.layout();
         let view = rect.view();
 
@@ -71,7 +70,7 @@ mod test {
     #[test]
     fn view_has_correct_color() {
         let color = Color::rgba(24, 145, 110, 100);
-        let rect = Rect::new(100.0, 100.0).background_color(color.clone());
+        let rect = Rect::new().background_color(color.clone());
         let view = rect.view();
         assert_eq!(view.color(), &color);
     }

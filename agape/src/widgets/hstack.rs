@@ -13,7 +13,7 @@ use agape_layout::{AxisAlignment, HorizontalLayout, Layout};
 /// use agape::{hstack,widgets::{Rect,Text}};
 ///
 /// let hstack = hstack! {
-///     Rect::new(100.0,150.0),
+///     Rect::new().fill(),
 ///     Text::new("Hi there!"),
 /// };
 /// ```
@@ -160,8 +160,8 @@ impl Widget for HStack {
 /// use agape::{hstack,widgets::{Rect}};
 ///
 /// hstack!{
-///     Rect::new(100.0,200.0),
-///     Rect::new(100.0,200.0),
+///     Rect::new(),
+///     Rect::new(),
 /// }
 /// .spacing(12)
 /// .padding(24);
@@ -173,7 +173,7 @@ impl Widget for HStack {
 /// use agape::hstack;
 /// use agape::widgets::Rect;
 ///
-/// let hstack = hstack![Rect::new(100.0,100.0);10];
+/// let hstack = hstack![Rect::new();10];
 /// ```
 ///
 /// > Note that to use the repeat syntax the [`Widget`] must implement
@@ -239,8 +239,8 @@ mod test {
     #[test]
     fn hstack_expansion() {
         let hstack = hstack! {
-            Rect::new(200.0,100.0),
-            Rect::new(200.0,100.0),
+            Rect::new(),
+            Rect::new(),
         };
 
         assert_eq!(hstack.children.len(), 2);
@@ -261,8 +261,8 @@ mod test {
     #[test]
     fn get_children() {
         let widget = hstack! {
-            Rect::new(100.0,100.0),
-            Rect::new(0.0,0.0)
+            Rect::new(),
+            Rect::new()
         };
 
         let id1 = widget.children()[0].id();
