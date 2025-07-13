@@ -6,8 +6,8 @@ target/
 .vscode/
 
 # Secrets
-.env
-.env.*
+**/.env
+**/.env.*
 
 # Temporary stuff
 temp/
@@ -15,3 +15,6 @@ tmp/
 
 # Profiling
 **/flamegraph.*
+
+# Coverage output
+lcov.info
