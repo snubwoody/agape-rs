@@ -19,7 +19,9 @@ jobs:
             target
           restore-keys: ${{runner.os}}-code-cov
       - name: Install nightly toolchain with components
-        run: rustup install nightly
+        run: |
+          rustup install nightly
+          rustup default nightly
       - uses: taiki-e/install-action@cargo-nextest
       - uses: taiki-e/install-action@cargo-llvm-cov
       - name: Generate code coverage
