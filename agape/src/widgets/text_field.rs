@@ -29,17 +29,12 @@ impl Widget for TextField {
             return;
         }
 
-        match key {
-            Key::Named(key) => {
-                if let NamedKey::Backspace = key {
-                    if self.text.text.is_empty() {
-                        return;
-                    }
-
-                    self.text.text.pop();
-                }
+        if let Key::Named(key) = key {
+            if let NamedKey::Backspace = key
+                && !self.text.text.is_empty()
+            {
+                self.text.text.pop();
             }
-            _ => {}
         }
 
         if let Some(text) = text {
@@ -93,9 +88,9 @@ impl Widget for TextField {
 
 #[cfg(test)]
 mod test {
-    use crate::widgets::{TextField, Widget, WidgetEvent};
-    use winit::event::{ElementState, RawKeyEvent};
-    use winit::keyboard::{Key, KeyCode, NamedKey, PhysicalKey, SmolStr};
+    use crate::widgets::{TextField, Widget};
+    use winit::event::ElementState;
+    use winit::keyboard::{Key, NamedKey};
 
     #[test]
     fn text_input() {

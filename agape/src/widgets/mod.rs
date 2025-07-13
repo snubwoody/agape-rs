@@ -28,7 +28,7 @@ use std::collections::HashMap;
 pub use text::Text;
 pub use text_field::TextField;
 pub use vstack::*;
-use winit::event::{ElementState, KeyEvent};
+use winit::event::ElementState;
 use winit::keyboard;
 
 pub trait Widget: WidgetIterator {
