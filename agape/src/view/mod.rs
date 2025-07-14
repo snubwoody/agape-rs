@@ -1,10 +1,10 @@
 //! [`View`]'s are responsible for drawing widgets to the screen, as such
 //! they hold rendering information such as size, position and color.
 //! Rendering is done using `tiny_skia`.
-//!
 
 use agape_core::{Color, GlobalId, Position, Rgba, Size};
 use tiny_skia::Pixmap;
+mod image;
 mod rect;
 mod text;
 

@@ -28,7 +28,8 @@
 //!
 //! ## Rendering
 //! `agape` uses [`tiny_skia`](https://github.com/linebender/tiny-skia) for rendering.
-pub mod error;
+mod error;
+pub mod image;
 mod macros;
 pub mod resources;
 pub mod style;
@@ -43,7 +44,7 @@ pub use agape_core::*;
 pub use agape_layout as layout;
 use agape_layout::{Layout, LayoutSolver};
 pub use agape_macros::hex;
-pub use error::{Error, Result};
+pub use error::*;
 pub use resources::Resources;
 use system::{IntoSystem, System};
 use widgets::Widget;

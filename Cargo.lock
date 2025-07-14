@@ -44,6 +44,7 @@ dependencies = [
  "image",
  "log",
  "pixels",
+ "rand 0.9.1",
  "reqwest",
  "thiserror 2.0.11",
  "tiny-skia",
