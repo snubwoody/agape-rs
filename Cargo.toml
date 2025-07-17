@@ -1,5 +1,5 @@
 [workspace.package]
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Wakunguma Kalimukwa <wakunguma13@gmail.com>"]
 license = "Apache-2.0 OR MIT"
 edition = "2024"
@@ -19,6 +19,9 @@ members = [
 ]
 
 [workspace.dependencies]
+agape_core = { version = "0.2.0", path = "agape_core" }
+agape_layout = { version = "0.2.0", path = "agape_layout" }
+agape_macros = { version = "0.2.0", path = "agape_macros" }
 thiserror = "2.0.9"
 image = "0.25.2"
 winit = { version = "0.30.11", features = ["rwh_05"] }

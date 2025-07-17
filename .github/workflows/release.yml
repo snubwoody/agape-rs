@@ -1,0 +1,21 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. v0.4.0)'
+        required: true
+        type: string
+concurrency:
+  group: release-${{github.ref}}
+  cancel-in-progress: true
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check semver
+        uses: obi1kenobi/cargo-semver-checks-action@v2
+      - name: Release crates
+        run: sh release.sh
+
