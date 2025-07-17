@@ -2,7 +2,7 @@
 
 All notable changes to agape will be documented in this file.
 
-## 0.2.0
+## 0.2.0 - 2025-07-17
 
 ### Added
 
@@ -26,4 +26,4 @@ All notable changes to agape will be documented in this file.
 
 ### Performance
 
-- Use global font variable, instead of creating one each frame #77.
+- Use global font variable, instead of creating one each frame [#77](https://github.com/snubwoody/agape/pull/77).
