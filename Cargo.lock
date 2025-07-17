@@ -35,7 +35,7 @@ checksum = "512761e0bb2578dd7380c6baaa0f4ce03e84f95e960231d1dec8bf4d7d6e2627"
 
 [[package]]
 name = "agape"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "agape_core",
  "agape_layout",
@@ -52,7 +52,7 @@ dependencies = [
 
 [[package]]
 name = "agape_core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bytemuck",
  "rand 0.9.1",
@@ -62,7 +62,7 @@ dependencies = [
 
 [[package]]
 name = "agape_layout"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "agape_core",
  "thiserror 2.0.11",
@@ -70,7 +70,7 @@ dependencies = [
 
 [[package]]
 name = "agape_macros"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "agape_core",
  "proc-macro2",
@@ -761,7 +761,7 @@ dependencies = [
 
 [[package]]
 name = "examples"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "agape",
  "dotenv",
