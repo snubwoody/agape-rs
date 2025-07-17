@@ -1,25 +1,29 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to agape will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## 0.2.0
+## 0.2.0 - 2025-07-17
 
 ### Added
 
-- Added `Resources` struct to share global resources.
-- Added repeat syntax (`hstack![widget;10]`) to `hstack!` and `vstack!` macros.
-- Added `on_click` and `on_hover` gestures.
-- Added `TextField` widget and text input.
-- Added borders.
+- Added `Resources` struct to share global resources
+- Repeat syntax, `hstack![widget;10]`, to `hstack!` and `vstack!` macros
+- Added `on_click` and `on_hover` gestures
+- Added `TextField` widget and text input
+- Added borders
+- `BoxStyle`, which contains common styling for all widgets
+- Added event systems, i.e. systems that run when specific events are emitted
 
 ### Changed
 
-- Systems now have a `&mut Resources` instead of the previous `&mut Context`.
-- Most of the functionality, like layout and state, is now handled in systems.
+- Systems now have a `&mut Resources` instead of the previous `&mut Context`
+- Most of the functionality, like layout and state, is now handled in systems
 
 ### Removed
 
-- Removed `Context` object, use `Resources` instead.
+- Removed `Context` object, use `Resources` instead
+- (core) Removed deprecated `colors` module
+
+### Performance
+
+- Use global font variable, instead of creating one each frame [#77](https://github.com/snubwoody/agape-rs/pull/77)
