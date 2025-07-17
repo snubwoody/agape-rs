@@ -14,9 +14,9 @@ thiserror.workspace = true
 winit.workspace = true
 log.workspace = true
 fontdue = "0.9.3"
-agape_core = {version = "0.1.0",path = "../agape_core"}
-agape_macros = {version = "0.1.0",path = "../agape_macros"}
-agape_layout = {version = "0.1.0",path = "../agape_layout"}
-reqwest = {version = "0.12.12",features = ["blocking","stream","json"]}
+agape_core.workspace = true
+agape_macros.workspace = true
+agape_layout.workspace = true
+reqwest = { version = "0.12.12", features = ["blocking", "stream", "json"] }
 tiny-skia.workspace = true
 pixels.workspace = true
