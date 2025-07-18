@@ -35,3 +35,6 @@ path = "button.rs"
 name = "input"
 path = "input.rs"
 
+[[example]]
+name = "counter"
+path = "counter.rs"

@@ -20,7 +20,7 @@ mod vstack;
 
 use crate::view::View;
 use agape_core::GlobalId;
-use agape_layout::Layout;
+use agape_layout::{IntrinsicSize, Layout};
 pub use button::Button;
 pub use hstack::*;
 pub use rect::*;
@@ -91,6 +91,18 @@ pub enum WidgetEvent {
         key: keyboard::Key,
         state: ElementState,
         text: Option<String>,
+    },
+}
+
+pub enum LayoutDescription {
+    EmptyLayout {
+        id: GlobalId,
+        intrinsic_size: IntrinsicSize,
+    },
+    BlockLayout {
+        id: GlobalId,
+        intrinsic_size: IntrinsicSize,
+        padding: u32,
     },
 }
 
