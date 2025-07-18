@@ -1,7 +1,7 @@
 use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::view::{RectView, View};
-use crate::widgets::{Text, Widget};
+use crate::widgets::{LayoutDescription, LayoutType, RenderBox, Text, Widget};
 use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 
@@ -62,6 +62,28 @@ impl Widget for Button {
     fn hover(&mut self) {
         if let Some(func) = &mut self.hover_fn {
             func();
+        }
+    }
+
+    fn build(&self) -> RenderBox {
+        let layout_desc = LayoutDescription {
+            layout_type: LayoutType::BlockLayout,
+            ..Default::default()
+        };
+
+        let view = RectView {
+            id: self.id,
+            color: self.style.background_color.clone(),
+            border: self.style.border.clone(),
+            ..Default::default()
+        };
+
+        RenderBox {
+            id: self.id,
+            layout_desc,
+            style: self.style.clone(),
+            children: vec![self.child.build()],
+            view: Box::new(view),
         }
     }
 

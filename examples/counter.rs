@@ -1,21 +1,36 @@
+use agape::layout::BlockLayout;
+use agape::layout::Layout;
 use agape::widgets::*;
-use agape::{App, hstack};
+use agape::{App, GlobalId, hstack};
 
-fn counter(count: i32) -> impl Widget {
-    let mut value = count;
+#[derive(Default)]
+struct Counter {
+    id: GlobalId,
+    count: i32,
+}
 
-    hstack! {
-        Button::new(Text::new("Subtract"))
-        .on_click(move ||value -= 1),
-        Text::new(&format!("{value}")),
-        Button::new(Text::new("Add"))
-        .on_click(move ||value += 1),
+impl Counter {
+    pub fn child(&self) -> impl Widget {
+        hstack! {
+            Text::new(&format!("Count: {}", self.count))
+        }
     }
-    .fill()
-    .align_center()
-    .spacing(24)
+
+    pub fn update(&mut self) {}
+}
+
+impl Widget for Counter {
+    fn layout(&self) -> Box<dyn Layout> {
+        let child_layout = self.child().layout();
+        let layout = BlockLayout::new(child_layout);
+        Box::new(layout)
+    }
+
+    fn id(&self) -> GlobalId {
+        self.id
+    }
 }
 
 fn main() -> Result<(), agape::Error> {
-    App::new(counter(0)).run()
+    App::new(Counter::default()).run()
 }

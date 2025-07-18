@@ -144,9 +144,11 @@ impl App<'_> {
         let layout = widget.layout();
         let state_tracker = StateTracker::new(&widget);
         let widget: Box<dyn Widget> = Box::new(widget);
+        let render_box = widget.build();
 
         let mut resources = Resources::new();
         resources.insert(state_tracker);
+        resources.insert(render_box);
         resources.insert(CursorPosition::default());
         resources.insert(WindowSize::default());
         resources.insert(layout);

@@ -18,21 +18,26 @@ mod text;
 mod text_field;
 mod vstack;
 
-use crate::view::View;
+use crate::Resources;
+use crate::style::BoxStyle;
+use crate::view::{RectView, View};
 use agape_core::GlobalId;
-use agape_layout::{IntrinsicSize, Layout};
+use agape_layout::{AxisAlignment, IntrinsicSize, Layout};
 pub use button::Button;
 pub use hstack::*;
 pub use rect::*;
 use std::collections::HashMap;
 pub use text::Text;
 pub use text_field::TextField;
+use tiny_skia::{Pixmap, PixmapMut};
 pub use vstack::*;
 use winit::event::ElementState;
 use winit::keyboard;
 
 pub trait Widget: WidgetIterator {
-    fn view(&self) -> Box<dyn View>;
+    fn view(&self) -> Box<dyn View> {
+        Box::new(RectView::new(self.id()))
+    }
 
     /// Get the widget's [`Layout`]
     fn layout(&self) -> Box<dyn Layout>;
@@ -80,6 +85,10 @@ pub trait Widget: WidgetIterator {
     fn click(&mut self) {}
     fn hover(&mut self) {}
 
+    fn build(&self) -> RenderBox {
+        todo!()
+    }
+
     fn key_input(&mut self, _key: &keyboard::Key, _state: &ElementState, _text: &Option<String>) {}
 }
 
@@ -91,18 +100,6 @@ pub enum WidgetEvent {
         key: keyboard::Key,
         state: ElementState,
         text: Option<String>,
-    },
-}
-
-pub enum LayoutDescription {
-    EmptyLayout {
-        id: GlobalId,
-        intrinsic_size: IntrinsicSize,
-    },
-    BlockLayout {
-        id: GlobalId,
-        intrinsic_size: IntrinsicSize,
-        padding: u32,
     },
 }
 
@@ -177,5 +174,41 @@ pub trait WidgetIterator {
 impl<T: Widget> WidgetIterator for T {
     fn iter(&self) -> WidgetIter<'_> {
         WidgetIter { stack: vec![self] }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
+pub struct LayoutDescription {
+    pub padding: u32,
+    pub spacing: u32,
+    pub intrinsic_size: IntrinsicSize,
+    pub main_axis_alignment: AxisAlignment,
+    pub cross_axis_alignment: AxisAlignment,
+    pub layout_type: LayoutType,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Default)]
+pub enum LayoutType {
+    #[default]
+    EmptyLayout,
+    HorizontalLayout,
+    VerticalLayout,
+    BlockLayout,
+}
+
+pub struct RenderBox {
+    id: GlobalId,
+    layout_desc: LayoutDescription,
+    view: Box<dyn View>,
+    style: BoxStyle,
+    children: Vec<RenderBox>,
+}
+
+impl RenderBox {
+    pub fn render(&self, pixmap: &mut Pixmap, resources: &Resources) {
+        self.view.render(pixmap, resources);
+        self.children
+            .iter()
+            .for_each(|child| child.render(pixmap, resources));
     }
 }
