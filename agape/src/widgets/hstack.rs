@@ -1,6 +1,6 @@
 use crate::style::BoxStyle;
 use crate::view::{RectView, View};
-use crate::widgets::{LayoutDescription, LayoutType, RenderBox};
+use crate::widgets::{LayoutDescription, LayoutType, RenderBox, RenderObject};
 use crate::{impl_style, widgets::Widget};
 use agape_core::{GlobalId, Position, Size};
 use agape_layout::{AxisAlignment, HorizontalLayout, Layout};
@@ -105,13 +105,6 @@ impl Widget for HStack {
     }
 
     fn build(&self) -> RenderBox {
-        let view = RectView {
-            id: self.id,
-            color: self.style.background_color.clone(),
-            border: self.style.border.clone(),
-            ..Default::default()
-        };
-
         let children = self.children.iter().map(|w| w.build()).collect();
 
         let layout_desc = LayoutDescription {
@@ -123,12 +116,16 @@ impl Widget for HStack {
             layout_type: LayoutType::HorizontalLayout,
         };
 
+        let render_object = RenderObject::Rect {
+            color: self.style.background_color.clone(),
+            border: self.style.border.clone(),
+        };
+
         RenderBox {
             id: self.id,
             position: Position::default(),
             size: Size::default(),
-            view: Box::new(view),
-            style: self.style.clone(),
+            render_object,
             children,
             layout_desc,
         }

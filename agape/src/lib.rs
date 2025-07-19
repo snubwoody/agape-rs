@@ -1,6 +1,9 @@
-//! A GUI library that feels like writing regular rust.
+//! A GUI library.
 //!
 //! ## Getting started
+//! To get started you'll need to create an [`App`], which is the entry point
+//! of the program, and a root [`Widget`].
+//!
 //! ```no_run
 //! use agape::{App,hstack,widgets::Text};
 //!
@@ -10,26 +13,15 @@
 //! }
 //! .padding(12)
 //! .spacing(12)
-//! .align_center();
+//! .align_center()
+//! .fill();
 //!
 //! let app = App::new(hstack);
 //! app.run().unwrap();
 //! ```
-//!
-//! ## Architecture
-//! Widgets are high level objects that can contain any kind of data like text, buttons and
-//! scrollbars.
-//!
-//! Layouts describe how the widgets prefer to be arranged, like the size, position, vertical or
-//! horizontal, and so on.
-//!
-//! Views are the final item and hold only basic information, like color, size and position, and
-//! are responsible for drawing the widgets to the screen.
-//!
-//! ## Rendering
-//! `agape` uses [`tiny_skia`](https://github.com/linebender/tiny-skia) for rendering.
 pub mod error;
 mod macros;
+mod renderer;
 pub mod resources;
 pub mod style;
 pub mod system;

@@ -1,7 +1,7 @@
 use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::view::{RectView, View};
-use crate::widgets::{LayoutDescription, LayoutType, RenderBox, Text, Widget};
+use crate::widgets::{LayoutDescription, LayoutType, RenderBox, RenderObject, Text, Widget};
 use agape_core::{GlobalId, Position, Size};
 use agape_layout::{BlockLayout, Layout};
 
@@ -71,11 +71,9 @@ impl Widget for Button {
             ..Default::default()
         };
 
-        let view = RectView {
-            id: self.id,
+        let render_object = RenderObject::Rect {
             color: self.style.background_color.clone(),
             border: self.style.border.clone(),
-            ..Default::default()
         };
 
         RenderBox {
@@ -83,9 +81,8 @@ impl Widget for Button {
             layout_desc,
             position: Position::default(),
             size: Size::default(),
-            style: self.style.clone(),
+            render_object,
             children: vec![self.child.build()],
-            view: Box::new(view),
         }
     }
 

@@ -38,6 +38,22 @@ impl Rgba {
 }
 
 /// Represents a color.
+///
+/// ## Create an [`Rgba`] color
+/// ```
+/// use agape_core::Color;
+/// let color = Color::rgba(237,102,50,100);
+/// ```
+///
+/// ## Create a [`Hex`] color.
+/// ```
+/// use agape_core::Color;
+/// let color = Color::hex("#000000");
+/// assert!(color.ok())
+/// ```
+/// The `hex` method returns a [`ColorError`] as not all strings are valid
+/// hex colors. Use the `hex! macro for a more convenient way of creating
+/// hex colors.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Color<C>(C);
 

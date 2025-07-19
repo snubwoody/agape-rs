@@ -80,48 +80,6 @@ impl View for RectView {
     }
 }
 
-#[derive(Default, Debug, Clone, PartialEq)]
-pub struct Rect {
-    pub size: Size,
-    pub position: Position,
-    pub color: Color<Rgba>,
-    pub border: Option<Border>,
-}
-
-pub fn draw_rect(pixmap: &mut Pixmap, rect: Rect) {
-    let (r, g, b, a) = rect.color.inner();
-
-    // Map the alpha since it's clipped to 100
-    let a = map(a as f32, [0.0, 100.0], [0.0, 255.0]) as u8;
-    let mut paint = Paint::default();
-    paint.set_color_rgba8(r, g, b, a);
-
-    let Position { x, y } = rect.position;
-    let Size { width, height } = rect.size;
-
-    let rect = tiny_skia::Rect::from_xywh(x, y, width, height).unwrap();
-    pixmap.fill_rect(rect, &paint, Transform::identity(), None);
-
-    // if let Some(border) = rect.border {
-    //     // TODO turn this into a function
-    //     let (r, g, b, a) = border.color.inner();
-    //     let a = map(a as f32, [0.0, 100.0], [0.0, 255.0]) as u8;
-    //
-    //     let mut border_paint = Paint::default();
-    //     border_paint.set_color_rgba8(r, g, b, a);
-    //     let mut path_builder = PathBuilder::new();
-    //     path_builder.push_rect(rect);
-    //     let path = path_builder.finish().unwrap();
-    //
-    //     let stroke = Stroke {
-    //         width: border.width,
-    //         ..Default::default()
-    //     };
-    //
-    //     pixmap.stroke_path(&path, &border_paint, &stroke, Transform::identity(), None);
-    // }
-}
-
 #[cfg(test)]
 mod test {
     use super::*;

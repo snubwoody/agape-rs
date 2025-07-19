@@ -19,9 +19,10 @@ mod text_field;
 mod vstack;
 
 use crate::Resources;
-use crate::style::BoxStyle;
+use crate::renderer::draw_rect;
+use crate::style::{Border, BoxStyle};
 use crate::view::{RectView, View};
-use agape_core::{GlobalId, Position, Size};
+use agape_core::{Color, GlobalId, Position, Rgba, Size};
 use agape_layout::{
     AxisAlignment, BlockLayout, EmptyLayout, HorizontalLayout, IntrinsicSize, Layout, LayoutSolver,
     VerticalLayout,
@@ -32,7 +33,7 @@ pub use rect::*;
 use std::collections::HashMap;
 pub use text::Text;
 pub use text_field::TextField;
-use tiny_skia::{Pixmap, PixmapMut};
+use tiny_skia::Pixmap;
 pub use vstack::*;
 use winit::event::ElementState;
 use winit::keyboard;
@@ -196,13 +197,25 @@ pub enum LayoutType {
     BlockLayout,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum RenderObject {
+    Rect {
+        border: Option<Border>,
+        color: Color<Rgba>,
+    },
+    Text {
+        color: Color<Rgba>,
+        content: String,
+        font_size: u8,
+    },
+}
+
 pub struct RenderBox {
     id: GlobalId,
     size: Size,
     position: Position,
     layout_desc: LayoutDescription,
-    view: Box<dyn View>,
-    style: BoxStyle,
+    render_object: RenderObject,
     children: Vec<RenderBox>,
 }
 
@@ -220,8 +233,6 @@ impl RenderBox {
         let layout = root_layout.get(self.id).unwrap();
         self.position = layout.position();
         self.size = layout.size();
-        self.view.set_size(self.size);
-        self.view.set_position(self.position);
         self.children
             .iter_mut()
             .for_each(|child| child.update_size(root_layout));
@@ -277,7 +288,12 @@ impl RenderBox {
     }
 
     pub fn render(&self, pixmap: &mut Pixmap, resources: &Resources) {
-        self.view.render(pixmap, resources);
+        match &self.render_object {
+            RenderObject::Rect { border, color } => {
+                draw_rect(pixmap, &color, self.size, self.position, border.clone());
+            }
+            _ => {}
+        }
         self.children
             .iter()
             .for_each(|child| child.render(pixmap, resources));

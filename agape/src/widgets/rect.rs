@@ -1,4 +1,4 @@
-use super::{LayoutDescription, LayoutType, RenderBox, Widget};
+use super::{LayoutDescription, LayoutType, RenderBox, RenderObject, Widget};
 use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::view::{RectView, View};
@@ -25,27 +25,24 @@ impl Widget for Rect {
     }
 
     fn build(&self) -> RenderBox {
-        let view = RectView {
-            id: self.id,
-            color: self.style.background_color.clone(),
-            border: self.style.border.clone(),
-            ..Default::default()
-        };
-
         let layout_desc = LayoutDescription {
             intrinsic_size: self.style.intrinsic_size,
             layout_type: LayoutType::EmptyLayout,
             ..Default::default()
         };
 
+        let render_object = RenderObject::Rect {
+            color: self.style.background_color.clone(),
+            border: self.style.border.clone(),
+        };
+
         RenderBox {
             id: self.id,
             size: Size::default(),
             position: Position::default(),
-            view: Box::new(view),
             children: Vec::new(),
             layout_desc,
-            style: self.style.clone(),
+            render_object,
         }
     }
 

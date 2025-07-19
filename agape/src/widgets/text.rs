@@ -1,4 +1,4 @@
-use super::Widget;
+use super::{RenderBox, Widget};
 use crate::view::{TextView, View};
 use agape_core::GlobalId;
 use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
