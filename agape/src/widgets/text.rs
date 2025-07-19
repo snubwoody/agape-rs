@@ -50,18 +50,6 @@ impl Widget for Text {
         Box::new(view)
     }
 
-    fn layout(&self) -> Box<dyn Layout> {
-        let mut view = TextView::new(&self.text);
-        view.font_size = self.font_size;
-        let size = view.text_size();
-
-        let mut layout = EmptyLayout::new();
-        layout.intrinsic_size = IntrinsicSize::fixed(size.width, size.height);
-        layout.id = self.id;
-
-        Box::new(layout)
-    }
-
     fn id(&self) -> GlobalId {
         self.id
     }
@@ -72,14 +60,6 @@ mod test {
     use super::*;
     use crate::FONT;
     use crate::view::init_font;
-
-    #[test]
-    fn layout_has_correct_id() {
-        let _ = FONT.set(init_font());
-        let text = Text::new("Hello");
-        let layout = text.layout();
-        assert_eq!(text.id, layout.id());
-    }
 
     #[test]
     fn view_has_correct_id() {

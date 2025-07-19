@@ -42,9 +42,6 @@ pub trait Widget: WidgetIterator {
         Box::new(RectView::new(self.id()))
     }
 
-    /// Get the widget's [`Layout`]
-    fn layout(&self) -> Box<dyn Layout>;
-
     /// Get the `id` of the [`Widget`]
     fn id(&self) -> GlobalId;
 

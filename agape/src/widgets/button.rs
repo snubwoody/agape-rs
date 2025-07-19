@@ -99,14 +99,6 @@ impl Widget for Button {
         Box::new(view)
     }
 
-    fn layout(&self) -> Box<dyn Layout> {
-        let child = self.child.layout();
-        let mut layout = BlockLayout::new(child);
-        layout.id = self.id;
-        layout.padding = self.padding;
-        Box::new(layout)
-    }
-
     fn children(&self) -> Vec<&dyn Widget> {
         vec![&*self.child]
     }
@@ -150,13 +142,5 @@ mod test {
 
         let button = Button::new(text);
         assert_eq!(button.children()[0].id(), id);
-    }
-
-    #[test]
-    fn view_and_layout() {
-        FONT.set(init_font()).unwrap();
-        let button = Button::new(Text::new("Click me"));
-        assert_eq!(button.layout().id(), button.id);
-        assert_eq!(button.view().id(), button.id)
     }
 }

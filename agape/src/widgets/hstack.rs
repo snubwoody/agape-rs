@@ -145,34 +145,6 @@ impl Widget for HStack {
         Box::new(view)
     }
 
-    fn layout(&self) -> Box<dyn Layout> {
-        let children_layout: Vec<Box<dyn Layout>> =
-            self.children.iter().map(|widget| widget.layout()).collect();
-
-        let HorizontalLayout {
-            spacing,
-            padding,
-            main_axis_alignment,
-            cross_axis_alignment,
-            constraints,
-            ..
-        } = self.layout;
-
-        let layout = HorizontalLayout {
-            id: self.id,
-            spacing,
-            padding,
-            intrinsic_size: self.style.intrinsic_size,
-            cross_axis_alignment,
-            main_axis_alignment,
-            constraints,
-            children: children_layout,
-            ..Default::default()
-        };
-
-        Box::new(layout)
-    }
-
     fn children(&self) -> Vec<&dyn Widget> {
         self.children.iter().map(|child| child.as_ref()).collect()
     }
@@ -236,15 +208,6 @@ mod test {
     use super::*;
     use crate::widgets::{Rect, Text};
     use agape_layout::BoxSizing;
-
-    #[test]
-    fn layout_properties() {
-        let hstack = HStack::new().fill_width();
-
-        let layout = hstack.layout();
-
-        assert_eq!(layout.intrinsic_size().width, BoxSizing::Flex(1));
-    }
 
     #[test]
     fn traverse_children() {

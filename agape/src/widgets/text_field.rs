@@ -63,14 +63,6 @@ impl Widget for TextField {
         Box::new(view)
     }
 
-    fn layout(&self) -> Box<dyn Layout> {
-        let child_layout = self.text.layout();
-        let mut layout = BlockLayout::new(child_layout);
-        layout.intrinsic_size = self.style.intrinsic_size;
-        layout.id = self.id;
-        Box::new(layout)
-    }
-
     fn children(&self) -> Vec<&dyn Widget> {
         vec![&self.text]
     }

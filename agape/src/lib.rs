@@ -335,11 +335,9 @@ mod test {
     #[test]
     fn reconstruct_layout_every_frame() {
         let hstack = hstack! {}.fill();
-        let layout = hstack.layout();
         let widget: Box<dyn Widget> = Box::new(hstack);
 
         let mut resources = Resources::new();
-        resources.insert(layout);
         resources.insert(widget);
         resources.insert(WindowSize(Size::unit(500.0)));
 
@@ -352,12 +350,9 @@ mod test {
     #[test]
     fn widget_hover_system() {
         let rect = Rect::new().fixed(100.0, 100.0);
-        let mut layout = rect.layout();
-        LayoutSolver::solve(&mut *layout, Size::unit(500.0));
 
         let state_tracker = StateTracker::new(&rect);
         let mut resources = Resources::new();
-        resources.insert(layout);
         resources.insert(state_tracker);
         resources.insert(CursorPosition(Position::unit(50.0)));
         resources.insert::<Vec<WidgetEvent>>(Vec::new());
@@ -371,11 +366,9 @@ mod test {
     #[test]
     fn layout_system_works() {
         let hstack = hstack! {}.fill();
-        let layout = hstack.layout();
         let widget: Box<dyn Widget> = Box::new(hstack);
 
         let mut resources = Resources::new();
-        resources.insert(layout);
         resources.insert(widget);
         resources.insert(WindowSize(Size::unit(500.0)));
 

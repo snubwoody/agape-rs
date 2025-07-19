@@ -49,14 +49,6 @@ impl Widget for Rect {
         }
     }
 
-    fn layout(&self) -> Box<dyn Layout> {
-        let mut layout = EmptyLayout::new();
-        layout.intrinsic_size = self.style.intrinsic_size;
-        layout.id = self.id;
-
-        Box::new(layout)
-    }
-
     fn view(&self) -> Box<dyn View> {
         let view = RectView {
             id: self.id,
@@ -74,23 +66,6 @@ mod test {
     use super::*;
     use crate::Color;
     use crate::layout::IntrinsicSize;
-
-    #[test]
-    fn layout_attributes() {
-        let rect = Rect::new().fill();
-        let layout = rect.layout();
-        assert_eq!(layout.intrinsic_size(), IntrinsicSize::fill());
-    }
-
-    #[test]
-    fn correct_ids() {
-        let rect = Rect::new();
-        let layout = rect.layout();
-        let view = rect.view();
-
-        assert_eq!(rect.id, layout.id());
-        assert_eq!(rect.id, view.id());
-    }
 
     #[test]
     fn view_has_correct_color() {
