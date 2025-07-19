@@ -1,7 +1,8 @@
 use crate::style::BoxStyle;
 use crate::view::{RectView, View};
+use crate::widgets::{LayoutDescription, LayoutType, RenderBox};
 use crate::{impl_style, widgets::Widget};
-use agape_core::GlobalId;
+use agape_core::{GlobalId, Position, Size};
 use agape_layout::{AxisAlignment, HorizontalLayout, Layout};
 
 /// A horizontal stack of widgets, placed one after another.
@@ -100,6 +101,36 @@ impl Widget for HStack {
         for child in &mut self.children {
             f(child.as_mut());
             child.traverse_mut(f);
+        }
+    }
+
+    fn build(&self) -> RenderBox {
+        let view = RectView {
+            id: self.id,
+            color: self.style.background_color.clone(),
+            border: self.style.border.clone(),
+            ..Default::default()
+        };
+
+        let children = self.children.iter().map(|w| w.build()).collect();
+
+        let layout_desc = LayoutDescription {
+            padding: self.layout.padding,
+            spacing: self.layout.spacing,
+            intrinsic_size: self.layout.intrinsic_size,
+            cross_axis_alignment: self.layout.cross_axis_alignment,
+            main_axis_alignment: self.layout.main_axis_alignment,
+            layout_type: LayoutType::HorizontalLayout,
+        };
+
+        RenderBox {
+            id: self.id,
+            position: Position::default(),
+            size: Size::default(),
+            view: Box::new(view),
+            style: self.style.clone(),
+            children,
+            layout_desc,
         }
     }
 

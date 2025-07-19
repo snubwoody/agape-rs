@@ -21,8 +21,11 @@ mod vstack;
 use crate::Resources;
 use crate::style::BoxStyle;
 use crate::view::{RectView, View};
-use agape_core::GlobalId;
-use agape_layout::{AxisAlignment, IntrinsicSize, Layout};
+use agape_core::{GlobalId, Position, Size};
+use agape_layout::{
+    AxisAlignment, BlockLayout, EmptyLayout, HorizontalLayout, IntrinsicSize, Layout, LayoutSolver,
+    VerticalLayout,
+};
 pub use button::Button;
 pub use hstack::*;
 pub use rect::*;
@@ -198,6 +201,8 @@ pub enum LayoutType {
 
 pub struct RenderBox {
     id: GlobalId,
+    size: Size,
+    position: Position,
     layout_desc: LayoutDescription,
     view: Box<dyn View>,
     style: BoxStyle,
@@ -205,6 +210,75 @@ pub struct RenderBox {
 }
 
 impl RenderBox {
+    /// Update the [`Size`] and [`Position`] of the render box
+    /// every frame.
+    pub fn solve_layout(&mut self, window_size: Size) {
+        let mut layout = self.layout();
+        LayoutSolver::solve(&mut *layout, window_size);
+        self.update_size(&*layout);
+    }
+
+    fn update_size(&mut self, root_layout: &dyn Layout) {
+        // TODO don't unwrap, log error instead
+        let layout = root_layout.get(self.id).unwrap();
+        self.position = layout.position();
+        self.size = layout.size();
+        self.view.set_size(self.size);
+        self.view.set_position(self.position);
+        self.children
+            .iter_mut()
+            .for_each(|child| child.update_size(root_layout));
+    }
+
+    pub fn layout(&self) -> Box<dyn Layout> {
+        // TODO test this
+        match self.layout_desc.layout_type {
+            LayoutType::EmptyLayout => Box::new(EmptyLayout {
+                id: self.id,
+                intrinsic_size: self.layout_desc.intrinsic_size,
+                ..Default::default()
+            }),
+            LayoutType::BlockLayout => {
+                let child_layout = self.children[0].layout();
+                let mut layout = BlockLayout::new(child_layout);
+                layout.id = self.id;
+                layout.intrinsic_size = self.layout_desc.intrinsic_size;
+                layout.main_axis_alignment = self.layout_desc.main_axis_alignment;
+                layout.cross_axis_alignment = self.layout_desc.cross_axis_alignment;
+                layout.padding = self.layout_desc.padding;
+                Box::new(layout)
+            }
+            LayoutType::HorizontalLayout => {
+                let children = self.children.iter().map(|child| child.layout()).collect();
+                let layout = HorizontalLayout {
+                    id: self.id,
+                    intrinsic_size: self.layout_desc.intrinsic_size,
+                    padding: self.layout_desc.padding,
+                    spacing: self.layout_desc.spacing,
+                    main_axis_alignment: self.layout_desc.main_axis_alignment,
+                    cross_axis_alignment: self.layout_desc.cross_axis_alignment,
+                    children,
+                    ..Default::default()
+                };
+                Box::new(layout)
+            }
+            LayoutType::VerticalLayout => {
+                let children = self.children.iter().map(|child| child.layout()).collect();
+                let layout = VerticalLayout {
+                    id: self.id,
+                    intrinsic_size: self.layout_desc.intrinsic_size,
+                    padding: self.layout_desc.padding,
+                    spacing: self.layout_desc.spacing,
+                    main_axis_alignment: self.layout_desc.main_axis_alignment,
+                    cross_axis_alignment: self.layout_desc.cross_axis_alignment,
+                    children,
+                    ..Default::default()
+                };
+                Box::new(layout)
+            }
+        }
+    }
+
     pub fn render(&self, pixmap: &mut Pixmap, resources: &Resources) {
         self.view.render(pixmap, resources);
         self.children

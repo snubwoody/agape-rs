@@ -1,8 +1,8 @@
-use super::Widget;
+use super::{LayoutDescription, LayoutType, RenderBox, Widget};
 use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::view::{RectView, View};
-use agape_core::GlobalId;
+use agape_core::{GlobalId, Position, Size};
 use agape_layout::{EmptyLayout, Layout};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
@@ -22,6 +22,31 @@ impl Rect {
 impl Widget for Rect {
     fn id(&self) -> GlobalId {
         self.id
+    }
+
+    fn build(&self) -> RenderBox {
+        let view = RectView {
+            id: self.id,
+            color: self.style.background_color.clone(),
+            border: self.style.border.clone(),
+            ..Default::default()
+        };
+
+        let layout_desc = LayoutDescription {
+            intrinsic_size: self.style.intrinsic_size,
+            layout_type: LayoutType::EmptyLayout,
+            ..Default::default()
+        };
+
+        RenderBox {
+            id: self.id,
+            size: Size::default(),
+            position: Position::default(),
+            view: Box::new(view),
+            children: Vec::new(),
+            layout_desc,
+            style: self.style.clone(),
+        }
     }
 
     fn layout(&self) -> Box<dyn Layout> {

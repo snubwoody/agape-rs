@@ -2,7 +2,7 @@ use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::view::{RectView, View};
 use crate::widgets::{LayoutDescription, LayoutType, RenderBox, Text, Widget};
-use agape_core::GlobalId;
+use agape_core::{GlobalId, Position, Size};
 use agape_layout::{BlockLayout, Layout};
 
 pub struct Button {
@@ -81,6 +81,8 @@ impl Widget for Button {
         RenderBox {
             id: self.id,
             layout_desc,
+            position: Position::default(),
+            size: Size::default(),
             style: self.style.clone(),
             children: vec![self.child.build()],
             view: Box::new(view),

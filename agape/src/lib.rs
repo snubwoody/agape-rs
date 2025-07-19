@@ -38,7 +38,7 @@ pub mod widgets;
 
 use crate::resources::{CursorPosition, EventQueue, WindowSize};
 use crate::view::{View, init_font};
-use crate::widgets::{StateTracker, WidgetEvent, WidgetState};
+use crate::widgets::{RenderBox, StateTracker, WidgetEvent, WidgetState};
 pub use agape_core::*;
 pub use agape_layout as layout;
 use agape_layout::{Layout, LayoutSolver};
@@ -138,13 +138,11 @@ impl App<'_> {
     /// Create a new app.
     pub fn new(widget: impl Widget + 'static) -> Self {
         FONT.set(init_font()).unwrap();
-        let len = widget.iter().count();
-        log::info!("Creating widget tree with {len} widgets");
 
-        let layout = widget.layout();
         let state_tracker = StateTracker::new(&widget);
         let widget: Box<dyn Widget> = Box::new(widget);
         let render_box = widget.build();
+        let layout = render_box.layout();
 
         let mut resources = Resources::new();
         resources.insert(state_tracker);
@@ -189,21 +187,13 @@ impl App<'_> {
     }
 
     fn render(&mut self) {
-        let widget = self.resources.get::<Box<dyn Widget>>().unwrap();
-        let mut views: Vec<Box<dyn View>> = widget.iter().map(|w| w.view()).collect();
-        let layout = self.resources.get::<Box<dyn Layout>>().unwrap();
+        let render_box = self.resources.get::<RenderBox>().unwrap();
 
         let pixels = self.pixels.as_mut().unwrap();
-        let pixmap = self.pixmap.as_mut().unwrap();
+        let mut pixmap = self.pixmap.as_mut().unwrap();
         pixmap.fill(tiny_skia::Color::WHITE);
 
-        // Draw each view(widget) to the pixmap
-        for view in &mut views {
-            let layout = layout.get(view.id()).unwrap();
-            view.set_size(layout.size());
-            view.set_position(layout.position());
-            view.render(pixmap, &self.resources);
-        }
+        render_box.render(&mut pixmap, &self.resources);
 
         pixels.frame_mut().copy_from_slice(pixmap.data());
         pixels.render().unwrap();
@@ -233,11 +223,8 @@ impl App<'_> {
 fn layout_system(resources: &mut Resources) {
     let WindowSize(size) = resources.get_owned::<WindowSize>().unwrap();
 
-    let widget = resources.get::<Box<dyn Widget>>().unwrap();
-    let mut layout = widget.layout();
-    LayoutSolver::solve(&mut *layout, size);
-
-    *resources.get_mut::<Box<dyn Layout>>().unwrap() = layout;
+    let render_box = resources.get_mut::<RenderBox>().unwrap();
+    render_box.solve_layout(size);
 }
 
 fn update_cursor_position(resources: &mut Resources, event: &WindowEvent) {

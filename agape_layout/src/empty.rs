@@ -2,17 +2,11 @@ use crate::{BoxConstraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
 use agape_core::{GlobalId, Position, Size};
 
 /// An [`Layout`] with no children.  
-/// Common use cases are
-/// - Images
-/// - Text
-/// - Placeholders
-/// - Icons
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct EmptyLayout {
     pub id: GlobalId,
     pub size: Size,
     pub position: Position,
-    // TODO could probably just inline this
     pub intrinsic_size: IntrinsicSize,
     pub constraints: BoxConstraints,
     pub errors: Vec<crate::LayoutError>,
