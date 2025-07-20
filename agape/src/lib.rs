@@ -25,20 +25,19 @@ mod renderer;
 pub mod resources;
 pub mod style;
 pub mod system;
-pub mod view;
 pub mod widgets;
 
-use crate::resources::{CursorPosition, EventQueue, WindowSize};
-use crate::view::{View, init_font};
-use crate::widgets::{RenderBox, StateTracker, WidgetEvent, WidgetState};
 pub use agape_core::*;
 pub use agape_layout as layout;
 use agape_layout::{Layout, LayoutSolver};
 pub use agape_macros::hex;
 pub use error::{Error, Result};
+use renderer::init_font;
 pub use resources::Resources;
+use resources::{CursorPosition, EventQueue, WindowSize};
 use system::{IntoSystem, System};
 use widgets::Widget;
+use widgets::{RenderBox, StateTracker, WidgetEvent, WidgetState};
 
 use fontdue::Font;
 use pixels::{Pixels, SurfaceTexture};

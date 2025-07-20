@@ -1,5 +1,4 @@
 use crate::style::BoxStyle;
-use crate::view::{RectView, View};
 use crate::widgets::{LayoutDescription, LayoutType, RenderBox, RenderObject};
 use crate::{impl_style, widgets::Widget};
 use agape_core::{GlobalId, Position, Size};
@@ -131,17 +130,6 @@ impl Widget for HStack {
         }
     }
 
-    fn view(&self) -> Box<dyn View> {
-        let view = RectView {
-            id: self.id,
-            color: self.style.background_color.clone(),
-            border: self.style.border.clone(),
-            ..Default::default()
-        };
-
-        Box::new(view)
-    }
-
     fn children(&self) -> Vec<&dyn Widget> {
         self.children.iter().map(|child| child.as_ref()).collect()
     }
@@ -263,13 +251,5 @@ mod test {
 
         assert_eq!(children[0].id(), id1);
         assert_eq!(children[1].id(), id2);
-    }
-
-    #[test]
-    fn get_view() {
-        let hstack = hstack! {};
-        let view = hstack.view();
-        assert_eq!(view.color(), &hstack.style.background_color);
-        assert_eq!(view.id(), hstack.id);
     }
 }

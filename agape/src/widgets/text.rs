@@ -1,7 +1,6 @@
-use super::{RenderBox, Widget};
-use crate::view::{TextView, View};
-use agape_core::GlobalId;
-use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
+use super::{LayoutDescription, RenderBox, RenderObject, Widget};
+use agape_core::Color;
+use agape_core::{GlobalId, Position, Size};
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct Text {
@@ -43,28 +42,22 @@ impl Text {
 }
 
 impl Widget for Text {
-    fn view(&self) -> Box<dyn View> {
-        let mut view = TextView::new(&self.text);
-        view.set_id(self.id);
-        view.font_size = self.font_size;
-        Box::new(view)
+    fn build(&self) -> RenderBox {
+        RenderBox {
+            id: self.id,
+            layout_desc: LayoutDescription::default(),
+            children: Vec::new(),
+            position: Position::default(),
+            size: Size::default(),
+            render_object: RenderObject::Text {
+                content: self.text.clone(),
+                font_size: self.font_size,
+                color: Color::BLACK,
+            },
+        }
     }
 
     fn id(&self) -> GlobalId {
         self.id
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    use crate::FONT;
-    use crate::view::init_font;
-
-    #[test]
-    fn view_has_correct_id() {
-        let text = Text::new("Hello");
-        let view = text.view();
-        assert_eq!(text.id, view.id());
     }
 }

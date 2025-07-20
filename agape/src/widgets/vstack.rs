@@ -1,5 +1,4 @@
 use crate::style::BoxStyle;
-use crate::view::{RectView, View};
 use crate::{impl_style, widgets::Widget};
 use agape_core::GlobalId;
 use agape_layout::{AxisAlignment, Layout, VerticalLayout};
@@ -93,16 +92,6 @@ impl Widget for VStack {
             f(child.as_mut());
             child.traverse_mut(f);
         }
-    }
-
-    fn view(&self) -> Box<dyn View> {
-        let view = RectView {
-            id: self.id,
-            color: self.style.background_color.clone(),
-            border: self.style.border.clone(),
-            ..Default::default()
-        };
-        Box::new(view)
     }
 
     fn children(&self) -> Vec<&dyn Widget> {
@@ -200,14 +189,5 @@ mod test {
 
         assert_eq!(id1, children[0].id());
         assert_eq!(id2, children[1].id());
-    }
-
-    #[test]
-    fn get_view() {
-        let vstack = vstack! {};
-        let view = vstack.view();
-
-        assert_eq!(view.color(), &vstack.style.background_color);
-        assert_eq!(view.id(), vstack.id());
     }
 }

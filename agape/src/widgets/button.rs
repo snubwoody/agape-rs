@@ -1,9 +1,8 @@
 use crate::impl_style;
 use crate::style::BoxStyle;
-use crate::view::{RectView, View};
 use crate::widgets::{LayoutDescription, LayoutType, RenderBox, RenderObject, Text, Widget};
 use agape_core::{GlobalId, Position, Size};
-use agape_layout::{BlockLayout, Layout};
+use agape_layout::Layout;
 
 pub struct Button {
     id: GlobalId,
@@ -86,16 +85,6 @@ impl Widget for Button {
         }
     }
 
-    fn view(&self) -> Box<dyn View> {
-        let view = RectView {
-            id: self.id,
-            color: self.style.background_color.clone(),
-            border: self.style.border.clone(),
-            ..Default::default()
-        };
-        Box::new(view)
-    }
-
     fn children(&self) -> Vec<&dyn Widget> {
         vec![&*self.child]
     }
@@ -118,7 +107,7 @@ impl Widget for Button {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::view::init_font;
+    use crate::renderer::init_font;
     use crate::{FONT, hstack};
 
     #[test]

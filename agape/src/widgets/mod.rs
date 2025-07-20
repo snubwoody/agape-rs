@@ -20,8 +20,7 @@ mod vstack;
 
 use crate::Resources;
 use crate::renderer::draw_rect;
-use crate::style::{Border, BoxStyle};
-use crate::view::{RectView, View};
+use crate::style::Border;
 use agape_core::{Color, GlobalId, Position, Rgba, Size};
 use agape_layout::{
     AxisAlignment, BlockLayout, EmptyLayout, HorizontalLayout, IntrinsicSize, Layout, LayoutSolver,
@@ -39,10 +38,6 @@ use winit::event::ElementState;
 use winit::keyboard;
 
 pub trait Widget: WidgetIterator {
-    fn view(&self) -> Box<dyn View> {
-        Box::new(RectView::new(self.id()))
-    }
-
     /// Get the `id` of the [`Widget`]
     fn id(&self) -> GlobalId;
 
