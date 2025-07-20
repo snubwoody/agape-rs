@@ -189,3 +189,12 @@ impl IntrinsicSize {
         }
     }
 }
+
+impl From<Size> for IntrinsicSize {
+    fn from(size: Size) -> Self {
+        IntrinsicSize {
+            width: BoxSizing::Fixed(size.width),
+            height: BoxSizing::Fixed(size.height),
+        }
+    }
+}
