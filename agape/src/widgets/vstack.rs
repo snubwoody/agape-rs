@@ -1,8 +1,7 @@
 use crate::style::BoxStyle;
-use crate::view::{RectView, View};
 use crate::{impl_style, widgets::Widget};
 use agape_core::GlobalId;
-use agape_layout::{AxisAlignment, Layout, VerticalLayout};
+use agape_layout::{AxisAlignment, VerticalLayout};
 
 /// A vertical stack that places its children vertically one after
 /// another.
@@ -95,46 +94,6 @@ impl Widget for VStack {
         }
     }
 
-    fn view(&self) -> Box<dyn View> {
-        let view = RectView {
-            id: self.id,
-            color: self.style.background_color.clone(),
-            border: self.style.border.clone(),
-            ..Default::default()
-        };
-        Box::new(view)
-    }
-
-    fn layout(&self) -> Box<dyn Layout> {
-        let children_layout: Vec<Box<dyn Layout>> =
-            self.children.iter().map(|widget| widget.layout()).collect();
-
-        let VerticalLayout {
-            spacing,
-            padding,
-            main_axis_alignment,
-            cross_axis_alignment,
-            constraints,
-            scroll_offset,
-            ..
-        } = self.layout;
-
-        let layout = VerticalLayout {
-            id: self.id,
-            spacing,
-            padding,
-            intrinsic_size: self.style.intrinsic_size,
-            cross_axis_alignment,
-            main_axis_alignment,
-            constraints,
-            scroll_offset,
-            children: children_layout,
-            ..Default::default()
-        };
-
-        Box::new(layout)
-    }
-
     fn children(&self) -> Vec<&dyn Widget> {
         self.children
             .iter()
@@ -197,16 +156,6 @@ macro_rules! vstack {
 mod test {
     use super::*;
     use crate::widgets::{Rect, Text};
-    use agape_layout::BoxSizing;
-
-    #[test]
-    fn layout_properties() {
-        let vstack = VStack::new().fixed(100.0, 200.0);
-
-        let layout = vstack.layout();
-        assert_eq!(layout.intrinsic_size().width, BoxSizing::Fixed(100.0));
-        assert_eq!(layout.intrinsic_size().height, BoxSizing::Fixed(200.0));
-    }
 
     #[test]
     fn vstack_expansion() {
@@ -239,14 +188,5 @@ mod test {
 
         assert_eq!(id1, children[0].id());
         assert_eq!(id2, children[1].id());
-    }
-
-    #[test]
-    fn get_view() {
-        let vstack = vstack! {};
-        let view = vstack.view();
-
-        assert_eq!(view.color(), &vstack.style.background_color);
-        assert_eq!(view.id(), vstack.id());
     }
 }

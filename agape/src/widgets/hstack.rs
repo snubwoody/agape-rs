@@ -1,8 +1,8 @@
 use crate::style::BoxStyle;
-use crate::view::{RectView, View};
+use crate::widgets::{LayoutDescription, LayoutType, RenderBox, RenderObject};
 use crate::{impl_style, widgets::Widget};
-use agape_core::GlobalId;
-use agape_layout::{AxisAlignment, HorizontalLayout, Layout};
+use agape_core::{GlobalId, Position, Size};
+use agape_layout::{AxisAlignment, HorizontalLayout};
 
 /// A horizontal stack of widgets, placed one after another.
 ///
@@ -103,43 +103,31 @@ impl Widget for HStack {
         }
     }
 
-    fn view(&self) -> Box<dyn View> {
-        let view = RectView {
-            id: self.id,
+    fn build(&self) -> RenderBox {
+        let children = self.children.iter().map(|w| w.build()).collect();
+
+        let layout_desc = LayoutDescription {
+            padding: self.layout.padding,
+            spacing: self.layout.spacing,
+            intrinsic_size: self.layout.intrinsic_size,
+            cross_axis_alignment: self.layout.cross_axis_alignment,
+            main_axis_alignment: self.layout.main_axis_alignment,
+            layout_type: LayoutType::HorizontalLayout,
+        };
+
+        let render_object = RenderObject::Rect {
             color: self.style.background_color.clone(),
             border: self.style.border.clone(),
-            ..Default::default()
         };
 
-        Box::new(view)
-    }
-
-    fn layout(&self) -> Box<dyn Layout> {
-        let children_layout: Vec<Box<dyn Layout>> =
-            self.children.iter().map(|widget| widget.layout()).collect();
-
-        let HorizontalLayout {
-            spacing,
-            padding,
-            main_axis_alignment,
-            cross_axis_alignment,
-            constraints,
-            ..
-        } = self.layout;
-
-        let layout = HorizontalLayout {
+        RenderBox {
             id: self.id,
-            spacing,
-            padding,
-            intrinsic_size: self.style.intrinsic_size,
-            cross_axis_alignment,
-            main_axis_alignment,
-            constraints,
-            children: children_layout,
-            ..Default::default()
-        };
-
-        Box::new(layout)
+            position: Position::default(),
+            size: Size::default(),
+            render_object,
+            children,
+            layout_desc,
+        }
     }
 
     fn children(&self) -> Vec<&dyn Widget> {
@@ -204,16 +192,6 @@ macro_rules! hstack {
 mod test {
     use super::*;
     use crate::widgets::{Rect, Text};
-    use agape_layout::BoxSizing;
-
-    #[test]
-    fn layout_properties() {
-        let hstack = HStack::new().fill_width();
-
-        let layout = hstack.layout();
-
-        assert_eq!(layout.intrinsic_size().width, BoxSizing::Flex(1));
-    }
 
     #[test]
     fn traverse_children() {
@@ -272,13 +250,5 @@ mod test {
 
         assert_eq!(children[0].id(), id1);
         assert_eq!(children[1].id(), id2);
-    }
-
-    #[test]
-    fn get_view() {
-        let hstack = hstack! {};
-        let view = hstack.view();
-        assert_eq!(view.color(), &hstack.style.background_color);
-        assert_eq!(view.id(), hstack.id);
     }
 }

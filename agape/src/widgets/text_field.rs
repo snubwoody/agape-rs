@@ -1,9 +1,7 @@
 use crate::impl_style;
 use crate::style::BoxStyle;
-use crate::view::{RectView, View};
 use crate::widgets::{Text, Widget};
 use agape_core::GlobalId;
-use agape_layout::{BlockLayout, Layout};
 use winit::event::ElementState;
 use winit::keyboard::{Key, NamedKey};
 
@@ -50,25 +48,6 @@ impl Widget for TextField {
 
     fn id(&self) -> GlobalId {
         self.id
-    }
-
-    fn view(&self) -> Box<dyn View> {
-        let view = RectView {
-            id: self.id,
-            color: self.style.background_color.clone(),
-            border: self.style.border.clone(),
-            ..Default::default()
-        };
-
-        Box::new(view)
-    }
-
-    fn layout(&self) -> Box<dyn Layout> {
-        let child_layout = self.text.layout();
-        let mut layout = BlockLayout::new(child_layout);
-        layout.intrinsic_size = self.style.intrinsic_size;
-        layout.id = self.id;
-        Box::new(layout)
     }
 
     fn children(&self) -> Vec<&dyn Widget> {

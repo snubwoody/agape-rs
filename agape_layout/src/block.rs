@@ -12,15 +12,13 @@ pub struct BlockLayout {
     pub position: Position,
     pub padding: u32,
     pub intrinsic_size: IntrinsicSize,
-    // TODO i'm thinking of adding user constraints as well so that people can define their own
-    // constraints
     pub constraints: BoxConstraints,
     /// The main axis is the `x-axis`
     pub main_axis_alignment: AxisAlignment,
     /// The cross axis is the `y-axis`
     pub cross_axis_alignment: AxisAlignment,
     pub child: Box<dyn Layout>,
-    pub errors: Vec<crate::LayoutError>,
+    pub errors: Vec<LayoutError>,
 }
 
 impl BlockLayout {

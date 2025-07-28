@@ -1,7 +1,7 @@
-use super::Widget;
-use crate::view::{TextView, View};
-use agape_core::GlobalId;
-use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
+use super::{LayoutDescription, RenderBox, RenderObject, Widget};
+use crate::renderer::text_size;
+use agape_core::Color;
+use agape_core::{GlobalId, Position, Size};
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct Text {
@@ -43,23 +43,24 @@ impl Text {
 }
 
 impl Widget for Text {
-    fn view(&self) -> Box<dyn View> {
-        let mut view = TextView::new(&self.text);
-        view.set_id(self.id);
-        view.font_size = self.font_size;
-        Box::new(view)
-    }
+    fn build(&self) -> RenderBox {
+        let text_size = text_size(&self.text, self.font_size as f32);
 
-    fn layout(&self) -> Box<dyn Layout> {
-        let mut view = TextView::new(&self.text);
-        view.font_size = self.font_size;
-        let size = view.text_size();
-
-        let mut layout = EmptyLayout::new();
-        layout.intrinsic_size = IntrinsicSize::fixed(size.width, size.height);
-        layout.id = self.id;
-
-        Box::new(layout)
+        RenderBox {
+            id: self.id,
+            layout_desc: LayoutDescription {
+                intrinsic_size: text_size.into(),
+                ..Default::default()
+            },
+            children: Vec::new(),
+            position: Position::default(),
+            size: Size::default(),
+            render_object: RenderObject::Text {
+                content: self.text.clone(),
+                font_size: self.font_size,
+                color: Color::BLACK,
+            },
+        }
     }
 
     fn id(&self) -> GlobalId {
@@ -71,20 +72,19 @@ impl Widget for Text {
 mod test {
     use super::*;
     use crate::FONT;
-    use crate::view::init_font;
+    use crate::renderer::{init_font, text_size};
+    use agape_layout::IntrinsicSize;
 
     #[test]
-    fn layout_has_correct_id() {
-        let _ = FONT.set(init_font());
-        let text = Text::new("Hello");
-        let layout = text.layout();
-        assert_eq!(text.id, layout.id());
-    }
+    fn correct_text_size() {
+        FONT.set(init_font()).unwrap();
+        let text = Text::new("Hello world").font_size(24);
+        let text_size = text_size("Hello world", 24.0);
+        let rb = text.build();
 
-    #[test]
-    fn view_has_correct_id() {
-        let text = Text::new("Hello");
-        let view = text.view();
-        assert_eq!(text.id, view.id());
+        assert_eq!(
+            rb.layout_desc.intrinsic_size,
+            IntrinsicSize::from(text_size)
+        );
     }
 }

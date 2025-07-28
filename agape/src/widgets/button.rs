@@ -1,14 +1,11 @@
 use crate::impl_style;
 use crate::style::BoxStyle;
-use crate::view::{RectView, View};
-use crate::widgets::{Text, Widget};
-use agape_core::GlobalId;
-use agape_layout::{BlockLayout, Layout};
+use crate::widgets::{LayoutDescription, LayoutType, RenderBox, RenderObject, Text, Widget};
+use agape_core::{GlobalId, Position, Size};
 
 pub struct Button {
     id: GlobalId,
     child: Box<dyn Widget>,
-    padding: u32,
     click_fn: Option<Box<dyn FnMut()>>,
     hover_fn: Option<Box<dyn FnMut()>>,
     style: BoxStyle,
@@ -18,7 +15,6 @@ impl Default for Button {
     fn default() -> Button {
         Button {
             id: GlobalId::new(),
-            padding: 0,
             child: Box::new(Text::new("")),
             click_fn: None,
             hover_fn: None,
@@ -65,22 +61,25 @@ impl Widget for Button {
         }
     }
 
-    fn view(&self) -> Box<dyn View> {
-        let view = RectView {
-            id: self.id,
-            color: self.style.background_color.clone(),
-            border: self.style.border.clone(),
+    fn build(&self) -> RenderBox {
+        let layout_desc = LayoutDescription {
+            layout_type: LayoutType::BlockLayout,
             ..Default::default()
         };
-        Box::new(view)
-    }
 
-    fn layout(&self) -> Box<dyn Layout> {
-        let child = self.child.layout();
-        let mut layout = BlockLayout::new(child);
-        layout.id = self.id;
-        layout.padding = self.padding;
-        Box::new(layout)
+        let render_object = RenderObject::Rect {
+            color: self.style.background_color.clone(),
+            border: self.style.border.clone(),
+        };
+
+        RenderBox {
+            id: self.id,
+            layout_desc,
+            position: Position::default(),
+            size: Size::default(),
+            render_object,
+            children: vec![self.child.build()],
+        }
     }
 
     fn children(&self) -> Vec<&dyn Widget> {
@@ -105,7 +104,7 @@ impl Widget for Button {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::view::init_font;
+    use crate::renderer::init_font;
     use crate::{FONT, hstack};
 
     #[test]
@@ -126,13 +125,5 @@ mod test {
 
         let button = Button::new(text);
         assert_eq!(button.children()[0].id(), id);
-    }
-
-    #[test]
-    fn view_and_layout() {
-        FONT.set(init_font()).unwrap();
-        let button = Button::new(Text::new("Click me"));
-        assert_eq!(button.layout().id(), button.id);
-        assert_eq!(button.view().id(), button.id)
     }
 }
