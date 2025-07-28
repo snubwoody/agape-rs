@@ -1,7 +1,4 @@
-use agape::{
-    App, Color, hstack,
-    widgets::{Rect, Text},
-};
+use agape::{App, Color, hstack, widgets::Rect};
 
 fn main() {
     let hstack = hstack! {

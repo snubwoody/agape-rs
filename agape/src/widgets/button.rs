@@ -2,12 +2,10 @@ use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::widgets::{LayoutDescription, LayoutType, RenderBox, RenderObject, Text, Widget};
 use agape_core::{GlobalId, Position, Size};
-use agape_layout::Layout;
 
 pub struct Button {
     id: GlobalId,
     child: Box<dyn Widget>,
-    padding: u32,
     click_fn: Option<Box<dyn FnMut()>>,
     hover_fn: Option<Box<dyn FnMut()>>,
     style: BoxStyle,
@@ -17,7 +15,6 @@ impl Default for Button {
     fn default() -> Button {
         Button {
             id: GlobalId::new(),
-            padding: 0,
             child: Box::new(Text::new("")),
             click_fn: None,
             hover_fn: None,

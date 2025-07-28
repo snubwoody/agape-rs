@@ -5,7 +5,6 @@ use agape::{
     system::{IntoSystem, System},
 };
 use agape_core::{Position, Size};
-use agape_layout::Layout;
 
 #[test]
 fn insert_and_get_resource() {

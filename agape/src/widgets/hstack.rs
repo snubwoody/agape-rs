@@ -2,7 +2,7 @@ use crate::style::BoxStyle;
 use crate::widgets::{LayoutDescription, LayoutType, RenderBox, RenderObject};
 use crate::{impl_style, widgets::Widget};
 use agape_core::{GlobalId, Position, Size};
-use agape_layout::{AxisAlignment, HorizontalLayout, Layout};
+use agape_layout::{AxisAlignment, HorizontalLayout};
 
 /// A horizontal stack of widgets, placed one after another.
 ///
@@ -192,7 +192,6 @@ macro_rules! hstack {
 mod test {
     use super::*;
     use crate::widgets::{Rect, Text};
-    use agape_layout::BoxSizing;
 
     #[test]
     fn traverse_children() {

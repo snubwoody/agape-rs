@@ -46,9 +46,8 @@ pub fn draw_rect(
 }
 
 /// Draw text onto the `Pixmap`.
-pub fn draw_text(pixmap: &mut Pixmap, text: &str, position: Position) {
+pub fn draw_text(pixmap: &mut Pixmap, text: &str, font_size: f32, position: Position) {
     let font = FONT.get().unwrap();
-    let font_size = 16.0;
 
     let mut x_pos: i32 = position.x as i32;
     let y_pos: i32 = position.y as i32;
@@ -74,6 +73,7 @@ pub fn draw_text(pixmap: &mut Pixmap, text: &str, position: Position) {
 
         let mut colors = vec![];
 
+        // TODO add custom colors
         for a in bitmap.iter() {
             colors.push(0);
             colors.push(0);

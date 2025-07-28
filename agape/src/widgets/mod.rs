@@ -18,8 +18,7 @@ mod text;
 mod text_field;
 mod vstack;
 
-use crate::Resources;
-use crate::renderer::draw_rect;
+use crate::renderer::{draw_rect, draw_text};
 use crate::style::Border;
 use agape_core::{Color, GlobalId, Position, Rgba, Size};
 use agape_layout::{
@@ -205,10 +204,11 @@ pub enum RenderObject {
     },
 }
 
+#[derive(Debug)]
 pub struct RenderBox {
     id: GlobalId,
-    size: Size,
-    position: Position,
+    pub size: Size,
+    pub position: Position,
     layout_desc: LayoutDescription,
     render_object: RenderObject,
     children: Vec<RenderBox>,
@@ -282,15 +282,17 @@ impl RenderBox {
         }
     }
 
-    pub fn render(&self, pixmap: &mut Pixmap, resources: &Resources) {
+    pub fn render(&self, pixmap: &mut Pixmap) {
         match &self.render_object {
             RenderObject::Rect { border, color } => {
-                draw_rect(pixmap, &color, self.size, self.position, border.clone());
+                draw_rect(pixmap, color, self.size, self.position, border.clone());
             }
-            _ => {}
+            RenderObject::Text {
+                content, font_size, ..
+            } => {
+                draw_text(pixmap, content, *font_size as f32, self.position);
+            }
         }
-        self.children
-            .iter()
-            .for_each(|child| child.render(pixmap, resources));
+        self.children.iter().for_each(|child| child.render(pixmap));
     }
 }

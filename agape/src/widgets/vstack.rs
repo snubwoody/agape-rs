@@ -1,7 +1,7 @@
 use crate::style::BoxStyle;
 use crate::{impl_style, widgets::Widget};
 use agape_core::GlobalId;
-use agape_layout::{AxisAlignment, Layout, VerticalLayout};
+use agape_layout::{AxisAlignment, VerticalLayout};
 
 /// A vertical stack that places its children vertically one after
 /// another.
@@ -156,7 +156,6 @@ macro_rules! vstack {
 mod test {
     use super::*;
     use crate::widgets::{Rect, Text};
-    use agape_layout::BoxSizing;
 
     #[test]
     fn vstack_expansion() {

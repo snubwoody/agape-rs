@@ -29,7 +29,7 @@ pub mod widgets;
 
 pub use agape_core::*;
 pub use agape_layout as layout;
-use agape_layout::{Layout, LayoutSolver};
+use agape_layout::Layout;
 pub use agape_macros::hex;
 pub use error::{Error, Result};
 use renderer::init_font;
@@ -181,10 +181,10 @@ impl App<'_> {
         let render_box = self.resources.get::<RenderBox>().unwrap();
 
         let pixels = self.pixels.as_mut().unwrap();
-        let mut pixmap = self.pixmap.as_mut().unwrap();
+        let pixmap = self.pixmap.as_mut().unwrap();
         pixmap.fill(tiny_skia::Color::WHITE);
 
-        render_box.render(&mut pixmap, &self.resources);
+        render_box.render(pixmap);
 
         pixels.frame_mut().copy_from_slice(pixmap.data());
         pixels.render().unwrap();
@@ -268,14 +268,18 @@ fn handle_key_input(resources: &mut Resources, event: &WindowEvent) {
     }
 }
 
+// FIXME
 fn intersection_observer(resources: &mut Resources) {
     let cursor_pos = resources.get::<CursorPosition>().unwrap();
-    let layout = resources.get::<Box<dyn Layout>>().unwrap();
+    // let layout = resources.get::<Box<dyn Layout>>().unwrap();
+    let render_box = resources.get::<RenderBox>().unwrap();
+    let layout = resources.get::<RenderBox>().unwrap().layout();
 
-    // TODO combine both iters and just use a for loop
+    let bounds = Bounds::new(render_box.position, render_box.size);
+    // TODO: combine both iters and just use a for loop
     let hovered_ids: Vec<GlobalId> = layout
         .iter()
-        .filter(|l| l.bounds().within(&cursor_pos.0))
+        .filter(|_| bounds.within(&cursor_pos.0))
         .map(|l| l.id())
         .collect();
 
@@ -311,6 +315,7 @@ fn handle_widget_event(resources: &mut Resources) {
     let widget: &mut Box<dyn Widget> = resources.get_mut().unwrap();
 
     for event in events {
+        dbg!(&event);
         widget.handle_event(&event);
     }
 
