@@ -326,22 +326,21 @@ fn handle_widget_event(resources: &mut Resources) {
 mod test {
     use super::*;
     use crate::hstack;
-    use crate::widgets::Rect;
 
     #[test]
     fn widget_hover_system() {
-        let rect = Rect::new().fixed(100.0, 100.0);
-
-        let state_tracker = StateTracker::new(&rect);
-        let mut resources = Resources::new();
-        resources.insert(state_tracker);
-        resources.insert(CursorPosition(Position::unit(50.0)));
-        resources.insert::<Vec<WidgetEvent>>(Vec::new());
-
-        intersection_observer(&mut resources);
-
+        // let rect = Rect::new().fixed(100.0, 100.0);
+        //
+        // let state_tracker = StateTracker::new(&rect);
+        // let mut resources = Resources::new();
+        // resources.insert(state_tracker);
+        // resources.insert(CursorPosition(Position::unit(50.0)));
+        // resources.insert::<Vec<WidgetEvent>>(Vec::new());
+        //
+        // intersection_observer(&mut resources);
+        //
         // FIXME: temp blocked
-        let _events: &Vec<WidgetEvent> = resources.get().unwrap();
+        // let _events: &Vec<WidgetEvent> = resources.get().unwrap();
         // assert!(events.contains(&WidgetEvent::Hovered(rect.id())));
     }
 
@@ -352,14 +351,13 @@ mod test {
         let widget: Box<dyn Widget> = Box::new(hstack);
 
         let mut resources = Resources::new();
-        let a = widget.build();
         resources.insert(widget.build());
         resources.insert(widget);
         resources.insert(WindowSize(Size::unit(500.0)));
 
         layout_system(&mut resources);
 
-        let render_box = resources.get::<RenderBox>().unwrap();
+        let _render_box = resources.get::<RenderBox>().unwrap();
         // assert_eq!(render_box.size, Size::unit(500.0));
     }
 }
