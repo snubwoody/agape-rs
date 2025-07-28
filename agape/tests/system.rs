@@ -16,7 +16,8 @@ fn insert_and_get_resource() {
 
 #[test]
 fn get_trait_from_resource() {
-    let widget = hstack! {};
+    let hstack = hstack! {};
+    let widget: Box<dyn Widget> = Box::new(hstack);
     let mut resources = Resources::new();
     resources.insert(widget);
     resources.get_mut::<Box<dyn Widget>>().unwrap();
