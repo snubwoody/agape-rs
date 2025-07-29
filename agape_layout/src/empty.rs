@@ -99,7 +99,7 @@ impl Layout for EmptyLayout {
         (self.constraints.min_width, self.constraints.min_height)
     }
 
-    fn solve_max_contraints(&mut self, _space: Size) { /* No children to solve for */
+    fn solve_max_constraints(&mut self, _space: Size) { /* No children to solve for */
     }
 
     fn update_size(&mut self) {
@@ -134,7 +134,7 @@ impl Layout for EmptyLayout {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::LayoutSolver;
+    use crate::solve_layout;
 
     #[test]
     fn test_flex_sizing() {
@@ -144,7 +144,7 @@ mod test {
         root.intrinsic_size.width = BoxSizing::Flex(2);
         root.intrinsic_size.height = BoxSizing::Flex(2);
 
-        LayoutSolver::solve(&mut root, window);
+        solve_layout(&mut root, window);
 
         assert_eq!(root.size(), window);
     }
@@ -157,7 +157,7 @@ mod test {
         root.intrinsic_size.width = BoxSizing::Fixed(200.0);
         root.intrinsic_size.height = BoxSizing::Fixed(125.0);
 
-        LayoutSolver::solve(&mut root, window);
+        solve_layout(&mut root, window);
 
         assert_eq!(root.size(), Size::new(200.0, 125.0));
     }
@@ -167,7 +167,7 @@ mod test {
         let window = Size::new(800.0, 800.0);
         let mut root = EmptyLayout::new();
 
-        LayoutSolver::solve(&mut root, window);
+        solve_layout(&mut root, window);
 
         assert_eq!(root.size(), Size::default());
     }

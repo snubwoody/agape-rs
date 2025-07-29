@@ -1,4 +1,4 @@
-use agape_layout::{AxisAlignment, BoxSizing, EmptyLayout, LayoutSolver, Size, VerticalLayout};
+use agape_layout::{AxisAlignment, BoxSizing, EmptyLayout, Size, VerticalLayout, solve_layout};
 
 #[test]
 fn scrolling() {
@@ -21,7 +21,7 @@ fn scrolling() {
 
     let window = Size::unit(400.0);
 
-    LayoutSolver::solve(&mut root, window);
+    solve_layout(&mut root, window);
     assert_eq!(root.children[0].position().y, scroll_offset);
 }
 
@@ -41,14 +41,14 @@ fn dont_scroll_if_no_overflow() {
 
     let window = Size::new(400.0, 400.0);
 
-    LayoutSolver::solve(&mut layout, window);
+    solve_layout(&mut layout, window);
     assert_eq!(layout.children[0].position().y, 0.0);
 
     layout.main_axis_alignment = AxisAlignment::Center;
-    LayoutSolver::solve(&mut layout, window);
+    solve_layout(&mut layout, window);
     assert_eq!(layout.children[0].position().y, 0.0);
 
     layout.main_axis_alignment = AxisAlignment::End;
-    LayoutSolver::solve(&mut layout, window);
+    solve_layout(&mut layout, window);
     assert_eq!(layout.children[0].position().y, 0.0);
 }

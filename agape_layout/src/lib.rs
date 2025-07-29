@@ -2,11 +2,15 @@
 //!
 //! This is a two pass layout engine that uses constraints to calculate size and
 //! position.
+#![warn(clippy::suboptimal_flops)]
+#![warn(clippy::suspicious_operation_groupings)]
+#![warn(clippy::imprecise_flops)]
 mod block;
 mod empty;
 mod error;
 mod horizontal;
 mod vertical;
+
 use agape_core::{Bounds, GlobalId};
 pub use agape_core::{Position, Size};
 pub use block::BlockLayout;
@@ -16,26 +20,22 @@ pub use horizontal::HorizontalLayout;
 use std::fmt::Debug;
 pub use vertical::VerticalLayout;
 
-pub struct LayoutSolver;
-// TODO maybe just make it a function
-impl LayoutSolver {
-    /// Calculates the layout of all the layout nodes
-    pub fn solve(root: &mut dyn Layout, window_size: Size) -> Vec<LayoutError> {
-        root.set_max_width(window_size.width);
-        root.set_max_height(window_size.height);
+/// Calculates the layout of all the layout nodes
+pub fn solve_layout(root: &mut dyn Layout, window_size: Size) -> Vec<LayoutError> {
+    root.set_max_width(window_size.width);
+    root.set_max_height(window_size.height);
 
-        // It's important that the min constraints are solved before the max constraints
-        // because the min constraints are used in calculating max constraints
-        let _ = root.solve_min_constraints();
-        root.solve_max_contraints(window_size);
-        root.update_size();
-        root.position_children();
+    // It's important that the min constraints are solved before the max constraints
+    // because the min constraints are used in calculating max constraints
+    let _ = root.solve_min_constraints();
+    root.solve_max_constraints(window_size);
+    root.update_size();
+    root.position_children();
 
-        // TODO add a push error function that checks for equality so that we don't have duplicate errors
-        // or maybe just clear the error stack every frame
-        //root.collect_errors()
-        vec![]
-    }
+    // TODO add a push error function that checks for equality so that we don't have duplicate errors
+    // or maybe just clear the error stack every frame
+    //root.collect_errors()
+    vec![]
 }
 
 pub trait Layout: Debug + Send + Sync {
@@ -43,7 +43,7 @@ pub trait Layout: Debug + Send + Sync {
     fn solve_min_constraints(&mut self) -> (f32, f32);
 
     /// Solve the max constraints for the children and pass them down the tree
-    fn solve_max_contraints(&mut self, space: Size);
+    fn solve_max_constraints(&mut self, space: Size);
 
     fn position_children(&mut self);
 

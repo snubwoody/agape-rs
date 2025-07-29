@@ -237,7 +237,7 @@ impl Layout for HorizontalLayout {
         (self.constraints.min_width, self.constraints.min_height)
     }
 
-    fn solve_max_contraints(&mut self, _space: Size) {
+    fn solve_max_constraints(&mut self, _space: Size) {
         // Sum up all the flex factors
         let flex_total: u8 = self
             .children
@@ -307,7 +307,7 @@ impl Layout for HorizontalLayout {
             };
 
             // TODO not even using the space anymore
-            child.solve_max_contraints(space);
+            child.solve_max_constraints(space);
         }
     }
 

@@ -1,5 +1,5 @@
 use agape_layout::{
-    BlockLayout, BoxSizing, EmptyLayout, IntrinsicSize, LayoutSolver, Size, VerticalLayout,
+    BlockLayout, BoxSizing, EmptyLayout, IntrinsicSize, Size, VerticalLayout, solve_layout,
 };
 
 // TODO test than fill sizing is working with shrink elements
@@ -36,7 +36,7 @@ fn child_flex_height_works_with_shrink_height() {
         ..Default::default()
     };
 
-    LayoutSolver::solve(&mut root, Size::new(1000.0, 1000.0));
+    solve_layout(&mut root, Size::new(1000.0, 1000.0));
 
     let mut flex_child_height = 1000.0;
     flex_child_height -= 250.0 * 2.0;
