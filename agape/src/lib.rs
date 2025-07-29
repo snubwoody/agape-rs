@@ -133,14 +133,12 @@ impl App<'_> {
         let state_tracker = StateTracker::new(&widget);
         let widget: Box<dyn Widget> = Box::new(widget);
         let render_box = widget.build();
-        let layout = render_box.layout();
 
         let mut resources = Resources::new();
         resources.insert(state_tracker);
         resources.insert(render_box);
         resources.insert(CursorPosition::default());
         resources.insert(WindowSize::default());
-        resources.insert(layout);
         resources.insert(EventQueue::new());
         resources.insert(widget);
         resources.insert::<Vec<WidgetEvent>>(Vec::new());
@@ -349,16 +347,14 @@ mod test {
     fn layout_system_works() {
         // FIXME: temp blocked
         let hstack = hstack! {}.fill();
-        let widget: Box<dyn Widget> = Box::new(hstack);
 
         let mut resources = Resources::new();
-        resources.insert(widget.build());
-        resources.insert(widget);
+        resources.insert(hstack.build());
         resources.insert(WindowSize(Size::unit(500.0)));
 
         layout_system(&mut resources);
 
-        let _render_box = resources.get::<RenderBox>().unwrap();
-        // assert_eq!(render_box.size, Size::unit(500.0));
+        let render_box = resources.get::<RenderBox>().unwrap();
+        assert_eq!(render_box.size, Size::unit(500.0));
     }
 }
