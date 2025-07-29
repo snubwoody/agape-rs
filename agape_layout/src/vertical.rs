@@ -260,7 +260,7 @@ impl Layout for VerticalLayout {
         (self.constraints.min_width, self.constraints.min_height)
     }
 
-    fn solve_max_contraints(&mut self, _space: Size) {
+    fn solve_max_constraints(&mut self, _space: Size) {
         // Sum up all the flex factors
         let flex_total: u8 = self
             .children
@@ -328,7 +328,7 @@ impl Layout for VerticalLayout {
             }
 
             // TODO not using size anymore
-            child.solve_max_contraints(Size::default());
+            child.solve_max_constraints(Size::default());
         }
     }
 

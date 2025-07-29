@@ -186,7 +186,7 @@ impl Layout for BlockLayout {
         (self.constraints.min_width, self.constraints.min_height)
     }
 
-    fn solve_max_contraints(&mut self, space: Size) {
+    fn solve_max_constraints(&mut self, space: Size) {
         let available_space = space - self.padding as f32;
 
         match self.child.intrinsic_size().width {
@@ -209,7 +209,7 @@ impl Layout for BlockLayout {
             BoxSizing::Shrink => {}
         }
 
-        self.child.solve_max_contraints(available_space);
+        self.child.solve_max_constraints(available_space);
     }
 
     fn update_size(&mut self) {

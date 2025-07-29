@@ -29,7 +29,7 @@ impl LayoutSolver {
         // It's important that the min constraints are solved before the max constraints
         // because the min constraints are used in calculating max constraints
         let _ = root.solve_min_constraints();
-        root.solve_max_contraints(window_size);
+        root.solve_max_constraints(window_size);
         root.update_size();
         root.position_children();
 
@@ -45,7 +45,7 @@ pub trait Layout: Debug + Send + Sync {
     fn solve_min_constraints(&mut self) -> (f32, f32);
 
     /// Solve the max constraints for the children and pass them down the tree
-    fn solve_max_contraints(&mut self, space: Size);
+    fn solve_max_constraints(&mut self, space: Size);
 
     fn position_children(&mut self);
 
