@@ -2,6 +2,12 @@
 
 All notable changes to agape will be documented in this file.
 
+## [unreleased]
+
+### Changed
+
+- Removed the `LayoutSolver` struct and renamed its single method to `solve_layout`
+
 ## 0.2.0 - 2025-07-17
 
 ### Added
