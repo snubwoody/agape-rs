@@ -29,7 +29,6 @@ pub mod widgets;
 
 pub use agape_core::*;
 pub use agape_layout as layout;
-use agape_layout::Layout;
 pub use agape_macros::hex;
 pub use error::{Error, Result};
 use renderer::init_font;
@@ -133,14 +132,12 @@ impl App<'_> {
         let state_tracker = StateTracker::new(&widget);
         let widget: Box<dyn Widget> = Box::new(widget);
         let render_box = widget.build();
-        let layout = render_box.layout();
 
         let mut resources = Resources::new();
         resources.insert(state_tracker);
         resources.insert(render_box);
         resources.insert(CursorPosition::default());
         resources.insert(WindowSize::default());
-        resources.insert(layout);
         resources.insert(EventQueue::new());
         resources.insert(widget);
         resources.insert::<Vec<WidgetEvent>>(Vec::new());
@@ -211,6 +208,8 @@ impl App<'_> {
     }
 }
 
+// TODO: move these systems into systems module
+
 fn layout_system(resources: &mut Resources) {
     let WindowSize(size) = resources.get_owned::<WindowSize>().unwrap();
 
@@ -235,22 +234,25 @@ fn handle_mouse_button(resources: &mut Resources, event: &WindowEvent) {
         _ => return,
     }
 
-    let layout = resources.get::<Box<dyn Layout>>().unwrap();
     let cursor_position: &CursorPosition = resources.get().unwrap();
 
-    let ids: Vec<GlobalId> = layout
-        .iter()
-        .filter(|l| l.bounds().within(&cursor_position.0))
-        .map(|l| l.id())
-        .collect();
+    let render_box = resources.get::<RenderBox>().unwrap();
+    let mut hovered = vec![];
+
+    for rb in render_box.iter() {
+        let bounds = Bounds::new(rb.position, rb.size);
+        if bounds.within(&cursor_position.0) {
+            hovered.push(rb.id());
+        }
+    }
 
     let state_tracker = resources.get_mut::<StateTracker>().unwrap();
-    for id in &ids {
+    for id in &hovered {
         state_tracker.update_state(*id, WidgetState::Clicked);
     }
 
     let event_queue = resources.get_mut::<Vec<WidgetEvent>>().unwrap();
-    for id in ids {
+    for id in hovered {
         event_queue.push(WidgetEvent::Clicked(id));
     }
 }
@@ -268,29 +270,23 @@ fn handle_key_input(resources: &mut Resources, event: &WindowEvent) {
     }
 }
 
-// FIXME
 fn intersection_observer(resources: &mut Resources) {
     let cursor_pos = resources.get::<CursorPosition>().unwrap();
-    // let layout = resources.get::<Box<dyn Layout>>().unwrap();
     let render_box = resources.get::<RenderBox>().unwrap();
-    let layout = resources.get::<RenderBox>().unwrap().layout();
+    let mut hovered = vec![];
+    let mut not_hovered = vec![];
 
-    let bounds = Bounds::new(render_box.position, render_box.size);
-    // TODO: combine both iters and just use a for loop
-    let hovered_ids: Vec<GlobalId> = layout
-        .iter()
-        .filter(|_| bounds.within(&cursor_pos.0))
-        .map(|l| l.id())
-        .collect();
-
-    let not_hovered: Vec<GlobalId> = layout
-        .iter()
-        .filter(|l| !hovered_ids.contains(&l.id()))
-        .map(|l| l.id())
-        .collect();
+    for rb in render_box.iter() {
+        let bounds = Bounds::new(rb.position, rb.size);
+        if bounds.within(&cursor_pos.0) {
+            hovered.push(rb.id());
+        } else {
+            not_hovered.push(rb.id());
+        }
+    }
 
     let state = resources.get_mut::<StateTracker>().unwrap();
-    for id in &hovered_ids {
+    for id in &hovered {
         state.update_state(*id, WidgetState::Hovered);
     }
 
@@ -300,7 +296,7 @@ fn intersection_observer(resources: &mut Resources) {
 
     let state = resources.get::<StateTracker>().unwrap();
     let mut events = vec![];
-    for id in &hovered_ids {
+    for id in &hovered {
         if state.previous_state(*id).unwrap() == &WidgetState::Resting {
             events.push(WidgetEvent::Hovered(*id));
         }
@@ -315,7 +311,6 @@ fn handle_widget_event(resources: &mut Resources) {
     let widget: &mut Box<dyn Widget> = resources.get_mut().unwrap();
 
     for event in events {
-        dbg!(&event);
         widget.handle_event(&event);
     }
 
@@ -325,39 +320,24 @@ fn handle_widget_event(resources: &mut Resources) {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::hstack;
+    use crate::widgets::Rect;
 
     #[test]
     fn widget_hover_system() {
-        // let rect = Rect::new().fixed(100.0, 100.0);
-        //
-        // let state_tracker = StateTracker::new(&rect);
-        // let mut resources = Resources::new();
-        // resources.insert(state_tracker);
-        // resources.insert(CursorPosition(Position::unit(50.0)));
-        // resources.insert::<Vec<WidgetEvent>>(Vec::new());
-        //
-        // intersection_observer(&mut resources);
-        //
-        // FIXME: temp blocked
-        // let _events: &Vec<WidgetEvent> = resources.get().unwrap();
-        // assert!(events.contains(&WidgetEvent::Hovered(rect.id())));
-    }
+        let rect = Rect::new().fixed(100.0, 100.0);
 
-    #[test]
-    fn layout_system_works() {
-        // FIXME: temp blocked
-        let hstack = hstack! {}.fill();
-        let widget: Box<dyn Widget> = Box::new(hstack);
-
+        let state_tracker = StateTracker::new(&rect);
         let mut resources = Resources::new();
-        resources.insert(widget.build());
-        resources.insert(widget);
+        resources.insert(state_tracker);
         resources.insert(WindowSize(Size::unit(500.0)));
+        resources.insert(rect.build());
+        resources.insert(CursorPosition(Position::unit(50.0)));
+        resources.insert::<Vec<WidgetEvent>>(Vec::new());
 
         layout_system(&mut resources);
+        intersection_observer(&mut resources);
 
-        let _render_box = resources.get::<RenderBox>().unwrap();
-        // assert_eq!(render_box.size, Size::unit(500.0));
+        let events: &Vec<WidgetEvent> = resources.get().unwrap();
+        assert!(events.contains(&WidgetEvent::Hovered(rect.id())));
     }
 }

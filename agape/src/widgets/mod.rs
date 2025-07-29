@@ -215,6 +215,14 @@ pub struct RenderBox {
 }
 
 impl RenderBox {
+    pub fn id(&self) -> GlobalId {
+        self.id
+    }
+
+    pub fn iter(&self) -> RenderBoxIter<'_> {
+        RenderBoxIter { stack: vec![self] }
+    }
+
     /// Update the [`Size`] and [`Position`] of the render box
     /// every frame.
     pub fn solve_layout(&mut self, window_size: Size) {
@@ -234,7 +242,7 @@ impl RenderBox {
     }
 
     pub fn layout(&self) -> Box<dyn Layout> {
-        // TODO test this
+        // TODO: test this
         match self.layout_desc.layout_type {
             LayoutType::EmptyLayout => Box::new(EmptyLayout {
                 id: self.id,
@@ -294,5 +302,21 @@ impl RenderBox {
             }
         }
         self.children.iter().for_each(|child| child.render(pixmap));
+    }
+}
+
+pub struct RenderBoxIter<'a> {
+    stack: Vec<&'a RenderBox>,
+}
+
+impl<'a> Iterator for RenderBoxIter<'a> {
+    type Item = &'a RenderBox;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(render_box) = self.stack.pop() {
+            self.stack.extend(&render_box.children);
+            return Some(render_box);
+        }
+        None
     }
 }
