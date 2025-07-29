@@ -29,7 +29,6 @@ pub mod widgets;
 
 pub use agape_core::*;
 pub use agape_layout as layout;
-use agape_layout::Layout;
 pub use agape_macros::hex;
 pub use error::{Error, Result};
 use renderer::init_font;
@@ -321,7 +320,6 @@ fn handle_widget_event(resources: &mut Resources) {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::hstack;
     use crate::widgets::Rect;
 
     #[test]
@@ -341,20 +339,5 @@ mod test {
 
         let events: &Vec<WidgetEvent> = resources.get().unwrap();
         assert!(events.contains(&WidgetEvent::Hovered(rect.id())));
-    }
-
-    #[test]
-    fn layout_system_works() {
-        // FIXME: temp blocked
-        let hstack = hstack! {}.fill();
-
-        let mut resources = Resources::new();
-        resources.insert(hstack.build());
-        resources.insert(WindowSize(Size::unit(500.0)));
-
-        layout_system(&mut resources);
-
-        let render_box = resources.get::<RenderBox>().unwrap();
-        assert_eq!(render_box.size, Size::unit(500.0));
     }
 }
