@@ -211,6 +211,8 @@ impl App<'_> {
     }
 }
 
+// TODO: move these systems into systems module
+
 fn layout_system(resources: &mut Resources) {
     let WindowSize(size) = resources.get_owned::<WindowSize>().unwrap();
 
@@ -271,26 +273,21 @@ fn handle_key_input(resources: &mut Resources, event: &WindowEvent) {
 // FIXME
 fn intersection_observer(resources: &mut Resources) {
     let cursor_pos = resources.get::<CursorPosition>().unwrap();
-    // let layout = resources.get::<Box<dyn Layout>>().unwrap();
     let render_box = resources.get::<RenderBox>().unwrap();
-    let layout = resources.get::<RenderBox>().unwrap().layout();
+    let mut hovered = vec![];
+    let mut not_hovered = vec![];
 
-    let bounds = Bounds::new(render_box.position, render_box.size);
-    // TODO: combine both iters and just use a for loop
-    let hovered_ids: Vec<GlobalId> = layout
-        .iter()
-        .filter(|_| bounds.within(&cursor_pos.0))
-        .map(|l| l.id())
-        .collect();
-
-    let not_hovered: Vec<GlobalId> = layout
-        .iter()
-        .filter(|l| !hovered_ids.contains(&l.id()))
-        .map(|l| l.id())
-        .collect();
+    for rb in render_box.iter() {
+        let bounds = Bounds::new(rb.position, rb.size);
+        if bounds.within(&cursor_pos.0) {
+            hovered.push(rb.id());
+        } else {
+            not_hovered.push(rb.id());
+        }
+    }
 
     let state = resources.get_mut::<StateTracker>().unwrap();
-    for id in &hovered_ids {
+    for id in &hovered {
         state.update_state(*id, WidgetState::Hovered);
     }
 
@@ -300,7 +297,7 @@ fn intersection_observer(resources: &mut Resources) {
 
     let state = resources.get::<StateTracker>().unwrap();
     let mut events = vec![];
-    for id in &hovered_ids {
+    for id in &hovered {
         if state.previous_state(*id).unwrap() == &WidgetState::Resting {
             events.push(WidgetEvent::Hovered(*id));
         }
@@ -326,22 +323,25 @@ fn handle_widget_event(resources: &mut Resources) {
 mod test {
     use super::*;
     use crate::hstack;
+    use crate::widgets::Rect;
 
     #[test]
     fn widget_hover_system() {
-        // let rect = Rect::new().fixed(100.0, 100.0);
-        //
-        // let state_tracker = StateTracker::new(&rect);
-        // let mut resources = Resources::new();
-        // resources.insert(state_tracker);
-        // resources.insert(CursorPosition(Position::unit(50.0)));
-        // resources.insert::<Vec<WidgetEvent>>(Vec::new());
-        //
-        // intersection_observer(&mut resources);
-        //
-        // FIXME: temp blocked
-        // let _events: &Vec<WidgetEvent> = resources.get().unwrap();
-        // assert!(events.contains(&WidgetEvent::Hovered(rect.id())));
+        let rect = Rect::new().fixed(100.0, 100.0);
+
+        let state_tracker = StateTracker::new(&rect);
+        let mut resources = Resources::new();
+        resources.insert(state_tracker);
+        resources.insert(WindowSize(Size::unit(500.0)));
+        resources.insert(rect.build());
+        resources.insert(CursorPosition(Position::unit(50.0)));
+        resources.insert::<Vec<WidgetEvent>>(Vec::new());
+
+        layout_system(&mut resources);
+        intersection_observer(&mut resources);
+
+        let events: &Vec<WidgetEvent> = resources.get().unwrap();
+        assert!(events.contains(&WidgetEvent::Hovered(rect.id())));
     }
 
     #[test]
