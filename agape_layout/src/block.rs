@@ -281,10 +281,8 @@ mod test {
         root.padding = 24;
         LayoutSolver::solve(&mut root, window);
 
-        assert_eq!(
-            root.size(),
-            Size::new(200.0 + 24.0 * 2.0, 200.0 + 24.0 * 2.0)
-        );
+        let value = 24.0f32.mul_add(2.0, 200.0);
+        assert_eq!(root.size(), Size::unit(value));
     }
 
     #[test]

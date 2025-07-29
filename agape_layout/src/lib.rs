@@ -2,13 +2,15 @@
 //!
 //! This is a two pass layout engine that uses constraints to calculate size and
 //! position.
-// #![warn(clippy::arithmetic_side_effects)]
 #![warn(clippy::suboptimal_flops)]
+#![warn(clippy::suspicious_operation_groupings)]
+#![warn(clippy::imprecise_flops)]
 mod block;
 mod empty;
 mod error;
 mod horizontal;
 mod vertical;
+
 use agape_core::{Bounds, GlobalId};
 pub use agape_core::{Position, Size};
 pub use block::BlockLayout;
@@ -17,7 +19,6 @@ pub use error::LayoutError;
 pub use horizontal::HorizontalLayout;
 use std::fmt::Debug;
 pub use vertical::VerticalLayout;
-
 pub struct LayoutSolver;
 // TODO maybe just make it a function
 impl LayoutSolver {

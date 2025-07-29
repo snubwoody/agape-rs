@@ -14,3 +14,6 @@ proc-macro2 = "1.0.92"
 quote = "1.0.37"
 syn = "2.0.87"
 agape_core.workspace = true
+
+[lints]
+workspace = true
