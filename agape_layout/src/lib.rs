@@ -2,6 +2,8 @@
 //!
 //! This is a two pass layout engine that uses constraints to calculate size and
 //! position.
+// #![warn(clippy::arithmetic_side_effects)]
+#![warn(clippy::suboptimal_flops)]
 mod block;
 mod empty;
 mod error;

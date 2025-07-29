@@ -154,31 +154,31 @@ impl Layout for BlockLayout {
         }
 
         if let BoxSizing::Fixed(width) = self.child.intrinsic_size().width {
-            self.constraints.min_width = width + self.padding as f32 * 2.0;
+            self.constraints.min_width = (self.padding as f32).mul_add(2.0, width);
         }
 
         if let BoxSizing::Fixed(height) = self.child.intrinsic_size().height {
-            self.constraints.min_height = height + self.padding as f32 * 2.0;
+            self.constraints.min_height = (self.padding as f32).mul_add(2.0, height);
         }
 
         let (min_width, min_height) = self.child.solve_min_constraints();
 
         match self.intrinsic_size.width {
             BoxSizing::Flex(_) => {
-                self.constraints.min_width = min_width + self.padding as f32 * 2.0;
+                self.constraints.min_width = (self.padding as f32).mul_add(2.0, min_width);
             }
             BoxSizing::Shrink => {
-                self.constraints.min_width = min_width + self.padding as f32 * 2.0;
+                self.constraints.min_width = (self.padding as f32).mul_add(2.0, min_width);
             }
             _ => {}
         }
 
         match self.intrinsic_size.height {
             BoxSizing::Flex(_) => {
-                self.constraints.min_height = min_height + self.padding as f32 * 2.0;
+                self.constraints.min_height = (self.padding as f32).mul_add(2.0, min_height);
             }
             BoxSizing::Shrink => {
-                self.constraints.min_height = min_height + self.padding as f32 * 2.0;
+                self.constraints.min_height = (self.padding as f32).mul_add(2.0, min_height);
             }
             _ => {}
         }

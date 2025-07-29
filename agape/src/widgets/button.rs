@@ -3,6 +3,7 @@ use crate::style::BoxStyle;
 use crate::widgets::{LayoutDescription, LayoutType, RenderBox, RenderObject, Text, Widget};
 use agape_core::{GlobalId, Position, Size};
 
+// TODO: change to generic?
 pub struct Button {
     id: GlobalId,
     child: Box<dyn Widget>,
