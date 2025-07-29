@@ -237,22 +237,25 @@ fn handle_mouse_button(resources: &mut Resources, event: &WindowEvent) {
         _ => return,
     }
 
-    let layout = resources.get::<Box<dyn Layout>>().unwrap();
     let cursor_position: &CursorPosition = resources.get().unwrap();
 
-    let ids: Vec<GlobalId> = layout
-        .iter()
-        .filter(|l| l.bounds().within(&cursor_position.0))
-        .map(|l| l.id())
-        .collect();
+    let render_box = resources.get::<RenderBox>().unwrap();
+    let mut hovered = vec![];
+
+    for rb in render_box.iter() {
+        let bounds = Bounds::new(rb.position, rb.size);
+        if bounds.within(&cursor_position.0) {
+            hovered.push(rb.id());
+        }
+    }
 
     let state_tracker = resources.get_mut::<StateTracker>().unwrap();
-    for id in &ids {
+    for id in &hovered {
         state_tracker.update_state(*id, WidgetState::Clicked);
     }
 
     let event_queue = resources.get_mut::<Vec<WidgetEvent>>().unwrap();
-    for id in ids {
+    for id in hovered {
         event_queue.push(WidgetEvent::Clicked(id));
     }
 }
@@ -270,7 +273,6 @@ fn handle_key_input(resources: &mut Resources, event: &WindowEvent) {
     }
 }
 
-// FIXME
 fn intersection_observer(resources: &mut Resources) {
     let cursor_pos = resources.get::<CursorPosition>().unwrap();
     let render_box = resources.get::<RenderBox>().unwrap();
@@ -312,7 +314,6 @@ fn handle_widget_event(resources: &mut Resources) {
     let widget: &mut Box<dyn Widget> = resources.get_mut().unwrap();
 
     for event in events {
-        dbg!(&event);
         widget.handle_event(&event);
     }
 
