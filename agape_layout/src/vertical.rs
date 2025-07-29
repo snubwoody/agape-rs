@@ -422,7 +422,7 @@ impl Layout for VerticalLayout {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{BlockLayout, EmptyLayout, LayoutSolver};
+    use crate::{BlockLayout, EmptyLayout, solve_layout};
 
     #[test]
     fn overflow_error() {
@@ -442,7 +442,7 @@ mod test {
 
         root.add_child(child);
 
-        LayoutSolver::solve(&mut root, window);
+        solve_layout(&mut root, window);
         assert!(root.main_axis_overflow());
         assert!(root.cross_axis_overflow());
     }
@@ -465,8 +465,7 @@ mod test {
 
         root.add_child(child);
 
-        LayoutSolver::solve(&mut root, window);
-        dbg!(&root);
+        solve_layout(&mut root, window);
         assert!(!root.main_axis_overflow());
         assert!(root.cross_axis_overflow());
     }
@@ -489,7 +488,7 @@ mod test {
 
         root.add_child(child);
 
-        LayoutSolver::solve(&mut root, window);
+        solve_layout(&mut root, window);
         assert!(root.main_axis_overflow());
         assert!(!root.cross_axis_overflow());
     }
@@ -513,7 +512,7 @@ mod test {
 
         root.add_child(child);
 
-        LayoutSolver::solve(&mut root, window);
+        solve_layout(&mut root, window);
         assert!(root.main_axis_overflow());
         assert!(!root.cross_axis_overflow());
     }
@@ -536,10 +535,10 @@ mod test {
 
         root.add_child(child);
 
-        LayoutSolver::solve(&mut root, window);
-        LayoutSolver::solve(&mut root, window);
-        LayoutSolver::solve(&mut root, window);
-        LayoutSolver::solve(&mut root, window);
+        solve_layout(&mut root, window);
+        solve_layout(&mut root, window);
+        solve_layout(&mut root, window);
+        solve_layout(&mut root, window);
 
         assert_eq!(root.errors.len(), 1);
     }
@@ -560,7 +559,7 @@ mod test {
         root.add_child(child_1);
         root.add_child(child_2);
 
-        LayoutSolver::solve(&mut root, window);
+        solve_layout(&mut root, window);
 
         assert_eq!(root.size(), Size::new(500.0, 550.0));
 
@@ -578,7 +577,7 @@ mod test {
             padding: 23,
             ..Default::default()
         };
-        LayoutSolver::solve(&mut empty, Size::new(200.0, 200.0));
+        solve_layout(&mut empty, Size::new(200.0, 200.0));
 
         assert_eq!(empty.size, Size::new(23.0 * 2.0, 23.0 * 2.0));
     }
@@ -592,7 +591,7 @@ mod test {
             spacing: 50,
             ..Default::default()
         };
-        LayoutSolver::solve(&mut empty, Size::new(200.0, 200.0));
+        solve_layout(&mut empty, Size::new(200.0, 200.0));
 
         assert_eq!(empty.size, Size::default());
     }
@@ -616,7 +615,7 @@ mod test {
         root.add_child(child_1);
         root.add_child(child_2);
 
-        LayoutSolver::solve(&mut root, window);
+        solve_layout(&mut root, window);
 
         let child_size = Size::new(800.0, 400.0);
         assert_eq!(root.size(), window);
@@ -648,7 +647,7 @@ mod test {
         root.add_child(child_1);
         root.add_child(child_2);
 
-        LayoutSolver::solve(&mut root, window);
+        solve_layout(&mut root, window);
 
         let mut child_1_size = Size::new(250.0, 250.0);
         child_1_size += (padding * 2) as f32;
@@ -691,7 +690,7 @@ mod test {
         node.add_child(child_node_1);
         node.add_child(child_node_2);
 
-        LayoutSolver::solve(&mut node, window);
+        solve_layout(&mut node, window);
 
         let flex_1_height = 1.0 / 4.0 * window.height;
         // The two children should both be half the size
@@ -703,7 +702,13 @@ mod test {
             node.children()[0].size().width,
             node.children()[1].size().width,
         );
-        assert!(node.children()[1].size().height == 3.0 * node.children()[0].size().height);
-        assert!(node.children()[1].size().width != 3.0 * node.children()[0].size().width);
+        assert_eq!(
+            node.children()[1].size().height,
+            3.0 * node.children()[0].size().height
+        );
+        assert_ne!(
+            node.children()[1].size().width,
+            3.0 * node.children()[0].size().width
+        );
     }
 }

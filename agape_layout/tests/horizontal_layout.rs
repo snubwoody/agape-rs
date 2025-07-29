@@ -1,5 +1,5 @@
 use agape_layout::{
-    BlockLayout, BoxSizing, EmptyLayout, HorizontalLayout, Layout, LayoutSolver, Size,
+    BlockLayout, BoxSizing, EmptyLayout, HorizontalLayout, Layout, Size, solve_layout,
 };
 
 #[test]
@@ -18,7 +18,7 @@ fn test_horizontal_layout() {
     root.add_child(child_1);
     root.add_child(child_2);
 
-    LayoutSolver::solve(&mut root, window);
+    solve_layout(&mut root, window);
 
     assert_eq!(root.size(), Size::new(900.0, 350.0));
 
@@ -45,7 +45,7 @@ fn horizontal_and_empty_layout() {
     let mut root = HorizontalLayout::new();
     root.add_children([child_1, child_2, child_3]);
 
-    LayoutSolver::solve(&mut root, window);
+    solve_layout(&mut root, window);
 
     assert_eq!(root.size(), Size::new(250.0, 250.0));
     assert_eq!(root.children[0].size(), Size::new(250.0, 250.0));
@@ -72,7 +72,7 @@ fn test_flex_sizing() {
     root.add_child(child_1);
     root.add_child(child_2);
 
-    LayoutSolver::solve(&mut root, window);
+    solve_layout(&mut root, window);
     let child_size = Size::new(400.0, 800.0);
     assert_eq!(root.size(), window);
     assert_eq!(root.children()[0].size(), child_size);
@@ -103,7 +103,7 @@ fn test_flex_with_shrink() {
     root.add_child(child_1);
     root.add_child(child_2);
 
-    LayoutSolver::solve(&mut root, window);
+    solve_layout(&mut root, window);
 
     let mut child_1_size = Size::new(250.0, 250.0);
     child_1_size += (padding * 2) as f32;
@@ -147,8 +147,7 @@ fn test_flex_with_fixed() {
     root.spacing = spacing;
     root.add_children([child_1, child_2, child_3]);
 
-    LayoutSolver::solve(&mut root, window);
-    dbg!(&root);
+    solve_layout(&mut root, window);
 
     let mut space = window;
     space -= (padding * 2) as f32;
@@ -182,7 +181,7 @@ fn test_flex_factor() {
     node.add_child(child_node_1);
     node.add_child(child_node_2);
 
-    LayoutSolver::solve(&mut node, window);
+    solve_layout(&mut node, window);
 
     let flex_1_width = 1.0 / 4.0 * window.width;
     // The two children should both be half the size

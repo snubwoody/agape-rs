@@ -268,7 +268,7 @@ impl Layout for BlockLayout {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{EmptyLayout, LayoutSolver};
+    use crate::{EmptyLayout, solve_layout};
 
     #[test]
     fn test_shrink_sizing() {
@@ -279,7 +279,7 @@ mod test {
 
         let mut root = BlockLayout::new(Box::new(child));
         root.padding = 24;
-        LayoutSolver::solve(&mut root, window);
+        solve_layout(&mut root, window);
 
         let value = 24.0f32.mul_add(2.0, 200.0);
         assert_eq!(root.size(), Size::unit(value));
@@ -298,7 +298,7 @@ mod test {
 
         let mut root = BlockLayout::new(Box::new(child));
 
-        LayoutSolver::solve(&mut root, window);
+        solve_layout(&mut root, window);
 
         let inner_size = Size::new(175.0, 15.0);
         let child_size = inner_size + 24.0 * 2.0;
@@ -320,7 +320,7 @@ mod test {
         root.intrinsic_size.height = BoxSizing::Flex(1);
         root.padding = 24;
 
-        LayoutSolver::solve(&mut root, window);
+        solve_layout(&mut root, window);
 
         let child_size = window - root.padding as f32;
         assert_eq!(root.size(), window);
@@ -343,7 +343,7 @@ mod test {
         root.intrinsic_size.height = BoxSizing::Flex(1);
         root.padding = 24;
 
-        LayoutSolver::solve(&mut root, window);
+        solve_layout(&mut root, window);
 
         let child_size = window - root.padding as f32;
         assert_eq!(root.size(), window);

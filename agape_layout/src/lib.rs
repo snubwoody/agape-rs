@@ -19,26 +19,23 @@ pub use error::LayoutError;
 pub use horizontal::HorizontalLayout;
 use std::fmt::Debug;
 pub use vertical::VerticalLayout;
-pub struct LayoutSolver;
-// TODO maybe just make it a function
-impl LayoutSolver {
-    /// Calculates the layout of all the layout nodes
-    pub fn solve(root: &mut dyn Layout, window_size: Size) -> Vec<LayoutError> {
-        root.set_max_width(window_size.width);
-        root.set_max_height(window_size.height);
 
-        // It's important that the min constraints are solved before the max constraints
-        // because the min constraints are used in calculating max constraints
-        let _ = root.solve_min_constraints();
-        root.solve_max_constraints(window_size);
-        root.update_size();
-        root.position_children();
+/// Calculates the layout of all the layout nodes
+pub fn solve_layout(root: &mut dyn Layout, window_size: Size) -> Vec<LayoutError> {
+    root.set_max_width(window_size.width);
+    root.set_max_height(window_size.height);
 
-        // TODO add a push error function that checks for equality so that we don't have duplicate errors
-        // or maybe just clear the error stack every frame
-        //root.collect_errors()
-        vec![]
-    }
+    // It's important that the min constraints are solved before the max constraints
+    // because the min constraints are used in calculating max constraints
+    let _ = root.solve_min_constraints();
+    root.solve_max_constraints(window_size);
+    root.update_size();
+    root.position_children();
+
+    // TODO add a push error function that checks for equality so that we don't have duplicate errors
+    // or maybe just clear the error stack every frame
+    //root.collect_errors()
+    vec![]
 }
 
 pub trait Layout: Debug + Send + Sync {

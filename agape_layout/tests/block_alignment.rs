@@ -1,5 +1,5 @@
 use agape_layout::{
-    AxisAlignment, BlockLayout, BoxSizing, EmptyLayout, IntrinsicSize, LayoutSolver, Position, Size,
+    AxisAlignment, BlockLayout, BoxSizing, EmptyLayout, IntrinsicSize, Position, Size, solve_layout,
 };
 
 #[test]
@@ -21,7 +21,7 @@ fn center_alignment() {
     root.intrinsic_size.width = BoxSizing::Flex(1);
     root.intrinsic_size.height = BoxSizing::Flex(1);
 
-    LayoutSolver::solve(&mut root, window);
+    solve_layout(&mut root, window);
 
     let child_y = (root.size.height - root.child.size().height) / 2.0 + root.position.y;
     let child_x = (root.size.width - root.child.size().width) / 2.0 + root.position.x;
@@ -47,7 +47,7 @@ fn test_start_alignment() {
     root.position = Position::new(20.0, 500.0);
     root.padding = padding;
 
-    LayoutSolver::solve(&mut root, window);
+    solve_layout(&mut root, window);
 
     let mut child_1_pos = root.position;
     child_1_pos += padding as f32;
@@ -75,7 +75,7 @@ fn test_end_alignment() {
     root.main_axis_alignment = AxisAlignment::End;
     root.cross_axis_alignment = AxisAlignment::End;
 
-    LayoutSolver::solve(&mut root, window);
+    solve_layout(&mut root, window);
 
     let mut child_1_pos = Position {
         x: root.position.x + root.size.width,

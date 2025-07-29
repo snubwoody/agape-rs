@@ -1,16 +1,6 @@
 //! [`Widget`]'s describe what you want to present onto the screen. Agape tries to provide
 //! as many [`Widget`]'s as possible for various uses such as [`Text`],[`Button`],[`HStack`]
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
-//!
-//! # Creating custom widgets
-//! To create a custom widget you can implement the `Widget` trait, it has three required
-//! methods:
-//! - `id`: Return the widgets [`GlobalId`].
-//! - `view`: Return the widgets [`View`] for rendering.
-//! - `layout`: Return the widgets [`Layout`] for layout calculations.
-//!
-//! Additionally, if your widget has any children you will need to implement the `children`
-//! method.
 mod button;
 mod hstack;
 mod rect;
@@ -22,8 +12,8 @@ use crate::renderer::{draw_rect, draw_text};
 use crate::style::Border;
 use agape_core::{Color, GlobalId, Position, Rgba, Size};
 use agape_layout::{
-    AxisAlignment, BlockLayout, EmptyLayout, HorizontalLayout, IntrinsicSize, Layout, LayoutSolver,
-    VerticalLayout,
+    AxisAlignment, BlockLayout, EmptyLayout, HorizontalLayout, IntrinsicSize, Layout,
+    VerticalLayout, solve_layout,
 };
 pub use button::Button;
 pub use hstack::*;
@@ -227,7 +217,7 @@ impl RenderBox {
     /// every frame.
     pub fn solve_layout(&mut self, window_size: Size) {
         let mut layout = self.layout();
-        LayoutSolver::solve(&mut *layout, window_size);
+        solve_layout(&mut *layout, window_size);
         self.update_size(&*layout);
     }
 
