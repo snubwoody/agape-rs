@@ -14,7 +14,7 @@ temp/
 tmp/
 
 # Profiling
-**/flamegraph.*
+**/flamegraph.svg
 
 # Coverage output
 lcov.info
