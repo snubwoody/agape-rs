@@ -3,13 +3,14 @@
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
 mod button;
 mod hstack;
-mod image;
+pub mod image;
 mod rect;
+mod svg;
 mod text;
 mod text_field;
 mod vstack;
 
-use crate::renderer::{draw_image, draw_rect, draw_text};
+use crate::renderer::{draw_image, draw_rect, draw_svg, draw_text};
 use crate::style::Border;
 use ::image::DynamicImage;
 use agape_core::{Color, GlobalId, Position, Rgba, Size};
@@ -17,38 +18,30 @@ use agape_layout::{
     AxisAlignment, BlockLayout, EmptyLayout, HorizontalLayout, IntrinsicSize, Layout,
     VerticalLayout, solve_layout,
 };
+use std::collections::HashMap;
+use std::rc::Rc;
+use tiny_skia::Pixmap;
+use usvg::Tree;
+use winit::event::ElementState;
+use winit::keyboard;
+
 pub use button::Button;
 pub use hstack::*;
 pub use image::Image;
 pub use rect::*;
-use std::collections::HashMap;
+pub use svg::Svg;
 pub use text::Text;
 pub use text_field::TextField;
-use tiny_skia::Pixmap;
 pub use vstack::*;
-use winit::event::ElementState;
-use winit::keyboard;
 
-pub trait Widget: WidgetIterator {
+pub trait Widget {
     /// Get the `id` of the [`Widget`]
     fn id(&self) -> GlobalId;
 
-    /// Get a [`Widget`] from the widget tree by it's `id`
-    fn get(&self, id: GlobalId) -> Option<&dyn Widget> {
-        self.iter().find(|&widget| widget.id() == id)
-    }
-
+    /// Walk the widget tree recursively, from the root widget
+    /// down to the last widget in the tree.
     fn traverse(&self, _f: &mut dyn FnMut(&dyn Widget)) {}
     fn traverse_mut(&mut self, _f: &mut dyn FnMut(&mut dyn Widget)) {}
-
-    /// Get the widgets children.
-    fn children(&self) -> Vec<&dyn Widget> {
-        vec![]
-    }
-
-    fn children_mut(&mut self) -> &mut [Box<dyn Widget>] {
-        &mut []
-    }
 
     fn handle_event(&mut self, event: &WidgetEvent) {
         match event {
@@ -97,11 +90,11 @@ pub struct StateTracker {
 
 // TODO test these
 impl StateTracker {
-    pub fn new(widget: &dyn Widget) -> Self {
+    pub fn new(render_box: &RenderBox) -> Self {
         let mut previous_state = HashMap::new();
         let mut current_state = HashMap::new();
 
-        widget.iter().for_each(|w| {
+        render_box.iter().for_each(|w| {
             let id = w.id();
             previous_state.insert(id, WidgetState::Resting);
             current_state.insert(id, WidgetState::Resting);
@@ -136,33 +129,6 @@ pub enum WidgetState {
     Clicked,
 }
 
-/// An iterator over the [`Widget`] tree.
-pub struct WidgetIter<'a> {
-    stack: Vec<&'a dyn Widget>,
-}
-
-impl<'a> Iterator for WidgetIter<'a> {
-    type Item = &'a dyn Widget;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if let Some(widget) = self.stack.pop() {
-            self.stack.extend(widget.children());
-            return Some(widget);
-        }
-        None
-    }
-}
-
-pub trait WidgetIterator {
-    fn iter(&self) -> WidgetIter<'_>;
-}
-
-impl<T: Widget> WidgetIterator for T {
-    fn iter(&self) -> WidgetIter<'_> {
-        WidgetIter { stack: vec![self] }
-    }
-}
-
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct LayoutDescription {
     pub padding: u32,
@@ -182,7 +148,7 @@ pub enum LayoutType {
     BlockLayout,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub enum RenderObject {
     Rect {
         border: Option<Border>,
@@ -196,6 +162,7 @@ pub enum RenderObject {
     Image {
         image: DynamicImage,
     },
+    Svg(Rc<Tree>),
 }
 
 #[derive(Debug)]
@@ -307,6 +274,9 @@ impl RenderBox {
             }
             RenderObject::Image { image } => {
                 draw_image(pixmap, image, self.position, self.size);
+            }
+            RenderObject::Svg(data) => {
+                draw_svg(pixmap, data, self.position, self.size);
             }
         }
         self.children.iter().for_each(|child| child.render(pixmap));

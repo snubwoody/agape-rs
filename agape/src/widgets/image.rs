@@ -1,3 +1,9 @@
+//! Image support.
+//!
+//! Only the following image formats are supported:
+//! - `PNG`
+//! - `WebP`
+//! - `JPEG`
 use crate::Error::UnsupportedImageFormat;
 use crate::impl_style;
 use crate::style::BoxStyle;

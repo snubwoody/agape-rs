@@ -83,14 +83,6 @@ impl Widget for Button {
         }
     }
 
-    fn children(&self) -> Vec<&dyn Widget> {
-        vec![&*self.child]
-    }
-
-    fn children_mut(&mut self) -> &mut [Box<dyn Widget>] {
-        std::slice::from_mut(&mut self.child)
-    }
-
     fn traverse(&self, f: &mut dyn FnMut(&dyn Widget)) {
         f(self.child.as_ref());
         self.child.traverse(f);
@@ -105,8 +97,7 @@ impl Widget for Button {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::renderer::init_font;
-    use crate::{FONT, hstack};
+    use crate::hstack;
 
     #[test]
     fn traverse_child() {
@@ -116,15 +107,5 @@ mod test {
 
         button.traverse(&mut |widget: &dyn Widget| assert_eq!(id, widget.id()));
         button.traverse_mut(&mut |widget: &mut dyn Widget| assert_eq!(id, widget.id()));
-    }
-
-    #[test]
-    fn expose_children() {
-        FONT.set(init_font()).unwrap();
-        let text = Text::new("Hello");
-        let id = text.id();
-
-        let button = Button::new(text);
-        assert_eq!(button.children()[0].id(), id);
     }
 }

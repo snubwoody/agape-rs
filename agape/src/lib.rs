@@ -1,4 +1,4 @@
-//! A GUI library.
+//! A cross-platform GUI library.
 //!
 //! ## Getting started
 //! To get started you'll need to create an [`App`], which is the entry point
@@ -129,9 +129,9 @@ impl App<'_> {
     pub fn new(widget: impl Widget + 'static) -> Self {
         FONT.set(init_font()).unwrap();
 
-        let state_tracker = StateTracker::new(&widget);
         let widget: Box<dyn Widget> = Box::new(widget);
         let render_box = widget.build();
+        let state_tracker = StateTracker::new(&render_box);
 
         let mut resources = Resources::new();
         resources.insert(state_tracker);
@@ -326,7 +326,7 @@ mod test {
     fn widget_hover_system() {
         let rect = Rect::new().fixed(100.0, 100.0);
 
-        let state_tracker = StateTracker::new(&rect);
+        let state_tracker = StateTracker::new(&rect.build());
         let mut resources = Resources::new();
         resources.insert(state_tracker);
         resources.insert(WindowSize(Size::unit(500.0)));

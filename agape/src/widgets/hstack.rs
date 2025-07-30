@@ -130,14 +130,6 @@ impl Widget for HStack {
             layout_desc,
         }
     }
-
-    fn children(&self) -> Vec<&dyn Widget> {
-        self.children.iter().map(|child| child.as_ref()).collect()
-    }
-
-    fn children_mut(&mut self) -> &mut [Box<dyn Widget>] {
-        self.children.as_mut_slice()
-    }
 }
 
 /// Creates an [`HStack`].  
@@ -235,21 +227,5 @@ mod test {
     fn empty_hstack_expansion() {
         let hstack = hstack! {};
         assert!(hstack.children.is_empty());
-    }
-
-    #[test]
-    fn get_children() {
-        let widget = hstack! {
-            Rect::new(),
-            Rect::new()
-        };
-
-        let id1 = widget.children()[0].id();
-        let id2 = widget.children()[1].id();
-
-        let children = widget.children();
-
-        assert_eq!(children[0].id(), id1);
-        assert_eq!(children[1].id(), id2);
     }
 }
