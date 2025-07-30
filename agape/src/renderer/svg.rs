@@ -1,11 +1,9 @@
 use agape_core::{Position, Size};
 use tiny_skia::{Pixmap, Transform};
+use usvg::Tree;
 
 // TODO: add support for custom colors
-pub fn draw_svg(pixmap: &mut Pixmap, data: &[u8], position: Position, size: Size) {
-    let options = usvg::Options::default();
-    let tree = usvg::Tree::from_data(data, &options).unwrap();
-
+pub fn draw_svg(pixmap: &mut Pixmap, tree: &Tree, position: Position, size: Size) {
     let svg_width = tree.size().width();
     let svg_height = tree.size().height();
     let scale_x = size.width / svg_width;
@@ -25,6 +23,8 @@ mod test {
     fn render_svg() {
         let mut pixmap = Pixmap::new(200, 200).unwrap();
         let data = include_bytes!("../../icons/feather-icons/airplay.svg");
-        draw_svg(&mut pixmap, data, Position::default(), Size::unit(150.0));
+        let options = usvg::Options::default();
+        let tree = usvg::Tree::from_data(data, &options).unwrap();
+        draw_svg(&mut pixmap, &tree, Position::default(), Size::unit(150.0));
     }
 }

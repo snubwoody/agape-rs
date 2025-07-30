@@ -7,6 +7,8 @@ pub enum Error {
     #[error("Unsupported image format, only png, jpeg and webp are supported")]
     UnsupportedImageFormat,
 
+    #[error(transparent)]
+    SvgError(#[from] usvg::Error),
     // Third party errors
     #[error(transparent)]
     ImageError(#[from] image::ImageError),

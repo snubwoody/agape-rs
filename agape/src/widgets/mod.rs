@@ -5,6 +5,7 @@ mod button;
 mod hstack;
 pub mod image;
 mod rect;
+mod svg;
 mod text;
 mod text_field;
 mod vstack;
@@ -17,17 +18,20 @@ use agape_layout::{
     AxisAlignment, BlockLayout, EmptyLayout, HorizontalLayout, IntrinsicSize, Layout,
     VerticalLayout, solve_layout,
 };
+use std::collections::HashMap;
+use tiny_skia::Pixmap;
+use usvg::Tree;
+use winit::event::ElementState;
+use winit::keyboard;
+
 pub use button::Button;
 pub use hstack::*;
 pub use image::Image;
 pub use rect::*;
-use std::collections::HashMap;
+pub use svg::Svg;
 pub use text::Text;
 pub use text_field::TextField;
-use tiny_skia::Pixmap;
 pub use vstack::*;
-use winit::event::ElementState;
-use winit::keyboard;
 
 pub trait Widget: WidgetIterator {
     /// Get the `id` of the [`Widget`]
@@ -184,7 +188,7 @@ pub enum LayoutType {
     BlockLayout,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub enum RenderObject {
     Rect {
         border: Option<Border>,
@@ -198,7 +202,7 @@ pub enum RenderObject {
     Image {
         image: DynamicImage,
     },
-    Svg(Vec<u8>),
+    Svg(Tree),
 }
 
 #[derive(Debug)]
