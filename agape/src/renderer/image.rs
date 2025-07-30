@@ -20,5 +20,4 @@ pub fn draw_image(pixmap: &mut Pixmap, image: &DynamicImage, position: Position)
         Transform::identity(),
         None,
     );
-    pixmap.save_png("out.png").unwrap()
 }
