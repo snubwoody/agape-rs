@@ -54,6 +54,10 @@ fn main() -> Result<(), agape::Error> {
 ✅: Fully supported  
 🚧: Planned
 
+## Features
+
+- `images`: Enable image support
+
 ## Roadmap
 
 - [x] text rendering

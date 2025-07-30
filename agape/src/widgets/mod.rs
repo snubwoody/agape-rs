@@ -3,6 +3,7 @@
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
 mod button;
 mod hstack;
+mod image;
 mod rect;
 mod text;
 mod text_field;
@@ -17,6 +18,7 @@ use agape_layout::{
 };
 pub use button::Button;
 pub use hstack::*;
+pub use image::Image;
 pub use rect::*;
 use std::collections::HashMap;
 pub use text::Text;

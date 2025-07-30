@@ -3,6 +3,7 @@ mod rect;
 mod text;
 
 use fontdue::{Font, FontSettings};
+pub use image::draw_image;
 pub use rect::draw_rect;
 pub use text::{draw_text, text_size};
 
