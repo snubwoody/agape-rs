@@ -33,18 +33,16 @@ pub use text::Text;
 pub use text_field::TextField;
 pub use vstack::*;
 
-pub trait Widget: WidgetIterator {
+pub trait Widget {
     /// Get the `id` of the [`Widget`]
     fn id(&self) -> GlobalId;
 
-    /// Get a [`Widget`] from the widget tree by it's `id`
-    fn get(&self, id: GlobalId) -> Option<&dyn Widget> {
-        self.iter().find(|&widget| widget.id() == id)
-    }
-
+    /// Walk the widget tree recursively, from the root widget
+    /// down to the last widget in the tree.
     fn traverse(&self, _f: &mut dyn FnMut(&dyn Widget)) {}
     fn traverse_mut(&mut self, _f: &mut dyn FnMut(&mut dyn Widget)) {}
 
+    // TODO: remove these
     /// Get the widgets children.
     fn children(&self) -> Vec<&dyn Widget> {
         vec![]
@@ -101,11 +99,11 @@ pub struct StateTracker {
 
 // TODO test these
 impl StateTracker {
-    pub fn new(widget: &dyn Widget) -> Self {
+    pub fn new(render_box: &RenderBox) -> Self {
         let mut previous_state = HashMap::new();
         let mut current_state = HashMap::new();
 
-        widget.iter().for_each(|w| {
+        render_box.iter().for_each(|w| {
             let id = w.id();
             previous_state.insert(id, WidgetState::Resting);
             current_state.insert(id, WidgetState::Resting);
@@ -138,35 +136,6 @@ pub enum WidgetState {
     Resting,
     Hovered,
     Clicked,
-}
-
-#[deprecated]
-/// An iterator over the [`Widget`] tree.
-pub struct WidgetIter<'a> {
-    stack: Vec<&'a dyn Widget>,
-}
-
-impl<'a> Iterator for WidgetIter<'a> {
-    type Item = &'a dyn Widget;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if let Some(widget) = self.stack.pop() {
-            self.stack.extend(widget.children());
-            return Some(widget);
-        }
-        None
-    }
-}
-
-#[deprecated]
-pub trait WidgetIterator {
-    fn iter(&self) -> WidgetIter<'_>;
-}
-
-impl<T: Widget> WidgetIterator for T {
-    fn iter(&self) -> WidgetIter<'_> {
-        WidgetIter { stack: vec![self] }
-    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
