@@ -19,6 +19,10 @@ members = [
     "agape_layout",
 ]
 
+[profile.bench]
+debug = true
+
+
 [workspace.dependencies]
 agape_core = { version = "0.3.0", path = "agape_core" }
 agape_layout = { version = "0.3.0", path = "agape_layout" }

@@ -9,8 +9,9 @@ mod text;
 mod text_field;
 mod vstack;
 
-use crate::renderer::{draw_rect, draw_text};
+use crate::renderer::{draw_image, draw_rect, draw_text};
 use crate::style::Border;
+use ::image::DynamicImage;
 use agape_core::{Color, GlobalId, Position, Rgba, Size};
 use agape_layout::{
     AxisAlignment, BlockLayout, EmptyLayout, HorizontalLayout, IntrinsicSize, Layout,
@@ -72,9 +73,7 @@ pub trait Widget: WidgetIterator {
     fn click(&mut self) {}
     fn hover(&mut self) {}
 
-    fn build(&self) -> RenderBox {
-        todo!()
-    }
+    fn build(&self) -> RenderBox;
 
     fn key_input(&mut self, _key: &keyboard::Key, _state: &ElementState, _text: &Option<String>) {}
 }
@@ -194,6 +193,9 @@ pub enum RenderObject {
         content: String,
         font_size: u8,
     },
+    Image {
+        image: DynamicImage,
+    },
 }
 
 #[derive(Debug)]
@@ -207,6 +209,17 @@ pub struct RenderBox {
 }
 
 impl RenderBox {
+    pub fn new(id: GlobalId, layout_desc: LayoutDescription, render_object: RenderObject) -> Self {
+        Self {
+            id,
+            layout_desc,
+            render_object,
+            size: Size::default(),
+            position: Position::default(),
+            children: Vec::new(),
+        }
+    }
+
     pub fn id(&self) -> GlobalId {
         self.id
     }
@@ -291,6 +304,9 @@ impl RenderBox {
                 content, font_size, ..
             } => {
                 draw_text(pixmap, content, *font_size as f32, self.position);
+            }
+            RenderObject::Image { image } => {
+                draw_image(pixmap, image, self.position);
             }
         }
         self.children.iter().for_each(|child| child.render(pixmap));

@@ -1,6 +1,7 @@
 use crate::style::BoxStyle;
+use crate::widgets::{LayoutDescription, LayoutType, RenderBox, RenderObject};
 use crate::{impl_style, widgets::Widget};
-use agape_core::GlobalId;
+use agape_core::{GlobalId, Position, Size};
 use agape_layout::{AxisAlignment, VerticalLayout};
 
 /// A vertical stack that places its children vertically one after
@@ -99,6 +100,33 @@ impl Widget for VStack {
             .iter()
             .map(|child| child.as_ref())
             .collect::<Vec<_>>()
+    }
+
+    fn build(&self) -> RenderBox {
+        let children = self.children.iter().map(|w| w.build()).collect();
+
+        let layout_desc = LayoutDescription {
+            padding: self.layout.padding,
+            spacing: self.layout.spacing,
+            intrinsic_size: self.layout.intrinsic_size,
+            cross_axis_alignment: self.layout.cross_axis_alignment,
+            main_axis_alignment: self.layout.main_axis_alignment,
+            layout_type: LayoutType::VerticalLayout,
+        };
+
+        let render_object = RenderObject::Rect {
+            color: self.style.background_color.clone(),
+            border: self.style.border.clone(),
+        };
+
+        RenderBox {
+            id: self.id,
+            position: Position::default(),
+            size: Size::default(),
+            render_object,
+            children,
+            layout_desc,
+        }
     }
 }
 
