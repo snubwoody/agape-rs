@@ -306,7 +306,7 @@ impl RenderBox {
                 draw_text(pixmap, content, *font_size as f32, self.position);
             }
             RenderObject::Image { image } => {
-                draw_image(pixmap, image, self.position);
+                draw_image(pixmap, image, self.position, self.size);
             }
         }
         self.children.iter().for_each(|child| child.render(pixmap));

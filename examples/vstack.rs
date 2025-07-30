@@ -2,7 +2,7 @@ use agape::widgets::{Image, Text};
 use agape::{App, vstack};
 
 fn main() -> Result<(), agape::Error> {
-    let image = Image::open("./examples/assets/PARTYNEXTDOOR Album Cover.jpg")?;
+    let image = Image::open("./examples/assets/PARTYNEXTDOOR Album Cover.jpg")?.fixed(250.0, 250.0);
 
     let vstack = vstack! {
         image,

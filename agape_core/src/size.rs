@@ -68,6 +68,10 @@ impl Size {
         self.width = width;
         self.height = height;
     }
+
+    pub fn to_u32(&self) -> (u32, u32) {
+        (self.width as u32, self.height as u32)
+    }
 }
 
 impl From<PhysicalSize<u32>> for Size {
