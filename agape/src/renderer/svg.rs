@@ -10,7 +10,7 @@ pub fn draw_svg(pixmap: &mut Pixmap, tree: &Tree, position: Position, size: Size
     let scale_y = size.height / svg_height;
     let transform = Transform::from_translate(position.x, position.y).post_scale(scale_x, scale_y);
 
-    resvg::render(&tree, transform, &mut pixmap.as_mut());
+    resvg::render(tree, transform, &mut pixmap.as_mut());
 }
 
 #[cfg(test)]

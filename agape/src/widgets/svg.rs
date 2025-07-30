@@ -3,12 +3,13 @@ use agape_core::GlobalId;
 use agape_layout::{BoxSizing, IntrinsicSize};
 use std::fs;
 use std::path::Path;
+use std::rc::Rc;
 use usvg::Tree;
 
 #[derive(Debug)]
 pub struct Svg {
     id: GlobalId,
-    data: Tree,
+    data: Rc<Tree>,
 }
 
 impl Svg {
@@ -20,7 +21,7 @@ impl Svg {
 
         Ok(Self {
             id: GlobalId::new(),
-            data: tree,
+            data: Rc::new(tree),
         })
     }
 }

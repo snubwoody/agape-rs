@@ -19,6 +19,7 @@ use agape_layout::{
     VerticalLayout, solve_layout,
 };
 use std::collections::HashMap;
+use std::rc::Rc;
 use tiny_skia::Pixmap;
 use usvg::Tree;
 use winit::event::ElementState;
@@ -161,7 +162,7 @@ pub enum RenderObject {
     Image {
         image: DynamicImage,
     },
-    Svg(Tree),
+    Svg(Rc<Tree>),
 }
 
 #[derive(Debug)]

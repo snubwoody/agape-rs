@@ -1,5 +1,5 @@
+use agape::hstack;
 use agape::widgets::*;
-use agape::{hstack, vstack};
 
 #[test]
 fn traverse_nested_children() {

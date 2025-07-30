@@ -175,7 +175,6 @@ macro_rules! vstack {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use crate::widgets::{Rect, Text};
 
     #[test]

@@ -97,8 +97,7 @@ impl Widget for Button {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::renderer::init_font;
-    use crate::{FONT, hstack};
+    use crate::hstack;
 
     #[test]
     fn traverse_child() {

@@ -2,6 +2,12 @@
 //!
 //! This is a two pass layout engine that uses constraints to calculate size and
 //! position.
+//!
+//! ## [`IntrinsicSize`]
+//! Intrinsic size is the size a [`Layout`] wants to be. Say there's three rects, and each
+//! want to fill the screen, none of them can fulfill this without leaving no space
+//! for the others. So the true final size will be for each layout will be `1/3` of the
+//! actual window size, thus splitting it equally.
 #![warn(clippy::suboptimal_flops)]
 #![warn(clippy::suspicious_operation_groupings)]
 #![warn(clippy::imprecise_flops)]
