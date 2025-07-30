@@ -54,6 +54,18 @@ fn main() -> Result<(), agape::Error> {
 ✅: Fully supported  
 🚧: Planned
 
+## Images
+
+Supported image formats:
+
+- `Png`
+- `WebP`
+- `Jpeg`
+
+## Features
+
+- `images`: Enable image support
+
 ## Roadmap
 
 - [x] text rendering

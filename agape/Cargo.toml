@@ -2,11 +2,16 @@
 name = "agape"
 readme = "../README.md"
 description = "A GUI library"
+documentation = "https://docs.rs/agape"
+homepage = "https://github.com/snubwoody/agape-rs"
 repository.workspace = true
 keywords.workspace = true
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+
+[features]
+images = []
 
 [dependencies]
 image.workspace = true
@@ -17,9 +22,9 @@ fontdue = "0.9.3"
 agape_core.workspace = true
 agape_macros.workspace = true
 agape_layout.workspace = true
-reqwest = { version = "0.12.12", features = ["blocking", "stream", "json"] }
 tiny-skia.workspace = true
 pixels.workspace = true
+rand = "0.9.1"
 
 [lints]
 workspace = true

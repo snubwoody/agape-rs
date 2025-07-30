@@ -58,7 +58,7 @@ macro_rules! impl_style {
             self
         }
 
-        /// Make the [`Widget`] fit it's children.
+        /// Make the [`Widget`] a fixed size.
         pub fn fixed(mut self, width: f32, height: f32) -> Self {
             self.style.fixed(width, height);
             self

@@ -1,49 +1,6 @@
 use crate::FONT;
-use crate::style::Border;
-use agape_core::{Color, Position, Rgba, Size, map};
-use fontdue::{Font, FontSettings};
-use tiny_skia::{IntSize, Paint, PathBuilder, Pixmap, PixmapPaint, Stroke, Transform};
-
-/// Draw a rectangle onto the `Pixmap`.
-pub fn draw_rect(
-    pixmap: &mut Pixmap,
-    color: &Color<Rgba>,
-    size: Size,
-    position: Position,
-    border: Option<Border>,
-) {
-    let (r, g, b, a) = color.inner();
-
-    // Map the alpha since it's clipped to 100
-    let a = map(a as f32, [0.0, 100.0], [0.0, 255.0]) as u8;
-    let mut paint = Paint::default();
-    paint.set_color_rgba8(r, g, b, a);
-
-    let Position { x, y } = position;
-    let Size { width, height } = size;
-
-    let rect = tiny_skia::Rect::from_xywh(x, y, width, height).unwrap();
-    pixmap.fill_rect(rect, &paint, Transform::identity(), None);
-
-    if let Some(border) = border {
-        // TODO turn this into a function
-        let (r, g, b, a) = border.color.inner();
-        let a = map(a as f32, [0.0, 100.0], [0.0, 255.0]) as u8;
-
-        let mut border_paint = Paint::default();
-        border_paint.set_color_rgba8(r, g, b, a);
-        let mut path_builder = PathBuilder::new();
-        path_builder.push_rect(rect);
-        let path = path_builder.finish().unwrap();
-
-        let stroke = Stroke {
-            width: border.width,
-            ..Default::default()
-        };
-
-        pixmap.stroke_path(&path, &border_paint, &stroke, Transform::identity(), None);
-    }
-}
+use agape_core::{Position, Size};
+use tiny_skia::{IntSize, Pixmap, PixmapPaint, Transform};
 
 /// Draw text onto the `Pixmap`.
 pub fn draw_text(pixmap: &mut Pixmap, text: &str, font_size: f32, position: Position) {
@@ -113,9 +70,4 @@ pub fn text_size(text: &str, font_size: f32) -> Size {
     }
 
     Size::new(width, height)
-}
-
-pub fn init_font() -> Font {
-    let bytes = include_bytes!("../fonts/Inter/static/Inter-Regular.ttf") as &[u8];
-    Font::from_bytes(bytes, FontSettings::default()).unwrap()
 }

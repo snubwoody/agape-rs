@@ -4,6 +4,18 @@ All notable changes to agape will be documented in this file.
 
 ## [unreleased]
 
+## Widgets
+
+### New
+
+- `Image`: render images to the screen
+
+## API changes
+
+### Added
+
+- Support for image rendering
+
 ### Changed
 
 - Removed the `LayoutSolver` struct and renamed its single method to `solve_layout`

@@ -106,6 +106,7 @@ impl Widget for HStack {
     fn build(&self) -> RenderBox {
         let children = self.children.iter().map(|w| w.build()).collect();
 
+        // FIXME: use style and test
         let layout_desc = LayoutDescription {
             padding: self.layout.padding,
             spacing: self.layout.spacing,
