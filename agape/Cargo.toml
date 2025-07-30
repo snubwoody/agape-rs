@@ -23,6 +23,7 @@ tiny-skia.workspace = true
 pixels.workspace = true
 rand = "0.9.1"
 usvg = "0.45.1"
+resvg = "0.45.1"
 
 [lints]
 workspace = true

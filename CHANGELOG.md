@@ -4,21 +4,19 @@ All notable changes to agape will be documented in this file.
 
 ## [unreleased]
 
-## Widgets
-
-### New
-
-- `Image`: render images to the screen
-
-## API changes
-
 ### Added
 
-- Support for image rendering
+- `Image` widget.
+- Support for image rendering.
+- Svg rendering using the `resvg` crate.
 
 ### Changed
 
-- Removed the `LayoutSolver` struct and renamed its single method to `solve_layout`
+- Removed the `LayoutSolver` struct and renamed its single method to `solve_layout`.
+
+### Removed
+
+- Removed views, rendering is done through functions now.
 
 ## 0.2.0 - 2025-07-17
 

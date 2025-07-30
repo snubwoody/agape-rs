@@ -1,4 +1,4 @@
-//! A GUI library.
+//! A cross-platform GUI library.
 //!
 //! ## Getting started
 //! To get started you'll need to create an [`App`], which is the entry point

@@ -3,13 +3,13 @@
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
 mod button;
 mod hstack;
-mod image;
+pub mod image;
 mod rect;
 mod text;
 mod text_field;
 mod vstack;
 
-use crate::renderer::{draw_image, draw_rect, draw_text};
+use crate::renderer::{draw_image, draw_rect, draw_svg, draw_text};
 use crate::style::Border;
 use ::image::DynamicImage;
 use agape_core::{Color, GlobalId, Position, Rgba, Size};
@@ -136,6 +136,7 @@ pub enum WidgetState {
     Clicked,
 }
 
+#[deprecated]
 /// An iterator over the [`Widget`] tree.
 pub struct WidgetIter<'a> {
     stack: Vec<&'a dyn Widget>,
@@ -153,6 +154,7 @@ impl<'a> Iterator for WidgetIter<'a> {
     }
 }
 
+#[deprecated]
 pub trait WidgetIterator {
     fn iter(&self) -> WidgetIter<'_>;
 }
@@ -196,6 +198,7 @@ pub enum RenderObject {
     Image {
         image: DynamicImage,
     },
+    Svg(Vec<u8>),
 }
 
 #[derive(Debug)]
@@ -307,6 +310,9 @@ impl RenderBox {
             }
             RenderObject::Image { image } => {
                 draw_image(pixmap, image, self.position, self.size);
+            }
+            RenderObject::Svg(data) => {
+                draw_svg(pixmap, data, self.position, self.size);
             }
         }
         self.children.iter().for_each(|child| child.render(pixmap));
