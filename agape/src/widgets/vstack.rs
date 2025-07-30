@@ -95,13 +95,6 @@ impl Widget for VStack {
         }
     }
 
-    fn children(&self) -> Vec<&dyn Widget> {
-        self.children
-            .iter()
-            .map(|child| child.as_ref())
-            .collect::<Vec<_>>()
-    }
-
     fn build(&self) -> RenderBox {
         let children = self.children.iter().map(|w| w.build()).collect();
 
@@ -153,7 +146,6 @@ impl Widget for VStack {
 /// use agape::widgets::*;
 ///
 /// let vstack = vstack![Text::new("Repeat!");100];
-/// assert_eq!(vstack.children().len(),100);
 /// ```
 ///
 /// > Note that to use the repeat syntax the [`Widget`] must
@@ -201,21 +193,5 @@ mod test {
     fn vstack_repeat_syntax() {
         let vstack = vstack![Text::new("Repeat!");10];
         assert_eq!(vstack.children.len(), 10);
-    }
-
-    #[test]
-    fn get_children() {
-        let vstack = vstack! {
-            Rect::new(),
-            Rect::new(),
-        };
-
-        let id1 = vstack.children()[0].id();
-        let id2 = vstack.children()[1].id();
-
-        let children = vstack.children();
-
-        assert_eq!(id1, children[0].id());
-        assert_eq!(id2, children[1].id());
     }
 }

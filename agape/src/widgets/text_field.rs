@@ -50,10 +50,6 @@ impl Widget for TextField {
         self.id
     }
 
-    fn children(&self) -> Vec<&dyn Widget> {
-        vec![&self.text]
-    }
-
     fn traverse(&self, f: &mut dyn FnMut(&dyn Widget)) {
         f(&self.text);
         self.text.traverse(f);
@@ -65,6 +61,7 @@ impl Widget for TextField {
     }
 
     fn build(&self) -> RenderBox {
+        // FIXME
         todo!()
     }
 }

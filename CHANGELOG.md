@@ -6,9 +6,13 @@ All notable changes to agape will be documented in this file.
 
 ### Added
 
-- `Image` widget.
 - Support for image rendering.
 - Svg rendering using the `resvg` crate.
+
+#### Widgets
+
+- `Image`
+- `Svg`
 
 ### Changed
 
@@ -17,6 +21,7 @@ All notable changes to agape will be documented in this file.
 ### Removed
 
 - Removed views, rendering is done through functions now.
+- Removed widget iterators
 
 ## 0.2.0 - 2025-07-17
 

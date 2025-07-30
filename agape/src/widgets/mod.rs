@@ -42,16 +42,6 @@ pub trait Widget {
     fn traverse(&self, _f: &mut dyn FnMut(&dyn Widget)) {}
     fn traverse_mut(&mut self, _f: &mut dyn FnMut(&mut dyn Widget)) {}
 
-    // TODO: remove these
-    /// Get the widgets children.
-    fn children(&self) -> Vec<&dyn Widget> {
-        vec![]
-    }
-
-    fn children_mut(&mut self) -> &mut [Box<dyn Widget>] {
-        &mut []
-    }
-
     fn handle_event(&mut self, event: &WidgetEvent) {
         match event {
             WidgetEvent::Hovered(id) => {
