@@ -4,7 +4,6 @@ use tiny_skia::{IntSize, Pixmap, PixmapPaint, Transform};
 
 /// Draw an image onto the pixmap.
 pub fn draw_image(pixmap: &mut Pixmap, image: &DynamicImage, position: Position, size: Size) {
-    // TODO: use resize exact?
     let (width, height) = image.dimensions();
     let data = image.to_rgba8().into_raw();
     let pixmap_size = IntSize::from_wh(width, height).unwrap();

@@ -17,12 +17,11 @@ pub struct Image {
 impl Image {
     pub fn open<P: AsRef<Path>>(path: P) -> crate::Result<Self> {
         let reader = ImageReader::open(path)?.with_guessed_format()?;
-        if let Some(format) = reader.format() {
-            match format {
-                ImageFormat::Png | ImageFormat::Jpeg | ImageFormat::WebP => (),
-                _ => return Err(UnsupportedImageFormat),
-            }
-        } else {
+
+        if !matches!(
+            reader.format(),
+            Some(ImageFormat::Png | ImageFormat::Jpeg | ImageFormat::WebP)
+        ) {
             return Err(UnsupportedImageFormat);
         }
 
@@ -65,13 +64,5 @@ impl Widget for Image {
         };
 
         RenderBox::new(self.id, layout_desc, render_object)
-    }
-}
-
-#[cfg(test)]
-mod test {
-    #[test]
-    fn initial_size() {
-        todo!("Implement from memory and test inital size")
     }
 }

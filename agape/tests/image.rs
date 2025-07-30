@@ -12,7 +12,7 @@ fn save_image(width: u32, height: u32, format: ImageFormat) -> PathBuf {
     }
     let _ = fs::create_dir("temp");
     let id: u64 = rand::random();
-    let path = PathBuf::from(format!("temp/img-{}.{}", id, ext));
+    let path = PathBuf::from(format!("temp/img-{id}.{ext}"));
     buf.save(&path).unwrap();
     path
 }
