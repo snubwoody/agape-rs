@@ -3,6 +3,7 @@
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
 mod button;
 mod hstack;
+mod icon;
 pub mod image;
 mod rect;
 mod svg;
@@ -27,6 +28,7 @@ use winit::keyboard;
 
 pub use button::Button;
 pub use hstack::*;
+pub use icon::Icon;
 pub use image::Image;
 pub use rect::*;
 pub use svg::Svg;
