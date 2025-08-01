@@ -41,6 +41,10 @@ fn main() -> Result<(), agape::Error> {
 }
 ```
 
+## Features
+
+- `feather-icons`: Embeds the whole [feather icons](https://feathericons.com/) library at compile time.
+
 ## Support
 
 | Platform | Status |

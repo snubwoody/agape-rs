@@ -4,15 +4,16 @@ All notable changes to agape will be documented in this file.
 
 ## [unreleased]
 
-### Added
+### Features
 
 - Support for image rendering.
 - Svg rendering using the `resvg` crate.
 
-#### Widgets
+#### New widgets
 
-- `Image`
-- `Svg`
+- `Image`: Draw images to the screen
+- `Svg`: Draw SVGs to the screen
+- `Icon`: Idiomatic wrapper for `Svg`
 
 ### Changed
 
@@ -25,7 +26,7 @@ All notable changes to agape will be documented in this file.
 
 ## 0.2.0 - 2025-07-17
 
-### Added
+### Features
 
 - Added `Resources` struct to share global resources
 - Repeat syntax, `hstack![widget;10]`, to `hstack!` and `vstack!` macros
@@ -35,7 +36,7 @@ All notable changes to agape will be documented in this file.
 - `BoxStyle`, which contains common styling for all widgets
 - Added event systems, i.e. systems that run when specific events are emitted
 
-### Changed
+### Changes
 
 - Systems now have a `&mut Resources` instead of the previous `&mut Context`
 - Most of the functionality, like layout and state, is now handled in systems
