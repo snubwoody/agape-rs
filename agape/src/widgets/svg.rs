@@ -128,7 +128,7 @@ mod test {
         ";
 
         let id: u8 = rand::random();
-        let path = format!("temp/svg-{}.svg", id);
+        let path = format!("temp/svg-{id}.svg");
         let mut file = File::create(&path)?;
         file.write_all(data.as_bytes())?;
 
