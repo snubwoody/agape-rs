@@ -3,9 +3,13 @@ use crate::renderer::text_size;
 use agape_core::Color;
 use agape_core::{GlobalId, Position, Size};
 
+/// Draw text onto the screen.
+///
+/// Emojis are currently unsupported.
 #[derive(Clone, PartialEq, Debug)]
 pub struct Text {
     id: GlobalId,
+    // TODO: rename to inner or content
     pub text: String,
     pub font_size: u8,
 }
