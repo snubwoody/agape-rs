@@ -116,6 +116,12 @@ pub fn update_widgets(resources: &mut Resources) {
     widget.tick(&state);
 }
 
+pub fn rebuild_widgets(resources: &mut Resources) {
+    let widget = resources.get::<Box<dyn Widget>>().unwrap();
+    let render_box = widget.build();
+    resources.set(render_box);
+}
+
 pub fn layout_system(resources: &mut Resources) {
     let WindowSize(size) = resources.get_owned::<WindowSize>().unwrap();
 

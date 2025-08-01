@@ -71,7 +71,7 @@ pub trait Widget {
     }
 
     /// Runs every frame.
-    fn update(&mut self, state: &StateTracker) {}
+    fn update(&mut self, _state: &StateTracker) {}
 
     fn click(&mut self) {}
     fn hover(&mut self) {}

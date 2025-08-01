@@ -27,11 +27,22 @@ impl<W: Widget> Widget for Container<W> {
         self.id
     }
 
+    fn traverse(&self, f: &mut dyn FnMut(&dyn Widget)) {
+        f(&self.child);
+        self.child.traverse(f);
+    }
+
+    fn traverse_mut(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
+        f(&mut self.child);
+        self.child.traverse_mut(f);
+    }
+
     fn build(&self) -> RenderBox {
         let render_object = RenderObject::Rect {
             border: self.style.border.clone(),
             color: self.style.background_color.clone(),
         };
+        // dbg!(&self.style.background_color);
         // TODO: add padding and alignment
         let layout = LayoutDescription {
             layout_type: LayoutType::BlockLayout,
