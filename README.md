@@ -41,6 +41,15 @@ fn main() -> Result<(), agape::Error> {
 }
 ```
 
+## Features
+
+- [x] Text rendering
+    - [ ] Emoji support
+    - [ ] RTL text
+- [ ] Image rendering
+- [ ] Svg rendering
+- [ ] Cli
+
 ## Support
 
 | Platform | Status |

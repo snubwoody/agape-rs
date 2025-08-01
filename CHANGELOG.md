@@ -4,15 +4,16 @@ All notable changes to agape will be documented in this file.
 
 ## [unreleased]
 
-### Added
+### Features
 
 - Support for image rendering.
 - Svg rendering using the `resvg` crate.
 
-#### Widgets
+#### New widgets
 
-- `Image`
-- `Svg`
+- `Image`: Draw an image to the screen.
+- `Svg`: Draws an svg to the screen.
+- `Container`: Wrapper around another widget, useful for styling.
 
 ### Changed
 
@@ -25,7 +26,7 @@ All notable changes to agape will be documented in this file.
 
 ## 0.2.0 - 2025-07-17
 
-### Added
+### Features
 
 - Added `Resources` struct to share global resources
 - Repeat syntax, `hstack![widget;10]`, to `hstack!` and `vstack!` macros
