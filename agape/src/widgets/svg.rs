@@ -14,6 +14,7 @@ use usvg::Tree;
 ///
 /// fn main() -> agape::Result<()>{
 ///     let svg = Svg::open("icons/menu.svg")?;
+///     Ok(())
 /// }
 /// ```
 /// - Load an SVG from memory

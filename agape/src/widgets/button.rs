@@ -120,9 +120,4 @@ mod test {
         button.traverse(&mut |widget: &dyn Widget| assert_eq!(id, widget.id()));
         button.traverse_mut(&mut |widget: &mut dyn Widget| assert_eq!(id, widget.id()));
     }
-
-    #[test]
-    fn build() {
-        todo!()
-    }
 }
