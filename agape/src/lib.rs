@@ -142,15 +142,13 @@ impl App<'_> {
         resources.insert(widget);
         resources.insert::<Vec<WidgetEvent>>(Vec::new());
 
-        let systems = vec![Box::new(layout_system.into_system()) as Box<dyn System>];
-
         Self {
             event_queue: EventQueue::new(),
             window: None,
             pixmap: None,
             pixels: None,
             resources,
-            systems,
+            systems: Vec::new(),
         }
     }
 
@@ -194,7 +192,10 @@ impl App<'_> {
     /// because accessing windows in other threads is unsafe on
     /// certain platforms.
     pub fn run(mut self) -> Result<()> {
+        // HACK: the order is systems is fairly important but hard to test
         self = self
+            .add_system(rebuild_widgets) // Has to be the first system
+            .add_system(layout_system) // Has to be immediately after rebuilding widgets
             .add_system(update_cursor_position)
             .add_system(handle_mouse_button)
             .add_system(intersection_observer)
