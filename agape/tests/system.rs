@@ -7,6 +7,36 @@ use agape::{
 use agape_core::{Position, Size};
 
 #[test]
+fn replace_resource() {
+    let mut resources = Resources::new();
+    resources.insert("Jujutsu");
+    let string = *resources.get::<&str>().unwrap();
+    assert_eq!(string, "Jujutsu");
+
+    resources.set("Kaisen");
+    let string = *resources.get::<&str>().unwrap();
+    assert_eq!(string, "Kaisen");
+}
+
+#[test]
+fn remove_resource() {
+    let mut resources = Resources::new();
+    resources.insert("");
+    resources.insert(1);
+    assert_eq!(resources.len(), 2);
+    resources.remove::<&str>();
+    assert_eq!(resources.len(), 1);
+}
+
+#[test]
+fn no_duplicate_resources() {
+    let mut resources = Resources::new();
+    resources.insert("Hi");
+    resources.insert("Bye");
+    assert_eq!(resources.len(), 1)
+}
+
+#[test]
 fn insert_and_get_resource() {
     let size = Size::new(100.0, 100.0);
     let mut resources = Resources::new();
