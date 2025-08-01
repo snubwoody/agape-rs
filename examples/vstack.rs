@@ -1,4 +1,4 @@
-use agape::widgets::*;
+use agape::widgets::{icon::feather_icons, *};
 use agape::{App, hstack, vstack};
 
 fn main() -> Result<(), agape::Error> {
@@ -9,7 +9,7 @@ fn main() -> Result<(), agape::Error> {
         image,
         Text::new("PARTYNEXTDOOR").font_size(24),
         hstack!{
-            svg,
+            feather_icons::calendar(),
             Text::new("2013").font_size(12)
         }
         .spacing(8)

@@ -20,21 +20,22 @@ pub fn hex(item: TokenStream) -> TokenStream {
     }
 }
 
-/// This macro does the very tedius job of defining a function for each icon in a
+// TODO: split and test this
+/// This macro does the very tedious job of defining a function for each icon in a
 /// directory. The icon must be in svg format, all non-svg files in the directory will be ignored.
 ///
-/// Files that start with reserved keywords will be prefixed with `_`.
-/// eg `box.svg -> _box()`
+/// Files that start with reserved keywords will be prefixed with an underscore,
+/// e.g. `box.svg -> _box()`
 #[proc_macro]
 pub fn include_icons(dir: TokenStream) -> TokenStream {
     let dir_name = dir.to_string().replace("\"", "");
     let path = Path::new(&dir_name);
 
     let mut icons: Vec<proc_macro2::TokenStream> = vec![];
-
     match fs::read_dir(path) {
         Ok(entries) => {
             for entry in entries {
+                // dbg!(&entry);
                 // TODO handle these unwraps
                 let file = entry.unwrap();
                 let entry_type = file.file_type().unwrap();
@@ -63,7 +64,9 @@ pub fn include_icons(dir: TokenStream) -> TokenStream {
 
                 // Filter reserved keywords
                 match file_name.as_str() {
-                    "box" | "move" | "type" | "let" => file_name = format!("_{file_name}"),
+                    "box" | "move" | "type" | "let" | "struct" => {
+                        file_name = format!("_{file_name}")
+                    }
                     _ => {}
                 }
 
@@ -74,7 +77,7 @@ pub fn include_icons(dir: TokenStream) -> TokenStream {
 
                 icons.push(quote! {
                     pub fn #fn_name() -> crate::widgets::icon::Icon{
-                        crate::widgets::icon::Icon::bytes(#svg_data_literal)
+                        crate::widgets::icon::Icon::bytes(#svg_data_literal).unwrap()
                     }
                 });
             }

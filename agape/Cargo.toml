@@ -10,6 +10,9 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+[features]
+feather-icons = []
+
 [dependencies]
 image.workspace = true
 thiserror.workspace = true

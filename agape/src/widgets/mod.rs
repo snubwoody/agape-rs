@@ -3,7 +3,7 @@
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
 mod button;
 mod hstack;
-mod icon;
+pub mod icon;
 pub mod image;
 mod rect;
 mod svg;
