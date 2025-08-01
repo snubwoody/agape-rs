@@ -1,36 +1,45 @@
 //! A resource is anything that needs to be accessed globally by different
 //! systems, common items such as the cursor position or the window size.
 //!
-//! ### Resources
-//! - [`CursorPosition`]
-//! - [`WindowSize`]
-//!
+//! Resources work on types, `T`, so avoid setting primitive or commonly used types
+//! like `String` or `Box` as it will make tracking things much harder.
 use agape_core::{Position, Size};
 use std::any::Any;
 
 /// Global resources
+#[derive(Default)]
 pub struct Resources {
     items: Vec<Box<dyn Any>>,
 }
 
-impl Default for Resources {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-// TODO add set (override) method
 impl Resources {
     pub fn new() -> Resources {
         Self { items: vec![] }
     }
 
-    /// Insert a resource.
+    /// Inserts a resource.
+    ///
+    /// To insert or replace a resource use [`remove`].
+    ///
+    /// [`remove`]: Resources::remove
     pub fn insert<T: 'static>(&mut self, item: T) {
         // Don't insert the same resource twice
         if self.get::<T>().is_none() {
             self.items.push(Box::new(item));
         }
+    }
+
+    /// Inserts or replaces a resource.
+    pub fn set<T: 'static>(&mut self, item: T) {
+        self.remove::<T>();
+        self.items.push(Box::new(item));
+    }
+
+    /// Removes the resource and returns it.
+    pub fn remove<T: 'static>(&mut self) -> Option<T> {
+        let index = self.items.iter().position(|i| i.is::<T>())?;
+        let item = self.items.swap_remove(index);
+        Some(*item.downcast().unwrap())
     }
 
     /// Retrieve a resource of type `T`.
