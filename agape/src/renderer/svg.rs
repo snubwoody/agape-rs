@@ -15,7 +15,7 @@ pub fn draw_svg(pixmap: &mut Pixmap, tree: &Tree, position: Position, size: Size
 
 #[cfg(test)]
 mod test {
-    use crate::renderer::svg::draw_svg;
+    use super::*;
     use agape_core::{Position, Size};
     use tiny_skia::Pixmap;
 
@@ -24,7 +24,7 @@ mod test {
         let mut pixmap = Pixmap::new(200, 200).unwrap();
         let data = include_bytes!("../../icons/feather-icons/airplay.svg");
         let options = usvg::Options::default();
-        let tree = usvg::Tree::from_data(data, &options).unwrap();
+        let tree = Tree::from_data(data, &options).unwrap();
         draw_svg(&mut pixmap, &tree, Position::default(), Size::unit(150.0));
     }
 }

@@ -3,32 +3,44 @@ use crate::style::BoxStyle;
 use crate::widgets::{LayoutDescription, LayoutType, RenderBox, RenderObject, Text, Widget};
 use agape_core::{GlobalId, Position, Size};
 
-// TODO: change to generic?
-pub struct Button {
+/// Wraps another widget and responds to gestures.
+///
+/// # Example
+/// ```
+/// use agape::widgets::Button;
+///
+/// let button = Button::text("Here!")
+///     .on_hover(||println!("Hovered"))
+///     .on_click(||println!("Clicked"));
+/// ```
+pub struct Button<W> {
     id: GlobalId,
-    child: Box<dyn Widget>,
+    child: W,
     click_fn: Option<Box<dyn FnMut()>>,
     hover_fn: Option<Box<dyn FnMut()>>,
     style: BoxStyle,
 }
 
-impl Default for Button {
-    fn default() -> Button {
-        Button {
+impl Button<Text> {
+    pub fn text(text: &str) -> Self {
+        Self {
             id: GlobalId::new(),
-            child: Box::new(Text::new("")),
+            child: Text::new(text),
             click_fn: None,
             hover_fn: None,
-            style: BoxStyle::new(),
+            style: BoxStyle::default(),
         }
     }
 }
 
-impl Button {
-    pub fn new(widget: impl Widget + 'static) -> Self {
+impl<W: Widget> Button<W> {
+    pub fn new(widget: W) -> Self {
         Self {
-            child: Box::new(widget),
-            ..Self::default()
+            id: GlobalId::new(),
+            child: widget,
+            click_fn: None,
+            hover_fn: None,
+            style: BoxStyle::default(),
         }
     }
 
@@ -45,7 +57,7 @@ impl Button {
     impl_style!();
 }
 
-impl Widget for Button {
+impl<W: Widget> Widget for Button<W> {
     fn id(&self) -> GlobalId {
         self.id
     }
@@ -84,12 +96,12 @@ impl Widget for Button {
     }
 
     fn traverse(&self, f: &mut dyn FnMut(&dyn Widget)) {
-        f(self.child.as_ref());
+        f(&self.child);
         self.child.traverse(f);
     }
 
     fn traverse_mut(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
-        f(self.child.as_mut());
+        f(&mut self.child);
         self.child.traverse_mut(f);
     }
 }
