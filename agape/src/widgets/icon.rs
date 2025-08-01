@@ -6,7 +6,7 @@ use agape_core::GlobalId;
 pub mod feather_icons {
     use agape_macros::include_icons;
 
-    include_icons! {"./agape/icons/feather-icons"}
+    include_icons!("./agape/icons/feather-icons");
 }
 
 #[derive(Debug)]
