@@ -34,9 +34,9 @@ pub use error::{Error, Result};
 use renderer::init_font;
 pub use resources::Resources;
 use resources::{CursorPosition, EventQueue, WindowSize};
-use system::{IntoSystem, System};
+use system::{IntoSystem, System, *};
 use widgets::Widget;
-use widgets::{RenderBox, StateTracker, WidgetEvent, WidgetState};
+use widgets::{RenderBox, StateTracker, WidgetEvent};
 
 use fontdue::Font;
 use pixels::{Pixels, SurfaceTexture};
@@ -46,7 +46,7 @@ use tiny_skia::Pixmap;
 use winit::event_loop::ActiveEventLoop;
 use winit::{
     application::ApplicationHandler,
-    event::{ElementState, MouseButton, WindowEvent},
+    event::WindowEvent,
     event_loop::{ControlFlow, EventLoop},
     window::Window,
     window::WindowId,
@@ -199,6 +199,7 @@ impl App<'_> {
             .add_system(handle_mouse_button)
             .add_system(intersection_observer)
             .add_system(handle_key_input)
+            .add_system(update_widgets)
             .add_system(handle_widget_event);
 
         let event_loop = EventLoop::new()?;
@@ -209,113 +210,6 @@ impl App<'_> {
 }
 
 // TODO: move these systems into systems module
-
-fn layout_system(resources: &mut Resources) {
-    let WindowSize(size) = resources.get_owned::<WindowSize>().unwrap();
-
-    let render_box = resources.get_mut::<RenderBox>().unwrap();
-    render_box.solve_layout(size);
-}
-
-fn update_cursor_position(resources: &mut Resources, event: &WindowEvent) {
-    if let WindowEvent::CursorMoved { position, .. } = event {
-        let cursor_position = resources.get_mut::<CursorPosition>().unwrap();
-        cursor_position.0 = Position::from(*position);
-    }
-}
-
-fn handle_mouse_button(resources: &mut Resources, event: &WindowEvent) {
-    match event {
-        &WindowEvent::MouseInput { state, button, .. } => {
-            if state != ElementState::Pressed || button != MouseButton::Left {
-                return;
-            }
-        }
-        _ => return,
-    }
-
-    let cursor_position: &CursorPosition = resources.get().unwrap();
-
-    let render_box = resources.get::<RenderBox>().unwrap();
-    let mut hovered = vec![];
-
-    for rb in render_box.iter() {
-        let bounds = Bounds::new(rb.position, rb.size);
-        if bounds.within(&cursor_position.0) {
-            hovered.push(rb.id());
-        }
-    }
-
-    let state_tracker = resources.get_mut::<StateTracker>().unwrap();
-    for id in &hovered {
-        state_tracker.update_state(*id, WidgetState::Clicked);
-    }
-
-    let event_queue = resources.get_mut::<Vec<WidgetEvent>>().unwrap();
-    for id in hovered {
-        event_queue.push(WidgetEvent::Clicked(id));
-    }
-}
-
-fn handle_key_input(resources: &mut Resources, event: &WindowEvent) {
-    if let WindowEvent::KeyboardInput { event, .. } = event {
-        let events = resources.get_mut::<Vec<WidgetEvent>>().unwrap();
-        let widget_event = WidgetEvent::KeyInput {
-            key: event.logical_key.clone(),
-            state: event.state,
-            text: event.text.clone().map(|t| t.to_string()),
-        };
-
-        events.push(widget_event);
-    }
-}
-
-fn intersection_observer(resources: &mut Resources) {
-    let cursor_pos = resources.get::<CursorPosition>().unwrap();
-    let render_box = resources.get::<RenderBox>().unwrap();
-    let mut hovered = vec![];
-    let mut not_hovered = vec![];
-
-    for rb in render_box.iter() {
-        let bounds = Bounds::new(rb.position, rb.size);
-        if bounds.within(&cursor_pos.0) {
-            hovered.push(rb.id());
-        } else {
-            not_hovered.push(rb.id());
-        }
-    }
-
-    let state = resources.get_mut::<StateTracker>().unwrap();
-    for id in &hovered {
-        state.update_state(*id, WidgetState::Hovered);
-    }
-
-    for id in &not_hovered {
-        state.update_state(*id, WidgetState::Resting);
-    }
-
-    let state = resources.get::<StateTracker>().unwrap();
-    let mut events = vec![];
-    for id in &hovered {
-        if state.previous_state(*id).unwrap() == &WidgetState::Resting {
-            events.push(WidgetEvent::Hovered(*id));
-        }
-    }
-
-    let widget_events: &mut Vec<WidgetEvent> = resources.get_mut().unwrap();
-    widget_events.extend(events);
-}
-
-fn handle_widget_event(resources: &mut Resources) {
-    let events: Vec<WidgetEvent> = resources.get_owned().unwrap();
-    let widget: &mut Box<dyn Widget> = resources.get_mut().unwrap();
-
-    for event in events {
-        widget.handle_event(&event);
-    }
-
-    resources.get_mut::<Vec<WidgetEvent>>().unwrap().clear();
-}
 
 #[cfg(test)]
 mod test {

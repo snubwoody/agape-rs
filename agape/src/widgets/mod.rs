@@ -65,6 +65,14 @@ pub trait Widget {
         self.traverse_mut(&mut |child| child.handle_event(event));
     }
 
+    fn tick(&mut self, state: &StateTracker) {
+        self.update(state);
+        self.traverse_mut(&mut |child| child.update(state));
+    }
+
+    /// Runs every frame.
+    fn update(&mut self, state: &StateTracker) {}
+
     fn click(&mut self) {}
     fn hover(&mut self) {}
 
@@ -108,7 +116,8 @@ impl StateTracker {
         }
     }
 
-    pub fn current_state(&self, id: GlobalId) -> Option<&WidgetState> {
+    /// Get the state of a widget.
+    pub fn get(&self, id: GlobalId) -> Option<&WidgetState> {
         self.current_state.get(&id)
     }
 
@@ -116,6 +125,7 @@ impl StateTracker {
         self.previous_state.get(&id)
     }
 
+    /// Update the state of a widget.
     pub fn update_state(&mut self, id: GlobalId, state: WidgetState) {
         let previous_state = self.current_state.get(&id).unwrap();
         self.previous_state.insert(id, *previous_state);
