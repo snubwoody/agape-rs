@@ -38,9 +38,5 @@ name = "counter"
 path = "counter.rs"
 
 [[example]]
-name = "file_explorer"
-path = "file-explorer.rs"
-
-[[example]]
 name = "playground"
 path = "playground.rs"

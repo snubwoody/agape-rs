@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
-use agape::widgets::{Text, Widget};
-use agape::{App, hstack, vstack};
+use agape::widgets::{RenderBox, Text, Widget};
+use agape::{App, GlobalId, hstack, vstack};
 
 fn main() -> agape::Result<()> {
     let main = vstack! {
@@ -43,4 +43,28 @@ fn DirEntry(name: &str) -> impl Widget {
         Text::new("50 MB"),
     }
     .spacing(32)
+}
+
+struct Dir {
+    id: GlobalId,
+    name: String,
+}
+
+impl Dir {
+    pub fn new(name: &str) -> Self {
+        Self {
+            id: GlobalId::new(),
+            name: name.to_string(),
+        }
+    }
+}
+
+impl Widget for Dir {
+    fn id(&self) -> GlobalId {
+        self.id
+    }
+
+    fn build(&self) -> RenderBox {
+        Text::new(&self.name).build()
+    }
 }
