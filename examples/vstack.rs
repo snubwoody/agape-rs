@@ -3,7 +3,6 @@ use agape::{App, hstack, vstack};
 
 fn main() -> Result<(), agape::Error> {
     let image = Image::open("./examples/assets/PARTYNEXTDOOR Album Cover.jpg")?.fixed(250.0, 250.0);
-    let svg = Svg::open("agape/icons/feather-icons/calendar.svg")?;
 
     let vstack = vstack! {
         image,
