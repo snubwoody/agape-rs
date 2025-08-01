@@ -2,6 +2,7 @@
 //! as many [`Widget`]'s as possible for various uses such as [`Text`],[`Button`],[`HStack`]
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
 mod button;
+mod container;
 mod hstack;
 pub mod image;
 mod rect;
@@ -26,6 +27,7 @@ use winit::event::ElementState;
 use winit::keyboard;
 
 pub use button::Button;
+pub use container::Container;
 pub use hstack::*;
 pub use image::Image;
 pub use rect::*;
@@ -148,23 +150,6 @@ pub enum LayoutType {
     BlockLayout,
 }
 
-#[derive(Debug, Clone)]
-pub enum RenderObject {
-    Rect {
-        border: Option<Border>,
-        color: Color<Rgba>,
-    },
-    Text {
-        color: Color<Rgba>,
-        content: String,
-        font_size: u8,
-    },
-    Image {
-        image: DynamicImage,
-    },
-    Svg(Rc<Tree>),
-}
-
 #[derive(Debug)]
 pub struct RenderBox {
     id: GlobalId,
@@ -281,6 +266,23 @@ impl RenderBox {
         }
         self.children.iter().for_each(|child| child.render(pixmap));
     }
+}
+
+#[derive(Debug, Clone)]
+pub enum RenderObject {
+    Rect {
+        border: Option<Border>,
+        color: Color<Rgba>,
+    },
+    Text {
+        color: Color<Rgba>,
+        content: String,
+        font_size: u8,
+    },
+    Image {
+        image: DynamicImage,
+    },
+    Svg(Rc<Tree>),
 }
 
 pub struct RenderBoxIter<'a> {
