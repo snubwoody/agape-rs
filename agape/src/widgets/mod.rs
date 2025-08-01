@@ -2,6 +2,7 @@
 //! as many [`Widget`]'s as possible for various uses such as [`Text`],[`Button`],[`HStack`]
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
 mod button;
+mod container;
 mod hstack;
 pub mod image;
 mod rect;
@@ -26,6 +27,7 @@ use winit::event::ElementState;
 use winit::keyboard;
 
 pub use button::Button;
+pub use container::Container;
 pub use hstack::*;
 pub use image::Image;
 pub use rect::*;
@@ -62,6 +64,14 @@ pub trait Widget {
 
         self.traverse_mut(&mut |child| child.handle_event(event));
     }
+
+    fn tick(&mut self, state: &StateTracker) {
+        self.update(state);
+        self.traverse_mut(&mut |child| child.update(state));
+    }
+
+    /// Runs every frame.
+    fn update(&mut self, _state: &StateTracker) {}
 
     fn click(&mut self) {}
     fn hover(&mut self) {}
@@ -106,7 +116,8 @@ impl StateTracker {
         }
     }
 
-    pub fn current_state(&self, id: GlobalId) -> Option<&WidgetState> {
+    /// Get the state of a widget.
+    pub fn get(&self, id: GlobalId) -> Option<&WidgetState> {
         self.current_state.get(&id)
     }
 
@@ -114,6 +125,7 @@ impl StateTracker {
         self.previous_state.get(&id)
     }
 
+    /// Update the state of a widget.
     pub fn update_state(&mut self, id: GlobalId, state: WidgetState) {
         let previous_state = self.current_state.get(&id).unwrap();
         self.previous_state.insert(id, *previous_state);
@@ -146,23 +158,6 @@ pub enum LayoutType {
     HorizontalLayout,
     VerticalLayout,
     BlockLayout,
-}
-
-#[derive(Debug, Clone)]
-pub enum RenderObject {
-    Rect {
-        border: Option<Border>,
-        color: Color<Rgba>,
-    },
-    Text {
-        color: Color<Rgba>,
-        content: String,
-        font_size: u8,
-    },
-    Image {
-        image: DynamicImage,
-    },
-    Svg(Rc<Tree>),
 }
 
 #[derive(Debug)]
@@ -281,6 +276,23 @@ impl RenderBox {
         }
         self.children.iter().for_each(|child| child.render(pixmap));
     }
+}
+
+#[derive(Debug, Clone)]
+pub enum RenderObject {
+    Rect {
+        border: Option<Border>,
+        color: Color<Rgba>,
+    },
+    Text {
+        color: Color<Rgba>,
+        content: String,
+        font_size: u8,
+    },
+    Image {
+        image: DynamicImage,
+    },
+    Svg(Rc<Tree>),
 }
 
 pub struct RenderBoxIter<'a> {

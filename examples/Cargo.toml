@@ -8,6 +8,7 @@ publish = false
 agape = { path = "../agape" }
 dotenv = "0.15.0"
 
+
 [[example]]
 name = "rect"
 path = "rect.rs"
