@@ -6,8 +6,9 @@ All notable changes to agape will be documented in this file.
 
 ### Features
 
-- Support for image rendering.
-- Svg rendering using the `resvg` crate.
+- Added support for emojis
+- Added support for images.
+- Added support for svgs.
 
 #### New widgets
 
@@ -18,6 +19,10 @@ All notable changes to agape will be documented in this file.
 ### Changed
 
 - Removed the `LayoutSolver` struct and renamed its single method to `solve_layout`.
+
+### Bug fixes
+
+- Fixed incorrect text size
 
 ### Removed
 
