@@ -17,7 +17,8 @@ members = [
     "agape_macros",
     "agape_core",
     "agape_layout",
-    "examples/file-explorer",
+    "agape_renderer",
+    "examples/file-explorer"
 ]
 
 [profile.bench]
@@ -28,15 +29,18 @@ debug = true
 agape_core = { version = "0.3.0", path = "agape_core" }
 agape_layout = { version = "0.3.0", path = "agape_layout" }
 agape_macros = { version = "0.3.0", path = "agape_macros" }
+agape_renderer = { version = "0.3.0", path = "agape_renderer" }
 thiserror = "2.0.9"
 image = "0.25.2"
 winit = { version = "0.30.11", features = ["rwh_05"] }
 bytemuck = { version = "1.16", features = ["derive"] }
-env_logger = "0.11.5"
 log = { version = "0.4.27", features = ["kv"] }
 pixels = "0.15.0"
 rand = "0.9.1"
 tiny-skia = "0.11.4"
+cosmic-text = "0.14.2"
+usvg = "0.45.1"
+resvg = "0.45.1"
 
 [workspace.lints.clippy]
 enum_glob_use = "warn"

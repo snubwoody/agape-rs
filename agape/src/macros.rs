@@ -21,7 +21,7 @@ macro_rules! impl_style {
         }
 
         /// Add a border.
-        pub fn border(mut self, border: $crate::style::Border) -> Self {
+        pub fn border(mut self, border: agape_core::Border) -> Self {
             self.style.border = Some(border);
             self
         }

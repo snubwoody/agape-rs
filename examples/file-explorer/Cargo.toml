@@ -8,6 +8,7 @@ publish = false
 
 [dependencies]
 agape = { path = "../../agape" }
+agape_renderer.workspace = true
 
 [lints]
 workspace = true

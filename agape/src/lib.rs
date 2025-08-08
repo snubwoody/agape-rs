@@ -21,7 +21,6 @@
 //! ```
 pub mod error;
 mod macros;
-mod renderer;
 pub mod resources;
 pub mod style;
 pub mod system;
@@ -30,18 +29,16 @@ pub mod widgets;
 pub use agape_core::*;
 pub use agape_layout as layout;
 pub use agape_macros::hex;
+use agape_renderer::Renderer;
 pub use error::{Error, Result};
-use renderer::init_font;
 pub use resources::Resources;
 use resources::{CursorPosition, EventQueue, WindowSize};
 use system::{IntoSystem, System, *};
 use widgets::Widget;
 use widgets::{RenderBox, StateTracker, WidgetEvent};
 
-use fontdue::Font;
 use pixels::{Pixels, SurfaceTexture};
 use std::sync::Arc;
-use std::sync::OnceLock;
 use tiny_skia::Pixmap;
 use winit::event_loop::ActiveEventLoop;
 use winit::{
@@ -52,8 +49,7 @@ use winit::{
     window::WindowId,
 };
 
-static FONT: OnceLock<Font> = OnceLock::new();
-
+// TODO: expose renderer
 /// An `App` is a single program.
 pub struct App<'app> {
     window: Option<Arc<Window>>,
@@ -61,6 +57,7 @@ pub struct App<'app> {
     pixmap: Option<Pixmap>,
     resources: Resources,
     event_queue: EventQueue,
+    renderer: Renderer,
     systems: Vec<Box<dyn System>>,
 }
 
@@ -127,10 +124,9 @@ impl ApplicationHandler for App<'_> {
 impl App<'_> {
     /// Create a new app.
     pub fn new(widget: impl Widget + 'static) -> Self {
-        FONT.set(init_font()).unwrap();
-
+        let mut renderer = Renderer::new();
         let widget: Box<dyn Widget> = Box::new(widget);
-        let render_box = widget.build();
+        let render_box = widget.build(&mut renderer);
         let state_tracker = StateTracker::new(&render_box);
 
         let mut resources = Resources::new();
@@ -147,8 +143,9 @@ impl App<'_> {
             window: None,
             pixmap: None,
             pixels: None,
-            resources,
             systems: Vec::new(),
+            resources,
+            renderer,
         }
     }
 
@@ -179,7 +176,7 @@ impl App<'_> {
         let pixmap = self.pixmap.as_mut().unwrap();
         pixmap.fill(tiny_skia::Color::WHITE);
 
-        render_box.render(pixmap);
+        render_box.render(pixmap, &mut self.renderer);
 
         pixels.frame_mut().copy_from_slice(pixmap.data());
         pixels.render().unwrap();
@@ -221,11 +218,14 @@ mod test {
     fn widget_hover_system() {
         let rect = Rect::new().fixed(100.0, 100.0);
 
-        let state_tracker = StateTracker::new(&rect.build());
+        let mut renderer = Renderer::new();
+        let render_box = rect.build(&mut renderer);
+        let state_tracker = StateTracker::new(&render_box);
         let mut resources = Resources::new();
         resources.insert(state_tracker);
         resources.insert(WindowSize(Size::unit(500.0)));
-        resources.insert(rect.build());
+        resources.insert(renderer);
+        resources.insert(render_box);
         resources.insert(CursorPosition(Position::unit(50.0)));
         resources.insert::<Vec<WidgetEvent>>(Vec::new());
 

@@ -2,6 +2,7 @@ use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::widgets::{RenderBox, Text, Widget};
 use agape_core::GlobalId;
+use agape_renderer::Renderer;
 use winit::event::ElementState;
 use winit::keyboard::{Key, NamedKey};
 
@@ -60,7 +61,7 @@ impl Widget for TextField {
         self.text.traverse_mut(f);
     }
 
-    fn build(&self) -> RenderBox {
+    fn build(&self, _: &mut Renderer) -> RenderBox {
         // FIXME
         todo!()
     }

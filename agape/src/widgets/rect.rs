@@ -2,6 +2,7 @@ use super::{LayoutDescription, LayoutType, RenderBox, RenderObject, Widget};
 use crate::impl_style;
 use crate::style::BoxStyle;
 use agape_core::{GlobalId, Position, Size};
+use agape_renderer::Renderer;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
 pub struct Rect {
@@ -22,7 +23,7 @@ impl Widget for Rect {
         self.id
     }
 
-    fn build(&self) -> RenderBox {
+    fn build(&self, _: &mut Renderer) -> RenderBox {
         let layout_desc = LayoutDescription {
             intrinsic_size: self.style.intrinsic_size,
             layout_type: LayoutType::EmptyLayout,

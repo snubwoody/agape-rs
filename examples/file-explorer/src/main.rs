@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use agape::widgets::{RenderBox, Text, Widget};
 use agape::{App, GlobalId, hstack, vstack};
+use agape_renderer::Renderer;
 
 fn main() -> agape::Result<()> {
     let main = vstack! {
@@ -11,11 +12,11 @@ fn main() -> agape::Result<()> {
         hstack!{
             Sidebar(),
             vstack!{
-                DirEntry("IMPORTANT!"),
-                DirEntry("Work"),
-                DirEntry("Taxes"),
-                DirEntry("Bank documents"),
-                DirEntry("Taxes.docx"),
+                Dir::new("IMPORTANT!"),
+                Dir::new("Bank documents"),
+                Dir::new("Work"),
+                Dir::new("Taxes"),
+                Dir::new("Taxes.docx"),
             }
             .spacing(12)
         },
@@ -26,6 +27,13 @@ fn main() -> agape::Result<()> {
 
 fn Sidebar() -> impl Widget {
     vstack! {
+        QuickAccess(),
+        Drives()
+    }
+}
+
+fn QuickAccess() -> impl Widget {
+    vstack! {
         Text::new("Downloads"),
         Text::new("Documents"),
         Text::new("Music"),
@@ -34,6 +42,12 @@ fn Sidebar() -> impl Widget {
     }
     .spacing(12)
     .padding(24)
+}
+
+fn Drives() -> impl Widget {
+    vstack! {
+        Text::new("This PC"),
+    }
 }
 
 fn DirEntry(name: &str) -> impl Widget {
@@ -64,7 +78,7 @@ impl Widget for Dir {
         self.id
     }
 
-    fn build(&self) -> RenderBox {
-        Text::new(&self.name).build()
+    fn build(&self, renderer: &mut Renderer) -> RenderBox {
+        Text::new(&self.name).build(renderer)
     }
 }

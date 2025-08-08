@@ -28,6 +28,20 @@ impl std::fmt::Display for GlobalId {
     }
 }
 
+/// Border style for [`View`]s;
+#[derive(Clone, PartialEq, Debug, Default, PartialOrd)]
+pub struct Border {
+    pub width: f32,
+    pub color: Color<Rgba>,
+}
+
+impl Border {
+    /// Create a new border.
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
 /// Map value from one range to another. Any overflow or underflow is clipped to the min or max
 ///
 /// # Example

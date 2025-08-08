@@ -44,10 +44,10 @@ fn main() -> Result<(), agape::Error> {
 ## Features
 
 - [x] Text rendering
-    - [ ] Emoji support
+    - [x] Emoji support
     - [ ] RTL text
-- [ ] Image rendering
-- [ ] Svg rendering
+- [x] Image rendering
+- [x] Svg rendering
 - [ ] Cli
 
 ## Support
