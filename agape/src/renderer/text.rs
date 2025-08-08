@@ -1,5 +1,7 @@
 use crate::FONT;
 use agape_core::{Position, Size};
+use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, Shaping, SwashCache};
+use image::RgbaImage;
 use tiny_skia::{IntSize, Pixmap, PixmapPaint, Transform};
 
 /// Draw text onto the `Pixmap`.
@@ -70,4 +72,43 @@ pub fn text_size(text: &str, font_size: f32) -> Size {
     }
 
     Size::new(width, height)
+}
+
+fn render_text() {
+    let mut pixmap = Pixmap::new(200, 200).unwrap();
+    let mut font_system = FontSystem::new();
+    let mut swash_cache = SwashCache::new();
+    let metrics = Metrics::new(16.0, 16.0);
+    let mut buffer = Buffer::new(&mut font_system, metrics);
+    let mut buffer = buffer.borrow_with(&mut font_system);
+    let attrs = Attrs::new();
+    buffer.set_text("Hello rust 🦀", &attrs, Shaping::Advanced);
+    buffer.shape_until_scroll(true);
+
+    let text_color = cosmic_text::Color::rgb(0, 0, 0);
+    for run in buffer.layout_runs() {
+        for glyph in run.glyphs {
+            dbg!(glyph);
+        }
+    }
+    let mut image = RgbaImage::new(200, 200);
+    buffer.draw(
+        &mut swash_cache,
+        text_color,
+        |x, y, width, height, color| {
+            let [r, g, b, a] = color.as_rgba();
+            image.put_pixel(x as u32, y as u32, image::Rgba([r, g, b, a]));
+        },
+    );
+    image.save("render.png").unwrap();
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn try_cosmic_text() {
+        render_text();
+    }
 }
