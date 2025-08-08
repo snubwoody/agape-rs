@@ -1,7 +1,6 @@
 use super::{LayoutDescription, RenderBox, RenderObject, Widget};
 use agape_core::Color;
 use agape_core::{GlobalId, Position, Size};
-use agape_layout::IntrinsicSize;
 use agape_renderer::Renderer;
 
 #[derive(Clone, PartialEq, Debug)]

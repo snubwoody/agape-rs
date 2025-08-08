@@ -37,10 +37,8 @@ use system::{IntoSystem, System, *};
 use widgets::Widget;
 use widgets::{RenderBox, StateTracker, WidgetEvent};
 
-use fontdue::Font;
 use pixels::{Pixels, SurfaceTexture};
 use std::sync::Arc;
-use std::sync::OnceLock;
 use tiny_skia::Pixmap;
 use winit::event_loop::ActiveEventLoop;
 use winit::{

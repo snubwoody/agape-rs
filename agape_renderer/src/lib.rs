@@ -12,6 +12,12 @@ pub struct Renderer {
 }
 
 // TODO: text size
+impl Default for Renderer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Renderer {
     /// Create a new [`Renderer`].
     pub fn new() -> Self {
@@ -121,11 +127,11 @@ impl Renderer {
         font_size: f32,
         position: Position,
     ) {
-        let mut font_system = &mut self.font_system;
-        let mut swash_cache = &mut self.swash_cache;
+        let font_system = &mut self.font_system;
+        let swash_cache = &mut self.swash_cache;
         let metrics = Metrics::new(font_size, font_size);
-        let mut buffer = Buffer::new(&mut font_system, metrics);
-        let mut buffer = buffer.borrow_with(&mut font_system);
+        let mut buffer = Buffer::new(font_system, metrics);
+        let mut buffer = buffer.borrow_with(font_system);
         let attrs = Attrs::new();
         buffer.set_text(text, &attrs, Shaping::Advanced);
         buffer.shape_until_scroll(true);
@@ -133,7 +139,7 @@ impl Renderer {
         let text_color = cosmic_text::Color::rgb(0, 0, 0);
         let mut image = RgbaImage::new(200, 200);
         let size = IntSize::from_wh(image.width(), image.height()).unwrap();
-        buffer.draw(&mut swash_cache, text_color, |x, y, _, _, color| {
+        buffer.draw(swash_cache, text_color, |x, y, _, _, color| {
             let [r, g, b, a] = color.as_rgba();
             image.put_pixel(x as u32, y as u32, image::Rgba([r, g, b, a]));
         });
@@ -151,10 +157,10 @@ impl Renderer {
 
     /// Get the text size.
     pub fn text_size(&mut self, text: &str, font_size: f32) -> Size {
-        let mut font_system = &mut self.font_system;
+        let font_system = &mut self.font_system;
         let metrics = Metrics::new(font_size, font_size);
-        let mut buffer = Buffer::new(&mut font_system, metrics);
-        let mut buffer = buffer.borrow_with(&mut font_system);
+        let mut buffer = Buffer::new(font_system, metrics);
+        let mut buffer = buffer.borrow_with(font_system);
 
         let attrs = Attrs::new();
         buffer.set_text(text, &attrs, Shaping::Advanced);

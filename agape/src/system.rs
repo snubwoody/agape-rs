@@ -117,7 +117,7 @@ pub fn update_widgets(resources: &mut Resources) {
 }
 
 pub fn rebuild_widgets(resources: &mut Resources) {
-    let widget = resources.get::<Box<dyn Widget>>().unwrap();
+    let _widget = resources.get::<Box<dyn Widget>>().unwrap();
     // FIXME: rebuild widgets
     // let render_box = widget.build();
     // resources.set(render_box);
