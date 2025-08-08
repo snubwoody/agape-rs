@@ -50,15 +50,6 @@ fn Drives() -> impl Widget {
     }
 }
 
-fn DirEntry(name: &str) -> impl Widget {
-    hstack! {
-        Text::new(name),
-        Text::new("9/9/2024"),
-        Text::new("50 MB"),
-    }
-    .spacing(32)
-}
-
 struct Dir {
     id: GlobalId,
     name: String,
