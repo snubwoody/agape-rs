@@ -29,7 +29,7 @@ pub mod widgets;
 pub use agape_core::*;
 pub use agape_layout as layout;
 pub use agape_macros::hex;
-use agape_renderer::Renderer;
+pub use agape_renderer::Renderer;
 pub use error::{Error, Result};
 pub use resources::Resources;
 use resources::{CursorPosition, EventQueue, WindowSize};
@@ -49,7 +49,6 @@ use winit::{
     window::WindowId,
 };
 
-// TODO: expose renderer
 /// An `App` is a single program.
 pub struct App<'app> {
     window: Option<Arc<Window>>,

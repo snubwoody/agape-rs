@@ -161,12 +161,12 @@ pub enum LayoutType {
 
 #[derive(Debug)]
 pub struct RenderBox {
-    id: GlobalId,
+    pub id: GlobalId,
     pub size: Size,
     pub position: Position,
-    layout_desc: LayoutDescription,
-    render_object: RenderObject,
-    children: Vec<RenderBox>,
+    pub layout_desc: LayoutDescription,
+    pub render_object: RenderObject,
+    pub children: Vec<RenderBox>,
 }
 
 impl RenderBox {
@@ -199,12 +199,20 @@ impl RenderBox {
 
     fn update_size(&mut self, root_layout: &dyn Layout) {
         // TODO don't unwrap, log error instead
-        let layout = root_layout.get(self.id).unwrap();
-        self.position = layout.position();
-        self.size = layout.size();
-        self.children
-            .iter_mut()
-            .for_each(|child| child.update_size(root_layout));
+        match root_layout.get(self.id) {
+            Some(layout) => {
+                let layout = root_layout.get(self.id).unwrap();
+                self.position = layout.position();
+                self.size = layout.size();
+                self.children
+                    .iter_mut()
+                    .for_each(|child| child.update_size(root_layout));
+            }
+            None => {
+                // FIXME: don't panic
+                panic!("Layout not found: {:?}", self.id);
+            }
+        }
     }
 
     pub fn layout(&self) -> Box<dyn Layout> {

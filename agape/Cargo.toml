@@ -19,13 +19,11 @@ agape_renderer.workspace = true
 agape_core.workspace = true
 agape_macros.workspace = true
 agape_layout.workspace = true
-fontdue = "0.9.3"
 tiny-skia.workspace = true
 pixels.workspace = true
 rand = "0.9.1"
 usvg = "0.45.1"
-resvg = "0.45.1"
-cosmic-text = "0.14.2"
+tracing.workspace = true
 
 [lints]
 workspace = true
