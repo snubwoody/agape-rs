@@ -73,6 +73,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "agape_renderer"
+version = "0.3.0"
+dependencies = [
+ "agape_core",
+ "cosmic-text",
+ "image",
+ "tiny-skia",
+]
+
+[[package]]
 name = "ahash"
 version = "0.8.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
