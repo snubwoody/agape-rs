@@ -31,6 +31,7 @@ dependencies = [
  "agape_core",
  "agape_layout",
  "agape_macros",
+ "agape_renderer",
  "cosmic-text",
  "fontdue",
  "image",
@@ -70,6 +71,18 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.104",
+]
+
+[[package]]
+name = "agape_renderer"
+version = "0.3.0"
+dependencies = [
+ "agape_core",
+ "cosmic-text",
+ "image",
+ "resvg",
+ "tiny-skia",
+ "usvg",
 ]
 
 [[package]]

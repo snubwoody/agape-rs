@@ -1,4 +1,4 @@
-use agape_core::{Color, IntoColor, Rgba};
+use agape_core::{Border, Color, IntoColor, Rgba};
 use agape_layout::{BoxSizing, IntrinsicSize};
 
 #[derive(Default, Debug, PartialOrd, PartialEq, Clone)]
@@ -188,20 +188,6 @@ impl BoxStyle {
                 self.border = Some(border);
             }
         }
-    }
-}
-
-/// Border style for [`View`]s;
-#[derive(Clone, PartialEq, Debug, Default, PartialOrd)]
-pub struct Border {
-    pub width: f32,
-    pub color: Color<Rgba>,
-}
-
-impl Border {
-    /// Create a new border.
-    pub fn new() -> Self {
-        Self::default()
     }
 }
 

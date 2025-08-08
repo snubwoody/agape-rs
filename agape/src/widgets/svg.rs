@@ -1,6 +1,7 @@
 use crate::widgets::{LayoutDescription, RenderBox, RenderObject, Widget};
 use agape_core::GlobalId;
 use agape_layout::{BoxSizing, IntrinsicSize};
+use agape_renderer::Renderer;
 use std::fs;
 use std::path::Path;
 use std::rc::Rc;
@@ -75,7 +76,7 @@ impl Widget for Svg {
         self.id
     }
 
-    fn build(&self) -> RenderBox {
+    fn build(&self, _: &mut Renderer) -> RenderBox {
         let size = self.data.size();
         let object = RenderObject::Svg(self.data.clone());
         let description = LayoutDescription {

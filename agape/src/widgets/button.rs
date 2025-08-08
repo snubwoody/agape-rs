@@ -2,6 +2,7 @@ use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::widgets::{LayoutDescription, LayoutType, RenderBox, RenderObject, Text, Widget};
 use agape_core::{GlobalId, Position, Size};
+use agape_renderer::Renderer;
 
 /// Wraps another widget and responds to gestures.
 ///
@@ -74,7 +75,7 @@ impl<W: Widget> Widget for Button<W> {
         }
     }
 
-    fn build(&self) -> RenderBox {
+    fn build(&self, renderer: &mut Renderer) -> RenderBox {
         let layout_desc = LayoutDescription {
             layout_type: LayoutType::BlockLayout,
             ..Default::default()
@@ -91,7 +92,7 @@ impl<W: Widget> Widget for Button<W> {
             position: Position::default(),
             size: Size::default(),
             render_object,
-            children: vec![self.child.build()],
+            children: vec![self.child.build(renderer)],
         }
     }
 

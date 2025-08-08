@@ -10,6 +10,7 @@ use crate::style::BoxStyle;
 use crate::widgets::{LayoutDescription, LayoutType, RenderBox, RenderObject, Widget};
 use agape_core::{GlobalId, Size};
 use agape_layout::IntrinsicSize;
+use agape_renderer::Renderer;
 use image::{DynamicImage, ImageFormat, ImageReader};
 use std::path::Path;
 
@@ -58,7 +59,7 @@ impl Widget for Image {
         self.id
     }
 
-    fn build(&self) -> RenderBox {
+    fn build(&self, _: &mut Renderer) -> RenderBox {
         let layout_desc = LayoutDescription {
             intrinsic_size: self.style.intrinsic_size,
             layout_type: LayoutType::EmptyLayout,
