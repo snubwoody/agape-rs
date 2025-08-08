@@ -19,22 +19,22 @@ use agape_layout::{
     AxisAlignment, BlockLayout, EmptyLayout, HorizontalLayout, IntrinsicSize, Layout,
     VerticalLayout, solve_layout,
 };
-use std::collections::HashMap;
-use std::rc::Rc;
-use tiny_skia::Pixmap;
-use usvg::Tree;
-use winit::event::ElementState;
-use winit::keyboard;
-
+use agape_renderer::Renderer;
 pub use button::Button;
 pub use container::Container;
 pub use hstack::*;
 pub use image::Image;
 pub use rect::*;
+use std::collections::HashMap;
+use std::rc::Rc;
 pub use svg::Svg;
 pub use text::Text;
 pub use text_field::TextField;
+use tiny_skia::Pixmap;
+use usvg::Tree;
 pub use vstack::*;
+use winit::event::ElementState;
+use winit::keyboard;
 
 pub trait Widget {
     /// Get the `id` of the [`Widget`]
@@ -257,24 +257,26 @@ impl RenderBox {
         }
     }
 
-    pub fn render(&self, pixmap: &mut Pixmap) {
+    pub fn render(&self, pixmap: &mut Pixmap, renderer: &mut Renderer) {
         match &self.render_object {
             RenderObject::Rect { border, color } => {
-                draw_rect(pixmap, color, self.size, self.position, border.clone());
+                renderer.draw_rect(pixmap, color, self.size, self.position, border.clone());
             }
             RenderObject::Text {
                 content, font_size, ..
             } => {
-                draw_text(pixmap, content, *font_size as f32, self.position);
+                renderer.draw_text(pixmap, content, *font_size as f32, self.position);
             }
             RenderObject::Image { image } => {
-                draw_image(pixmap, image, self.position, self.size);
+                renderer.draw_image(pixmap, image, self.position, self.size);
             }
             RenderObject::Svg(data) => {
-                draw_svg(pixmap, data, self.position, self.size);
+                renderer.draw_svg(pixmap, data, self.position, self.size);
             }
         }
-        self.children.iter().for_each(|child| child.render(pixmap));
+        self.children
+            .iter()
+            .for_each(|child| child.render(pixmap, renderer));
     }
 }
 

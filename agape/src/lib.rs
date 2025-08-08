@@ -30,6 +30,7 @@ pub mod widgets;
 pub use agape_core::*;
 pub use agape_layout as layout;
 pub use agape_macros::hex;
+use agape_renderer::Renderer;
 pub use error::{Error, Result};
 use renderer::init_font;
 pub use resources::Resources;
@@ -61,6 +62,7 @@ pub struct App<'app> {
     pixmap: Option<Pixmap>,
     resources: Resources,
     event_queue: EventQueue,
+    renderer: Renderer,
     systems: Vec<Box<dyn System>>,
 }
 
@@ -143,6 +145,7 @@ impl App<'_> {
         resources.insert::<Vec<WidgetEvent>>(Vec::new());
 
         Self {
+            renderer: Renderer::new(),
             event_queue: EventQueue::new(),
             window: None,
             pixmap: None,
@@ -179,7 +182,7 @@ impl App<'_> {
         let pixmap = self.pixmap.as_mut().unwrap();
         pixmap.fill(tiny_skia::Color::WHITE);
 
-        render_box.render(pixmap);
+        render_box.render(pixmap, &mut self.renderer);
 
         pixels.frame_mut().copy_from_slice(pixmap.data());
         pixels.render().unwrap();

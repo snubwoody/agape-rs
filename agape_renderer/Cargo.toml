@@ -13,6 +13,8 @@ cosmic-text.workspace = true
 agape_core.workspace = true
 tiny-skia.workspace = true
 image.workspace = true
+resvg.workspace = true
+usvg.workspace = true
 
 [lints]
 workspace = true
