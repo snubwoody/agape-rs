@@ -21,7 +21,6 @@
 //! ```
 pub mod error;
 mod macros;
-mod renderer;
 pub mod resources;
 pub mod style;
 pub mod system;
@@ -32,7 +31,6 @@ pub use agape_layout as layout;
 pub use agape_macros::hex;
 use agape_renderer::Renderer;
 pub use error::{Error, Result};
-use renderer::init_font;
 pub use resources::Resources;
 use resources::{CursorPosition, EventQueue, WindowSize};
 use system::{IntoSystem, System, *};
@@ -52,8 +50,6 @@ use winit::{
     window::Window,
     window::WindowId,
 };
-
-static FONT: OnceLock<Font> = OnceLock::new();
 
 /// An `App` is a single program.
 pub struct App<'app> {
@@ -129,8 +125,6 @@ impl ApplicationHandler for App<'_> {
 impl App<'_> {
     /// Create a new app.
     pub fn new(widget: impl Widget + 'static) -> Self {
-        FONT.set(init_font()).unwrap();
-
         let widget: Box<dyn Widget> = Box::new(widget);
         let render_box = widget.build();
         let state_tracker = StateTracker::new(&render_box);
