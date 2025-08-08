@@ -49,6 +49,7 @@ use winit::{
     window::WindowId,
 };
 
+// TODO: expose renderer
 /// An `App` is a single program.
 pub struct App<'app> {
     window: Option<Arc<Window>>,

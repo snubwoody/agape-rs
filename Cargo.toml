@@ -16,7 +16,9 @@ members = [
     "examples",
     "agape_macros",
     "agape_core",
-    "agape_layout", "agape_renderer",
+    "agape_layout",
+    "agape_renderer",
+    "examples/file-explorer"
 ]
 
 [profile.bench]

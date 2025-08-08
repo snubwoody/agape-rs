@@ -710,6 +710,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "file-explorer"
+version = "0.1.0"
+dependencies = [
+ "agape",
+ "agape_renderer",
+]
+
+[[package]]
 name = "flate2"
 version = "1.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
