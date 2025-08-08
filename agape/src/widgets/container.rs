@@ -2,6 +2,7 @@ use super::{LayoutDescription, LayoutType, RenderBox, RenderObject, Widget};
 use crate::impl_style;
 use crate::style::BoxStyle;
 use agape_core::GlobalId;
+use agape_renderer::Renderer;
 
 /// A widget that wraps another widget.
 pub struct Container<W> {
@@ -37,12 +38,12 @@ impl<W: Widget> Widget for Container<W> {
         self.child.traverse_mut(f);
     }
 
-    fn build(&self) -> RenderBox {
+    fn build(&self, renderer: &mut Renderer) -> RenderBox {
         let render_object = RenderObject::Rect {
             border: self.style.border.clone(),
             color: self.style.background_color.clone(),
         };
-        // dbg!(&self.style.background_color);
+
         // TODO: add padding and alignment
         let layout = LayoutDescription {
             layout_type: LayoutType::BlockLayout,
@@ -50,7 +51,7 @@ impl<W: Widget> Widget for Container<W> {
             ..Default::default()
         };
 
-        let child = self.child.build();
+        let child = self.child.build(renderer);
         let mut render_box = RenderBox::new(self.id, layout, render_object);
         render_box.children.push(child);
         render_box

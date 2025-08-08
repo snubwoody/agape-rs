@@ -148,9 +148,39 @@ impl Renderer {
             None,
         );
     }
+
+    /// Get the text size.
+    pub fn text_size(&mut self, text: &str, font_size: f32) -> Size {
+        let mut font_system = &mut self.font_system;
+        let metrics = Metrics::new(font_size, font_size);
+        let mut buffer = Buffer::new(&mut font_system, metrics);
+        let mut buffer = buffer.borrow_with(&mut font_system);
+
+        let attrs = Attrs::new();
+        buffer.set_text(text, &attrs, Shaping::Advanced);
+        buffer.shape_until_scroll(true);
+
+        let mut width = 0.0;
+        let mut height = 0.0;
+
+        for run in buffer.layout_runs() {
+            width += run.line_w;
+            height += run.line_height;
+        }
+
+        Size::new(width, height)
+    }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn text_size() {
+        let mut renderer = Renderer::new();
+        let size = renderer.text_size("Hello world", 16.0);
+        assert!(size.height >= 16.0);
+        assert!(size.width >= 16.0);
+    }
 }

@@ -75,7 +75,7 @@ pub trait Widget {
     fn click(&mut self) {}
     fn hover(&mut self) {}
 
-    fn build(&self) -> RenderBox;
+    fn build(&self, _: &mut Renderer) -> RenderBox;
 
     fn key_input(&mut self, _key: &keyboard::Key, _state: &ElementState, _text: &Option<String>) {}
 }

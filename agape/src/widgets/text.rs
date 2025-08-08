@@ -2,6 +2,7 @@ use super::{LayoutDescription, RenderBox, RenderObject, Widget};
 use agape_core::Color;
 use agape_core::{GlobalId, Position, Size};
 use agape_layout::IntrinsicSize;
+use agape_renderer::Renderer;
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct Text {
@@ -43,13 +44,12 @@ impl Text {
 }
 
 impl Widget for Text {
-    fn build(&self) -> RenderBox {
-        // FIXME: get text size
-
+    fn build(&self, renderer: &mut Renderer) -> RenderBox {
+        let text_size = renderer.text_size(&self.text, self.font_size as f32);
         RenderBox {
             id: self.id,
             layout_desc: LayoutDescription {
-                intrinsic_size: IntrinsicSize::fixed(50.0, 20.0),
+                intrinsic_size: text_size.into(),
                 ..Default::default()
             },
             children: Vec::new(),

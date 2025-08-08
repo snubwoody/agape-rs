@@ -125,8 +125,9 @@ impl ApplicationHandler for App<'_> {
 impl App<'_> {
     /// Create a new app.
     pub fn new(widget: impl Widget + 'static) -> Self {
+        let mut renderer = Renderer::new();
         let widget: Box<dyn Widget> = Box::new(widget);
-        let render_box = widget.build();
+        let render_box = widget.build(&mut renderer);
         let state_tracker = StateTracker::new(&render_box);
 
         let mut resources = Resources::new();
@@ -139,13 +140,13 @@ impl App<'_> {
         resources.insert::<Vec<WidgetEvent>>(Vec::new());
 
         Self {
-            renderer: Renderer::new(),
             event_queue: EventQueue::new(),
             window: None,
             pixmap: None,
             pixels: None,
-            resources,
             systems: Vec::new(),
+            resources,
+            renderer,
         }
     }
 
@@ -218,11 +219,14 @@ mod test {
     fn widget_hover_system() {
         let rect = Rect::new().fixed(100.0, 100.0);
 
-        let state_tracker = StateTracker::new(&rect.build());
+        let mut renderer = Renderer::new();
+        let render_box = rect.build(&mut renderer);
+        let state_tracker = StateTracker::new(&render_box);
         let mut resources = Resources::new();
         resources.insert(state_tracker);
         resources.insert(WindowSize(Size::unit(500.0)));
-        resources.insert(rect.build());
+        resources.insert(renderer);
+        resources.insert(render_box);
         resources.insert(CursorPosition(Position::unit(50.0)));
         resources.insert::<Vec<WidgetEvent>>(Vec::new());
 

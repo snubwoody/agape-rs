@@ -3,6 +3,7 @@ use crate::widgets::{LayoutDescription, LayoutType, RenderBox, RenderObject};
 use crate::{impl_style, widgets::Widget};
 use agape_core::{GlobalId, Position, Size};
 use agape_layout::{AxisAlignment, VerticalLayout};
+use agape_renderer::Renderer;
 
 /// A vertical stack that places its children vertically one after
 /// another.
@@ -95,8 +96,8 @@ impl Widget for VStack {
         }
     }
 
-    fn build(&self) -> RenderBox {
-        let children = self.children.iter().map(|w| w.build()).collect();
+    fn build(&self, renderer: &mut Renderer) -> RenderBox {
+        let children = self.children.iter().map(|w| w.build(renderer)).collect();
 
         // FIXME: use style and test
         let layout_desc = LayoutDescription {
