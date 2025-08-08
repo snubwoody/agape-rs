@@ -16,6 +16,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check semver
         uses: obi1kenobi/cargo-semver-checks-action@v2
+        with:
+          # TODO: remove after first release
+          exclude: agape_renderer
   clippy:
     runs-on: ubuntu-latest
     steps:
