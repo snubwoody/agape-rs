@@ -1,5 +1,4 @@
-use crate::style::Border;
-use agape_core::{Color, Position, Rgba, Size, map};
+use agape_core::{Border, Color, Position, Rgba, Size, map};
 use tiny_skia::{Paint, PathBuilder, Pixmap, Stroke, Transform};
 
 /// Draw a rectangle onto the `Pixmap`.

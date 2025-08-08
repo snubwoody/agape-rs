@@ -12,8 +12,8 @@ mod text_field;
 mod vstack;
 
 use crate::renderer::{draw_image, draw_rect, draw_svg, draw_text};
-use crate::style::Border;
 use ::image::DynamicImage;
+use agape_core::Border;
 use agape_core::{Color, GlobalId, Position, Rgba, Size};
 use agape_layout::{
     AxisAlignment, BlockLayout, EmptyLayout, HorizontalLayout, IntrinsicSize, Layout,
