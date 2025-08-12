@@ -26,7 +26,7 @@ impl View for TextBox {
         Box::new(Text::new(self.text.as_str()));
         Box::new(
             Rect::new()
-                .fixed(100.0, 200.0)
+                .fixed(50.0, 50.0)
                 .background_color(Color::rgb(100, 200, 100)),
         )
     }

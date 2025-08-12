@@ -38,6 +38,7 @@ use widgets::Widget;
 use widgets::{RenderBox, StateTracker, WidgetEvent};
 
 use crate::widgets::View;
+use agape_layout::solve_layout;
 use pixels::{Pixels, SurfaceTexture};
 use std::sync::Arc;
 use tiny_skia::Pixmap;
@@ -127,13 +128,15 @@ impl App<'_> {
     fn render(&mut self) {
         // This is very much a hack
         let widget = self.resources.get::<Box<dyn Widget>>().unwrap();
-        let render_box = widget.build(&mut self.renderer);
+        let WindowSize(window_size) = self.resources.get::<WindowSize>().unwrap();
+        let mut layout = widget.layout();
+        solve_layout(&mut *layout, *window_size);
 
         let pixels = self.pixels.as_mut().unwrap();
         let pixmap = self.pixmap.as_mut().unwrap();
         pixmap.fill(tiny_skia::Color::WHITE);
 
-        widget.render(pixmap, &mut self.renderer);
+        widget.render(pixmap, &mut self.renderer, layout);
 
         pixels.frame_mut().copy_from_slice(pixmap.data());
         pixels.render().unwrap();

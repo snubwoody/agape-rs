@@ -85,8 +85,12 @@ pub trait Widget {
 
     fn build(&self, _: &mut Renderer) -> RenderBox;
 
+    fn layout(&self) -> Box<dyn Layout> {
+        todo!()
+    }
+
     /// Draw the widget to the screen.
-    fn render(&self, pixmap: &mut Pixmap, renderer: &mut Renderer) {}
+    fn render(&self, _: &mut Pixmap, _: &mut Renderer, _: Box<dyn Layout>) {}
 
     fn key_input(&mut self, _key: &keyboard::Key, _state: &ElementState, _text: &Option<String>) {}
 }

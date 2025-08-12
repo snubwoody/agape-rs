@@ -2,6 +2,7 @@ use super::{LayoutDescription, LayoutType, RenderBox, RenderObject, Widget};
 use crate::impl_style;
 use crate::style::BoxStyle;
 use agape_core::{GlobalId, Position, Size};
+use agape_layout::{EmptyLayout, Layout};
 use agape_renderer::Renderer;
 use tiny_skia::Pixmap;
 
@@ -26,12 +27,25 @@ impl Widget for Rect {
         self.id
     }
 
-    fn render(&self, pixmap: &mut Pixmap, renderer: &mut Renderer) {
+    fn layout(&self) -> Box<dyn Layout> {
+        let layout = EmptyLayout {
+            id: self.id,
+            intrinsic_size: self.style.intrinsic_size,
+            ..Default::default()
+        };
+        Box::new(layout)
+    }
+
+    fn render(&self, pixmap: &mut Pixmap, renderer: &mut Renderer, layout: Box<dyn Layout>) {
+        let layout = layout.get(self.id).unwrap();
+        let size = layout.size();
+        let position = layout.position();
+
         renderer.draw_rect(
             pixmap,
             &self.style.background_color.clone(),
-            Size::new(200.0, 100.0),
-            self.position,
+            size,
+            position,
             self.style.border.clone(),
         );
     }
