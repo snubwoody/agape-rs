@@ -43,6 +43,10 @@ impl VStack {
         self.children.get(index).map(|w| &**w)
     }
 
+    pub fn append_child(&mut self, child: Box<dyn Widget>) {
+        self.children.push(child);
+    }
+
     pub fn add_child(mut self, widget: impl Widget + 'static) -> Self {
         self.children.push(Box::new(widget));
         self

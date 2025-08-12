@@ -1,52 +1,70 @@
 #![allow(non_snake_case)]
 
-use agape::{App, Message, widgets::*};
+use agape::{App, Color, Message, State, widgets::*};
 use tracing::info;
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
-    App::new(Home::new()).run()
+    let home = Home::new(["Bank", "Overwatch", "Valorant", "Taxes", "School"]);
+    App::new(home).run()
 }
 
 struct Home {
-    directory: DirEntry,
+    directories: Vec<DirEntry>,
 }
 
 impl Home {
-    pub fn new() -> Self {
-        Self {
-            directory: DirEntry::new("Bank"),
+    pub fn new(entries: impl IntoIterator<Item = &'static str>) -> Self {
+        let mut directories = vec![];
+        for entry in entries {
+            directories.push(DirEntry::new(entry));
         }
+
+        Self { directories }
     }
 }
 
 impl View for Home {
-    fn update(&mut self, message: &Message) {
-        self.directory.update(message);
+    fn update(&mut self, message: &Message, state: &State) {
+        self.directories
+            .iter_mut()
+            .for_each(|d| d.update(message, state));
     }
 
     fn view(&self) -> Box<dyn Widget> {
-        self.directory.view()
+        let mut vstack = VStack::new();
+        for entry in &self.directories {
+            vstack.append_child(entry.view());
+        }
+        Box::new(vstack)
     }
 }
 
 struct DirEntry {
-    title: String,
+    widget: Container<Text>,
 }
 
 impl DirEntry {
     pub fn new(title: &str) -> Self {
-        Self {
-            title: String::from(title),
-        }
+        let widget = Container::new(Text::new(title)).padding(12);
+        Self { widget }
     }
 }
 
 impl View for DirEntry {
-    fn update(&mut self, message: &Message) {
-        info!("{message:?}")
+    fn update(&mut self, _: &Message, state: &State) {
+        let is_hovered = state.is_hovered(&self.widget.id());
+        if is_hovered {
+            self.widget = self
+                .widget
+                .clone()
+                .background_color(Color::rgb(230, 230, 230));
+        } else {
+            self.widget = self.widget.clone().background_color(Color::WHITE);
+        }
     }
+
     fn view(&self) -> Box<dyn Widget> {
-        Box::new(Text::new(self.title.as_str()))
+        Box::new(self.widget.clone())
     }
 }

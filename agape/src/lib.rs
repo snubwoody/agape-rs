@@ -21,7 +21,7 @@ use system::{IntoSystem, System, *};
 use widgets::Widget;
 
 use crate::widgets::View;
-use agape_layout::solve_layout;
+use agape_layout::{Layout, solve_layout};
 use pixels::{Pixels, SurfaceTexture};
 use std::sync::Arc;
 use tiny_skia::Pixmap;
@@ -47,15 +47,18 @@ pub struct App<'app> {
     view: Box<dyn View>,
     window_size: Size,
     messages: Vec<Message>,
+    state: State,
 }
 
 impl App<'_> {
     /// Create a new app.
     pub fn new(root: impl View + 'static) -> Self {
         let widget = root.view();
-        let renderer = Renderer::new();
+        let mut renderer = Renderer::new();
         let queue: Vec<Message> = Vec::new();
         let view: Box<dyn View> = Box::new(root);
+        let layout = widget.layout(&mut renderer);
+        let state = State::new(layout);
         // TODO: test these
         let mut resources = Resources::new();
         resources.insert(CursorPosition::default());
@@ -69,11 +72,12 @@ impl App<'_> {
             pixmap: None,
             pixels: None,
             systems: Vec::new(),
+            window_size: Size::default(),
+            messages: Vec::new(),
             resources,
             renderer,
             view,
-            messages: Vec::new(),
-            window_size: Size::default(),
+            state,
         }
     }
 
@@ -85,7 +89,7 @@ impl App<'_> {
 
     fn render(&mut self) {
         for message in self.messages.drain(..) {
-            self.view.update(&message);
+            self.view.update(&message, &self.state);
         }
         // This is very much a hack
         let widget = self.view.view();
@@ -99,6 +103,7 @@ impl App<'_> {
 
         widget.render(pixmap, &mut self.renderer, layout.as_ref());
 
+        self.state.update_layout(layout);
         pixels.frame_mut().copy_from_slice(pixmap.data());
         pixels.render().unwrap();
     }
@@ -181,12 +186,48 @@ impl ApplicationHandler for App<'_> {
             }
             WindowEvent::CursorMoved { position, .. } => {
                 let pos: Position = position.into();
+                self.state.update_cursor_pos(pos);
                 self.messages.push(Message::MouseMoved(pos))
             }
             _ => {}
         }
 
         self.event_queue.clear();
+    }
+}
+
+#[derive(Debug)]
+pub struct State {
+    cursor_position: Position,
+    layout: Box<dyn Layout>,
+}
+
+impl State {
+    pub fn new(layout: Box<dyn Layout>) -> Self {
+        Self {
+            cursor_position: Position::default(),
+            layout,
+        }
+    }
+
+    /// Check if the cursor is over the [`Widget`].
+    ///
+    /// # Panics
+    /// Panics if the widget is not found.
+    pub fn is_hovered(&self, id: &GlobalId) -> bool {
+        self.layout
+            .get(*id)
+            .unwrap()
+            .bounds()
+            .within(&self.cursor_position)
+    }
+
+    pub fn update_cursor_pos(&mut self, pos: Position) {
+        self.cursor_position = pos;
+    }
+
+    pub fn update_layout(&mut self, layout: Box<dyn Layout>) {
+        self.layout = layout;
     }
 }
 

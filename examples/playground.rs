@@ -1,5 +1,5 @@
 // Playground example, not intended for serious use.
-use agape::{App, Message, widgets::*};
+use agape::{App, Message, State, widgets::*};
 
 fn main() {
     App::new(RectBox::new()).run().unwrap()
@@ -19,7 +19,7 @@ impl RectBox {
 }
 
 impl View for RectBox {
-    fn update(&mut self, _: &Message) {
+    fn update(&mut self, _: &Message, _: &State) {
         // TODO:
         // - store the container
         // - get the layout

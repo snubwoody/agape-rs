@@ -9,7 +9,7 @@ mod svg;
 mod text;
 mod vstack;
 
-use crate::Message;
+use crate::{Message, State};
 use agape_core::GlobalId;
 use agape_layout::Layout;
 use agape_renderer::Renderer;
@@ -52,7 +52,7 @@ pub use vstack::*;
 ///
 /// [`update`]: View::update
 pub trait View {
-    fn update(&mut self, _: &Message) {}
+    fn update(&mut self, _: &Message, _: &State) {}
 
     fn view(&self) -> Box<dyn Widget>;
 }
