@@ -1,57 +1,69 @@
 #![allow(non_snake_case)]
-use agape::{App, hstack, vstack, widgets::*};
+
+use agape::{App, Color, Message, State, widgets::*};
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
-    App::new(Home).run()
+    let home = Home::new(["Bank", "Overwatch", "Valorant", "Taxes", "School"]);
+    App::new(home).run()
 }
 
-struct Home;
+struct Home {
+    directories: Vec<DirEntry>,
+}
+
+impl Home {
+    pub fn new(entries: impl IntoIterator<Item = &'static str>) -> Self {
+        let mut directories = vec![];
+        for entry in entries {
+            directories.push(DirEntry::new(entry));
+        }
+
+        Self { directories }
+    }
+}
 
 impl View for Home {
+    fn update(&mut self, message: &Message, state: &State) {
+        self.directories
+            .iter_mut()
+            .for_each(|d| d.update(message, state));
+    }
+
     fn view(&self) -> Box<dyn Widget> {
-        let main = vstack! {
-        hstack!{
-            Text::new("Home"),
+        let mut vstack = VStack::new();
+        for entry in &self.directories {
+            vstack.append_child(entry.view());
         }
-        .padding(12),
-        hstack!{
-            Sidebar(),
-            vstack!{
-                Text::new("IMPORTANT!"),
-                Text::new("Bank documents"),
-                Text::new("Work"),
-                Text::new("Taxes"),
-                Text::new("Taxes.docx"),
-            }
-            .spacing(12)
-        },
-        };
-        Box::new(main)
+        Box::new(vstack)
     }
 }
 
-fn Sidebar() -> impl Widget {
-    vstack! {
-        QuickAccess(),
-        Drives()
+struct DirEntry {
+    widget: Container<Text>,
+}
+
+impl DirEntry {
+    pub fn new(title: &str) -> Self {
+        let widget = Container::new(Text::new(title)).padding(12);
+        Self { widget }
     }
 }
 
-fn QuickAccess() -> impl Widget {
-    vstack! {
-        Text::new("Downloads"),
-        Text::new("Documents"),
-        Text::new("Music"),
-        Text::new("Pictures"),
-        Text::new("Videos"),
+impl View for DirEntry {
+    fn update(&mut self, _: &Message, state: &State) {
+        let is_hovered = state.is_hovered(&self.widget.id());
+        if is_hovered {
+            self.widget = self
+                .widget
+                .clone()
+                .background_color(Color::rgb(230, 230, 230));
+        } else {
+            self.widget = self.widget.clone().background_color(Color::WHITE);
+        }
     }
-    .spacing(12)
-    .padding(24)
-}
 
-fn Drives() -> impl Widget {
-    vstack! {
-        Text::new("This PC"),
+    fn view(&self) -> Box<dyn Widget> {
+        Box::new(self.widget.clone())
     }
 }
