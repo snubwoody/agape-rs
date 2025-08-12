@@ -19,24 +19,41 @@
 
 ## Overview
 
-`agape` is a cross platform, CPU-rendered, GUI library. Internally it uses `tiny-skia` for rendering.
+`agape` is a cross platform, CPU-rendered, GUI library.
 
 ## Add to your project
 
 ```toml
 [dependencies]
-agape = "0.1.0"
+agape = "0.2.0"
 ```
 
 ## Quick start
 
 ```rust
-use agape::{App, widgets::Text};
+use agape::{App, widgets::*};
+
+#[derive(Debug)]
+struct TextBox {
+    text: String
+}
+
+impl TextBox {
+    pub fn new(text: &str) -> Self {
+        Self { text: String::from(text) }
+    }
+}
+
+impl View for TextBox {
+    fn view() -> Box<dyn Widget> {
+        Box::new(
+            Text::new(&self.text)
+        )
+    }
+}
 
 fn main() -> Result<(), agape::Error> {
-    let text = Text::new("Hello world");
-
-    let mut app = App::new(text);
+    let mut app = App::new(TextBox::new("Hi there"));
     app.run()
 }
 ```
@@ -62,17 +79,6 @@ fn main() -> Result<(), agape::Error> {
 
 ✅: Fully supported  
 🚧: Planned
-
-## Roadmap
-
-- [x] text rendering
-- [ ] Grids
-- [x] Row and column layouts
-- [ ] Input handling
-    - [x] Hover events
-    - [x] Click events
-    - [ ] Text input
-- [ ] Scrolling
 
 ## License
 
