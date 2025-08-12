@@ -19,9 +19,9 @@ impl Resources {
 
     /// Inserts a resource.
     ///
-    /// To insert or replace a resource use [`remove`].
+    /// To insert or replace a resource use [`set`].
     ///
-    /// [`remove`]: Resources::remove
+    /// [`set`]: Resources::set
     pub fn insert<T: 'static>(&mut self, item: T) {
         // Don't insert the same resource twice
         if self.get::<T>().is_none() {

@@ -120,7 +120,7 @@ pub fn rebuild_widgets(resources: &mut Resources) {
     let view = resources.get_mut::<Box<dyn View>>().unwrap();
     view.update();
     let widget = view.view();
-    resources.insert(widget);
+    resources.set(widget);
     // let _widget = resources.get::<Box<dyn Widget>>().unwrap();
     // FIXME: rebuild widgets
     // let render_box = widget.build(renderer);

@@ -124,10 +124,10 @@ impl App<'_> {
     }
 
     fn render(&mut self) {
-        // root.view().render();
         // This is very much a hack
         let widget = self.resources.get::<Box<dyn Widget>>().unwrap();
         let render_box = widget.build(&mut self.renderer);
+        dbg!(widget.id());
 
         let pixels = self.pixels.as_mut().unwrap();
         let pixmap = self.pixmap.as_mut().unwrap();

@@ -23,6 +23,6 @@ impl View for TextBox {
     }
 
     fn view(&self) -> Box<dyn Widget> {
-        Box::new(Text::new("Hello world"))
+        Box::new(Text::new(self.text.as_str()))
     }
 }
