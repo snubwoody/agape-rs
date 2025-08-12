@@ -35,13 +35,6 @@ pub use vstack::*;
 use winit::event::ElementState;
 use winit::keyboard;
 
-enum Message {
-    CursorEnter,
-    CursorLeave,
-    MouseDown,
-    MouseUp,
-}
-
 pub trait Widget {
     /// Get the `id` of the [`Widget`]
     fn id(&self) -> GlobalId;
@@ -207,7 +200,7 @@ impl RenderBox {
     fn update_size(&mut self, root_layout: &dyn Layout) {
         // TODO don't unwrap, log error instead
         match root_layout.get(self.id) {
-            Some(layout) => {
+            Some(_) => {
                 let layout = root_layout.get(self.id).unwrap();
                 self.position = layout.position();
                 self.size = layout.size();

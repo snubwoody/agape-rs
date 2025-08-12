@@ -121,13 +121,13 @@ impl App<'_> {
     fn render(&mut self) {
         // This is very much a hack
         let render_box = self.resources.get_owned::<RenderBox>().unwrap();
-        let mut renderer = self.resources.get_mut::<Renderer>().unwrap();
+        let renderer = self.resources.get_mut::<Renderer>().unwrap();
 
         let pixels = self.pixels.as_mut().unwrap();
         let pixmap = self.pixmap.as_mut().unwrap();
         pixmap.fill(tiny_skia::Color::WHITE);
 
-        render_box.render(pixmap, &mut renderer);
+        render_box.render(pixmap, renderer);
 
         pixels.frame_mut().copy_from_slice(pixmap.data());
         pixels.render().unwrap();

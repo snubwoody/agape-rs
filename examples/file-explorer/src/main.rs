@@ -2,7 +2,7 @@
 use agape::widgets::{
     LayoutDescription, LayoutType, RenderBox, RenderObject, StateTracker, Text, Widget,
 };
-use agape::{App, Color, GlobalId, IntoColor, Position, Rgba, Size, hex, hstack, vstack};
+use agape::{App, Color, GlobalId, IntoColor, Position, Rgba, Size, hstack, vstack};
 use agape_renderer::Renderer;
 use rand::random;
 
