@@ -50,6 +50,7 @@ use winit::{
     window::WindowId,
 };
 
+// TODO: store the pixmap in the renderer?
 /// An `App` is a single program.
 ///
 /// # Create and run an app
@@ -127,13 +128,12 @@ impl App<'_> {
         // This is very much a hack
         let widget = self.resources.get::<Box<dyn Widget>>().unwrap();
         let render_box = widget.build(&mut self.renderer);
-        dbg!(widget.id());
 
         let pixels = self.pixels.as_mut().unwrap();
         let pixmap = self.pixmap.as_mut().unwrap();
         pixmap.fill(tiny_skia::Color::WHITE);
 
-        render_box.render(pixmap, &mut self.renderer);
+        widget.render(pixmap, &mut self.renderer);
 
         pixels.frame_mut().copy_from_slice(pixmap.data());
         pixels.render().unwrap();

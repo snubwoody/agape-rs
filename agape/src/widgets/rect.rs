@@ -3,10 +3,13 @@ use crate::impl_style;
 use crate::style::BoxStyle;
 use agape_core::{GlobalId, Position, Size};
 use agape_renderer::Renderer;
+use tiny_skia::Pixmap;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
 pub struct Rect {
     id: GlobalId,
+    size: Size,
+    position: Position,
     style: BoxStyle,
 }
 
@@ -21,6 +24,16 @@ impl Rect {
 impl Widget for Rect {
     fn id(&self) -> GlobalId {
         self.id
+    }
+
+    fn render(&self, pixmap: &mut Pixmap, renderer: &mut Renderer) {
+        renderer.draw_rect(
+            pixmap,
+            &self.style.background_color.clone(),
+            Size::new(200.0, 100.0),
+            self.position,
+            self.style.border.clone(),
+        );
     }
 
     fn build(&self, _: &mut Renderer) -> RenderBox {
