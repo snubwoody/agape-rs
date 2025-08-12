@@ -50,14 +50,113 @@ use winit::{
 };
 
 /// An `App` is a single program.
+///
+/// # Create and run an app
+/// ```no_run
+/// use agape::{App,widgets::Text};
+///
+/// let widget = Text::new("Hello world");
+/// App::new(widget)
+///     .run()
+///     .expect("Failed to run app");
+/// ```
 pub struct App<'app> {
     window: Option<Arc<Window>>,
     pixels: Option<Pixels<'app>>,
     pixmap: Option<Pixmap>,
     resources: Resources,
     event_queue: EventQueue,
-    renderer: Renderer,
     systems: Vec<Box<dyn System>>,
+}
+
+impl App<'_> {
+    /// Create a new app.
+    pub fn new(widget: impl Widget + 'static) -> Self {
+        let mut renderer = Renderer::new();
+        let widget: Box<dyn Widget> = Box::new(widget);
+        let render_box = widget.build(&mut renderer);
+        let state_tracker = StateTracker::new(&render_box);
+
+        // TODO: test these
+        let mut resources = Resources::new();
+        resources.insert(state_tracker);
+        resources.insert(render_box);
+        resources.insert(CursorPosition::default());
+        resources.insert(WindowSize::default());
+        resources.insert(EventQueue::new());
+        resources.insert(widget);
+        resources.insert(renderer);
+        resources.insert::<Vec<WidgetEvent>>(Vec::new());
+
+        Self {
+            event_queue: EventQueue::new(),
+            window: None,
+            pixmap: None,
+            pixels: None,
+            systems: Vec::new(),
+            resources,
+        }
+    }
+
+    /// Add a [`System`].
+    ///
+    /// # Example
+    /// ```
+    /// use agape::{hstack, App};
+    /// use agape::resources::{CursorPosition, Resources};
+    ///
+    /// fn cursor_position(resources: &mut Resources){
+    ///     let position = resources.get::<CursorPosition>().unwrap();
+    ///     println!("Current position: {:?}",position);
+    /// }
+    ///
+    /// let app = App::new(hstack!{})
+    ///     .add_system(cursor_position);
+    /// ```
+    pub fn add_system<Input: 'static>(mut self, f: impl IntoSystem<Input> + 'static) -> Self {
+        self.systems.push(Box::new(f.into_system()));
+        self
+    }
+
+    fn render(&mut self) {
+        // This is very much a hack
+        let render_box = self.resources.get_owned::<RenderBox>().unwrap();
+        let mut renderer = self.resources.get_mut::<Renderer>().unwrap();
+
+        let pixels = self.pixels.as_mut().unwrap();
+        let pixmap = self.pixmap.as_mut().unwrap();
+        pixmap.fill(tiny_skia::Color::WHITE);
+
+        render_box.render(pixmap, &mut renderer);
+
+        pixels.frame_mut().copy_from_slice(pixmap.data());
+        pixels.render().unwrap();
+        self.resources.insert(render_box);
+    }
+
+    /// Run the app.
+    ///
+    /// # Panics
+    /// The app will panic if it is run in another thread, this is
+    /// because accessing windows in other threads is unsafe on
+    /// certain platforms.
+    pub fn run(mut self) -> Result<()> {
+        // HACK: the order is systems is fairly important but hard to test
+        self = self
+            .add_system(rebuild_widgets) // Has to be the first system
+            .add_system(layout_system) // Has to be immediately after rebuilding widgets
+            .add_system(update_cursor_position)
+            .add_system(handle_mouse_button)
+            .add_system(intersection_observer)
+            .add_system(handle_key_input)
+            .add_system(update_widgets)
+            .add_system(handle_widget_event);
+
+        let event_loop = EventLoop::new()?;
+        event_loop.set_control_flow(ControlFlow::Poll);
+        event_loop.run_app(&mut self)?;
+        Ok(())
+    }
 }
 
 impl ApplicationHandler for App<'_> {
@@ -112,101 +211,12 @@ impl ApplicationHandler for App<'_> {
                 self.pixmap = Some(pixmap);
                 self.resources.get_mut::<WindowSize>().unwrap().0 = Size::from(size);
             }
-            WindowEvent::MouseInput { .. } => {}
             _ => {}
         }
 
         self.event_queue.clear();
     }
 }
-
-impl App<'_> {
-    /// Create a new app.
-    pub fn new(widget: impl Widget + 'static) -> Self {
-        let mut renderer = Renderer::new();
-        let widget: Box<dyn Widget> = Box::new(widget);
-        let render_box = widget.build(&mut renderer);
-        let state_tracker = StateTracker::new(&render_box);
-
-        let mut resources = Resources::new();
-        resources.insert(state_tracker);
-        resources.insert(render_box);
-        resources.insert(CursorPosition::default());
-        resources.insert(WindowSize::default());
-        resources.insert(EventQueue::new());
-        resources.insert(widget);
-        resources.insert::<Vec<WidgetEvent>>(Vec::new());
-
-        Self {
-            event_queue: EventQueue::new(),
-            window: None,
-            pixmap: None,
-            pixels: None,
-            systems: Vec::new(),
-            resources,
-            renderer,
-        }
-    }
-
-    /// Add a [`System`].
-    ///
-    /// # Example
-    /// ```
-    /// use agape::{hstack, App};
-    /// use agape::resources::{CursorPosition, Resources};
-    ///
-    /// fn cursor_position(resources: &mut Resources){
-    ///     let position = resources.get::<CursorPosition>().unwrap();
-    ///     println!("Current position: {:?}",position);
-    /// }
-    ///
-    /// let app = App::new(hstack!{})
-    ///     .add_system(cursor_position);
-    /// ```
-    pub fn add_system<Input: 'static>(mut self, f: impl IntoSystem<Input> + 'static) -> Self {
-        self.systems.push(Box::new(f.into_system()));
-        self
-    }
-
-    fn render(&mut self) {
-        let render_box = self.resources.get::<RenderBox>().unwrap();
-
-        let pixels = self.pixels.as_mut().unwrap();
-        let pixmap = self.pixmap.as_mut().unwrap();
-        pixmap.fill(tiny_skia::Color::WHITE);
-
-        render_box.render(pixmap, &mut self.renderer);
-
-        pixels.frame_mut().copy_from_slice(pixmap.data());
-        pixels.render().unwrap();
-    }
-
-    /// Run the app.
-    ///
-    /// # Panics
-    /// The app will panic if it is run in another thread, this is
-    /// because accessing windows in other threads is unsafe on
-    /// certain platforms.
-    pub fn run(mut self) -> Result<()> {
-        // HACK: the order is systems is fairly important but hard to test
-        self = self
-            .add_system(rebuild_widgets) // Has to be the first system
-            .add_system(layout_system) // Has to be immediately after rebuilding widgets
-            .add_system(update_cursor_position)
-            .add_system(handle_mouse_button)
-            .add_system(intersection_observer)
-            .add_system(handle_key_input)
-            .add_system(update_widgets)
-            .add_system(handle_widget_event);
-
-        let event_loop = EventLoop::new()?;
-        event_loop.set_control_flow(ControlFlow::Poll);
-        event_loop.run_app(&mut self)?;
-        Ok(())
-    }
-}
-
-// TODO: move these systems into systems module
 
 #[cfg(test)]
 mod test {

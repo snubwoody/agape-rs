@@ -35,6 +35,13 @@ pub use vstack::*;
 use winit::event::ElementState;
 use winit::keyboard;
 
+enum Message {
+    CursorEnter,
+    CursorLeave,
+    MouseDown,
+    MouseUp,
+}
+
 pub trait Widget {
     /// Get the `id` of the [`Widget`]
     fn id(&self) -> GlobalId;
@@ -159,7 +166,7 @@ pub enum LayoutType {
     BlockLayout,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RenderBox {
     pub id: GlobalId,
     pub size: Size,

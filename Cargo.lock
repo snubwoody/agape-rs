@@ -713,6 +713,7 @@ version = "0.1.0"
 dependencies = [
  "agape",
  "agape_renderer",
+ "rand 0.9.1",
  "tracing-subscriber",
 ]
 
