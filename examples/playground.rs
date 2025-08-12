@@ -1,30 +1,33 @@
 // Playground example, not intended for serious use.
-use agape::{App, Color, widgets::*};
+use agape::{App, widgets::*};
 
 fn main() {
-    App::new(RectBox::default()).run().unwrap()
+    App::new(RectBox::new()).run().unwrap()
 }
 
 #[derive(Debug, Default)]
 struct RectBox {
-    width: f32,
-    height: f32,
+    rect: Rect,
+}
+
+impl RectBox {
+    pub fn new() -> Self {
+        Self {
+            rect: Rect::new().fixed(250.0, 250.0),
+        }
+    }
 }
 
 impl View for RectBox {
     fn update(&mut self) {
-        self.width += 1.0;
-        self.height += 0.5;
+        // TODO:
+        // - store the container
+        // - get the layout
+        // - check the bounds
     }
 
     fn view(&self) -> Box<dyn Widget> {
-        Box::new(
-            Container::new(
-                Rect::new()
-                    .fixed(self.width, self.height)
-                    .background_color(Color::BLACK),
-            )
-            .background_color(Color::RED),
-        )
+        // TODO: maybe return a reference
+        Box::new(self.rect.clone())
     }
 }

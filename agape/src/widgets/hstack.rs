@@ -176,7 +176,6 @@ macro_rules! hstack {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use crate::widgets::{Rect, Text};
 
     #[test]

@@ -3,22 +3,6 @@
 //! ## Getting started
 //! To get started you'll need to create an [`App`], which is the entry point
 //! of the program, and a root [`Widget`].
-//!
-//! ```no_run
-//! use agape::{App,hstack,widgets::Text};
-//!
-//! let hstack = hstack! {
-//!     Text::new("Hello"),
-//!     Text::new("world")
-//! }
-//! .padding(12)
-//! .spacing(12)
-//! .align_center()
-//! .fill();
-//!
-//! let app = App::new(hstack);
-//! app.run().unwrap();
-//! ```
 pub mod error;
 mod macros;
 pub mod resources;
@@ -52,16 +36,6 @@ use winit::{
 
 // TODO: store the pixmap in the renderer?
 /// An `App` is a single program.
-///
-/// # Create and run an app
-/// ```no_run
-/// use agape::{App,widgets::Text};
-///
-/// let widget = Text::new("Hello world");
-/// App::new(widget)
-///     .run()
-///     .expect("Failed to run app");
-/// ```
 pub struct App<'app> {
     window: Option<Arc<Window>>,
     pixels: Option<Pixels<'app>>,
@@ -98,20 +72,6 @@ impl App<'_> {
     }
 
     /// Add a [`System`].
-    ///
-    /// # Example
-    /// ```
-    /// use agape::{hstack, App};
-    /// use agape::resources::{CursorPosition, Resources};
-    ///
-    /// fn cursor_position(resources: &mut Resources){
-    ///     let position = resources.get::<CursorPosition>().unwrap();
-    ///     println!("Current position: {:?}",position);
-    /// }
-    ///
-    /// let app = App::new(hstack!{})
-    ///     .add_system(cursor_position);
-    /// ```
     pub fn add_system<Input: 'static>(mut self, f: impl IntoSystem<Input> + 'static) -> Self {
         self.systems.push(Box::new(f.into_system()));
         self

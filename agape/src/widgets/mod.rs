@@ -21,6 +21,35 @@ pub use text::Text;
 use tiny_skia::Pixmap;
 pub use vstack::*;
 
+/// A [`View`].
+///
+/// # Example
+/// ```no_run
+/// use agape::{widgets::*,App};
+///
+/// #[derive(Default)]
+/// struct TextBox{
+///     text: String
+/// }
+///
+/// impl View for TextBox{
+///     fn view(&self) -> Box<dyn Widget> {
+///         Box::new(
+///             Text::new(&self.text)
+///         )
+///     }
+/// }
+///
+/// fn main() -> agape::Result<()>{
+///     App::new(TextBox::default())
+///         .run()
+/// }
+/// ```
+///
+/// The [`update`] method runs every frame and enables you to respond
+/// to state changes and events.
+///
+/// [`update`]: View::update
 pub trait View {
     fn update(&mut self) {}
 
@@ -32,6 +61,7 @@ pub trait Widget {
     fn id(&self) -> GlobalId;
 
     fn layout(&self, _: &mut Renderer) -> Box<dyn Layout>;
+
     /// Draw the widget to the screen.
     fn render(&self, _: &mut Pixmap, _: &mut Renderer, _: &dyn Layout) {}
 }

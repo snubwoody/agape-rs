@@ -103,7 +103,7 @@ impl Widget for Svg {
 #[cfg(test)]
 mod test {
     use super::*;
-    
+
     use std::io::Write;
 
     #[test]

@@ -1,35 +1,5 @@
 //! Systems are stored procedures that run every frame.
 //! They have a `&mut` to the global [`Resources`] allowing it to be modified.
-//!
-//! # Create a system
-//! ```
-//! use agape::{hstack, App, Resources};
-//! use agape::system::{IntoSystem, System};
-//!
-//! fn say_hello(resources: &mut Resources){
-//!     println!("Hi there!");
-//! }
-//!
-//! let app = App::new(hstack! {})
-//!     .add_system(say_hello);
-//! ```
-//! ## Event systems
-//! An [`EventSystem`] is a system that only runs when a specific event is emitted. You
-//! can create an event system by adding the event as a parameter.
-//!
-//! ```
-//! use winit::event::WindowEvent;
-//! use agape::{hstack, App, Resources};
-//! use agape::system::{System,IntoSystem};
-//!
-//! fn window_event(res: &mut Resources,event: &WindowEvent){
-//!     println!("New event: {:#?}",event);
-//! }
-//!
-//! let app = App::new(hstack! {})
-//!     .add_system(window_event);
-//! ```
-
 use crate::Resources;
 use crate::resources::{CursorPosition, EventQueue, WindowSize};
 use crate::widgets::View;
@@ -119,7 +89,7 @@ pub fn rebuild_widgets(resources: &mut Resources) {
 
 pub fn layout_system(resources: &mut Resources) {
     // FIXME
-    let WindowSize(size) = resources.get_owned::<WindowSize>().unwrap();
+    let WindowSize(_) = resources.get_owned::<WindowSize>().unwrap();
 }
 
 pub fn update_cursor_position(resources: &mut Resources, event: &WindowEvent) {
@@ -129,18 +99,19 @@ pub fn update_cursor_position(resources: &mut Resources, event: &WindowEvent) {
     }
 }
 
-pub fn handle_mouse_button(resources: &mut Resources, event: &WindowEvent) {
+pub fn handle_mouse_button(_resources: &mut Resources, event: &WindowEvent) {
     if let &WindowEvent::MouseInput { state, button, .. } = event {
         if state != ElementState::Pressed || button != MouseButton::Left {
+            return;
         }
+        dbg!(&state, &button);
     }
 }
 
-pub fn handle_key_input(resources: &mut Resources, event: &WindowEvent) {
-    if let WindowEvent::KeyboardInput {  .. } = event {}
+pub fn handle_key_input(_: &mut Resources, event: &WindowEvent) {
+    if let WindowEvent::KeyboardInput { .. } = event {}
 }
 
-pub fn intersection_observer(resources: &mut Resources) {
+pub fn intersection_observer(_: &mut Resources) {
     // FIXME
-    let cursor_pos = resources.get::<CursorPosition>().unwrap();
 }
