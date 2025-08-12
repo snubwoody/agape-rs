@@ -18,7 +18,6 @@ pub use error::{Error, Result};
 pub use resources::Resources;
 use resources::{CursorPosition, EventQueue, WindowSize};
 use system::{IntoSystem, System, *};
-use widgets::Widget;
 
 use crate::widgets::View;
 use agape_layout::{Layout, solve_layout};

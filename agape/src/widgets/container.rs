@@ -65,7 +65,7 @@ impl<W: Widget> Widget for Container<W> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::widgets::{Rect, Text};
+    use crate::widgets::Rect;
     use agape_core::{Color, Size};
     use agape_layout::solve_layout;
 

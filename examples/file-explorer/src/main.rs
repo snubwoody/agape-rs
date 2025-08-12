@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
 
 use agape::{App, Color, Message, State, widgets::*};
-use tracing::info;
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();

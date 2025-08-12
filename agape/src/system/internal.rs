@@ -1,10 +1,9 @@
-use crate::resources::{CursorPosition, EventQueue, WindowSize};
-use crate::widgets::View;
+use crate::resources::{CursorPosition, WindowSize};
 use crate::{Message, Resources};
 use agape_core::Position;
 use winit::event::{ElementState, MouseButton, WindowEvent};
 
-pub fn rebuild_widgets(resources: &mut Resources) {
+pub fn rebuild_widgets(_: &mut Resources) {
     // let view = resources.get_mut::<Box<dyn View>>().unwrap();
     // view.update(message);
     // let widget = view.view();
