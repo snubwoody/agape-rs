@@ -19,10 +19,7 @@ pub use rect::*;
 pub use svg::Svg;
 pub use text::Text;
 use tiny_skia::Pixmap;
-use usvg::Tree;
 pub use vstack::*;
-use winit::event::ElementState;
-use winit::keyboard;
 
 pub trait View {
     fn update(&mut self) {}

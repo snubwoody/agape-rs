@@ -21,7 +21,7 @@ impl View for RectBox {
         Box::new(
             Container::new(
                 Rect::new()
-                    .fixed(100.0, 200.0)
+                    .fixed(self.width, self.height)
                     .background_color(Color::BLACK),
             )
             .background_color(Color::RED),

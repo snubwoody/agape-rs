@@ -2,7 +2,7 @@ use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::widgets::Widget;
 use agape_core::GlobalId;
-use agape_layout::{BoxSizing, EmptyLayout, IntrinsicSize, Layout};
+use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
 use agape_renderer::Renderer;
 use std::fs;
 use std::path::Path;
@@ -103,7 +103,7 @@ impl Widget for Svg {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::fs::File;
+    
     use std::io::Write;
 
     #[test]
@@ -158,13 +158,13 @@ mod test {
         file.write_all(data.as_bytes())?;
         let path = f.path();
 
-        let svg = Svg::open(&path)?;
+        let svg = Svg::open(path)?;
         let width = svg.data.size().width();
         let height = svg.data.size().height();
 
         assert_eq!(width, 50.0);
         assert_eq!(height, 200.0);
-        fs::remove_file(&path)?;
+        fs::remove_file(path)?;
 
         Ok(())
     }

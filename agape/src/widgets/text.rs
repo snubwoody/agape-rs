@@ -1,5 +1,5 @@
 use super::Widget;
-use agape_core::{GlobalId, Position, Size};
+use agape_core::GlobalId;
 use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
 use agape_renderer::Renderer;
 use tiny_skia::Pixmap;

@@ -3,23 +3,26 @@ use agape_core::Size;
 use image::{ImageBuffer, ImageFormat};
 use std::fs;
 use std::path::PathBuf;
+use tempfile::TempDir;
 
-fn save_image(width: u32, height: u32, format: ImageFormat) -> PathBuf {
+fn save_image(width: u32, height: u32, format: ImageFormat) -> (TempDir, PathBuf) {
     let ext = format.extensions_str()[0];
     let mut buf = ImageBuffer::new(width, height);
     for pixel in buf.pixels_mut() {
         *pixel = image::Rgb([0u8, 0u8, 0u8]);
     }
-    let _ = fs::create_dir("temp");
     let id: u64 = rand::random();
-    let path = PathBuf::from(format!("temp/img-{id}.{ext}"));
+    let temp = TempDir::new().unwrap();
+    let path = PathBuf::new()
+        .join(temp.path())
+        .join(format!("img-{id}.{ext}"));
     buf.save(&path).unwrap();
-    path
+    (temp, path)
 }
 
 #[test]
 fn inferred_dimensions() {
-    let path = save_image(300, 500, ImageFormat::WebP);
+    let (_temp, path) = save_image(300, 500, ImageFormat::WebP);
     let webp = Image::open(path).unwrap();
 
     assert_eq!(webp.dimensions(), Size::new(300.0, 500.0));
@@ -27,9 +30,9 @@ fn inferred_dimensions() {
 
 #[test]
 fn supported_image_formats() {
-    let png_path = save_image(10, 10, ImageFormat::Png);
-    let jpeg_path = save_image(20, 20, ImageFormat::Jpeg);
-    let webp_path = save_image(30, 30, ImageFormat::WebP);
+    let (_temp, png_path) = save_image(10, 10, ImageFormat::Png);
+    let (_temp, jpeg_path) = save_image(20, 20, ImageFormat::Jpeg);
+    let (_temp, webp_path) = save_image(30, 30, ImageFormat::WebP);
 
     let png = Image::open(png_path).unwrap();
     let jpeg = Image::open(jpeg_path).unwrap();
@@ -42,7 +45,7 @@ fn supported_image_formats() {
 
 #[test]
 fn load_from_memory() {
-    let path = save_image(10, 10, ImageFormat::Png);
+    let (_temp, path) = save_image(10, 10, ImageFormat::Png);
     let bytes = fs::read(path).unwrap();
 
     let png = Image::bytes(&bytes).unwrap();
@@ -52,7 +55,7 @@ fn load_from_memory() {
 
 #[test]
 fn unsupported_image_formats() {
-    let avif_path = save_image(30, 30, ImageFormat::Avif);
+    let (_temp, avif_path) = save_image(30, 30, ImageFormat::Avif);
     let result = Image::open(avif_path);
 
     assert!(matches!(result, Err(agape::Error::UnsupportedImageFormat)));

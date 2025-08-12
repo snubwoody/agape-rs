@@ -83,7 +83,7 @@ impl Widget for Image {
     fn layout(&self, _: &mut Renderer) -> Box<dyn Layout> {
         let layout = EmptyLayout {
             id: self.id,
-            intrinsic_size: self.style.intrinsic_size.clone(),
+            intrinsic_size: self.style.intrinsic_size,
             ..Default::default()
         };
 

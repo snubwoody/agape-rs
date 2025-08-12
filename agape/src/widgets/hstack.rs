@@ -1,6 +1,6 @@
 use crate::style::BoxStyle;
 use crate::{impl_style, widgets::Widget};
-use agape_core::{GlobalId, Position, Size};
+use agape_core::GlobalId;
 use agape_layout::{AxisAlignment, HorizontalLayout, Layout};
 use agape_renderer::Renderer;
 use tiny_skia::Pixmap;

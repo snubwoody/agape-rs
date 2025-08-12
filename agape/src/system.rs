@@ -130,18 +130,14 @@ pub fn update_cursor_position(resources: &mut Resources, event: &WindowEvent) {
 }
 
 pub fn handle_mouse_button(resources: &mut Resources, event: &WindowEvent) {
-    match event {
-        &WindowEvent::MouseInput { state, button, .. } => {
-            if state != ElementState::Pressed || button != MouseButton::Left {
-                return;
-            }
+    if let &WindowEvent::MouseInput { state, button, .. } = event {
+        if state != ElementState::Pressed || button != MouseButton::Left {
         }
-        _ => return,
     }
 }
 
 pub fn handle_key_input(resources: &mut Resources, event: &WindowEvent) {
-    if let WindowEvent::KeyboardInput { event, .. } = event {}
+    if let WindowEvent::KeyboardInput {  .. } = event {}
 }
 
 pub fn intersection_observer(resources: &mut Resources) {
