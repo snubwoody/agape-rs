@@ -1,10 +1,5 @@
 #![allow(non_snake_case)]
-use agape::widgets::{
-    LayoutDescription, LayoutType, RenderBox, RenderObject, StateTracker, Text, View, Widget,
-};
-use agape::{App, Color, GlobalId, IntoColor, Position, Rgba, Size, hstack, vstack};
-use agape_renderer::Renderer;
-use rand::random;
+use agape::{App, hstack, vstack, widgets::*};
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();

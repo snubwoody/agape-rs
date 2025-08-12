@@ -32,8 +32,8 @@
 
 use crate::Resources;
 use crate::resources::{CursorPosition, EventQueue, WindowSize};
-use crate::widgets::{RenderBox, StateTracker, View, Widget, WidgetEvent, WidgetState};
-use agape_core::{Bounds, Position};
+use crate::widgets::View;
+use agape_core::Position;
 use std::marker::PhantomData;
 use winit::event::{ElementState, MouseButton, WindowEvent};
 
@@ -138,41 +138,10 @@ pub fn handle_mouse_button(resources: &mut Resources, event: &WindowEvent) {
         }
         _ => return,
     }
-
-    let cursor_position: &CursorPosition = resources.get().unwrap();
-
-    let render_box = resources.get::<RenderBox>().unwrap();
-    let mut hovered = vec![];
-
-    for rb in render_box.iter() {
-        let bounds = Bounds::new(rb.position, rb.size);
-        if bounds.within(&cursor_position.0) {
-            hovered.push(rb.id());
-        }
-    }
-
-    let state_tracker = resources.get_mut::<StateTracker>().unwrap();
-    for id in &hovered {
-        state_tracker.update_state(*id, WidgetState::Clicked);
-    }
-
-    let event_queue = resources.get_mut::<Vec<WidgetEvent>>().unwrap();
-    for id in hovered {
-        event_queue.push(WidgetEvent::Clicked(id));
-    }
 }
 
 pub fn handle_key_input(resources: &mut Resources, event: &WindowEvent) {
-    if let WindowEvent::KeyboardInput { event, .. } = event {
-        let events = resources.get_mut::<Vec<WidgetEvent>>().unwrap();
-        let widget_event = WidgetEvent::KeyInput {
-            key: event.logical_key.clone(),
-            state: event.state,
-            text: event.text.clone().map(|t| t.to_string()),
-        };
-
-        events.push(widget_event);
-    }
+    if let WindowEvent::KeyboardInput { event, .. } = event {}
 }
 
 pub fn intersection_observer(resources: &mut Resources) {

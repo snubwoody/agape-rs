@@ -35,7 +35,6 @@ pub use resources::Resources;
 use resources::{CursorPosition, EventQueue, WindowSize};
 use system::{IntoSystem, System, *};
 use widgets::Widget;
-use widgets::{RenderBox, StateTracker, WidgetEvent};
 
 use crate::widgets::View;
 use agape_layout::solve_layout;
@@ -77,7 +76,7 @@ impl App<'_> {
     /// Create a new app.
     pub fn new(root: impl View + 'static) -> Self {
         let widget = root.view();
-        let mut renderer = Renderer::new();
+        let renderer = Renderer::new();
 
         let view: Box<dyn View> = Box::new(root);
         // TODO: test these
@@ -85,9 +84,7 @@ impl App<'_> {
         resources.insert(view);
         resources.insert(CursorPosition::default());
         resources.insert(WindowSize::default());
-        resources.insert(EventQueue::new());
         resources.insert(widget);
-        resources.insert::<Vec<WidgetEvent>>(Vec::new());
 
         Self {
             event_queue: EventQueue::new(),
@@ -216,29 +213,5 @@ impl ApplicationHandler for App<'_> {
         }
 
         self.event_queue.clear();
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    use crate::widgets::Rect;
-
-    #[test]
-    fn widget_hover_system() {
-        let rect = Rect::new().fixed(100.0, 100.0);
-
-        let mut renderer = Renderer::new();
-        let mut resources = Resources::new();
-        resources.insert(WindowSize(Size::unit(500.0)));
-        resources.insert(renderer);
-        resources.insert(CursorPosition(Position::unit(50.0)));
-        resources.insert::<Vec<WidgetEvent>>(Vec::new());
-
-        layout_system(&mut resources);
-        intersection_observer(&mut resources);
-
-        let events: &Vec<WidgetEvent> = resources.get().unwrap();
-        assert!(events.contains(&WidgetEvent::Hovered(rect.id())));
     }
 }
