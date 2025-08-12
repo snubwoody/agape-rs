@@ -7,10 +7,12 @@ use agape_renderer::Renderer;
 use tiny_skia::Pixmap;
 
 /// A widget that wraps another widget.
+#[derive(Clone, PartialEq)]
 pub struct Container<W> {
     id: GlobalId,
     child: W,
     style: BoxStyle,
+    padding: u32,
 }
 
 impl<W> Container<W> {
@@ -19,7 +21,13 @@ impl<W> Container<W> {
             id: GlobalId::new(),
             style: BoxStyle::new(),
             child,
+            padding: 0,
         }
+    }
+
+    pub fn padding(mut self, padding: u32) -> Self {
+        self.padding = padding;
+        self
     }
 
     impl_style!();
@@ -34,6 +42,7 @@ impl<W: Widget> Widget for Container<W> {
         let child = self.child.layout(renderer);
         let mut layout = BlockLayout::new(child);
         layout.id = self.id;
+        layout.padding = self.padding;
         layout.intrinsic_size = self.style.intrinsic_size;
         Box::new(layout)
     }
@@ -56,7 +65,7 @@ impl<W: Widget> Widget for Container<W> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::widgets::Rect;
+    use crate::widgets::{Rect, Text};
     use agape_core::{Color, Size};
     use agape_layout::solve_layout;
 
