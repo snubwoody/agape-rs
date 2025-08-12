@@ -37,6 +37,7 @@ use system::{IntoSystem, System, *};
 use widgets::Widget;
 use widgets::{RenderBox, StateTracker, WidgetEvent};
 
+use crate::widgets::View;
 use pixels::{Pixels, SurfaceTexture};
 use std::sync::Arc;
 use tiny_skia::Pixmap;
@@ -67,25 +68,28 @@ pub struct App<'app> {
     resources: Resources,
     event_queue: EventQueue,
     systems: Vec<Box<dyn System>>,
+    renderer: Renderer,
 }
 
 impl App<'_> {
     /// Create a new app.
-    pub fn new(widget: impl Widget + 'static) -> Self {
+    pub fn new(root: impl View + 'static) -> Self {
+        let widget = root.view();
         let mut renderer = Renderer::new();
-        let widget: Box<dyn Widget> = Box::new(widget);
+        // let widget: Box<dyn Widget> = Box::new(widget);
         let render_box = widget.build(&mut renderer);
         let state_tracker = StateTracker::new(&render_box);
 
+        let view: Box<dyn View> = Box::new(root);
         // TODO: test these
         let mut resources = Resources::new();
         resources.insert(state_tracker);
+        resources.insert(view);
         resources.insert(render_box);
         resources.insert(CursorPosition::default());
         resources.insert(WindowSize::default());
         resources.insert(EventQueue::new());
         resources.insert(widget);
-        resources.insert(renderer);
         resources.insert::<Vec<WidgetEvent>>(Vec::new());
 
         Self {
@@ -95,6 +99,7 @@ impl App<'_> {
             pixels: None,
             systems: Vec::new(),
             resources,
+            renderer,
         }
     }
 
@@ -119,19 +124,19 @@ impl App<'_> {
     }
 
     fn render(&mut self) {
+        // root.view().render();
         // This is very much a hack
-        let render_box = self.resources.get_owned::<RenderBox>().unwrap();
-        let renderer = self.resources.get_mut::<Renderer>().unwrap();
+        let widget = self.resources.get::<Box<dyn Widget>>().unwrap();
+        let render_box = widget.build(&mut self.renderer);
 
         let pixels = self.pixels.as_mut().unwrap();
         let pixmap = self.pixmap.as_mut().unwrap();
         pixmap.fill(tiny_skia::Color::WHITE);
 
-        render_box.render(pixmap, renderer);
+        render_box.render(pixmap, &mut self.renderer);
 
         pixels.frame_mut().copy_from_slice(pixmap.data());
         pixels.render().unwrap();
-        self.resources.insert(render_box);
     }
 
     /// Run the app.

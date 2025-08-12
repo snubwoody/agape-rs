@@ -32,7 +32,7 @@
 
 use crate::Resources;
 use crate::resources::{CursorPosition, EventQueue, WindowSize};
-use crate::widgets::{RenderBox, StateTracker, Widget, WidgetEvent, WidgetState};
+use crate::widgets::{RenderBox, StateTracker, View, Widget, WidgetEvent, WidgetState};
 use agape_core::{Bounds, Position};
 use std::marker::PhantomData;
 use winit::event::{ElementState, MouseButton, WindowEvent};
@@ -117,7 +117,11 @@ pub fn update_widgets(resources: &mut Resources) {
 }
 
 pub fn rebuild_widgets(resources: &mut Resources) {
-    let _widget = resources.get::<Box<dyn Widget>>().unwrap();
+    let view = resources.get_mut::<Box<dyn View>>().unwrap();
+    view.update();
+    let widget = view.view();
+    resources.insert(widget);
+    // let _widget = resources.get::<Box<dyn Widget>>().unwrap();
     // FIXME: rebuild widgets
     // let render_box = widget.build(renderer);
     // resources.set(render_box);

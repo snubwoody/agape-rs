@@ -2,6 +2,27 @@
 use agape::{App, widgets::*};
 
 fn main() {
-    let widget = Container::new(Text::new("Hello world"));
-    App::new(widget).run().unwrap()
+    App::new(TextBox::new("Hi")).run().unwrap()
+}
+
+struct TextBox {
+    text: String,
+}
+
+impl TextBox {
+    pub fn new(text: &str) -> TextBox {
+        Self {
+            text: String::from(text),
+        }
+    }
+}
+
+impl View for TextBox {
+    fn update(&mut self) {
+        self.text.push('a');
+    }
+
+    fn view(&self) -> Box<dyn Widget> {
+        Box::new(Text::new("Hello world"))
+    }
 }

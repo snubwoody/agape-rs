@@ -35,6 +35,13 @@ pub use vstack::*;
 use winit::event::ElementState;
 use winit::keyboard;
 
+pub trait View {
+    fn update(&mut self) {}
+
+    fn view(&self) -> Box<dyn Widget>;
+}
+
+// TODO: only use layout from built in widgets
 pub trait Widget {
     /// Get the `id` of the [`Widget`]
     fn id(&self) -> GlobalId;
@@ -69,6 +76,7 @@ pub trait Widget {
         self.traverse_mut(&mut |child| child.update(state));
     }
 
+    fn view(&self) {}
     /// Runs every frame.
     fn update(&mut self, _state: &StateTracker) {}
 
@@ -76,6 +84,8 @@ pub trait Widget {
     fn hover(&mut self) {}
 
     fn build(&self, _: &mut Renderer) -> RenderBox;
+
+    fn render(&self) {}
 
     fn key_input(&mut self, _key: &keyboard::Key, _state: &ElementState, _text: &Option<String>) {}
 }
