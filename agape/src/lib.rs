@@ -129,7 +129,7 @@ impl App<'_> {
         // This is very much a hack
         let widget = self.resources.get::<Box<dyn Widget>>().unwrap();
         let WindowSize(window_size) = self.resources.get::<WindowSize>().unwrap();
-        let mut layout = widget.layout();
+        let mut layout = widget.layout(&mut self.renderer);
         solve_layout(&mut *layout, *window_size);
 
         let pixels = self.pixels.as_mut().unwrap();

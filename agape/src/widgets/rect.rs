@@ -27,7 +27,7 @@ impl Widget for Rect {
         self.id
     }
 
-    fn layout(&self) -> Box<dyn Layout> {
+    fn layout(&self, _: &mut Renderer) -> Box<dyn Layout> {
         let layout = EmptyLayout {
             id: self.id,
             intrinsic_size: self.style.intrinsic_size,

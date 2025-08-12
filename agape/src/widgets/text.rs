@@ -1,7 +1,9 @@
 use super::{LayoutDescription, RenderBox, RenderObject, Widget};
 use agape_core::Color;
 use agape_core::{GlobalId, Position, Size};
+use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
 use agape_renderer::Renderer;
+use tiny_skia::Pixmap;
 
 /// Draw text onto the screen.
 ///
@@ -9,8 +11,7 @@ use agape_renderer::Renderer;
 #[derive(Clone, PartialEq, Debug)]
 pub struct Text {
     id: GlobalId,
-    // TODO: rename to inner or content
-    pub text: String,
+    pub value: String,
     pub font_size: u8,
 }
 
@@ -18,7 +19,7 @@ impl Default for Text {
     fn default() -> Text {
         Text {
             id: GlobalId::new(),
-            text: String::new(),
+            value: String::new(),
             font_size: 16,
         }
     }
@@ -27,7 +28,7 @@ impl Default for Text {
 impl Text {
     pub fn new(text: &str) -> Self {
         Self {
-            text: text.to_owned(),
+            value: text.to_owned(),
             ..Default::default()
         }
     }
@@ -47,8 +48,24 @@ impl Text {
 }
 
 impl Widget for Text {
+    fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
+        let size = renderer.text_size(&self.value, self.font_size as f32);
+        let layout = EmptyLayout {
+            id: self.id,
+            intrinsic_size: IntrinsicSize::from(size),
+            ..Default::default()
+        };
+        Box::new(layout)
+    }
+
+    fn render(&self, pixmap: &mut Pixmap, renderer: &mut Renderer, layout: Box<dyn Layout>) {
+        let layout = layout.get(self.id).unwrap();
+        let position = layout.position();
+        renderer.draw_text(pixmap, &self.value, self.font_size as f32, position)
+    }
+
     fn build(&self, renderer: &mut Renderer) -> RenderBox {
-        let text_size = renderer.text_size(&self.text, self.font_size as f32);
+        let text_size = renderer.text_size(&self.value, self.font_size as f32);
         RenderBox {
             id: self.id,
             layout_desc: LayoutDescription {
@@ -59,7 +76,7 @@ impl Widget for Text {
             position: Position::default(),
             size: Size::default(),
             render_object: RenderObject::Text {
-                content: self.text.clone(),
+                content: self.value.clone(),
                 font_size: self.font_size,
                 color: Color::BLACK,
             },

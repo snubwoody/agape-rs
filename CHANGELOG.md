@@ -28,6 +28,7 @@ All notable changes to agape will be documented in this file.
 
 - Removed views, rendering is done through functions now.
 - Removed widget iterators
+- Removed `Button` widget.
 
 ## 0.2.0 - 2025-07-17
 

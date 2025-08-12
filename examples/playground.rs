@@ -1,5 +1,5 @@
 // Playground example, not intended for serious use.
-use agape::{App, Color, widgets::*};
+use agape::{App, widgets::*};
 
 fn main() {
     App::new(RectBox::default()).run().unwrap()
@@ -19,6 +19,6 @@ impl View for RectBox {
 
     fn view(&self) -> Box<dyn Widget> {
         let bytes = include_bytes!("assets/PARTYNEXTDOOR Album Cover.jpg");
-        Box::new(Image::bytes(bytes).unwrap().fill())
+        Box::new(Text::new("Hello world"))
     }
 }

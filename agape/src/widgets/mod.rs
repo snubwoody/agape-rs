@@ -1,7 +1,6 @@
 //! [`Widget`]'s describe what you want to present onto the screen. Agape tries to provide
 //! as many [`Widget`]'s as possible for various uses such as [`Text`],[`Button`],[`HStack`]
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
-mod button;
 mod container;
 mod hstack;
 pub mod image;
@@ -18,7 +17,6 @@ use agape_layout::{
     VerticalLayout, solve_layout,
 };
 use agape_renderer::Renderer;
-pub use button::Button;
 pub use container::Container;
 pub use hstack::*;
 pub use image::Image;
@@ -83,7 +81,7 @@ pub trait Widget {
 
     fn build(&self, _: &mut Renderer) -> RenderBox;
 
-    fn layout(&self) -> Box<dyn Layout> {
+    fn layout(&self, _: &mut Renderer) -> Box<dyn Layout> {
         todo!()
     }
 
