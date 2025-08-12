@@ -44,6 +44,9 @@ pub struct App<'app> {
     event_queue: EventQueue,
     systems: Vec<Box<dyn System>>,
     renderer: Renderer,
+    view: Box<dyn View>,
+    window_size: Size,
+    messages: Vec<Message>,
 }
 
 impl App<'_> {
@@ -51,14 +54,14 @@ impl App<'_> {
     pub fn new(root: impl View + 'static) -> Self {
         let widget = root.view();
         let renderer = Renderer::new();
-
+        let queue: Vec<Message> = Vec::new();
         let view: Box<dyn View> = Box::new(root);
         // TODO: test these
         let mut resources = Resources::new();
-        resources.insert(view);
         resources.insert(CursorPosition::default());
         resources.insert(WindowSize::default());
         resources.insert(widget);
+        resources.insert(queue);
 
         Self {
             event_queue: EventQueue::new(),
@@ -68,6 +71,9 @@ impl App<'_> {
             systems: Vec::new(),
             resources,
             renderer,
+            view,
+            messages: Vec::new(),
+            window_size: Size::default(),
         }
     }
 
@@ -78,8 +84,11 @@ impl App<'_> {
     }
 
     fn render(&mut self) {
+        for message in self.messages.drain(..) {
+            self.view.update(&message);
+        }
         // This is very much a hack
-        let widget = self.resources.get::<Box<dyn Widget>>().unwrap();
+        let widget = self.view.view();
         let WindowSize(window_size) = self.resources.get::<WindowSize>().unwrap();
         let mut layout = widget.layout(&mut self.renderer);
         solve_layout(&mut *layout, *window_size);
@@ -167,11 +176,21 @@ impl ApplicationHandler for App<'_> {
 
                 let pixmap = Pixmap::new(size.width, size.height).unwrap();
                 self.pixmap = Some(pixmap);
+                self.window_size = Size::from(size);
                 self.resources.get_mut::<WindowSize>().unwrap().0 = Size::from(size);
+            }
+            WindowEvent::CursorMoved { position, .. } => {
+                let pos: Position = position.into();
+                self.messages.push(Message::MouseMoved(pos))
             }
             _ => {}
         }
 
         self.event_queue.clear();
     }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+pub enum Message {
+    MouseMoved(Position),
 }

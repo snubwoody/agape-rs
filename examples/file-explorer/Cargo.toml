@@ -8,9 +8,8 @@ publish = false
 
 [dependencies]
 agape = { path = "../../agape" }
-agape_renderer.workspace = true
 tracing-subscriber = "0.3.19"
-rand = "0.9.1"
+tracing.workspace = true
 
 [lints]
 workspace = true

@@ -1,11 +1,12 @@
 //! Systems are stored procedures that run every frame.
 //! They have a `&mut` to the global [`Resources`] allowing it to be modified.
+
+mod internal;
+
 use crate::Resources;
-use crate::resources::{CursorPosition, EventQueue, WindowSize};
-use crate::widgets::View;
-use agape_core::Position;
+use crate::resources::EventQueue;
+pub(crate) use internal::*;
 use std::marker::PhantomData;
-use winit::event::{ElementState, MouseButton, WindowEvent};
 
 /// A [`System`] is a stored procedure.
 pub trait System {
@@ -76,42 +77,4 @@ where
             (self.f)(resources, event);
         }
     }
-}
-
-// TODO: make these internal, probably move them to another module
-
-pub fn rebuild_widgets(resources: &mut Resources) {
-    let view = resources.get_mut::<Box<dyn View>>().unwrap();
-    view.update();
-    let widget = view.view();
-    resources.set(widget);
-}
-
-pub fn layout_system(resources: &mut Resources) {
-    // FIXME
-    let WindowSize(_) = resources.get_owned::<WindowSize>().unwrap();
-}
-
-pub fn update_cursor_position(resources: &mut Resources, event: &WindowEvent) {
-    if let WindowEvent::CursorMoved { position, .. } = event {
-        let cursor_position = resources.get_mut::<CursorPosition>().unwrap();
-        cursor_position.0 = Position::from(*position);
-    }
-}
-
-pub fn handle_mouse_button(_resources: &mut Resources, event: &WindowEvent) {
-    if let &WindowEvent::MouseInput { state, button, .. } = event {
-        if state != ElementState::Pressed || button != MouseButton::Left {
-            return;
-        }
-        dbg!(&state, &button);
-    }
-}
-
-pub fn handle_key_input(_: &mut Resources, event: &WindowEvent) {
-    if let WindowEvent::KeyboardInput { .. } = event {}
-}
-
-pub fn intersection_observer(_: &mut Resources) {
-    // FIXME
 }
