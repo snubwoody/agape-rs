@@ -22,6 +22,7 @@ use agape_layout::{Layout, solve_layout};
 use pixels::{Pixels, SurfaceTexture};
 use std::sync::Arc;
 use tiny_skia::Pixmap;
+use winit::event::{ElementState, MouseButton};
 use winit::event_loop::ActiveEventLoop;
 use winit::{
     application::ApplicationHandler,
@@ -39,7 +40,6 @@ pub struct App<'app> {
     pixmap: Option<Pixmap>,
     renderer: Renderer,
     view: Box<dyn View>,
-    window_size: Size,
     messages: Vec<Message>,
     state: State,
 }
@@ -64,11 +64,26 @@ impl App<'_> {
             window: None,
             pixmap: None,
             pixels: None,
-            window_size: Size::default(),
             messages: Vec::new(),
             renderer,
             view,
             state,
+        }
+    }
+
+    fn handle_event(&mut self, event: &WindowEvent) {
+        match event {
+            WindowEvent::MouseInput { state, button, .. } => {
+                if *button != MouseButton::Left {
+                    return;
+                }
+
+                match state {
+                    ElementState::Pressed => self.messages.push(Message::MouseButtonDown),
+                    ElementState::Released => self.messages.push(Message::MouseButtonUp),
+                }
+            }
+            _ => {}
         }
     }
 
@@ -79,7 +94,7 @@ impl App<'_> {
         // This is very much a hack
         let widget = self.view.view();
         let mut layout = widget.layout(&mut self.renderer);
-        solve_layout(&mut *layout, self.window_size);
+        solve_layout(&mut *layout, self.state.window_size);
 
         let pixels = self.pixels.as_mut().unwrap();
         let pixmap = self.pixmap.as_mut().unwrap();
@@ -150,14 +165,14 @@ impl ApplicationHandler for App<'_> {
 
                 let pixmap = Pixmap::new(size.width, size.height).unwrap();
                 self.pixmap = Some(pixmap);
-                self.window_size = Size::from(size);
+                self.state.window_size = Size::from(size);
             }
             WindowEvent::CursorMoved { position, .. } => {
                 let pos: Position = position.into();
                 self.state.update_cursor_pos(pos);
                 self.messages.push(Message::MouseMoved(pos))
             }
-            _ => {}
+            event => self.handle_event(&event),
         }
     }
 }
@@ -165,6 +180,7 @@ impl ApplicationHandler for App<'_> {
 #[derive(Debug)]
 pub struct State {
     cursor_position: Position,
+    window_size: Size,
     layout: Box<dyn Layout>,
 }
 
@@ -172,6 +188,7 @@ impl State {
     pub fn new(layout: Box<dyn Layout>) -> Self {
         Self {
             cursor_position: Position::default(),
+            window_size: Size::default(),
             layout,
         }
     }
@@ -200,4 +217,58 @@ impl State {
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub enum Message {
     MouseMoved(Position),
+    MouseButtonDown,
+    MouseButtonUp,
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::widgets::*;
+    use winit::event::DeviceId;
+
+    struct DummyView;
+
+    impl View for DummyView {
+        fn view(&self) -> Box<dyn Widget> {
+            Box::new(Text::new(""))
+        }
+    }
+
+    #[test]
+    fn mouse_button() {
+        let mut app = App::new(DummyView);
+        let mouse_down = WindowEvent::MouseInput {
+            state: ElementState::Pressed,
+            button: MouseButton::Left,
+            device_id: DeviceId::dummy(),
+        };
+        let mouse_up = WindowEvent::MouseInput {
+            state: ElementState::Released,
+            button: MouseButton::Left,
+            device_id: DeviceId::dummy(),
+        };
+        app.handle_event(&mouse_down);
+        app.handle_event(&mouse_up);
+        assert_eq!(app.messages[0], Message::MouseButtonDown);
+        assert_eq!(app.messages[1], Message::MouseButtonUp);
+    }
+
+    #[test]
+    fn ignore_other_buttons() {
+        let mut app = App::new(DummyView);
+        let mouse_down = WindowEvent::MouseInput {
+            state: ElementState::Pressed,
+            button: MouseButton::Middle,
+            device_id: DeviceId::dummy(),
+        };
+        let mouse_up = WindowEvent::MouseInput {
+            state: ElementState::Released,
+            button: MouseButton::Right,
+            device_id: DeviceId::dummy(),
+        };
+        app.handle_event(&mouse_down);
+        app.handle_event(&mouse_up);
+        assert!(app.messages.is_empty());
+    }
 }

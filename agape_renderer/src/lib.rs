@@ -127,6 +127,8 @@ impl Renderer {
         font_size: f32,
         position: Position,
     ) {
+        let text_size = self.text_size(text, font_size);
+
         let font_system = &mut self.font_system;
         let swash_cache = &mut self.swash_cache;
         let metrics = Metrics::new(font_size, font_size);
@@ -136,12 +138,13 @@ impl Renderer {
         buffer.set_text(text, &attrs, Shaping::Advanced);
         buffer.shape_until_scroll(true);
 
+        // TODO: add clippy lint for conversion
         let text_color = cosmic_text::Color::rgb(0, 0, 0);
-        let mut image = RgbaImage::new(200, 200);
+        let mut image = RgbaImage::new(text_size.width as u32, text_size.height as u32);
         let size = IntSize::from_wh(image.width(), image.height()).unwrap();
         buffer.draw(swash_cache, text_color, |x, y, _, _, color| {
             let [r, g, b, a] = color.as_rgba();
-            image.put_pixel(x as u32, y as u32, image::Rgba([r, g, b, a]));
+            image.put_pixel(x.max(0) as u32, y as u32, image::Rgba([r, g, b, a]));
         });
         let glyph_pixmap = Pixmap::from_vec(image.to_vec(), size).unwrap();
         let Position { x, y } = position;
