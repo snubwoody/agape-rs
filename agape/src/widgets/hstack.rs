@@ -92,20 +92,6 @@ impl Widget for HStack {
         self.id
     }
 
-    fn traverse(&self, f: &mut dyn FnMut(&dyn Widget)) {
-        for child in &self.children {
-            f(child.as_ref());
-            child.traverse(f);
-        }
-    }
-
-    fn traverse_mut(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
-        for child in &mut self.children {
-            f(child.as_mut());
-            child.traverse_mut(f);
-        }
-    }
-
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
         let children: Vec<Box<dyn Layout>> =
             self.children.iter().map(|w| w.layout(renderer)).collect();
@@ -137,34 +123,6 @@ impl Widget for HStack {
         self.children
             .iter()
             .for_each(|child| child.render(pixmap, renderer, layout));
-    }
-
-    fn build(&self, renderer: &mut Renderer) -> RenderBox {
-        let children = self.children.iter().map(|w| w.build(renderer)).collect();
-
-        // FIXME: use style and test
-        let layout_desc = LayoutDescription {
-            padding: self.layout.padding,
-            spacing: self.layout.spacing,
-            intrinsic_size: self.layout.intrinsic_size,
-            cross_axis_alignment: self.layout.cross_axis_alignment,
-            main_axis_alignment: self.layout.main_axis_alignment,
-            layout_type: LayoutType::HorizontalLayout,
-        };
-
-        let render_object = RenderObject::Rect {
-            color: self.style.background_color.clone(),
-            border: self.style.border.clone(),
-        };
-
-        RenderBox {
-            id: self.id,
-            position: Position::default(),
-            size: Size::default(),
-            render_object,
-            children,
-            layout_desc,
-        }
     }
 }
 
@@ -221,27 +179,6 @@ macro_rules! hstack {
 mod test {
     use super::*;
     use crate::widgets::{Rect, Text};
-
-    #[test]
-    fn traverse_children() {
-        let mut hstack = hstack! {
-            Text::new("Hello"),
-            Text::new("Hello"),
-            Text::new("Hello"),
-        };
-
-        let mut length = 0;
-        hstack.traverse(&mut |_| {
-            length += 1;
-        });
-        assert_eq!(length, 3);
-
-        hstack.traverse_mut(&mut |_| {
-            length += 1;
-        });
-
-        assert_eq!(length, 6);
-    }
 
     #[test]
     fn hstack_expansion() {

@@ -64,25 +64,6 @@ impl Widget for Text {
         renderer.draw_text(pixmap, &self.value, self.font_size as f32, position)
     }
 
-    fn build(&self, renderer: &mut Renderer) -> RenderBox {
-        let text_size = renderer.text_size(&self.value, self.font_size as f32);
-        RenderBox {
-            id: self.id,
-            layout_desc: LayoutDescription {
-                intrinsic_size: text_size.into(),
-                ..Default::default()
-            },
-            children: Vec::new(),
-            position: Position::default(),
-            size: Size::default(),
-            render_object: RenderObject::Text {
-                content: self.value.clone(),
-                font_size: self.font_size,
-                color: Color::BLACK,
-            },
-        }
-    }
-
     fn id(&self) -> GlobalId {
         self.id
     }

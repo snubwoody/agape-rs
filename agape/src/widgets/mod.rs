@@ -37,58 +37,13 @@ pub trait View {
     fn view(&self) -> Box<dyn Widget>;
 }
 
-// TODO: only use layout from built in widgets
 pub trait Widget {
     /// Get the `id` of the [`Widget`]
     fn id(&self) -> GlobalId;
 
-    /// Walk the widget tree recursively, from the root widget
-    /// down to the last widget in the tree.
-    fn traverse(&self, _f: &mut dyn FnMut(&dyn Widget)) {}
-    fn traverse_mut(&mut self, _f: &mut dyn FnMut(&mut dyn Widget)) {}
-
-    fn handle_event(&mut self, event: &WidgetEvent) {
-        match event {
-            WidgetEvent::Hovered(id) => {
-                if id == &self.id() {
-                    self.hover();
-                }
-            }
-            WidgetEvent::Clicked(id) => {
-                if id == &self.id() {
-                    self.click();
-                }
-            }
-            WidgetEvent::KeyInput { key, state, text } => {
-                self.key_input(key, state, text);
-            }
-        }
-
-        self.traverse_mut(&mut |child| child.handle_event(event));
-    }
-
-    fn tick(&mut self, state: &StateTracker) {
-        self.update(state);
-        self.traverse_mut(&mut |child| child.update(state));
-    }
-
-    fn view(&self) {}
-    /// Runs every frame.
-    fn update(&mut self, _state: &StateTracker) {}
-
-    fn click(&mut self) {}
-    fn hover(&mut self) {}
-
-    fn build(&self, _: &mut Renderer) -> RenderBox;
-
-    fn layout(&self, _: &mut Renderer) -> Box<dyn Layout> {
-        todo!()
-    }
-
+    fn layout(&self, _: &mut Renderer) -> Box<dyn Layout>;
     /// Draw the widget to the screen.
     fn render(&self, _: &mut Pixmap, _: &mut Renderer, _: &dyn Layout) {}
-
-    fn key_input(&mut self, _key: &keyboard::Key, _state: &ElementState, _text: &Option<String>) {}
 }
 
 #[derive(Clone, PartialEq, Debug)]

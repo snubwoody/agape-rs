@@ -98,20 +98,6 @@ impl Widget for Svg {
         let position = layout.position();
         renderer.draw_svg(pixmap, &self.data, position, size);
     }
-
-    fn build(&self, _: &mut Renderer) -> RenderBox {
-        let size = self.data.size();
-        let object = RenderObject::Svg(self.data.clone());
-        let description = LayoutDescription {
-            intrinsic_size: IntrinsicSize {
-                width: BoxSizing::Fixed(size.width()),
-                height: BoxSizing::Fixed(size.height()),
-            },
-            ..Default::default()
-        };
-
-        RenderBox::new(self.id, description, object)
-    }
 }
 
 #[cfg(test)]

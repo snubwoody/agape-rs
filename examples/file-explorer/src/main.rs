@@ -23,11 +23,11 @@ impl View for Home {
         hstack!{
             Sidebar(),
             vstack!{
-                Dir::new("IMPORTANT!"),
-                Dir::new("Bank documents"),
-                Dir::new("Work"),
-                Dir::new("Taxes"),
-                Dir::new("Taxes.docx"),
+                Text::new("IMPORTANT!"),
+                Text::new("Bank documents"),
+                Text::new("Work"),
+                Text::new("Taxes"),
+                Text::new("Taxes.docx"),
             }
             .spacing(12)
         },
@@ -58,63 +58,5 @@ fn QuickAccess() -> impl Widget {
 fn Drives() -> impl Widget {
     vstack! {
         Text::new("This PC"),
-    }
-}
-
-struct Dir {
-    id: GlobalId,
-    text: Text,
-    color: Color<Rgba>,
-}
-
-impl Dir {
-    pub fn new(name: &str) -> Self {
-        Self {
-            id: GlobalId::new(),
-            text: Text::new(name),
-            color: Color::default(),
-        }
-    }
-}
-
-impl Widget for Dir {
-    fn id(&self) -> GlobalId {
-        self.id
-    }
-
-    fn traverse(&self, f: &mut dyn FnMut(&dyn Widget)) {
-        f(&self.text);
-        self.text.traverse(f);
-    }
-
-    fn traverse_mut(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
-        f(&mut self.text);
-        self.text.traverse_mut(f);
-    }
-
-    fn update(&mut self, _state: &StateTracker) {
-        let value: u8 = random();
-        self.color = value.into_color();
-    }
-
-    fn build(&self, renderer: &mut Renderer) -> RenderBox {
-        let child = self.text.build(renderer);
-
-        let layout_desc = LayoutDescription {
-            layout_type: LayoutType::BlockLayout,
-            ..Default::default()
-        };
-
-        RenderBox {
-            id: self.id,
-            children: vec![child],
-            position: Position::default(),
-            size: Size::default(),
-            layout_desc,
-            render_object: RenderObject::Rect {
-                border: None,
-                color: self.color.clone(),
-            },
-        }
     }
 }

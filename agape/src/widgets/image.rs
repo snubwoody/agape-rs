@@ -89,24 +89,11 @@ impl Widget for Image {
 
         Box::new(layout)
     }
+
     fn render(&self, pixmap: &mut Pixmap, renderer: &mut Renderer, layout: &dyn Layout) {
         let layout = layout.get(self.id()).unwrap();
         let size = layout.size();
         let position = layout.position();
         renderer.draw_image(pixmap, &self.data, position, size);
-    }
-
-    fn build(&self, _: &mut Renderer) -> RenderBox {
-        let layout_desc = LayoutDescription {
-            intrinsic_size: self.style.intrinsic_size,
-            layout_type: LayoutType::EmptyLayout,
-            ..Default::default()
-        };
-
-        let render_object = RenderObject::Image {
-            image: self.data.clone(),
-        };
-
-        RenderBox::new(self.id, layout_desc, render_object)
     }
 }

@@ -110,28 +110,16 @@ where
 
 // TODO: make these internal, probably move them to another module
 
-pub fn update_widgets(resources: &mut Resources) {
-    let state = resources.get_owned::<StateTracker>().unwrap();
-    let widget = resources.get_mut::<Box<dyn Widget>>().unwrap();
-    widget.tick(&state);
-}
-
 pub fn rebuild_widgets(resources: &mut Resources) {
     let view = resources.get_mut::<Box<dyn View>>().unwrap();
     view.update();
     let widget = view.view();
     resources.set(widget);
-    // let _widget = resources.get::<Box<dyn Widget>>().unwrap();
-    // FIXME: rebuild widgets
-    // let render_box = widget.build(renderer);
-    // resources.set(render_box);
 }
 
 pub fn layout_system(resources: &mut Resources) {
+    // FIXME
     let WindowSize(size) = resources.get_owned::<WindowSize>().unwrap();
-
-    let render_box = resources.get_mut::<RenderBox>().unwrap();
-    render_box.solve_layout(size);
 }
 
 pub fn update_cursor_position(resources: &mut Resources, event: &WindowEvent) {
@@ -188,48 +176,6 @@ pub fn handle_key_input(resources: &mut Resources, event: &WindowEvent) {
 }
 
 pub fn intersection_observer(resources: &mut Resources) {
+    // FIXME
     let cursor_pos = resources.get::<CursorPosition>().unwrap();
-    let render_box = resources.get::<RenderBox>().unwrap();
-    let mut hovered = vec![];
-    let mut not_hovered = vec![];
-
-    for rb in render_box.iter() {
-        let bounds = Bounds::new(rb.position, rb.size);
-        if bounds.within(&cursor_pos.0) {
-            hovered.push(rb.id());
-        } else {
-            not_hovered.push(rb.id());
-        }
-    }
-
-    let state = resources.get_mut::<StateTracker>().unwrap();
-    for id in &hovered {
-        state.update_state(*id, WidgetState::Hovered);
-    }
-
-    for id in &not_hovered {
-        state.update_state(*id, WidgetState::Resting);
-    }
-
-    let state = resources.get::<StateTracker>().unwrap();
-    let mut events = vec![];
-    for id in &hovered {
-        if state.previous_state(*id).unwrap() == &WidgetState::Resting {
-            events.push(WidgetEvent::Hovered(*id));
-        }
-    }
-
-    let widget_events: &mut Vec<WidgetEvent> = resources.get_mut().unwrap();
-    widget_events.extend(events);
-}
-
-pub fn handle_widget_event(resources: &mut Resources) {
-    let events: Vec<WidgetEvent> = resources.get_owned().unwrap();
-    let widget: &mut Box<dyn Widget> = resources.get_mut().unwrap();
-
-    for event in events {
-        widget.handle_event(&event);
-    }
-
-    resources.get_mut::<Vec<WidgetEvent>>().unwrap().clear();
 }

@@ -49,26 +49,4 @@ impl Widget for Rect {
             self.style.border.clone(),
         );
     }
-
-    fn build(&self, _: &mut Renderer) -> RenderBox {
-        let layout_desc = LayoutDescription {
-            intrinsic_size: self.style.intrinsic_size,
-            layout_type: LayoutType::EmptyLayout,
-            ..Default::default()
-        };
-
-        let render_object = RenderObject::Rect {
-            color: self.style.background_color.clone(),
-            border: self.style.border.clone(),
-        };
-
-        RenderBox {
-            id: self.id,
-            size: Size::default(),
-            position: Position::default(),
-            children: Vec::new(),
-            layout_desc,
-            render_object,
-        }
-    }
 }

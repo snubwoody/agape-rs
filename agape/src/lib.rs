@@ -78,16 +78,11 @@ impl App<'_> {
     pub fn new(root: impl View + 'static) -> Self {
         let widget = root.view();
         let mut renderer = Renderer::new();
-        // let widget: Box<dyn Widget> = Box::new(widget);
-        let render_box = widget.build(&mut renderer);
-        let state_tracker = StateTracker::new(&render_box);
 
         let view: Box<dyn View> = Box::new(root);
         // TODO: test these
         let mut resources = Resources::new();
-        resources.insert(state_tracker);
         resources.insert(view);
-        resources.insert(render_box);
         resources.insert(CursorPosition::default());
         resources.insert(WindowSize::default());
         resources.insert(EventQueue::new());
@@ -156,9 +151,7 @@ impl App<'_> {
             .add_system(update_cursor_position)
             .add_system(handle_mouse_button)
             .add_system(intersection_observer)
-            .add_system(handle_key_input)
-            .add_system(update_widgets)
-            .add_system(handle_widget_event);
+            .add_system(handle_key_input);
 
         let event_loop = EventLoop::new()?;
         event_loop.set_control_flow(ControlFlow::Poll);
@@ -236,13 +229,9 @@ mod test {
         let rect = Rect::new().fixed(100.0, 100.0);
 
         let mut renderer = Renderer::new();
-        let render_box = rect.build(&mut renderer);
-        let state_tracker = StateTracker::new(&render_box);
         let mut resources = Resources::new();
-        resources.insert(state_tracker);
         resources.insert(WindowSize(Size::unit(500.0)));
         resources.insert(renderer);
-        resources.insert(render_box);
         resources.insert(CursorPosition(Position::unit(50.0)));
         resources.insert::<Vec<WidgetEvent>>(Vec::new());
 
