@@ -140,7 +140,9 @@ impl Renderer {
 
         // TODO: add clippy lint for conversion
         let text_color = cosmic_text::Color::rgb(0, 0, 0);
-        let mut image = RgbaImage::new(text_size.width as u32, text_size.height as u32);
+        let width = text_size.width.ceil() as u32;
+        let height = text_size.width.ceil() as u32;
+        let mut image = RgbaImage::new(width, height);
         let size = IntSize::from_wh(image.width(), image.height()).unwrap();
         buffer.draw(swash_cache, text_color, |x, y, _, _, color| {
             let [r, g, b, a] = color.as_rgba();
