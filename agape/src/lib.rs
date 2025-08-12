@@ -7,7 +7,6 @@ pub mod error;
 mod macros;
 pub mod resources;
 pub mod style;
-pub mod system;
 pub mod widgets;
 
 pub use agape_core::*;
@@ -17,7 +16,6 @@ pub use agape_renderer::Renderer;
 pub use error::{Error, Result};
 pub use resources::Resources;
 use resources::{CursorPosition, EventQueue, WindowSize};
-use system::{IntoSystem, System, *};
 
 use crate::widgets::View;
 use agape_layout::{Layout, solve_layout};
@@ -39,9 +37,6 @@ pub struct App<'app> {
     window: Option<Arc<Window>>,
     pixels: Option<Pixels<'app>>,
     pixmap: Option<Pixmap>,
-    resources: Resources,
-    event_queue: EventQueue,
-    systems: Vec<Box<dyn System>>,
     renderer: Renderer,
     view: Box<dyn View>,
     window_size: Size,
@@ -66,24 +61,15 @@ impl App<'_> {
         resources.insert(queue);
 
         Self {
-            event_queue: EventQueue::new(),
             window: None,
             pixmap: None,
             pixels: None,
-            systems: Vec::new(),
             window_size: Size::default(),
             messages: Vec::new(),
-            resources,
             renderer,
             view,
             state,
         }
-    }
-
-    /// Add a [`System`].
-    pub fn add_system<Input: 'static>(mut self, f: impl IntoSystem<Input> + 'static) -> Self {
-        self.systems.push(Box::new(f.into_system()));
-        self
     }
 
     fn render(&mut self) {
@@ -92,9 +78,8 @@ impl App<'_> {
         }
         // This is very much a hack
         let widget = self.view.view();
-        let WindowSize(window_size) = self.resources.get::<WindowSize>().unwrap();
         let mut layout = widget.layout(&mut self.renderer);
-        solve_layout(&mut *layout, *window_size);
+        solve_layout(&mut *layout, self.window_size);
 
         let pixels = self.pixels.as_mut().unwrap();
         let pixmap = self.pixmap.as_mut().unwrap();
@@ -114,15 +99,6 @@ impl App<'_> {
     /// because accessing windows in other threads is unsafe on
     /// certain platforms.
     pub fn run(mut self) -> Result<()> {
-        // HACK: the order is systems is fairly important but hard to test
-        self = self
-            .add_system(rebuild_widgets) // Has to be the first system
-            .add_system(layout_system) // Has to be immediately after rebuilding widgets
-            .add_system(update_cursor_position)
-            .add_system(handle_mouse_button)
-            .add_system(intersection_observer)
-            .add_system(handle_key_input);
-
         let event_loop = EventLoop::new()?;
         event_loop.set_control_flow(ControlFlow::Poll);
         event_loop.run_app(&mut self)?;
@@ -150,12 +126,6 @@ impl ApplicationHandler for App<'_> {
     }
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
-        self.event_queue.push(event.clone());
-
-        for system in self.systems.iter_mut() {
-            system.run(&mut self.resources, &self.event_queue);
-        }
-
         match event {
             WindowEvent::CloseRequested => {
                 log::info!("Exiting app");
@@ -181,7 +151,6 @@ impl ApplicationHandler for App<'_> {
                 let pixmap = Pixmap::new(size.width, size.height).unwrap();
                 self.pixmap = Some(pixmap);
                 self.window_size = Size::from(size);
-                self.resources.get_mut::<WindowSize>().unwrap().0 = Size::from(size);
             }
             WindowEvent::CursorMoved { position, .. } => {
                 let pos: Position = position.into();
@@ -190,8 +159,6 @@ impl ApplicationHandler for App<'_> {
             }
             _ => {}
         }
-
-        self.event_queue.clear();
     }
 }
 
