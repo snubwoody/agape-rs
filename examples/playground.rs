@@ -1,5 +1,5 @@
 // Playground example, not intended for serious use.
-use agape::{App, widgets::*};
+use agape::{App, Color, widgets::*};
 
 fn main() {
     App::new(RectBox::default()).run().unwrap()
@@ -18,7 +18,13 @@ impl View for RectBox {
     }
 
     fn view(&self) -> Box<dyn Widget> {
-        let bytes = include_bytes!("assets/PARTYNEXTDOOR Album Cover.jpg");
-        Box::new(Text::new("Hello world"))
+        Box::new(
+            Container::new(
+                Rect::new()
+                    .fixed(100.0, 200.0)
+                    .background_color(Color::BLACK),
+            )
+            .background_color(Color::RED),
+        )
     }
 }

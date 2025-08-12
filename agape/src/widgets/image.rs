@@ -89,7 +89,7 @@ impl Widget for Image {
 
         Box::new(layout)
     }
-    fn render(&self, pixmap: &mut Pixmap, renderer: &mut Renderer, layout: Box<dyn Layout>) {
+    fn render(&self, pixmap: &mut Pixmap, renderer: &mut Renderer, layout: &dyn Layout) {
         let layout = layout.get(self.id()).unwrap();
         let size = layout.size();
         let position = layout.position();

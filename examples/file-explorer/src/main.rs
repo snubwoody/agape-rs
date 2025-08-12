@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use agape::widgets::{
-    LayoutDescription, LayoutType, RenderBox, RenderObject, StateTracker, Text, Widget,
+    LayoutDescription, LayoutType, RenderBox, RenderObject, StateTracker, Text, View, Widget,
 };
 use agape::{App, Color, GlobalId, IntoColor, Position, Rgba, Size, hstack, vstack};
 use agape_renderer::Renderer;
@@ -8,7 +8,14 @@ use rand::random;
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
-    let main = vstack! {
+    App::new(Home).run()
+}
+
+struct Home;
+
+impl View for Home {
+    fn view(&self) -> Box<dyn Widget> {
+        let main = vstack! {
         hstack!{
             Text::new("Home"),
         }
@@ -24,9 +31,9 @@ fn main() -> agape::Result<()> {
             }
             .spacing(12)
         },
-    };
-
-    App::new(main).run()
+        };
+        Box::new(main)
+    }
 }
 
 fn Sidebar() -> impl Widget {

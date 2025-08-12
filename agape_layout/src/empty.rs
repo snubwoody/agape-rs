@@ -84,22 +84,21 @@ impl Layout for EmptyLayout {
             BoxSizing::Fixed(width) => {
                 self.constraints.min_width = width;
             }
-            BoxSizing::Flex(_) => {}
-            BoxSizing::Shrink => {}
+            _ => {}
         }
 
         match self.intrinsic_size.height {
             BoxSizing::Fixed(height) => {
                 self.constraints.min_height = height;
             }
-            BoxSizing::Flex(_) => {}
-            BoxSizing::Shrink => {}
+            _ => {}
         }
 
         (self.constraints.min_width, self.constraints.min_height)
     }
 
-    fn solve_max_constraints(&mut self, _space: Size) { /* No children to solve for */
+    fn solve_max_constraints(&mut self, _space: Size) {
+        // No children to solve for
     }
 
     fn update_size(&mut self) {

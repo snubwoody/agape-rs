@@ -136,7 +136,7 @@ impl App<'_> {
         let pixmap = self.pixmap.as_mut().unwrap();
         pixmap.fill(tiny_skia::Color::WHITE);
 
-        widget.render(pixmap, &mut self.renderer, layout);
+        widget.render(pixmap, &mut self.renderer, layout.as_ref());
 
         pixels.frame_mut().copy_from_slice(pixmap.data());
         pixels.render().unwrap();

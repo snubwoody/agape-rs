@@ -6,32 +6,6 @@ publish = false
 
 [dev-dependencies]
 agape = { path = "../agape" }
-dotenv = "0.15.0"
-
-
-[[example]]
-name = "rect"
-path = "rect.rs"
-
-[[example]]
-name = "hstack"
-path = "hstack.rs"
-
-[[example]]
-name = "vstack"
-path = "vstack.rs"
-
-[[example]]
-name = "text"
-path = "text.rs"
-
-[[example]]
-name = "button"
-path = "button.rs"
-
-[[example]]
-name = "input"
-path = "input.rs"
 
 [[example]]
 name = "playground"

@@ -86,7 +86,7 @@ pub trait Widget {
     }
 
     /// Draw the widget to the screen.
-    fn render(&self, _: &mut Pixmap, _: &mut Renderer, _: Box<dyn Layout>) {}
+    fn render(&self, _: &mut Pixmap, _: &mut Renderer, _: &dyn Layout) {}
 
     fn key_input(&mut self, _key: &keyboard::Key, _state: &ElementState, _text: &Option<String>) {}
 }

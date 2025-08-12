@@ -2,8 +2,9 @@ use crate::style::BoxStyle;
 use crate::widgets::{LayoutDescription, LayoutType, RenderBox, RenderObject};
 use crate::{impl_style, widgets::Widget};
 use agape_core::{GlobalId, Position, Size};
-use agape_layout::{AxisAlignment, VerticalLayout};
+use agape_layout::{AxisAlignment, HorizontalLayout, Layout, VerticalLayout};
 use agape_renderer::Renderer;
+use tiny_skia::Pixmap;
 
 /// A vertical stack that places its children vertically one after
 /// another.
@@ -94,6 +95,39 @@ impl Widget for VStack {
             f(child.as_mut());
             child.traverse_mut(f);
         }
+    }
+
+    fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
+        let children: Vec<Box<dyn Layout>> =
+            self.children.iter().map(|w| w.layout(renderer)).collect();
+        let layout = VerticalLayout {
+            id: self.id,
+            intrinsic_size: self.layout.intrinsic_size,
+            main_axis_alignment: self.layout.main_axis_alignment,
+            cross_axis_alignment: self.layout.cross_axis_alignment,
+            spacing: self.layout.spacing,
+            children,
+            ..Default::default()
+        };
+
+        Box::new(layout)
+    }
+
+    fn render(&self, pixmap: &mut Pixmap, renderer: &mut Renderer, layout: &dyn Layout) {
+        let layout = layout.get(self.id).unwrap();
+        let size = layout.size();
+        let position = layout.position();
+        renderer.draw_rect(
+            pixmap,
+            &self.style.background_color.clone(),
+            size,
+            position,
+            self.style.border.clone(),
+        );
+        // TODO: test this
+        self.children
+            .iter()
+            .for_each(|child| child.render(pixmap, renderer, layout));
     }
 
     fn build(&self, renderer: &mut Renderer) -> RenderBox {
