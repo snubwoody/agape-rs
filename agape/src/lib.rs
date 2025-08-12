@@ -72,18 +72,15 @@ impl App<'_> {
     }
 
     fn handle_event(&mut self, event: &WindowEvent) {
-        match event {
-            WindowEvent::MouseInput { state, button, .. } => {
-                if *button != MouseButton::Left {
-                    return;
-                }
-
-                match state {
-                    ElementState::Pressed => self.messages.push(Message::MouseButtonDown),
-                    ElementState::Released => self.messages.push(Message::MouseButtonUp),
-                }
+        if let WindowEvent::MouseInput { state, button, .. } = event {
+            if *button != MouseButton::Left {
+                return;
             }
-            _ => {}
+
+            match state {
+                ElementState::Pressed => self.messages.push(Message::MouseButtonDown),
+                ElementState::Released => self.messages.push(Message::MouseButtonUp),
+            }
         }
     }
 

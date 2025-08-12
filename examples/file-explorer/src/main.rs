@@ -1,13 +1,9 @@
-#![allow(non_snake_case)]
-
 use agape::{App, Color, Message, State, widgets::*};
 use std::fs;
 
 fn main() -> agape::Result<()> {
-    let home_dir = std::env::home_dir().unwrap();
-    dbg!(&home_dir);
     tracing_subscriber::fmt::init();
-    let home = Home::new(["Bank", "Overwatch", "Valorant", "Taxes", "School"]);
+    let home = Home::new();
     App::new(home).run()
 }
 
@@ -16,7 +12,7 @@ struct Home {
 }
 
 impl Home {
-    pub fn new(entries: impl IntoIterator<Item = &'static str>) -> Self {
+    pub fn new() -> Self {
         let home_dir = std::env::home_dir().unwrap();
         let mut directories = vec![];
         for entry in fs::read_dir(home_dir).unwrap() {
@@ -56,7 +52,7 @@ impl DirEntry {
 }
 
 impl View for DirEntry {
-    fn update(&mut self, message: &Message, state: &State) {
+    fn update(&mut self, _: &Message, state: &State) {
         let is_hovered = state.is_hovered(&self.widget.id());
         if is_hovered {
             self.widget = self
