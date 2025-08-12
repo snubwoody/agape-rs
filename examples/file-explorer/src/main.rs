@@ -1,10 +1,9 @@
-#![allow(non_snake_case)]
-
 use agape::{App, Color, Message, State, widgets::*};
+use std::fs;
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
-    let home = Home::new(["Bank", "Overwatch", "Valorant", "Taxes", "School"]);
+    let home = Home::new();
     App::new(home).run()
 }
 
@@ -13,10 +12,12 @@ struct Home {
 }
 
 impl Home {
-    pub fn new(entries: impl IntoIterator<Item = &'static str>) -> Self {
+    pub fn new() -> Self {
+        let home_dir = std::env::home_dir().unwrap();
         let mut directories = vec![];
-        for entry in entries {
-            directories.push(DirEntry::new(entry));
+        for entry in fs::read_dir(home_dir).unwrap() {
+            let title = entry.unwrap().file_name().into_string().unwrap();
+            directories.push(DirEntry::new(&title));
         }
 
         Self { directories }
