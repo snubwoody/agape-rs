@@ -4,17 +4,30 @@
 //! - `PNG`
 //! - `WebP`
 //! - `JPEG`
+
 use crate::Error::UnsupportedImageFormat;
 use crate::impl_style;
 use crate::style::BoxStyle;
-use crate::widgets::{LayoutDescription, LayoutType, RenderBox, RenderObject, Widget};
+use crate::widgets::Widget;
 use agape_core::{GlobalId, Size};
-use agape_layout::IntrinsicSize;
+use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
 use agape_renderer::Renderer;
 use image::{DynamicImage, ImageFormat, ImageReader};
+use std::fs;
+use std::io::Cursor;
 use std::path::Path;
+use tiny_skia::Pixmap;
 
 // TODO: re-export image format
+/// Displays an image to the screen. Only `JPEG`, `PNG` and `WebP` formats
+/// are currently supported.
+///
+/// # Open an image file
+/// ```no_run
+/// use agape::widgets::Image;
+///
+/// let image = Image::open("assets/standing-sprite.jpeg");
+/// ```
 pub struct Image {
     id: GlobalId,
     data: DynamicImage,
@@ -22,8 +35,16 @@ pub struct Image {
 }
 
 impl Image {
+    /// Open an image.
     pub fn open<P: AsRef<Path>>(path: P) -> crate::Result<Self> {
-        let reader = ImageReader::open(path)?.with_guessed_format()?;
+        let data = fs::read(path)?;
+        Self::bytes(&data)
+    }
+
+    /// Load an image from in-memory bytes.
+    pub fn bytes(bytes: &[u8]) -> crate::Result<Self> {
+        let buf = Cursor::new(bytes);
+        let reader = ImageReader::new(buf).with_guessed_format()?;
 
         if !matches!(
             reader.format(),
@@ -59,17 +80,20 @@ impl Widget for Image {
         self.id
     }
 
-    fn build(&self, _: &mut Renderer) -> RenderBox {
-        let layout_desc = LayoutDescription {
+    fn layout(&self, _: &mut Renderer) -> Box<dyn Layout> {
+        let layout = EmptyLayout {
+            id: self.id,
             intrinsic_size: self.style.intrinsic_size,
-            layout_type: LayoutType::EmptyLayout,
             ..Default::default()
         };
 
-        let render_object = RenderObject::Image {
-            image: self.data.clone(),
-        };
+        Box::new(layout)
+    }
 
-        RenderBox::new(self.id, layout_desc, render_object)
+    fn render(&self, pixmap: &mut Pixmap, renderer: &mut Renderer, layout: &dyn Layout) {
+        let layout = layout.get(self.id()).unwrap();
+        let size = layout.size();
+        let position = layout.position();
+        renderer.draw_image(pixmap, &self.data, position, size);
     }
 }

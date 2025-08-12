@@ -2,6 +2,32 @@
 use agape::{App, widgets::*};
 
 fn main() {
-    let widget = Container::new(Text::new("Hello world"));
-    App::new(widget).run().unwrap()
+    App::new(RectBox::new()).run().unwrap()
+}
+
+#[derive(Debug, Default)]
+struct RectBox {
+    rect: Rect,
+}
+
+impl RectBox {
+    pub fn new() -> Self {
+        Self {
+            rect: Rect::new().fixed(250.0, 250.0),
+        }
+    }
+}
+
+impl View for RectBox {
+    fn update(&mut self) {
+        // TODO:
+        // - store the container
+        // - get the layout
+        // - check the bounds
+    }
+
+    fn view(&self) -> Box<dyn Widget> {
+        // TODO: maybe return a reference
+        Box::new(self.rect.clone())
+    }
 }

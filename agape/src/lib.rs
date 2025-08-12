@@ -3,22 +3,6 @@
 //! ## Getting started
 //! To get started you'll need to create an [`App`], which is the entry point
 //! of the program, and a root [`Widget`].
-//!
-//! ```no_run
-//! use agape::{App,hstack,widgets::Text};
-//!
-//! let hstack = hstack! {
-//!     Text::new("Hello"),
-//!     Text::new("world")
-//! }
-//! .padding(12)
-//! .spacing(12)
-//! .align_center()
-//! .fill();
-//!
-//! let app = App::new(hstack);
-//! app.run().unwrap();
-//! ```
 pub mod error;
 mod macros;
 pub mod resources;
@@ -35,8 +19,9 @@ pub use resources::Resources;
 use resources::{CursorPosition, EventQueue, WindowSize};
 use system::{IntoSystem, System, *};
 use widgets::Widget;
-use widgets::{RenderBox, StateTracker, WidgetEvent};
 
+use crate::widgets::View;
+use agape_layout::solve_layout;
 use pixels::{Pixels, SurfaceTexture};
 use std::sync::Arc;
 use tiny_skia::Pixmap;
@@ -49,17 +34,8 @@ use winit::{
     window::WindowId,
 };
 
+// TODO: store the pixmap in the renderer?
 /// An `App` is a single program.
-///
-/// # Create and run an app
-/// ```no_run
-/// use agape::{App,widgets::Text};
-///
-/// let widget = Text::new("Hello world");
-/// App::new(widget)
-///     .run()
-///     .expect("Failed to run app");
-/// ```
 pub struct App<'app> {
     window: Option<Arc<Window>>,
     pixels: Option<Pixels<'app>>,
@@ -67,26 +43,22 @@ pub struct App<'app> {
     resources: Resources,
     event_queue: EventQueue,
     systems: Vec<Box<dyn System>>,
+    renderer: Renderer,
 }
 
 impl App<'_> {
     /// Create a new app.
-    pub fn new(widget: impl Widget + 'static) -> Self {
-        let mut renderer = Renderer::new();
-        let widget: Box<dyn Widget> = Box::new(widget);
-        let render_box = widget.build(&mut renderer);
-        let state_tracker = StateTracker::new(&render_box);
+    pub fn new(root: impl View + 'static) -> Self {
+        let widget = root.view();
+        let renderer = Renderer::new();
 
+        let view: Box<dyn View> = Box::new(root);
         // TODO: test these
         let mut resources = Resources::new();
-        resources.insert(state_tracker);
-        resources.insert(render_box);
+        resources.insert(view);
         resources.insert(CursorPosition::default());
         resources.insert(WindowSize::default());
-        resources.insert(EventQueue::new());
         resources.insert(widget);
-        resources.insert(renderer);
-        resources.insert::<Vec<WidgetEvent>>(Vec::new());
 
         Self {
             event_queue: EventQueue::new(),
@@ -95,24 +67,11 @@ impl App<'_> {
             pixels: None,
             systems: Vec::new(),
             resources,
+            renderer,
         }
     }
 
     /// Add a [`System`].
-    ///
-    /// # Example
-    /// ```
-    /// use agape::{hstack, App};
-    /// use agape::resources::{CursorPosition, Resources};
-    ///
-    /// fn cursor_position(resources: &mut Resources){
-    ///     let position = resources.get::<CursorPosition>().unwrap();
-    ///     println!("Current position: {:?}",position);
-    /// }
-    ///
-    /// let app = App::new(hstack!{})
-    ///     .add_system(cursor_position);
-    /// ```
     pub fn add_system<Input: 'static>(mut self, f: impl IntoSystem<Input> + 'static) -> Self {
         self.systems.push(Box::new(f.into_system()));
         self
@@ -120,18 +79,19 @@ impl App<'_> {
 
     fn render(&mut self) {
         // This is very much a hack
-        let render_box = self.resources.get_owned::<RenderBox>().unwrap();
-        let renderer = self.resources.get_mut::<Renderer>().unwrap();
+        let widget = self.resources.get::<Box<dyn Widget>>().unwrap();
+        let WindowSize(window_size) = self.resources.get::<WindowSize>().unwrap();
+        let mut layout = widget.layout(&mut self.renderer);
+        solve_layout(&mut *layout, *window_size);
 
         let pixels = self.pixels.as_mut().unwrap();
         let pixmap = self.pixmap.as_mut().unwrap();
         pixmap.fill(tiny_skia::Color::WHITE);
 
-        render_box.render(pixmap, renderer);
+        widget.render(pixmap, &mut self.renderer, layout.as_ref());
 
         pixels.frame_mut().copy_from_slice(pixmap.data());
         pixels.render().unwrap();
-        self.resources.insert(render_box);
     }
 
     /// Run the app.
@@ -148,9 +108,7 @@ impl App<'_> {
             .add_system(update_cursor_position)
             .add_system(handle_mouse_button)
             .add_system(intersection_observer)
-            .add_system(handle_key_input)
-            .add_system(update_widgets)
-            .add_system(handle_widget_event);
+            .add_system(handle_key_input);
 
         let event_loop = EventLoop::new()?;
         event_loop.set_control_flow(ControlFlow::Poll);
@@ -215,33 +173,5 @@ impl ApplicationHandler for App<'_> {
         }
 
         self.event_queue.clear();
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    use crate::widgets::Rect;
-
-    #[test]
-    fn widget_hover_system() {
-        let rect = Rect::new().fixed(100.0, 100.0);
-
-        let mut renderer = Renderer::new();
-        let render_box = rect.build(&mut renderer);
-        let state_tracker = StateTracker::new(&render_box);
-        let mut resources = Resources::new();
-        resources.insert(state_tracker);
-        resources.insert(WindowSize(Size::unit(500.0)));
-        resources.insert(renderer);
-        resources.insert(render_box);
-        resources.insert(CursorPosition(Position::unit(50.0)));
-        resources.insert::<Vec<WidgetEvent>>(Vec::new());
-
-        layout_system(&mut resources);
-        intersection_observer(&mut resources);
-
-        let events: &Vec<WidgetEvent> = resources.get().unwrap();
-        assert!(events.contains(&WidgetEvent::Hovered(rect.id())));
     }
 }

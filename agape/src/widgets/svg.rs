@@ -1,10 +1,13 @@
-use crate::widgets::{LayoutDescription, RenderBox, RenderObject, Widget};
+use crate::impl_style;
+use crate::style::BoxStyle;
+use crate::widgets::Widget;
 use agape_core::GlobalId;
-use agape_layout::{BoxSizing, IntrinsicSize};
+use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
 use agape_renderer::Renderer;
 use std::fs;
 use std::path::Path;
 use std::rc::Rc;
+use tiny_skia::Pixmap;
 use usvg::Tree;
 
 /// Displays an SVG to the screen.
@@ -32,7 +35,7 @@ use usvg::Tree;
 ///         >
 ///         </svg>
 ///     ";
-///     let svg = Svg::from_data(data.as_bytes())?;
+///     let svg = Svg::bytes(data.as_bytes())?;
 ///
 ///     Ok(())
 /// }
@@ -45,30 +48,35 @@ use usvg::Tree;
 pub struct Svg {
     id: GlobalId,
     data: Rc<Tree>,
+    style: BoxStyle,
 }
 
 impl Svg {
     /// Open and parse an svg file.
     pub fn open<P: AsRef<Path>>(path: P) -> crate::Result<Self> {
         let data = fs::read(path)?;
-        let options = usvg::Options::default();
-        let tree = Tree::from_data(&data, &options)?;
-
-        Ok(Self {
-            id: GlobalId::new(),
-            data: Rc::new(tree),
-        })
+        Self::bytes(&data)
     }
 
-    /// Parse SVG data.
-    pub fn from_data(data: &[u8]) -> crate::Result<Self> {
+    /// Load an SVG from in memory bytes.
+    pub fn bytes(data: &[u8]) -> crate::Result<Self> {
         let options = usvg::Options::default();
         let tree = Tree::from_data(data, &options)?;
+        let size = tree.size();
+        let intrinsic_size = IntrinsicSize::fixed(size.width(), size.height());
+        let style = BoxStyle {
+            intrinsic_size,
+            ..Default::default()
+        };
+
         Ok(Self {
             id: GlobalId::new(),
             data: Rc::new(tree),
+            style,
         })
     }
+
+    impl_style! {}
 }
 
 impl Widget for Svg {
@@ -76,25 +84,26 @@ impl Widget for Svg {
         self.id
     }
 
-    fn build(&self, _: &mut Renderer) -> RenderBox {
-        let size = self.data.size();
-        let object = RenderObject::Svg(self.data.clone());
-        let description = LayoutDescription {
-            intrinsic_size: IntrinsicSize {
-                width: BoxSizing::Fixed(size.width()),
-                height: BoxSizing::Fixed(size.height()),
-            },
+    fn layout(&self, _: &mut Renderer) -> Box<dyn Layout> {
+        let layout = EmptyLayout {
+            id: self.id,
+            intrinsic_size: self.style.intrinsic_size,
             ..Default::default()
         };
-
-        RenderBox::new(self.id, description, object)
+        Box::new(layout)
+    }
+    fn render(&self, pixmap: &mut Pixmap, renderer: &mut Renderer, layout: &dyn Layout) {
+        let layout = layout.get(self.id).unwrap();
+        let size = layout.size();
+        let position = layout.position();
+        renderer.draw_svg(pixmap, &self.data, position, size);
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::fs::File;
+
     use std::io::Write;
 
     #[test]
@@ -108,12 +117,27 @@ mod test {
             >
             </svg>
         ";
-        let svg = Svg::from_data(data.as_bytes()).unwrap();
+        let svg = Svg::bytes(data.as_bytes()).unwrap();
         let width = svg.data.size().width();
         let height = svg.data.size().height();
 
         assert_eq!(width, 50.0);
         assert_eq!(height, 200.0);
+    }
+
+    #[test]
+    fn inferred_size() {
+        let data = "
+            <svg 
+                version='1.1' 
+                width='50' 
+                height='200' 
+                xmlns='http://www.w3.org/2000/svg'
+            >
+            </svg>
+        ";
+        let svg = Svg::bytes(data.as_bytes()).unwrap();
+        assert_eq!(svg.style.intrinsic_size, IntrinsicSize::fixed(50.0, 200.0));
     }
 
     #[test]
@@ -129,18 +153,18 @@ mod test {
             </svg>
         ";
 
-        let id: u8 = rand::random();
-        let path = format!("temp/svg-{id}.svg");
-        let mut file = File::create(&path)?;
+        let mut f = tempfile::NamedTempFile::new()?;
+        let file = f.as_file_mut();
         file.write_all(data.as_bytes())?;
+        let path = f.path();
 
-        let svg = Svg::open(&path)?;
+        let svg = Svg::open(path)?;
         let width = svg.data.size().width();
         let height = svg.data.size().height();
 
         assert_eq!(width, 50.0);
         assert_eq!(height, 200.0);
-        fs::remove_file(&path)?;
+        fs::remove_file(path)?;
 
         Ok(())
     }

@@ -6,7 +6,7 @@ All notable changes to agape will be documented in this file.
 
 ### Features
 
-- Added support for emojis
+- Added support for emojis.
 - Added support for images.
 - Added support for svgs.
 
@@ -28,6 +28,8 @@ All notable changes to agape will be documented in this file.
 
 - Removed views, rendering is done through functions now.
 - Removed widget iterators
+- Removed `Button` widget.
+- Removed `hstack`, `vstack`, `input` examples.
 
 ## 0.2.0 - 2025-07-17
 

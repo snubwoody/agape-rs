@@ -80,26 +80,19 @@ impl Layout for EmptyLayout {
     }
 
     fn solve_min_constraints(&mut self) -> (f32, f32) {
-        match self.intrinsic_size.width {
-            BoxSizing::Fixed(width) => {
-                self.constraints.min_width = width;
-            }
-            BoxSizing::Flex(_) => {}
-            BoxSizing::Shrink => {}
+        if let BoxSizing::Fixed(width) = self.intrinsic_size.width {
+            self.constraints.min_width = width;
         }
 
-        match self.intrinsic_size.height {
-            BoxSizing::Fixed(height) => {
-                self.constraints.min_height = height;
-            }
-            BoxSizing::Flex(_) => {}
-            BoxSizing::Shrink => {}
+        if let BoxSizing::Fixed(height) = self.intrinsic_size.height {
+            self.constraints.min_height = height;
         }
 
         (self.constraints.min_width, self.constraints.min_height)
     }
 
-    fn solve_max_constraints(&mut self, _space: Size) { /* No children to solve for */
+    fn solve_max_constraints(&mut self, _space: Size) {
+        // No children to solve for
     }
 
     fn update_size(&mut self) {

@@ -42,6 +42,7 @@ cosmic-text = "0.14.2"
 usvg = "0.45.1"
 resvg = "0.45.1"
 tracing = "0.1.41"
+tempfile = "3.20.0"
 
 [workspace.lints.clippy]
 enum_glob_use = "warn"
