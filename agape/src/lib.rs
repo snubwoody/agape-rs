@@ -15,7 +15,7 @@ pub use agape_macros::hex;
 pub use agape_renderer::Renderer;
 pub use error::{Error, Result};
 pub use resources::Resources;
-use resources::{CursorPosition, EventQueue, WindowSize};
+use resources::{CursorPosition, WindowSize};
 
 use crate::widgets::View;
 use agape_layout::{Layout, solve_layout};
@@ -183,7 +183,7 @@ impl State {
     pub fn is_hovered(&self, id: &GlobalId) -> bool {
         self.layout
             .get(*id)
-            .unwrap()
+            .unwrap_or_else(|| panic!("Layout: {id:?} not found"))
             .bounds()
             .within(&self.cursor_position)
     }
