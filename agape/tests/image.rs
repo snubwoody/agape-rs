@@ -18,6 +18,14 @@ fn save_image(width: u32, height: u32, format: ImageFormat) -> PathBuf {
 }
 
 #[test]
+fn inferred_dimensions() {
+    let path = save_image(300, 500, ImageFormat::WebP);
+    let webp = Image::open(path).unwrap();
+
+    assert_eq!(webp.dimensions(), Size::new(300.0, 500.0));
+}
+
+#[test]
 fn supported_image_formats() {
     let png_path = save_image(10, 10, ImageFormat::Png);
     let jpeg_path = save_image(20, 20, ImageFormat::Jpeg);
@@ -30,6 +38,16 @@ fn supported_image_formats() {
     assert_eq!(png.dimensions(), Size::unit(10.0));
     assert_eq!(jpeg.dimensions(), Size::unit(20.0));
     assert_eq!(webp.dimensions(), Size::unit(30.0));
+}
+
+#[test]
+fn load_from_memory() {
+    let path = save_image(10, 10, ImageFormat::Png);
+    let bytes = fs::read(path).unwrap();
+
+    let png = Image::bytes(&bytes).unwrap();
+
+    assert_eq!(png.dimensions(), Size::unit(10.0));
 }
 
 #[test]

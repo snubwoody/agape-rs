@@ -8,7 +8,6 @@ pub mod image;
 mod rect;
 mod svg;
 mod text;
-mod text_field;
 mod vstack;
 
 use ::image::DynamicImage;
@@ -28,7 +27,6 @@ use std::collections::HashMap;
 use std::rc::Rc;
 pub use svg::Svg;
 pub use text::Text;
-pub use text_field::TextField;
 use tiny_skia::Pixmap;
 use usvg::Tree;
 pub use vstack::*;

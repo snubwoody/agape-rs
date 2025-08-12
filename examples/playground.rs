@@ -2,32 +2,23 @@
 use agape::{App, Color, widgets::*};
 
 fn main() {
-    App::new(TextBox::new("Hi")).run().unwrap()
+    App::new(RectBox::default()).run().unwrap()
 }
 
-struct TextBox {
-    text: String,
+#[derive(Debug, Default)]
+struct RectBox {
+    width: f32,
+    height: f32,
 }
 
-impl TextBox {
-    pub fn new(text: &str) -> TextBox {
-        Self {
-            text: String::from(text),
-        }
-    }
-}
-
-impl View for TextBox {
+impl View for RectBox {
     fn update(&mut self) {
-        self.text.push('a');
+        self.width += 1.0;
+        self.height += 0.5;
     }
 
     fn view(&self) -> Box<dyn Widget> {
-        Box::new(Text::new(self.text.as_str()));
-        Box::new(
-            Rect::new()
-                .fixed(50.0, 50.0)
-                .background_color(Color::rgb(100, 200, 100)),
-        )
+        let bytes = include_bytes!("assets/PARTYNEXTDOOR Album Cover.jpg");
+        Box::new(Image::bytes(bytes).unwrap().fill())
     }
 }
