@@ -34,9 +34,5 @@ name = "input"
 path = "input.rs"
 
 [[example]]
-name = "counter"
-path = "counter.rs"
-
-[[example]]
 name = "playground"
 path = "playground.rs"

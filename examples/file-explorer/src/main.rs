@@ -1,9 +1,13 @@
 #![allow(non_snake_case)]
-use agape::widgets::{RenderBox, Text, Widget};
-use agape::{App, GlobalId, hstack, vstack};
+use agape::widgets::{
+    LayoutDescription, LayoutType, RenderBox, RenderObject, StateTracker, Text, Widget,
+};
+use agape::{App, Color, GlobalId, IntoColor, Position, Rgba, Size, hstack, vstack};
 use agape_renderer::Renderer;
+use rand::random;
 
 fn main() -> agape::Result<()> {
+    tracing_subscriber::fmt::init();
     let main = vstack! {
         hstack!{
             Text::new("Home"),
@@ -52,14 +56,16 @@ fn Drives() -> impl Widget {
 
 struct Dir {
     id: GlobalId,
-    name: String,
+    text: Text,
+    color: Color<Rgba>,
 }
 
 impl Dir {
     pub fn new(name: &str) -> Self {
         Self {
             id: GlobalId::new(),
-            name: name.to_string(),
+            text: Text::new(name),
+            color: Color::default(),
         }
     }
 }
@@ -69,7 +75,39 @@ impl Widget for Dir {
         self.id
     }
 
+    fn traverse(&self, f: &mut dyn FnMut(&dyn Widget)) {
+        f(&self.text);
+        self.text.traverse(f);
+    }
+
+    fn traverse_mut(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
+        f(&mut self.text);
+        self.text.traverse_mut(f);
+    }
+
+    fn update(&mut self, _state: &StateTracker) {
+        let value: u8 = random();
+        self.color = value.into_color();
+    }
+
     fn build(&self, renderer: &mut Renderer) -> RenderBox {
-        Text::new(&self.name).build(renderer)
+        let child = self.text.build(renderer);
+
+        let layout_desc = LayoutDescription {
+            layout_type: LayoutType::BlockLayout,
+            ..Default::default()
+        };
+
+        RenderBox {
+            id: self.id,
+            children: vec![child],
+            position: Position::default(),
+            size: Size::default(),
+            layout_desc,
+            render_object: RenderObject::Rect {
+                border: None,
+                color: self.color.clone(),
+            },
+        }
     }
 }
