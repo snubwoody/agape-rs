@@ -1,4 +1,5 @@
-use agape::{App, Color, Message, MessageQueue, State, widgets::*};
+use agape::message::MouseButtonDown;
+use agape::{App, Color, MessageQueue, State, widgets::*};
 use std::fs;
 use std::path::PathBuf;
 
@@ -35,15 +36,16 @@ impl Home {
 }
 
 impl View for Home {
-    fn update(&mut self, message: &Message, state: &State, messages: &mut MessageQueue) {
+    fn update(&mut self, state: &State, messages: &mut MessageQueue) {
         // TODO: Check if directory
+        dbg!(&messages);
         if let Some(change_dir) = messages.get::<ChangeDir>() {
             self.directories = Self::entries(change_dir.0.clone());
         }
 
         self.directories
             .iter_mut()
-            .for_each(|d| d.update(message, state, messages));
+            .for_each(|d| d.update(state, messages));
     }
 
     fn view(&self) -> Box<dyn Widget> {
@@ -68,12 +70,13 @@ impl DirEntry {
 }
 
 impl View for DirEntry {
-    fn update(&mut self, message: &Message, state: &State, messages: &mut MessageQueue) {
+    fn update(&mut self, state: &State, messages: &mut MessageQueue) {
         let is_hovered = state.is_hovered(&self.widget.id());
         if is_hovered {
-            if let Message::MouseButtonDown = message {
+            if messages.has::<MouseButtonDown>() {
                 messages.add(ChangeDir(self.path.clone()));
             }
+
             self.widget = self
                 .widget
                 .clone()

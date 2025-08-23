@@ -4,9 +4,16 @@ use bevy_ecs::prelude::*;
 use std::any::Any;
 use winit::event::WindowEvent;
 
+/// Emitted when the left mouse button is pressed.
+pub struct MouseButtonDown;
+
+/// Emitted when the left mouse button is pressed.
+pub struct MouseButtonUp;
+
 #[derive(Default, Resource, Debug)]
 pub struct MessageQueue {
     items: Vec<Box<dyn Any + Send + Sync>>,
+    frame_count: u32,
 }
 
 impl MessageQueue {
@@ -14,7 +21,11 @@ impl MessageQueue {
         Self::default()
     }
 
-    pub fn contains<T: 'static>(&self) -> bool {
+    pub fn tick(&mut self) {
+        self.frame_count += 1;
+    }
+
+    pub fn has<T: 'static>(&self) -> bool {
         self.get::<T>().is_some()
     }
 
@@ -52,17 +63,11 @@ impl MessageQueue {
     }
 
     pub fn clear(&mut self) {
-        self.items.clear();
+        if self.frame_count > 3 {
+            self.items.clear();
+            self.frame_count = 0;
+        }
     }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
-pub enum Message {
-    MouseMoved(Position),
-    MouseButtonDown,
-    MouseButtonUp,
-    MouseEnter(GlobalId),
-    MouseLeave(GlobalId),
 }
 
 pub fn update_cursor_pos(queue: Res<EventQueue>, mut cursor_position: ResMut<CursorPosition>) {
