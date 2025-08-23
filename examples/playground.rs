@@ -1,5 +1,5 @@
-// Playground example, not intended for serious use.
-use agape::{App, Message, State, widgets::*};
+// Play ground example, not intended for serious use.
+use agape::{App, Color, Message, State, widgets::*};
 
 fn main() {
     App::new(RectBox::new()).run().unwrap()
@@ -13,7 +13,9 @@ struct RectBox {
 impl RectBox {
     pub fn new() -> Self {
         Self {
-            rect: Rect::new().fixed(250.0, 250.0),
+            rect: Rect::new()
+                .fixed(250.0, 250.0)
+                .background_color(Color::BLACK),
         }
     }
 }

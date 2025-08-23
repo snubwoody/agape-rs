@@ -19,6 +19,7 @@ use resources::{CursorPosition, WindowSize};
 
 use crate::widgets::View;
 use agape_layout::{Layout, solve_layout};
+use bevy_ecs::prelude::*;
 use pixels::{Pixels, SurfaceTexture};
 use std::sync::Arc;
 use tiny_skia::Pixmap;
@@ -42,6 +43,8 @@ pub struct App<'app> {
     view: Box<dyn View>,
     messages: Vec<Message>,
     state: State,
+    world: World,
+    schedule: Schedule,
 }
 
 impl App<'_> {
@@ -68,6 +71,8 @@ impl App<'_> {
             renderer,
             view,
             state,
+            world: World::new(),
+            schedule: Schedule::default(),
         }
     }
 
@@ -85,6 +90,7 @@ impl App<'_> {
     }
 
     fn render(&mut self) {
+        self.schedule.run(&mut self.world);
         for message in self.messages.drain(..) {
             self.view.update(&message, &self.state);
         }
@@ -117,6 +123,7 @@ impl App<'_> {
         Ok(())
     }
 }
+
 
 impl ApplicationHandler for App<'_> {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
