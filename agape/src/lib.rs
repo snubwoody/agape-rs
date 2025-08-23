@@ -5,23 +5,25 @@
 //! of the program, and a root [`Widget`].
 pub mod error;
 mod macros;
+mod message;
 pub mod resources;
 pub mod style;
 pub mod widgets;
-mod message;
 
 pub use agape_core::*;
 pub use agape_layout as layout;
 pub use agape_macros::hex;
 pub use agape_renderer::Renderer;
 pub use error::{Error, Result};
+pub use message::Message;
+pub use message::MessageQueue;
+use message::handle_hover;
+use message::update_cursor_pos;
+use resources::EventQueue;
 pub use resources::Resources;
 use resources::{CursorPosition, WindowSize};
-use message::{handle_click};
-pub use message::Message
+use widgets::View;
 
-use crate::resources::EventQueue;
-use crate::widgets::View;
 use agape_layout::{Layout, solve_layout};
 use bevy_ecs::prelude::*;
 use pixels::{Pixels, SurfaceTexture};
@@ -63,6 +65,7 @@ impl App<'_> {
         let mut world = World::new();
         world.insert_resource(CursorPosition::default());
         world.insert_resource(EventQueue::default());
+        world.insert_resource(MessageQueue::default());
 
         Self {
             window: None,
@@ -92,9 +95,11 @@ impl App<'_> {
 
     fn render(&mut self) {
         self.schedule.run(&mut self.world);
+        let mut messages = self.world.get_resource_mut::<MessageQueue>().unwrap();
         for message in self.messages.drain(..) {
-            self.view.update(&message, &self.state);
+            self.view.update(&message, &self.state, messages.as_mut());
         }
+        messages.clear();
         // This is very much a hack
         let widget = self.view.view();
         let mut layout = widget.layout(&mut self.renderer);
@@ -119,7 +124,8 @@ impl App<'_> {
     /// certain platforms.
     pub fn run(mut self) -> Result<()> {
         self.schedule
-            .add_systems(handle_click)
+            .add_systems(update_cursor_pos)
+            .add_systems(handle_hover)
             .add_systems(clear_events);
         let event_loop = EventLoop::new()?;
         event_loop.set_control_flow(ControlFlow::Poll);
@@ -209,11 +215,11 @@ impl State {
     /// # Panics
     /// Panics if the widget is not found.
     pub fn is_hovered(&self, id: &GlobalId) -> bool {
-        self.layout
-            .get(*id)
-            .unwrap_or_else(|| panic!("Layout: {id:?} not found"))
-            .bounds()
-            .within(&self.cursor_position)
+        if let Some(layout) = self.layout.get(*id) {
+            return layout.bounds().within(&self.cursor_position);
+        }
+
+        false
     }
 
     pub fn update_cursor_pos(&mut self, pos: Position) {
@@ -224,7 +230,6 @@ impl State {
         self.layout = layout;
     }
 }
-
 
 fn clear_events(mut queue: ResMut<EventQueue>) {
     queue.clear();

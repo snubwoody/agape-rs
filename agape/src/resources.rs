@@ -113,7 +113,7 @@ pub struct WindowSize(pub Size);
 
 #[derive(Debug, Default, Resource)]
 pub struct EventQueue {
-    events: VecDeque<WindowEvent>,
+    events: Vec<WindowEvent>,
     frame_count: u32,
 }
 
@@ -124,11 +124,11 @@ impl EventQueue {
 
     /// Push an event to the queue.
     pub fn push(&mut self, event: WindowEvent) {
-        self.events.push_back(event);
+        self.events.push(event);
     }
 
-    pub fn pop(&mut self) -> Option<WindowEvent> {
-        self.events.pop_front()
+    pub fn events(&self) -> &[WindowEvent] {
+        self.events.as_slice()
     }
 
     pub fn tick(&mut self) {

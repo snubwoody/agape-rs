@@ -1,5 +1,9 @@
-use agape::{App, Color, Message, State, widgets::*};
+use agape::{App, Color, Message, MessageQueue, State, widgets::*};
 use std::fs;
+use std::path::PathBuf;
+
+#[derive(Debug, Clone)]
+struct ChangeDir(PathBuf);
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
@@ -14,21 +18,32 @@ struct Home {
 impl Home {
     pub fn new() -> Self {
         let home_dir = std::env::home_dir().unwrap();
-        let mut directories = vec![];
-        for entry in fs::read_dir(home_dir).unwrap() {
-            let title = entry.unwrap().file_name().into_string().unwrap();
-            directories.push(DirEntry::new(&title));
-        }
+        let directories = Self::entries(home_dir);
 
         Self { directories }
+    }
+
+    pub fn entries(dir: PathBuf) -> Vec<DirEntry> {
+        let mut directories = vec![];
+        for entry in fs::read_dir(dir).unwrap() {
+            let entry = entry.unwrap();
+            let title = entry.file_name().into_string().unwrap();
+            directories.push(DirEntry::new(entry.path(), &title));
+        }
+        directories
     }
 }
 
 impl View for Home {
-    fn update(&mut self, message: &Message, state: &State) {
+    fn update(&mut self, message: &Message, state: &State, messages: &mut MessageQueue) {
+        // TODO: Check if directory
+        if let Some(change_dir) = messages.get::<ChangeDir>() {
+            self.directories = Self::entries(change_dir.0.clone());
+        }
+
         self.directories
             .iter_mut()
-            .for_each(|d| d.update(message, state));
+            .for_each(|d| d.update(message, state, messages));
     }
 
     fn view(&self) -> Box<dyn Widget> {
@@ -41,20 +56,24 @@ impl View for Home {
 }
 
 struct DirEntry {
+    path: PathBuf,
     widget: Container<Text>,
 }
 
 impl DirEntry {
-    pub fn new(title: &str) -> Self {
+    pub fn new(path: PathBuf, title: &str) -> Self {
         let widget = Container::new(Text::new(title)).padding(12);
-        Self { widget }
+        Self { widget, path }
     }
 }
 
 impl View for DirEntry {
-    fn update(&mut self, _: &Message, state: &State) {
+    fn update(&mut self, message: &Message, state: &State, messages: &mut MessageQueue) {
         let is_hovered = state.is_hovered(&self.widget.id());
         if is_hovered {
+            if let Message::MouseButtonDown = message {
+                messages.add(ChangeDir(self.path.clone()));
+            }
             self.widget = self
                 .widget
                 .clone()
