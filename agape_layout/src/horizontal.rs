@@ -195,7 +195,7 @@ impl Layout for HorizontalLayout {
             .collect::<Vec<_>>()
     }
 
-    fn iter(&self) -> crate::LayoutIter {
+    fn iter(&self) -> crate::LayoutIter<'_> {
         LayoutIter { stack: vec![self] }
     }
 

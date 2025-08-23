@@ -4,7 +4,10 @@
 //! Resources work on types, `T`, so avoid setting primitive or commonly used types
 //! like `String` or `Box` as it will make tracking things much harder.
 use agape_core::{Position, Size};
+use bevy_ecs::prelude::Resource;
 use std::any::Any;
+use std::ops::Deref;
+use winit::event::WindowEvent;
 
 /// Global resources
 #[derive(Default)]
@@ -93,83 +96,48 @@ impl Resources {
 }
 
 /// The current cursor position.
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, Resource)]
 pub struct CursorPosition(pub Position);
+
+impl Deref for CursorPosition {
+    type Target = Position;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 /// The window size.
 #[derive(Debug, Default, Copy, Clone)]
 pub struct WindowSize(pub Size);
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Resource)]
 pub struct EventQueue {
-    events: Vec<Box<dyn Any>>,
+    events: Vec<WindowEvent>,
+    frame_count: u32,
 }
 
 impl EventQueue {
     pub fn new() -> Self {
-        Self { events: vec![] }
+        Self::default()
     }
 
     /// Push an event to the queue.
-    pub fn push<T: 'static>(&mut self, item: T) {
-        self.events.push(Box::new(item));
+    pub fn push(&mut self, event: WindowEvent) {
+        self.events.push(event);
     }
 
-    /// Get an event from the queue.
-    pub fn get<T: 'static>(&self) -> Option<&T> {
-        for event in &self.events {
-            match event.downcast_ref::<T>() {
-                Some(item) => return Some(item),
-                None => continue,
-            }
-        }
-
-        None
+    pub fn events(&self) -> &[WindowEvent] {
+        self.events.as_slice()
     }
 
-    /// Get all events of type `T` from the queue.
-    pub fn get_all<T: 'static>(&self) -> Vec<&T> {
-        let mut events = vec![];
-
-        for event in &self.events {
-            match event.downcast_ref::<T>() {
-                Some(item) => events.push(item),
-                None => continue,
-            }
-        }
-
-        events
+    pub fn tick(&mut self) {
+        self.frame_count += 1;
     }
 
-    /// Clear all the events.
     pub fn clear(&mut self) {
-        self.events.clear();
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    struct DummyEvent;
-
-    #[test]
-    fn get_all_events() {
-        let mut event_queue = EventQueue::new();
-        event_queue.push(DummyEvent);
-        event_queue.push(DummyEvent);
-        event_queue.push(DummyEvent);
-
-        let events = event_queue.get_all::<DummyEvent>();
-        assert_eq!(events.len(), 3);
-    }
-
-    #[test]
-    fn clear_events() {
-        let mut event_queue = EventQueue::new();
-        event_queue.push(DummyEvent);
-        assert_eq!(event_queue.events.len(), 1);
-
-        event_queue.clear();
-        assert_eq!(event_queue.events.len(), 0);
+        if self.frame_count > 3 {
+            self.events.clear();
+            self.frame_count = 0;
+        }
     }
 }

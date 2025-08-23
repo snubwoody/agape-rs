@@ -5,6 +5,7 @@
 //! of the program, and a root [`Widget`].
 pub mod error;
 mod macros;
+pub mod message;
 pub mod resources;
 pub mod style;
 pub mod widgets;
@@ -14,11 +15,16 @@ pub use agape_layout as layout;
 pub use agape_macros::hex;
 pub use agape_renderer::Renderer;
 pub use error::{Error, Result};
+pub use message::MessageQueue;
+use message::update_cursor_pos;
+use resources::CursorPosition;
+use resources::EventQueue;
 pub use resources::Resources;
-use resources::{CursorPosition, WindowSize};
+use widgets::View;
 
-use crate::widgets::View;
+use crate::message::{MouseButtonDown, MouseButtonUp};
 use agape_layout::{Layout, solve_layout};
+use bevy_ecs::prelude::*;
 use pixels::{Pixels, SurfaceTexture};
 use std::sync::Arc;
 use tiny_skia::Pixmap;
@@ -40,8 +46,9 @@ pub struct App<'app> {
     pixmap: Option<Pixmap>,
     renderer: Renderer,
     view: Box<dyn View>,
-    messages: Vec<Message>,
     state: State,
+    world: World,
+    schedule: Schedule,
 }
 
 impl App<'_> {
@@ -49,46 +56,34 @@ impl App<'_> {
     pub fn new(root: impl View + 'static) -> Self {
         let widget = root.view();
         let mut renderer = Renderer::new();
-        let queue: Vec<Message> = Vec::new();
         let view: Box<dyn View> = Box::new(root);
         let layout = widget.layout(&mut renderer);
         let state = State::new(layout);
-        // TODO: test these
-        let mut resources = Resources::new();
-        resources.insert(CursorPosition::default());
-        resources.insert(WindowSize::default());
-        resources.insert(widget);
-        resources.insert(queue);
+
+        let mut world = World::new();
+        world.insert_resource(CursorPosition::default());
+        world.insert_resource(EventQueue::default());
+        world.insert_resource(MessageQueue::default());
 
         Self {
             window: None,
             pixmap: None,
             pixels: None,
-            messages: Vec::new(),
             renderer,
             view,
             state,
-        }
-    }
-
-    fn handle_event(&mut self, event: &WindowEvent) {
-        if let WindowEvent::MouseInput { state, button, .. } = event {
-            if *button != MouseButton::Left {
-                return;
-            }
-
-            match state {
-                ElementState::Pressed => self.messages.push(Message::MouseButtonDown),
-                ElementState::Released => self.messages.push(Message::MouseButtonUp),
-            }
+            world,
+            schedule: Schedule::default(),
         }
     }
 
     fn render(&mut self) {
-        for message in self.messages.drain(..) {
-            self.view.update(&message, &self.state);
-        }
-        // This is very much a hack
+        let mut messages = self.world.get_resource_mut::<MessageQueue>().unwrap();
+        // TODO: move tick and clear to system
+        messages.tick();
+        self.view.update(&self.state, messages.as_mut());
+        messages.clear();
+
         let widget = self.view.view();
         let mut layout = widget.layout(&mut self.renderer);
         solve_layout(&mut *layout, self.state.window_size);
@@ -111,6 +106,10 @@ impl App<'_> {
     /// because accessing windows in other threads is unsafe on
     /// certain platforms.
     pub fn run(mut self) -> Result<()> {
+        self.schedule
+            .add_systems(update_cursor_pos)
+            .add_systems(handle_click)
+            .add_systems(clear_events);
         let event_loop = EventLoop::new()?;
         event_loop.set_control_flow(ControlFlow::Poll);
         event_loop.run_app(&mut self)?;
@@ -138,6 +137,11 @@ impl ApplicationHandler for App<'_> {
     }
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
+        self.schedule.run(&mut self.world);
+        self.world
+            .get_resource_mut::<EventQueue>()
+            .unwrap()
+            .push(event.clone());
         match event {
             WindowEvent::CloseRequested => {
                 log::info!("Exiting app");
@@ -167,9 +171,8 @@ impl ApplicationHandler for App<'_> {
             WindowEvent::CursorMoved { position, .. } => {
                 let pos: Position = position.into();
                 self.state.update_cursor_pos(pos);
-                self.messages.push(Message::MouseMoved(pos))
             }
-            event => self.handle_event(&event),
+            _ => {}
         }
     }
 }
@@ -191,15 +194,12 @@ impl State {
     }
 
     /// Check if the cursor is over the [`Widget`].
-    ///
-    /// # Panics
-    /// Panics if the widget is not found.
     pub fn is_hovered(&self, id: &GlobalId) -> bool {
-        self.layout
-            .get(*id)
-            .unwrap_or_else(|| panic!("Layout: {id:?} not found"))
-            .bounds()
-            .within(&self.cursor_position)
+        if let Some(layout) = self.layout.get(*id) {
+            return layout.bounds().within(&self.cursor_position);
+        }
+
+        false
     }
 
     pub fn update_cursor_pos(&mut self, pos: Position) {
@@ -211,61 +211,25 @@ impl State {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
-pub enum Message {
-    MouseMoved(Position),
-    MouseButtonDown,
-    MouseButtonUp,
-}
+fn handle_click(queue: ResMut<EventQueue>, mut messages: ResMut<MessageQueue>) {
+    for event in queue.events() {
+        if let WindowEvent::MouseInput { button, state, .. } = event {
+            if let MouseButton::Left = button
+                && let ElementState::Pressed = state
+            {
+                messages.add(MouseButtonDown);
+            }
 
-#[cfg(test)]
-mod test {
-    use super::*;
-    use crate::widgets::*;
-    use winit::event::DeviceId;
-
-    struct DummyView;
-
-    impl View for DummyView {
-        fn view(&self) -> Box<dyn Widget> {
-            Box::new(Text::new(""))
+            if let MouseButton::Left = button
+                && let ElementState::Released = state
+            {
+                messages.add(MouseButtonUp);
+            }
         }
     }
+}
 
-    #[test]
-    fn mouse_button() {
-        let mut app = App::new(DummyView);
-        let mouse_down = WindowEvent::MouseInput {
-            state: ElementState::Pressed,
-            button: MouseButton::Left,
-            device_id: DeviceId::dummy(),
-        };
-        let mouse_up = WindowEvent::MouseInput {
-            state: ElementState::Released,
-            button: MouseButton::Left,
-            device_id: DeviceId::dummy(),
-        };
-        app.handle_event(&mouse_down);
-        app.handle_event(&mouse_up);
-        assert_eq!(app.messages[0], Message::MouseButtonDown);
-        assert_eq!(app.messages[1], Message::MouseButtonUp);
-    }
-
-    #[test]
-    fn ignore_other_buttons() {
-        let mut app = App::new(DummyView);
-        let mouse_down = WindowEvent::MouseInput {
-            state: ElementState::Pressed,
-            button: MouseButton::Middle,
-            device_id: DeviceId::dummy(),
-        };
-        let mouse_up = WindowEvent::MouseInput {
-            state: ElementState::Released,
-            button: MouseButton::Right,
-            device_id: DeviceId::dummy(),
-        };
-        app.handle_event(&mouse_down);
-        app.handle_event(&mouse_up);
-        assert!(app.messages.is_empty());
-    }
+fn clear_events(mut queue: ResMut<EventQueue>) {
+    queue.clear();
+    queue.tick();
 }
