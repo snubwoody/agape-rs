@@ -89,7 +89,7 @@ pub trait Layout: Debug + Send + Sync {
     fn set_x(&mut self, x: f32);
     fn set_y(&mut self, y: f32);
 
-    fn iter(&self) -> LayoutIter;
+    fn iter(&self) -> LayoutIter<'_>;
 
     /// Get a [`Layout`] by it's `id`.
     fn get(&self, id: GlobalId) -> Option<&dyn Layout> {

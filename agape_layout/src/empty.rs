@@ -75,7 +75,7 @@ impl Layout for EmptyLayout {
         self.errors.drain(..).collect::<Vec<_>>()
     }
 
-    fn iter(&self) -> crate::LayoutIter {
+    fn iter(&self) -> crate::LayoutIter<'_> {
         LayoutIter { stack: vec![self] }
     }
 

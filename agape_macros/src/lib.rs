@@ -45,10 +45,10 @@ pub fn include_icons(dir: TokenStream) -> TokenStream {
                 let path = file.path();
 
                 // Skip non svg files
-                if let Some(ext) = path.extension() {
-                    if ext != "svg" {
-                        continue;
-                    }
+                if let Some(ext) = path.extension()
+                    && ext != "svg"
+                {
+                    continue;
                 }
 
                 let raw_file_name = file.file_name();

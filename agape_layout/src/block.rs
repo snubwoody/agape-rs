@@ -135,7 +135,7 @@ impl Layout for BlockLayout {
             .collect::<Vec<_>>()
     }
 
-    fn iter(&self) -> LayoutIter {
+    fn iter(&self) -> LayoutIter<'_> {
         LayoutIter { stack: vec![self] }
     }
 
