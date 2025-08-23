@@ -21,12 +21,7 @@ impl RectBox {
 }
 
 impl View for RectBox {
-    fn update(&mut self, _: &Message, _: &State) {
-        // TODO:
-        // - store the container
-        // - get the layout
-        // - check the bounds
-    }
+    fn update(&mut self, _: &Message, _: &State) {}
 
     fn view(&self) -> Box<dyn Widget> {
         // TODO: maybe return a reference

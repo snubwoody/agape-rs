@@ -8,6 +8,7 @@ mod macros;
 pub mod resources;
 pub mod style;
 pub mod widgets;
+mod message;
 
 pub use agape_core::*;
 pub use agape_layout as layout;
@@ -16,7 +17,10 @@ pub use agape_renderer::Renderer;
 pub use error::{Error, Result};
 pub use resources::Resources;
 use resources::{CursorPosition, WindowSize};
+use message::{handle_click};
+pub use message::Message
 
+use crate::resources::EventQueue;
 use crate::widgets::View;
 use agape_layout::{Layout, solve_layout};
 use bevy_ecs::prelude::*;
@@ -52,16 +56,13 @@ impl App<'_> {
     pub fn new(root: impl View + 'static) -> Self {
         let widget = root.view();
         let mut renderer = Renderer::new();
-        let queue: Vec<Message> = Vec::new();
         let view: Box<dyn View> = Box::new(root);
         let layout = widget.layout(&mut renderer);
         let state = State::new(layout);
-        // TODO: test these
-        let mut resources = Resources::new();
-        resources.insert(CursorPosition::default());
-        resources.insert(WindowSize::default());
-        resources.insert(widget);
-        resources.insert(queue);
+
+        let mut world = World::new();
+        world.insert_resource(CursorPosition::default());
+        world.insert_resource(EventQueue::default());
 
         Self {
             window: None,
@@ -71,7 +72,7 @@ impl App<'_> {
             renderer,
             view,
             state,
-            world: World::new(),
+            world,
             schedule: Schedule::default(),
         }
     }
@@ -117,13 +118,15 @@ impl App<'_> {
     /// because accessing windows in other threads is unsafe on
     /// certain platforms.
     pub fn run(mut self) -> Result<()> {
+        self.schedule
+            .add_systems(handle_click)
+            .add_systems(clear_events);
         let event_loop = EventLoop::new()?;
         event_loop.set_control_flow(ControlFlow::Poll);
         event_loop.run_app(&mut self)?;
         Ok(())
     }
 }
-
 
 impl ApplicationHandler for App<'_> {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
@@ -145,6 +148,10 @@ impl ApplicationHandler for App<'_> {
     }
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
+        self.world
+            .get_resource_mut::<EventQueue>()
+            .unwrap()
+            .push(event.clone());
         match event {
             WindowEvent::CloseRequested => {
                 log::info!("Exiting app");
@@ -218,11 +225,10 @@ impl State {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
-pub enum Message {
-    MouseMoved(Position),
-    MouseButtonDown,
-    MouseButtonUp,
+
+fn clear_events(mut queue: ResMut<EventQueue>) {
+    queue.clear();
+    queue.tick();
 }
 
 #[cfg(test)]
