@@ -1,5 +1,5 @@
 use crate::resources::{CursorPosition, EventQueue};
-use agape_core::{GlobalId, Position};
+use agape_core::Position;
 use bevy_ecs::prelude::*;
 use std::any::Any;
 use winit::event::WindowEvent;
@@ -62,6 +62,10 @@ impl MessageQueue {
         self.items.len()
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.items.is_empty()
+    }
+
     pub fn clear(&mut self) {
         if self.frame_count > 3 {
             self.items.clear();
@@ -77,5 +81,3 @@ pub fn update_cursor_pos(queue: Res<EventQueue>, mut cursor_position: ResMut<Cur
         }
     }
 }
-
-pub fn handle_hover(queue: ResMut<EventQueue>) {}

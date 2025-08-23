@@ -16,7 +16,6 @@ pub use agape_macros::hex;
 pub use agape_renderer::Renderer;
 pub use error::{Error, Result};
 pub use message::MessageQueue;
-use message::handle_hover;
 use message::update_cursor_pos;
 use resources::CursorPosition;
 use resources::EventQueue;
@@ -109,7 +108,6 @@ impl App<'_> {
     pub fn run(mut self) -> Result<()> {
         self.schedule
             .add_systems(update_cursor_pos)
-            .add_systems(handle_hover)
             .add_systems(handle_click)
             .add_systems(clear_events);
         let event_loop = EventLoop::new()?;
@@ -213,7 +211,7 @@ impl State {
     }
 }
 
-fn handle_click(mut queue: ResMut<EventQueue>, mut messages: ResMut<MessageQueue>) {
+fn handle_click(queue: ResMut<EventQueue>, mut messages: ResMut<MessageQueue>) {
     for event in queue.events() {
         if let WindowEvent::MouseInput { button, state, .. } = event {
             if let MouseButton::Left = button
