@@ -1,10 +1,33 @@
+pub mod rect;
+
 use agape_core::{Border, Color, Position, Rgba, Size, map};
 use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, Shaping, SwashCache};
 use image::{DynamicImage, GenericImageView, RgbaImage};
 use std::path::Path;
 use tiny_skia::{FillRule, IntSize, Paint, PathBuilder, Pixmap, PixmapPaint, Stroke, Transform};
 use usvg::Tree;
+
 // TODO: mention that only ttf/otf fonts are supported
+
+pub struct RenderContext<'a> {
+    pub fonts: &'a mut FontSystem,
+    pub cache: &'a mut SwashCache,
+    pub pixmap: &'a mut Pixmap,
+}
+
+impl<'a> RenderContext<'a> {
+    pub fn new(
+        fonts: &'a mut FontSystem,
+        cache: &'a mut SwashCache,
+        pixmap: &'a mut Pixmap,
+    ) -> Self {
+        Self {
+            fonts,
+            cache,
+            pixmap,
+        }
+    }
+}
 
 pub struct Renderer {
     font_system: FontSystem,
