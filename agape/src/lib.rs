@@ -13,7 +13,7 @@ pub mod widgets;
 pub use agape_core::*;
 pub use agape_layout as layout;
 pub use agape_macros::hex;
-pub use agape_renderer::Renderer;
+pub use agape_renderer as renderer;
 pub use error::{Error, Result};
 pub use message::MessageQueue;
 use message::update_cursor_pos;
@@ -24,6 +24,7 @@ use widgets::View;
 
 use crate::message::{MouseButtonDown, MouseButtonUp};
 use agape_layout::{Layout, solve_layout};
+use agape_renderer::Renderer;
 use bevy_ecs::prelude::*;
 use pixels::{Pixels, SurfaceTexture};
 use std::sync::Arc;

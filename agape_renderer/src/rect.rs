@@ -4,11 +4,11 @@ use tiny_skia::{FillRule, Paint, PathBuilder, Pixmap, Stroke, Transform};
 // TODO: add builder
 #[derive(Debug, Clone, PartialOrd, PartialEq, Default)]
 pub struct Rect {
-    size: Size,
-    position: Position,
-    color: Color<Rgba>,
-    corner_radius: u32,
-    border: Option<Border>,
+    pub size: Size,
+    pub position: Position,
+    pub color: Color<Rgba>,
+    pub corner_radius: u32,
+    pub border: Option<Border>,
 }
 
 impl Rect {
@@ -113,8 +113,31 @@ mod test {
     use super::*;
 
     #[test]
+    fn size() {
+        let mut pixmap = Pixmap::new(100, 100).unwrap();
+        pixmap.fill(tiny_skia::Color::WHITE);
+        let rect = Rect::new().size(50.0, 20.0).color((12, 144, 240));
+        rect.draw(&mut pixmap);
+        for x in 0..100 {
+            for y in 0..100 {
+                let pixel = pixmap.pixel(x, y).unwrap();
+                let r = pixel.red();
+                let g = pixel.green();
+                let b = pixel.blue();
+
+                if x < 50 && y < 20 {
+                    assert_eq!((r, g, b), (12, 144, 240));
+                } else {
+                    assert_eq!((r, g, b), (255, 255, 255));
+                }
+            }
+        }
+    }
+
+    #[test]
     fn background_color() {
         let mut pixmap = Pixmap::new(100, 100).unwrap();
+        pixmap.fill(tiny_skia::Color::WHITE);
         let rect = Rect::new().size(100.0, 100.0).color(150);
         rect.draw(&mut pixmap);
         for pixel in pixmap.pixels() {

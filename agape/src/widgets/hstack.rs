@@ -3,6 +3,7 @@ use crate::{impl_style, widgets::Widget};
 use agape_core::GlobalId;
 use agape_layout::{AxisAlignment, HorizontalLayout, Layout};
 use agape_renderer::Renderer;
+use agape_renderer::rect::Rect;
 use tiny_skia::Pixmap;
 
 /// A horizontal stack of widgets, placed one after another.
@@ -111,14 +112,13 @@ impl Widget for HStack {
         let layout = layout.get(self.id).unwrap();
         let size = layout.size();
         let position = layout.position();
-        renderer.draw_rect(
-            pixmap,
-            &self.style.background_color.clone(),
-            size,
-            position,
-            self.style.corner_radius,
-            self.style.border.clone(),
-        );
+        let mut rect = Rect::new()
+            .size(size.width, size.height)
+            .position(position.x, position.y)
+            .corner_radius(self.style.corner_radius);
+
+        rect.border = self.style.border.clone();
+        renderer.draw_rect(pixmap, rect);
         // TODO: test this
         self.children
             .iter()
