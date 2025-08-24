@@ -9,6 +9,7 @@ All notable changes to agape will be documented in this file.
 - Added support for emojis.
 - Added support for images.
 - Added support for svgs.
+- Added corner radius.
 
 #### New widgets
 

@@ -2,7 +2,7 @@ use agape_core::{Border, Color, Position, Rgba, Size, map};
 use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, Shaping, SwashCache};
 use image::{DynamicImage, GenericImageView, RgbaImage};
 use std::path::Path;
-use tiny_skia::{IntSize, Paint, PathBuilder, Pixmap, PixmapPaint, Stroke, Transform};
+use tiny_skia::{FillRule, IntSize, Paint, PathBuilder, Pixmap, PixmapPaint, Stroke, Transform};
 use usvg::Tree;
 // TODO: mention that only ttf/otf fonts are supported
 
@@ -84,8 +84,10 @@ impl Renderer {
         color: &Color<Rgba>,
         size: Size,
         position: Position,
+        radius: u32,
         border: Option<Border>,
     ) {
+        // TODO: Add rect mesh and add transform
         let (r, g, b, a) = color.inner();
 
         // Map the alpha since it's clipped to 100
@@ -95,9 +97,39 @@ impl Renderer {
 
         let Position { x, y } = position;
         let Size { width, height } = size;
+        // TODO: get max radius
+        let radius = radius as f32;
 
+        // Construct a rounded rect going clockwise
+        let mut pb = PathBuilder::new();
+        pb.move_to(x + radius, y);
+        // Top edge
+        pb.line_to(x + width - radius, y);
+        // Top right corner
+        pb.quad_to(x + width, y, x + width, y + radius);
+        // Right edge
+        pb.line_to(x + width, y + height - radius);
+        // Bottom right corner
+        pb.quad_to(x + width, y + height, x + width - radius, y + height);
+        // Bottom edge
+        pb.line_to(x + radius, y + height);
+        // Bottom left corner
+        pb.quad_to(x, y + height, x, y + height - radius);
+        // Left edge
+        pb.line_to(x, y + radius);
+        // Top left corner
+        pb.quad_to(x, y, x + radius, y);
+
+        let path = pb.finish().unwrap();
         let rect = tiny_skia::Rect::from_xywh(x, y, width, height).unwrap();
-        pixmap.fill_rect(rect, &paint, Transform::identity(), None);
+        // pixmap.fill_rect(rect, &paint, Transform::identity(), None);
+        pixmap.fill_path(
+            &path,
+            &paint,
+            FillRule::Winding,
+            Transform::identity(),
+            None,
+        );
 
         if let Some(border) = border {
             // TODO turn this into a function
