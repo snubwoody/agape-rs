@@ -6,12 +6,18 @@ pub struct BoxStyle {
     pub intrinsic_size: IntrinsicSize,
     pub background_color: Color<Rgba>,
     pub border: Option<Border>,
+    pub corner_radius: u32,
 }
 
 impl BoxStyle {
     /// Create a new [`BoxStyle`].
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Set the corner radius
+    pub fn corner_radius(&mut self, radius: u32) {
+        self.corner_radius = radius;
     }
 
     /// Set the intrinsic width.

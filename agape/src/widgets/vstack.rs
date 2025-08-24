@@ -111,6 +111,7 @@ impl Widget for VStack {
             &self.style.background_color.clone(),
             size,
             position,
+            self.style.corner_radius,
             self.style.border.clone(),
         );
         // TODO: test this

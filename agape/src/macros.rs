@@ -26,6 +26,12 @@ macro_rules! impl_style {
             self
         }
 
+        /// Set the corner radius.
+        pub fn corner_radius(mut self, radius: u32) -> Self {
+            self.style.corner_radius(radius);
+            self
+        }
+
         /// Make the [`Widget`] fit it's children.
         pub fn fit(mut self) -> Self {
             self.style.fit();

@@ -46,6 +46,7 @@ impl Widget for Rect {
             &self.style.background_color.clone(),
             size,
             position,
+            self.style.corner_radius,
             self.style.border.clone(),
         );
     }
