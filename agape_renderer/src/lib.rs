@@ -1,14 +1,16 @@
 pub mod image;
 pub mod rect;
+pub mod text;
 
+pub use crate::image::Image;
 use crate::rect::Rect;
+pub use crate::text::Text;
 use ::image::{DynamicImage, GenericImageView, RgbaImage};
 use agape_core::{Border, Color, Position, Rgba, Size, map};
 use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, Shaping, SwashCache};
 use std::path::Path;
 use tiny_skia::{FillRule, IntSize, Paint, PathBuilder, Pixmap, PixmapPaint, Stroke, Transform};
 use usvg::Tree;
-use crate::image::Image;
 // TODO: mention that only ttf/otf fonts are supported
 
 pub struct Renderer {
@@ -59,11 +61,7 @@ impl Renderer {
     }
 
     /// Draw an image onto the pixmap.
-    pub fn draw_image(
-        &mut self,
-        pixmap: &mut Pixmap,
-        image: Image
-    ) {
+    pub fn draw_image(&mut self, pixmap: &mut Pixmap, image: Image) {
         image.draw(pixmap);
     }
 
@@ -73,44 +71,9 @@ impl Renderer {
     }
 
     /// Draw text onto the `Pixmap`.
-    pub fn draw_text(
-        &mut self,
-        pixmap: &mut Pixmap,
-        text: &str,
-        font_size: f32,
-        position: Position,
-    ) {
-        let text_size = self.text_size(text, font_size);
-
-        let font_system = &mut self.font_system;
-        let swash_cache = &mut self.swash_cache;
-        let metrics = Metrics::new(font_size, font_size);
-        let mut buffer = Buffer::new(font_system, metrics);
-        let mut buffer = buffer.borrow_with(font_system);
-        let attrs = Attrs::new();
-        buffer.set_text(text, &attrs, Shaping::Advanced);
-        buffer.shape_until_scroll(true);
-
-        // TODO: add clippy lint for conversion
-        let text_color = cosmic_text::Color::rgb(0, 0, 0);
-        let width = text_size.width.ceil() as u32;
-        let height = text_size.width.ceil() as u32;
-        let mut image = RgbaImage::new(width, height);
-        let size = IntSize::from_wh(image.width(), image.height()).unwrap();
-        buffer.draw(swash_cache, text_color, |x, y, _, _, color| {
-            let [r, g, b, a] = color.as_rgba();
-            image.put_pixel(x.max(0) as u32, y as u32, ::image::Rgba([r, g, b, a]));
-        });
-        let glyph_pixmap = Pixmap::from_vec(image.to_vec(), size).unwrap();
-        let Position { x, y } = position;
-        pixmap.draw_pixmap(
-            x as i32,
-            y as i32,
-            glyph_pixmap.as_ref(),
-            &PixmapPaint::default(),
-            Transform::identity(),
-            None,
-        );
+    pub fn draw_text(&mut self, pixmap: &mut Pixmap, text: Text) {
+        let size = self.text_size(&text.content, text.font_size);
+        text.draw_text(pixmap, size, &mut self.font_system, &mut self.swash_cache)
     }
 
     /// Get the text size.

@@ -1,5 +1,4 @@
-use agape_core::Position;
-use agape_renderer::Renderer;
+use agape_renderer::{Renderer, Text};
 use tiny_skia::Pixmap;
 
 #[test]
@@ -10,5 +9,6 @@ fn render_long_string() {
     for _ in 0..1000 {
         text.push('a')
     }
-    renderer.draw_text(&mut pixmap, &text, 16.0, Position::default());
+    let text = Text::new(&text);
+    renderer.draw_text(&mut pixmap, text);
 }

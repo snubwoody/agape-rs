@@ -60,7 +60,10 @@ impl Widget for Text {
     fn render(&self, pixmap: &mut Pixmap, renderer: &mut Renderer, layout: &dyn Layout) {
         let layout = layout.get(self.id).unwrap();
         let position = layout.position();
-        renderer.draw_text(pixmap, &self.value, self.font_size as f32, position)
+        let mut text = agape_renderer::Text::new(self.value.as_str());
+        text.font_size = self.font_size as f32;
+        text.position = position;
+        renderer.draw_text(pixmap, text)
     }
 
     fn id(&self) -> GlobalId {
