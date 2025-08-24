@@ -1,4 +1,3 @@
-use crate::Renderer;
 use agape_core::{Position, Size};
 use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, Shaping, SwashCache};
 use image::RgbaImage;

@@ -5,11 +5,10 @@ pub mod text;
 pub use crate::image::Image;
 use crate::rect::Rect;
 pub use crate::text::Text;
-use ::image::{DynamicImage, GenericImageView, RgbaImage};
-use agape_core::{Border, Color, Position, Rgba, Size, map};
+use agape_core::{Position, Size};
 use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, Shaping, SwashCache};
 use std::path::Path;
-use tiny_skia::{FillRule, IntSize, Paint, PathBuilder, Pixmap, PixmapPaint, Stroke, Transform};
+use tiny_skia::{Pixmap, Transform};
 use usvg::Tree;
 // TODO: mention that only ttf/otf fonts are supported
 

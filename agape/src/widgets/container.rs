@@ -55,7 +55,8 @@ impl<W: Widget> Widget for Container<W> {
         let mut rect = Rect::new()
             .size(size.width, size.height)
             .position(position.x, position.y)
-            .corner_radius(self.style.corner_radius);
+            .corner_radius(self.style.corner_radius)
+            .color(self.style.background_color.clone());
 
         rect.border = self.style.border.clone();
         renderer.draw_rect(pixmap, rect);
