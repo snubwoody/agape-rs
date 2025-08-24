@@ -15,7 +15,8 @@ tiny-skia.workspace = true
 image.workspace = true
 resvg.workspace = true
 usvg.workspace = true
-bon.workspace = true
+tempfile.workspace = true
+rand.workspace = true
 
 [lints]
 workspace = true

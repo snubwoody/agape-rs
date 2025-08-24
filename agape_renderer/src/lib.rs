@@ -1,33 +1,15 @@
+pub mod image;
 pub mod rect;
 
 use crate::rect::Rect;
+use ::image::{DynamicImage, GenericImageView, RgbaImage};
 use agape_core::{Border, Color, Position, Rgba, Size, map};
 use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, Shaping, SwashCache};
-use image::{DynamicImage, GenericImageView, RgbaImage};
 use std::path::Path;
 use tiny_skia::{FillRule, IntSize, Paint, PathBuilder, Pixmap, PixmapPaint, Stroke, Transform};
 use usvg::Tree;
+use crate::image::Image;
 // TODO: mention that only ttf/otf fonts are supported
-
-pub struct RenderContext<'a> {
-    pub fonts: &'a mut FontSystem,
-    pub cache: &'a mut SwashCache,
-    pub pixmap: &'a mut Pixmap,
-}
-
-impl<'a> RenderContext<'a> {
-    pub fn new(
-        fonts: &'a mut FontSystem,
-        cache: &'a mut SwashCache,
-        pixmap: &'a mut Pixmap,
-    ) -> Self {
-        Self {
-            fonts,
-            cache,
-            pixmap,
-        }
-    }
-}
 
 pub struct Renderer {
     font_system: FontSystem,
@@ -80,24 +62,9 @@ impl Renderer {
     pub fn draw_image(
         &mut self,
         pixmap: &mut Pixmap,
-        image: &DynamicImage,
-        position: Position,
-        size: Size,
+        image: Image
     ) {
-        let (width, height) = image.dimensions();
-        let data = image.to_rgba8().into_raw();
-        let pixmap_size = IntSize::from_wh(width, height).unwrap();
-        let image_pixmap = Pixmap::from_vec(data, pixmap_size).unwrap();
-
-        let scale_x = size.width / image_pixmap.width() as f32;
-        let scale_y = size.height / image_pixmap.height() as f32;
-        let transform =
-            Transform::from_translate(position.x, position.y).post_scale(scale_x, scale_y);
-
-        let x = position.x as i32;
-        let y = position.y as i32;
-        let paint = PixmapPaint::default();
-        pixmap.draw_pixmap(x, y, image_pixmap.as_ref(), &paint, transform, None);
+        image.draw(pixmap);
     }
 
     /// Draw a rectangle onto the `Pixmap`.
@@ -132,7 +99,7 @@ impl Renderer {
         let size = IntSize::from_wh(image.width(), image.height()).unwrap();
         buffer.draw(swash_cache, text_color, |x, y, _, _, color| {
             let [r, g, b, a] = color.as_rgba();
-            image.put_pixel(x.max(0) as u32, y as u32, image::Rgba([r, g, b, a]));
+            image.put_pixel(x.max(0) as u32, y as u32, ::image::Rgba([r, g, b, a]));
         });
         let glyph_pixmap = Pixmap::from_vec(image.to_vec(), size).unwrap();
         let Position { x, y } = position;
