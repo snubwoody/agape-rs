@@ -96,7 +96,10 @@ impl Widget for Svg {
         let layout = layout.get(self.id).unwrap();
         let size = layout.size();
         let position = layout.position();
-        renderer.draw_svg(pixmap, &self.data, position, size);
+        let mut svg = agape_renderer::Svg::new(self.data.clone());
+        svg.size = size;
+        svg.position = position;
+        renderer.draw_svg(pixmap, svg);
     }
 }
 

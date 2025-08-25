@@ -41,13 +41,40 @@ impl Widget for Rect {
         let size = layout.size();
         let position = layout.position();
 
-        renderer.draw_rect(
-            pixmap,
-            &self.style.background_color.clone(),
-            size,
-            position,
-            self.style.corner_radius,
-            self.style.border.clone(),
-        );
+        let mut rect = agape_renderer::rect::Rect::new()
+            .size(size.width, size.height)
+            .position(position.x, position.y)
+            .corner_radius(self.style.corner_radius)
+            .color(self.style.background_color.clone());
+
+        rect.border = self.style.border.clone();
+        renderer.draw_rect(pixmap, rect);
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::widgets::Rect;
+    use agape_core::{Color, Size};
+    use agape_layout::solve_layout;
+
+    #[test]
+    fn background_color() {
+        let rect = Rect::new()
+            .fixed(100.0, 100.0)
+            .background_color(Color::rgb(53, 102, 145));
+
+        let mut pixmap = Pixmap::new(100, 100).unwrap();
+        let mut renderer = Renderer::new();
+        let mut layout = rect.layout(&mut renderer);
+        solve_layout(layout.as_mut(), Size::default());
+        rect.render(&mut pixmap, &mut renderer, layout.as_ref());
+
+        for pixel in pixmap.pixels() {
+            assert_eq!(pixel.red(), 53);
+            assert_eq!(pixel.green(), 102);
+            assert_eq!(pixel.blue(), 145);
+        }
     }
 }

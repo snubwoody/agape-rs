@@ -44,6 +44,7 @@ resvg = "0.45.1"
 tracing = "0.1.41"
 tempfile = "3.20.0"
 bevy_ecs = "0.16.1"
+bon = "3.7.1"
 
 [workspace.lints.clippy]
 enum_glob_use = "warn"

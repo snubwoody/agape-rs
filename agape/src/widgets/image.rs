@@ -1,6 +1,6 @@
-//! Image support.
+//! Images.
 //!
-//! Only the following image formats are supported:
+//! Currently only the following image formats are supported:
 //! - `PNG`
 //! - `WebP`
 //! - `JPEG`
@@ -16,9 +16,9 @@ use image::{DynamicImage, ImageFormat, ImageReader};
 use std::fs;
 use std::io::Cursor;
 use std::path::Path;
+use std::rc::Rc;
 use tiny_skia::Pixmap;
 
-// TODO: re-export image format
 /// Displays an image to the screen. Only `JPEG`, `PNG` and `WebP` formats
 /// are currently supported.
 ///
@@ -30,7 +30,7 @@ use tiny_skia::Pixmap;
 /// ```
 pub struct Image {
     id: GlobalId,
-    data: DynamicImage,
+    data: Rc<DynamicImage>,
     style: BoxStyle,
 }
 
@@ -62,7 +62,7 @@ impl Image {
 
         Ok(Self {
             id: GlobalId::new(),
-            data: image,
+            data: Rc::new(image),
             style,
         })
     }
@@ -94,6 +94,9 @@ impl Widget for Image {
         let layout = layout.get(self.id()).unwrap();
         let size = layout.size();
         let position = layout.position();
-        renderer.draw_image(pixmap, &self.data, position, size);
+        let mut image = agape_renderer::image::Image::new(self.data.clone());
+        image.size = size;
+        image.position = position;
+        renderer.draw_image(pixmap, image);
     }
 }
