@@ -35,10 +35,9 @@ pub use vstack::*;
 /// }
 ///
 /// impl View for TextBox{
-///     fn view(&self) -> Box<dyn Widget> {
-///         Box::new(
-///             Text::new(&self.text)
-///         )
+///     type Widget = Text;
+///     fn view(&self) -> Text{
+///         Text::new(&self.text)
 ///     }
 /// }
 ///

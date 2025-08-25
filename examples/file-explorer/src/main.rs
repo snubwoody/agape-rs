@@ -5,10 +5,6 @@ use std::path::PathBuf;
 
 #[derive(Debug, Clone)]
 struct ChangeDir(PathBuf);
-#[derive(Debug, Clone)]
-struct PreviousDir;
-#[derive(Debug, Clone)]
-struct ForwardDir;
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
