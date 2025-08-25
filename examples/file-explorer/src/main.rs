@@ -1,5 +1,5 @@
 use agape::message::MouseButtonDown;
-use agape::{App, Color, MessageQueue, State, widgets::*};
+use agape::{App, Color, MessageQueue, State, hstack, vstack, widgets::*};
 use std::fs;
 use std::path::PathBuf;
 
@@ -13,6 +13,7 @@ fn main() -> agape::Result<()> {
 }
 
 struct Home {
+    navbar: Navbar,
     directories: Vec<DirEntry>,
 }
 
@@ -20,8 +21,12 @@ impl Home {
     pub fn new() -> Self {
         let home_dir = std::env::home_dir().unwrap();
         let directories = Self::entries(home_dir);
+        let navbar = Navbar::new();
 
-        Self { directories }
+        Self {
+            directories,
+            navbar,
+        }
     }
 
     pub fn entries(dir: PathBuf) -> Vec<DirEntry> {
@@ -36,9 +41,10 @@ impl Home {
 }
 
 impl View for Home {
+    type Widget = VStack;
+
     fn update(&mut self, state: &State, messages: &mut MessageQueue) {
         // TODO: Check if directory
-        dbg!(&messages);
         if let Some(change_dir) = messages.get::<ChangeDir>() {
             self.directories = Self::entries(change_dir.0.clone());
         }
@@ -46,14 +52,49 @@ impl View for Home {
         self.directories
             .iter_mut()
             .for_each(|d| d.update(state, messages));
+        self.navbar.update(state, messages);
     }
 
-    fn view(&self) -> Box<dyn Widget> {
+    fn view(&self) -> VStack {
         let mut vstack = VStack::new();
         for entry in &self.directories {
-            vstack.append_child(entry.view());
+            vstack.append_child(Box::new(entry.view()));
         }
-        Box::new(vstack)
+
+        let navbar = self.navbar.view();
+        vstack! {
+            navbar,
+            vstack
+        }
+        .spacing(24)
+    }
+}
+
+struct Navbar {
+    back: Text,
+    forward: Text,
+}
+
+impl Navbar {
+    pub fn new() -> Self {
+        Self {
+            back: Text::new("Back"),
+            forward: Text::new("Forward"),
+        }
+    }
+}
+
+impl View for Navbar {
+    type Widget = HStack;
+
+    fn view(&self) -> HStack {
+        let back = self.back.clone();
+        let forward = self.forward.clone();
+        hstack! {
+            forward,
+            back
+        }
+        .spacing(12)
     }
 }
 
@@ -70,6 +111,7 @@ impl DirEntry {
 }
 
 impl View for DirEntry {
+    type Widget = Container<Text>;
     fn update(&mut self, state: &State, messages: &mut MessageQueue) {
         let is_hovered = state.is_hovered(&self.widget.id());
         if is_hovered {
@@ -86,7 +128,7 @@ impl View for DirEntry {
         }
     }
 
-    fn view(&self) -> Box<dyn Widget> {
-        Box::new(self.widget.clone())
+    fn view(&self) -> Container<Text> {
+        self.widget.clone()
     }
 }
