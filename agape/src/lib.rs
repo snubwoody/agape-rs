@@ -3,6 +3,14 @@
 //! ## Getting started
 //! To get started you'll need to create an [`App`], which is the entry point
 //! of the program, and a root [`Widget`].
+//!
+//! ## Layout
+//! At a high level if you want widgets to be placed horizontally you would use the
+//! [`HStack`] widget and for placing them vertically you would use the [`VStack`] widget.
+//!
+//! ## Styling
+//! Widgets have various methods that let you change their style such as background color
+//! and corner radius.
 use crate::widgets::Widget;
 pub mod error;
 mod macros;
@@ -85,7 +93,7 @@ impl<V: View> App<'_, V> {
         self.view.update(&self.state, messages.as_mut());
         messages.clear();
 
-        let widget = self.view.view();
+        let mut widget = self.view.view();
         let mut layout = widget.layout(&mut self.renderer);
         solve_layout(&mut *layout, self.state.window_size);
 
@@ -96,6 +104,8 @@ impl<V: View> App<'_, V> {
         widget.render(pixmap, &mut self.renderer, layout.as_ref());
 
         self.state.update_layout(layout);
+        widget.update(&self.state, messages.as_mut());
+
         pixels.frame_mut().copy_from_slice(pixmap.data());
         pixels.render().unwrap();
     }

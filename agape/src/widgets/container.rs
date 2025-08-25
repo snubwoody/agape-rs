@@ -1,6 +1,6 @@
 use super::Widget;
-use crate::impl_style;
 use crate::style::BoxStyle;
+use crate::{MessageQueue, State, impl_style};
 use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
@@ -37,6 +37,10 @@ impl<W> Container<W> {
 impl<W: Widget> Widget for Container<W> {
     fn id(&self) -> GlobalId {
         self.id
+    }
+
+    fn update(&mut self, state: &State, messages: &mut MessageQueue) {
+        self.child.update(state, messages);
     }
 
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {

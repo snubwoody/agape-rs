@@ -1,6 +1,7 @@
 //! [`Widget`]'s describe what you want to present onto the screen. Agape tries to provide
 //! as many [`Widget`]'s as possible for various uses such as [`Text`],[`Button`],[`HStack`]
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
+mod button;
 mod container;
 mod hstack;
 pub mod image;
@@ -10,10 +11,11 @@ mod text;
 mod vstack;
 
 use crate::State;
-use crate::message::MessageQueue;
+use crate::message::{Message, MessageQueue};
 use agape_core::GlobalId;
 use agape_layout::Layout;
 use agape_renderer::Renderer;
+pub use button::Button;
 pub use container::Container;
 pub use hstack::*;
 pub use image::Image;
@@ -64,6 +66,8 @@ pub trait Widget {
     fn id(&self) -> GlobalId;
 
     fn layout(&self, _: &mut Renderer) -> Box<dyn Layout>;
+
+    fn update(&mut self, _: &State, _: &mut MessageQueue);
 
     /// Draw the widget to the screen.
     fn render(&self, _: &mut Pixmap, _: &mut Renderer, _: &dyn Layout) {}

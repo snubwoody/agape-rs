@@ -1,4 +1,5 @@
 use super::Widget;
+use crate::{MessageQueue, State};
 use agape_core::GlobalId;
 use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
 use agape_renderer::Renderer;
@@ -47,6 +48,8 @@ impl Text {
 }
 
 impl Widget for Text {
+    fn update(&mut self, _: &State, _: &mut MessageQueue) {}
+
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
         let size = renderer.text_size(&self.value, self.font_size as f32);
         let layout = EmptyLayout {

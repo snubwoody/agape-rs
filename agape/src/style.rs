@@ -1,6 +1,7 @@
 use agape_core::{Border, Color, IntoColor, Rgba};
 use agape_layout::{BoxSizing, IntrinsicSize};
 
+// TODO: add alignment and padding
 #[derive(Default, Debug, PartialOrd, PartialEq, Clone)]
 pub struct BoxStyle {
     pub intrinsic_size: IntrinsicSize,

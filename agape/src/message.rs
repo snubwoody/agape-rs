@@ -4,6 +4,9 @@ use bevy_ecs::prelude::*;
 use std::any::Any;
 use winit::event::WindowEvent;
 
+// Marker trait for messages
+pub trait Message: Send + Sync {}
+
 /// Emitted when the left mouse button is pressed.
 pub struct MouseButtonDown;
 

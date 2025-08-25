@@ -1,5 +1,5 @@
 use crate::style::BoxStyle;
-use crate::{impl_style, widgets::Widget};
+use crate::{MessageQueue, State, impl_style, widgets::Widget};
 use agape_core::GlobalId;
 use agape_layout::{AxisAlignment, Layout, VerticalLayout};
 use agape_renderer::Renderer;
@@ -85,6 +85,12 @@ impl VStack {
 impl Widget for VStack {
     fn id(&self) -> GlobalId {
         self.id
+    }
+
+    fn update(&mut self, state: &State, messages: &mut MessageQueue) {
+        self.children
+            .iter_mut()
+            .for_each(|child| child.update(state, messages));
     }
 
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {

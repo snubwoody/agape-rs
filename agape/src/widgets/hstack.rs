@@ -1,5 +1,5 @@
 use crate::style::BoxStyle;
-use crate::{impl_style, widgets::Widget};
+use crate::{MessageQueue, State, impl_style, widgets::Widget};
 use agape_core::GlobalId;
 use agape_layout::{AxisAlignment, HorizontalLayout, Layout};
 use agape_renderer::Renderer;
@@ -92,6 +92,11 @@ impl Widget for HStack {
         self.id
     }
 
+    fn update(&mut self, state: &State, messages: &mut MessageQueue) {
+        self.children
+            .iter_mut()
+            .for_each(|child| child.update(state, messages));
+    }
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
         let children: Vec<Box<dyn Layout>> =
             self.children.iter().map(|w| w.layout(renderer)).collect();

@@ -2,9 +2,13 @@ use agape::message::MouseButtonDown;
 use agape::{App, Color, MessageQueue, State, hstack, vstack, widgets::*};
 use std::fs;
 use std::path::PathBuf;
+use tracing::info;
 
 #[derive(Debug, Clone)]
 struct ChangeDir(PathBuf);
+
+#[derive(Debug, Clone)]
+struct PreviousDir;
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
@@ -13,7 +17,6 @@ fn main() -> agape::Result<()> {
 }
 
 struct Home {
-    navbar: Navbar,
     directories: Vec<DirEntry>,
 }
 
@@ -23,10 +26,7 @@ impl Home {
         let directories = Self::entries(home_dir);
         let navbar = Navbar::new();
 
-        Self {
-            directories,
-            navbar,
-        }
+        Self { directories }
     }
 
     pub fn entries(dir: PathBuf) -> Vec<DirEntry> {
@@ -49,10 +49,13 @@ impl View for Home {
             self.directories = Self::entries(change_dir.0.clone());
         }
 
+        if messages.has::<PreviousDir>() {
+            info!("Going to previous directory");
+        }
+
         self.directories
             .iter_mut()
             .for_each(|d| d.update(state, messages));
-        self.navbar.update(state, messages);
     }
 
     fn view(&self) -> VStack {
@@ -61,9 +64,11 @@ impl View for Home {
             vstack.append_child(Box::new(entry.view()));
         }
 
-        let navbar = self.navbar.view();
         vstack! {
-            navbar,
+            hstack!{
+                Button::new(Text::new("Back"))
+                    .on_click(PreviousDir)
+            },
             vstack
         }
         .spacing(24)
@@ -112,6 +117,7 @@ impl DirEntry {
 
 impl View for DirEntry {
     type Widget = Container<Text>;
+
     fn update(&mut self, state: &State, messages: &mut MessageQueue) {
         let is_hovered = state.is_hovered(&self.widget.id());
         if is_hovered {

@@ -1,6 +1,6 @@
 use super::Widget;
-use crate::impl_style;
 use crate::style::BoxStyle;
+use crate::{MessageQueue, State, impl_style};
 use agape_core::{GlobalId, Position, Size};
 use agape_layout::{EmptyLayout, Layout};
 use agape_renderer::Renderer;
@@ -26,6 +26,8 @@ impl Widget for Rect {
     fn id(&self) -> GlobalId {
         self.id
     }
+
+    fn update(&mut self, _: &State, _: &mut MessageQueue) {}
 
     fn layout(&self, _: &mut Renderer) -> Box<dyn Layout> {
         let layout = EmptyLayout {

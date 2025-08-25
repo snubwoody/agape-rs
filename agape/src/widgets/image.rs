@@ -6,9 +6,9 @@
 //! - `JPEG`
 
 use crate::Error::UnsupportedImageFormat;
-use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::widgets::Widget;
+use crate::{MessageQueue, State, impl_style};
 use agape_core::{GlobalId, Size};
 use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
 use agape_renderer::Renderer;
@@ -76,6 +76,8 @@ impl Image {
 }
 
 impl Widget for Image {
+    fn update(&mut self, _: &State, _: &mut MessageQueue) {}
+
     fn id(&self) -> GlobalId {
         self.id
     }
