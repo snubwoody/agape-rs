@@ -3,6 +3,7 @@
 //! ## Getting started
 //! To get started you'll need to create an [`App`], which is the entry point
 //! of the program, and a root [`Widget`].
+use crate::widgets::Widget;
 pub mod error;
 mod macros;
 pub mod message;
@@ -41,23 +42,22 @@ use winit::{
 
 // TODO: store the pixmap in the renderer?
 /// An `App` is a single program.
-pub struct App<'app> {
+pub struct App<'app, V> {
     window: Option<Arc<Window>>,
     pixels: Option<Pixels<'app>>,
     pixmap: Option<Pixmap>,
     renderer: Renderer,
-    view: Box<dyn View>,
+    view: V,
     state: State,
     world: World,
     schedule: Schedule,
 }
 
-impl App<'_> {
+impl<V: View> App<'_, V> {
     /// Create a new app.
-    pub fn new(root: impl View + 'static) -> Self {
-        let widget = root.view();
+    pub fn new(view: V) -> Self {
+        let widget = view.view();
         let mut renderer = Renderer::new();
-        let view: Box<dyn View> = Box::new(root);
         let layout = widget.layout(&mut renderer);
         let state = State::new(layout);
 
@@ -118,7 +118,7 @@ impl App<'_> {
     }
 }
 
-impl ApplicationHandler for App<'_> {
+impl<V: View> ApplicationHandler for App<'_, V> {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         log::info!("Initializing resources");
         let window = event_loop.create_window(Default::default()).unwrap();
