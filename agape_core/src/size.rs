@@ -215,3 +215,12 @@ impl From<(u32, u32)> for Size {
         }
     }
 }
+
+impl From<tiny_skia::Size> for Size {
+    fn from(size: tiny_skia::Size) -> Self {
+        Self {
+            width: size.width(),
+            height: size.height(),
+        }
+    }
+}

@@ -1,15 +1,17 @@
 pub mod image;
 pub mod rect;
+pub mod svg;
 pub mod text;
 
 pub use crate::image::Image;
 use crate::rect::Rect;
 pub use crate::text::Text;
-use agape_core::{Position, Size};
+use agape_core::Size;
 use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, Shaping, SwashCache};
 use std::path::Path;
-use tiny_skia::{Pixmap, Transform};
-use usvg::Tree;
+pub use svg::Svg;
+use tiny_skia::Pixmap;
+
 // TODO: mention that only ttf/otf fonts are supported
 
 pub struct Renderer {
@@ -48,15 +50,9 @@ impl Renderer {
         self.font_system.db_mut().load_fonts_dir(path)
     }
 
-    pub fn draw_svg(&mut self, pixmap: &mut Pixmap, tree: &Tree, position: Position, size: Size) {
-        let svg_width = tree.size().width();
-        let svg_height = tree.size().height();
-        let scale_x = size.width / svg_width;
-        let scale_y = size.height / svg_height;
-        let transform =
-            Transform::from_translate(position.x, position.y).post_scale(scale_x, scale_y);
-
-        resvg::render(tree, transform, &mut pixmap.as_mut());
+    /// Draw an svg onto the pixmap.
+    pub fn draw_svg(&mut self, pixmap: &mut Pixmap, svg: Svg) {
+        svg.draw(pixmap);
     }
 
     /// Draw an image onto the pixmap.
