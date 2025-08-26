@@ -65,13 +65,14 @@ mod test {
             .fixed(100.0, 100.0)
             .background_color(Color::rgb(53, 102, 145));
 
-        let mut pixmap = Pixmap::new(100, 100).unwrap();
         let mut renderer = Renderer::new();
+        renderer.resize(100, 100);
         let mut layout = rect.layout(&mut renderer);
         solve_layout(layout.as_mut(), Size::default());
         rect.render(&mut renderer, layout.as_ref());
 
-        for pixel in pixmap.pixels() {
+        let pixels = renderer.pixmap().pixels();
+        for pixel in pixels {
             assert_eq!(pixel.red(), 53);
             assert_eq!(pixel.green(), 102);
             assert_eq!(pixel.blue(), 145);

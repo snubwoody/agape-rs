@@ -4,7 +4,6 @@ use agape_core::GlobalId;
 use agape_layout::{AxisAlignment, Layout, VerticalLayout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
-use tiny_skia::Pixmap;
 
 /// A vertical stack that places its children vertically one after
 /// another.

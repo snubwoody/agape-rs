@@ -68,6 +68,7 @@ impl Renderer {
         &self.pixmap
     }
 
+    /// Get a `&mut` to the `Pixmap`.
     pub fn pixmap_mut(&mut self) -> &mut Pixmap {
         &mut self.pixmap
     }
