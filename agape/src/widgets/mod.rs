@@ -14,6 +14,7 @@ use crate::message::MessageQueue;
 use agape_core::GlobalId;
 use agape_layout::Layout;
 use agape_renderer::Renderer;
+use bevy_ecs::prelude::Resource;
 pub use container::Container;
 pub use hstack::*;
 pub use image::Image;
@@ -21,6 +22,9 @@ pub use rect::*;
 pub use svg::Svg;
 pub use text::Text;
 pub use vstack::*;
+
+#[derive(Resource)]
+pub(crate) struct ViewTree(Box<dyn View>);
 
 /// A [`View`].
 ///
@@ -49,13 +53,13 @@ pub use vstack::*;
 /// to state changes and events.
 ///
 /// [`update`]: View::update
-pub trait View {
+pub trait View: Send + Sync {
     fn update(&mut self, _: &State, _: &mut MessageQueue) {}
 
     fn view(&self) -> Box<dyn Widget>;
 }
 
-pub trait Widget {
+pub trait Widget: Send + Sync {
     /// Get the `id` of the [`Widget`]
     fn id(&self) -> GlobalId;
 

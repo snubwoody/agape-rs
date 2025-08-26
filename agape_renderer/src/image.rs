@@ -1,17 +1,18 @@
 use agape_core::{Position, Size};
 use image::{DynamicImage, GenericImageView};
 use std::rc::Rc;
+use std::sync::Arc;
 use tiny_skia::{IntSize, Pixmap, PixmapPaint, Transform};
 
 #[derive(PartialEq)]
 pub struct Image {
     pub size: Size,
     pub position: Position,
-    data: Rc<DynamicImage>,
+    data: Arc<DynamicImage>,
 }
 
 impl Image {
-    pub fn new(image: Rc<DynamicImage>) -> Self {
+    pub fn new(image: Arc<DynamicImage>) -> Self {
         let size = Size::from(image.dimensions());
         Self {
             data: image,

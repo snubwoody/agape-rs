@@ -7,6 +7,7 @@ use agape_renderer::Renderer;
 use std::fs;
 use std::path::Path;
 use std::rc::Rc;
+use std::sync::Arc;
 use usvg::Tree;
 
 /// Displays an SVG to the screen.
@@ -46,7 +47,7 @@ use usvg::Tree;
 #[derive(Debug)]
 pub struct Svg {
     id: GlobalId,
-    data: Rc<Tree>,
+    data: Arc<Tree>,
     style: BoxStyle,
 }
 
@@ -70,7 +71,7 @@ impl Svg {
 
         Ok(Self {
             id: GlobalId::new(),
-            data: Rc::new(tree),
+            data: Arc::new(tree),
             style,
         })
     }
