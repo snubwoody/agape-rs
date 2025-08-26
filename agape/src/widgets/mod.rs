@@ -34,9 +34,8 @@ pub use vstack::*;
 /// }
 ///
 /// impl View for TextBox{
-///     type Widget = Text;
-///     fn view(&self) -> Text{
-///         Text::new(&self.text)
+///     fn view(&self) -> Box<dyn Widget>{
+///         Box::new(Text::new(&self.text))
 ///     }
 /// }
 ///
@@ -51,11 +50,9 @@ pub use vstack::*;
 ///
 /// [`update`]: View::update
 pub trait View {
-    type Widget: Widget;
-
     fn update(&mut self, _: &State, _: &mut MessageQueue) {}
 
-    fn view(&self) -> Self::Widget;
+    fn view(&self) -> Box<dyn Widget>;
 }
 
 pub trait Widget {

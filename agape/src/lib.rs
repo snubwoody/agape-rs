@@ -3,7 +3,7 @@
 //! ## Getting started
 //! To get started you'll need to create an [`App`], which is the entry point
 //! of the program, and a root [`Widget`].
-use crate::widgets::Widget;
+use crate::widgets::{HStack, Widget};
 pub mod error;
 mod macros;
 pub mod message;
@@ -41,19 +41,19 @@ use winit::{
 
 // TODO: store the pixmap in the renderer?
 /// An `App` is a single program.
-pub struct App<'app, V> {
+pub struct App<'app> {
     window: Option<Arc<Window>>,
     pixels: Option<Pixels<'app>>,
     renderer: Renderer,
-    view: V,
+    view: Box<dyn View>,
     state: State,
     world: World,
     schedule: Schedule,
 }
 
-impl<V: View> App<'_, V> {
+impl App<'_> {
     /// Create a new app.
-    pub fn new(view: V) -> Self {
+    pub fn new(view: impl View + 'static) -> Self {
         let widget = view.view();
         let mut renderer = Renderer::new();
         let layout = widget.layout(&mut renderer);
@@ -68,7 +68,7 @@ impl<V: View> App<'_, V> {
             window: None,
             pixels: None,
             renderer,
-            view,
+            view: Box::new(view),
             state,
             world,
             schedule: Schedule::default(),
@@ -118,7 +118,7 @@ impl<V: View> App<'_, V> {
     }
 }
 
-impl<V: View> ApplicationHandler for App<'_, V> {
+impl ApplicationHandler for App<'_> {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         log::info!("Initializing resources");
         let window = event_loop.create_window(Default::default()).unwrap();
@@ -175,7 +175,7 @@ impl<V: View> ApplicationHandler for App<'_, V> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Resource)]
 pub struct State {
     cursor_position: Position,
     window_size: Size,
@@ -207,6 +207,35 @@ impl State {
     pub fn update_layout(&mut self, layout: Box<dyn Layout>) {
         self.layout = layout;
     }
+}
+
+fn render(
+    mut renderer: ResMut<Renderer>,
+    mut messages: ResMut<MessageQueue>,
+    mut view: Box<dyn View>, // ResMut
+    mut state: ResMut<State>,
+) {
+    messages.tick();
+    view.update(&state, messages.as_mut());
+    messages.clear();
+
+    // TODO: update_layout
+    let widget = view.view();
+    let mut layout = widget.layout(&mut renderer);
+    solve_layout(&mut *layout, state.window_size);
+
+    // let pixels = self.pixels.as_mut().unwrap();
+    // self.renderer.pixmap_mut().fill(tiny_skia::Color::WHITE);
+
+    // widget.render(&mut self.renderer, layout.as_ref());
+
+    state.update_layout(layout);
+}
+
+fn update_layout(mut view: Box<dyn View>, mut renderer: ResMut<Renderer>, state: Res<State>) {
+    let widget = view.view();
+    let mut layout = widget.layout(&mut renderer);
+    solve_layout(&mut *layout, state.window_size);
 }
 
 fn handle_click(queue: ResMut<EventQueue>, mut messages: ResMut<MessageQueue>) {

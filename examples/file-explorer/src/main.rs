@@ -41,8 +41,6 @@ impl Home {
 }
 
 impl View for Home {
-    type Widget = VStack;
-
     fn update(&mut self, state: &State, messages: &mut MessageQueue) {
         // TODO: Check if directory
         if let Some(change_dir) = messages.get::<ChangeDir>() {
@@ -55,18 +53,19 @@ impl View for Home {
         self.navbar.update(state, messages);
     }
 
-    fn view(&self) -> VStack {
+    fn view(&self) -> Box<dyn Widget> {
         let mut vstack = VStack::new();
         for entry in &self.directories {
-            vstack.append_child(Box::new(entry.view()));
+            vstack.append_child(entry.view());
         }
 
         let navbar = self.navbar.view();
-        vstack! {
-            navbar,
+        let vstack = vstack! {
+            // navbar, FIXME
             vstack
         }
-        .spacing(24)
+        .spacing(24);
+        Box::new(vstack)
     }
 }
 
@@ -85,16 +84,15 @@ impl Navbar {
 }
 
 impl View for Navbar {
-    type Widget = HStack;
-
-    fn view(&self) -> HStack {
+    fn view(&self) -> Box<dyn Widget> {
         let back = self.back.clone();
         let forward = self.forward.clone();
-        hstack! {
+        let hstack = hstack! {
             forward,
             back
         }
-        .spacing(12)
+        .spacing(12);
+        Box::new(hstack)
     }
 }
 
@@ -111,7 +109,6 @@ impl DirEntry {
 }
 
 impl View for DirEntry {
-    type Widget = Container<Text>;
     fn update(&mut self, state: &State, messages: &mut MessageQueue) {
         let is_hovered = state.is_hovered(&self.widget.id());
         if is_hovered {
@@ -128,7 +125,7 @@ impl View for DirEntry {
         }
     }
 
-    fn view(&self) -> Container<Text> {
-        self.widget.clone()
+    fn view(&self) -> Box<dyn Widget> {
+        Box::new(self.widget.clone())
     }
 }
