@@ -29,7 +29,6 @@ use agape_renderer::Renderer;
 use bevy_ecs::prelude::*;
 use pixels::{Pixels, SurfaceTexture};
 use std::sync::Arc;
-use tiny_skia::Pixmap;
 use winit::event::{ElementState, MouseButton};
 use winit::event_loop::ActiveEventLoop;
 use winit::{
@@ -45,7 +44,6 @@ use winit::{
 pub struct App<'app, V> {
     window: Option<Arc<Window>>,
     pixels: Option<Pixels<'app>>,
-    pixmap: Option<Pixmap>,
     renderer: Renderer,
     view: V,
     state: State,
@@ -68,7 +66,6 @@ impl<V: View> App<'_, V> {
 
         Self {
             window: None,
-            pixmap: None,
             pixels: None,
             renderer,
             view,
@@ -81,22 +78,25 @@ impl<V: View> App<'_, V> {
     fn render(&mut self) {
         let mut messages = self.world.get_resource_mut::<MessageQueue>().unwrap();
         // TODO: move tick and clear to system
+        // TODO: update_view
         messages.tick();
         self.view.update(&self.state, messages.as_mut());
         messages.clear();
 
+        // TODO: update_layout
         let widget = self.view.view();
         let mut layout = widget.layout(&mut self.renderer);
         solve_layout(&mut *layout, self.state.window_size);
 
         let pixels = self.pixels.as_mut().unwrap();
-        let pixmap = self.pixmap.as_mut().unwrap();
-        pixmap.fill(tiny_skia::Color::WHITE);
+        self.renderer.pixmap_mut().fill(tiny_skia::Color::WHITE);
 
-        widget.render(pixmap, &mut self.renderer, layout.as_ref());
+        widget.render(&mut self.renderer, layout.as_ref());
 
         self.state.update_layout(layout);
-        pixels.frame_mut().copy_from_slice(pixmap.data());
+        pixels
+            .frame_mut()
+            .copy_from_slice(self.renderer.pixmap().data());
         pixels.render().unwrap();
     }
 
@@ -130,11 +130,9 @@ impl<V: View> ApplicationHandler for App<'_, V> {
 
         let surface = SurfaceTexture::new(width, height, Arc::clone(&window));
         let pixels = Pixels::new(width, height, surface).unwrap();
-        let pixmap = Pixmap::new(width, height).unwrap();
 
         self.pixels = Some(pixels);
         self.window = Some(Arc::clone(&window));
-        self.pixmap = Some(pixmap);
     }
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
@@ -165,8 +163,7 @@ impl<V: View> ApplicationHandler for App<'_, V> {
                     .resize_buffer(size.width, size.height)
                     .expect("Failed to resize the pixel buffer");
 
-                let pixmap = Pixmap::new(size.width, size.height).unwrap();
-                self.pixmap = Some(pixmap);
+                self.renderer.resize(size.width, size.height);
                 self.state.window_size = Size::from(size);
             }
             WindowEvent::CursorMoved { position, .. } => {

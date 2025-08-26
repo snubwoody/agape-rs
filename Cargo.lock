@@ -79,6 +79,7 @@ name = "agape_renderer"
 version = "0.3.0"
 dependencies = [
  "agape_core",
+ "bevy_ecs",
  "cosmic-text",
  "image",
  "rand 0.9.1",

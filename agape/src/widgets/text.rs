@@ -2,7 +2,6 @@ use super::Widget;
 use agape_core::GlobalId;
 use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
 use agape_renderer::Renderer;
-use tiny_skia::Pixmap;
 
 /// Draw text onto the screen.
 ///
@@ -57,13 +56,13 @@ impl Widget for Text {
         Box::new(layout)
     }
 
-    fn render(&self, pixmap: &mut Pixmap, renderer: &mut Renderer, layout: &dyn Layout) {
+    fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
         let layout = layout.get(self.id).unwrap();
         let position = layout.position();
         let mut text = agape_renderer::Text::new(self.value.as_str());
         text.font_size = self.font_size as f32;
         text.position = position;
-        renderer.draw_text(pixmap, text)
+        renderer.draw_text(text)
     }
 
     fn id(&self) -> GlobalId {

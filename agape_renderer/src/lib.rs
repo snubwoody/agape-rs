@@ -7,6 +7,7 @@ pub use crate::image::Image;
 use crate::rect::Rect;
 pub use crate::text::Text;
 use agape_core::Size;
+use bevy_ecs::prelude::Resource;
 use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, Shaping, SwashCache};
 use std::path::Path;
 pub use svg::Svg;
@@ -14,9 +15,11 @@ use tiny_skia::Pixmap;
 
 // TODO: mention that only ttf/otf fonts are supported
 
+#[derive(Resource)]
 pub struct Renderer {
     font_system: FontSystem,
     swash_cache: SwashCache,
+    pixmap: Pixmap,
 }
 
 // TODO: text size
@@ -31,9 +34,12 @@ impl Renderer {
     pub fn new() -> Self {
         let font_system = FontSystem::new();
         let swash_cache = SwashCache::new();
+        let pixmap = Pixmap::new(500, 500).unwrap();
+
         Self {
             font_system,
             swash_cache,
+            pixmap,
         }
     }
 
@@ -50,25 +56,47 @@ impl Renderer {
         self.font_system.db_mut().load_fonts_dir(path)
     }
 
+    /// Resize the `Pixmap`. Does nothing if the `width` or `height` is 0.
+    pub fn resize(&mut self, width: u32, height: u32) {
+        if width > 0 && height > 0 {
+            self.pixmap = Pixmap::new(width, height).unwrap();
+        }
+    }
+
+    /// Get a reference to the `Pixmap`.
+    pub fn pixmap(&self) -> &Pixmap {
+        &self.pixmap
+    }
+
+    /// Get a `&mut` to the `Pixmap`.
+    pub fn pixmap_mut(&mut self) -> &mut Pixmap {
+        &mut self.pixmap
+    }
+
     /// Draw an svg onto the pixmap.
-    pub fn draw_svg(&mut self, pixmap: &mut Pixmap, svg: Svg) {
-        svg.draw(pixmap);
+    pub fn draw_svg(&mut self, svg: Svg) {
+        svg.draw(&mut self.pixmap);
     }
 
     /// Draw an image onto the pixmap.
-    pub fn draw_image(&mut self, pixmap: &mut Pixmap, image: Image) {
-        image.draw(pixmap);
+    pub fn draw_image(&mut self, image: Image) {
+        image.draw(&mut self.pixmap);
     }
 
     /// Draw a rectangle onto the `Pixmap`.
-    pub fn draw_rect(&mut self, pixmap: &mut Pixmap, rect: Rect) {
-        rect.draw(pixmap);
+    pub fn draw_rect(&mut self, rect: Rect) {
+        rect.draw(&mut self.pixmap);
     }
 
     /// Draw text onto the `Pixmap`.
-    pub fn draw_text(&mut self, pixmap: &mut Pixmap, text: Text) {
+    pub fn draw_text(&mut self, text: Text) {
         let size = self.text_size(&text.content, text.font_size);
-        text.draw_text(pixmap, size, &mut self.font_system, &mut self.swash_cache)
+        text.draw_text(
+            &mut self.pixmap,
+            size,
+            &mut self.font_system,
+            &mut self.swash_cache,
+        )
     }
 
     /// Get the text size.

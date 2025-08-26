@@ -20,7 +20,6 @@ pub use image::Image;
 pub use rect::*;
 pub use svg::Svg;
 pub use text::Text;
-use tiny_skia::Pixmap;
 pub use vstack::*;
 
 /// A [`View`].
@@ -66,5 +65,5 @@ pub trait Widget {
     fn layout(&self, _: &mut Renderer) -> Box<dyn Layout>;
 
     /// Draw the widget to the screen.
-    fn render(&self, _: &mut Pixmap, _: &mut Renderer, _: &dyn Layout) {}
+    fn render(&self, _: &mut Renderer, _: &dyn Layout) {}
 }
