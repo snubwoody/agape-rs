@@ -17,7 +17,6 @@ use std::fs;
 use std::io::Cursor;
 use std::path::Path;
 use std::rc::Rc;
-use tiny_skia::Pixmap;
 
 /// Displays an image to the screen. Only `JPEG`, `PNG` and `WebP` formats
 /// are currently supported.

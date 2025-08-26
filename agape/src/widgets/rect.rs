@@ -4,7 +4,6 @@ use crate::style::BoxStyle;
 use agape_core::{GlobalId, Position, Size};
 use agape_layout::{EmptyLayout, Layout};
 use agape_renderer::Renderer;
-use tiny_skia::Pixmap;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
 pub struct Rect {

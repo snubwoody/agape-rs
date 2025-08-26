@@ -20,7 +20,6 @@ pub use image::Image;
 pub use rect::*;
 pub use svg::Svg;
 pub use text::Text;
-use tiny_skia::Pixmap;
 pub use vstack::*;
 
 /// A [`View`].

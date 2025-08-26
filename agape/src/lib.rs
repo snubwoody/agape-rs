@@ -29,7 +29,6 @@ use agape_renderer::Renderer;
 use bevy_ecs::prelude::*;
 use pixels::{Pixels, SurfaceTexture};
 use std::sync::Arc;
-use tiny_skia::Pixmap;
 use winit::event::{ElementState, MouseButton};
 use winit::event_loop::ActiveEventLoop;
 use winit::{
@@ -131,7 +130,6 @@ impl<V: View> ApplicationHandler for App<'_, V> {
 
         let surface = SurfaceTexture::new(width, height, Arc::clone(&window));
         let pixels = Pixels::new(width, height, surface).unwrap();
-        let pixmap = Pixmap::new(width, height).unwrap();
 
         self.pixels = Some(pixels);
         self.window = Some(Arc::clone(&window));
@@ -165,7 +163,6 @@ impl<V: View> ApplicationHandler for App<'_, V> {
                     .resize_buffer(size.width, size.height)
                     .expect("Failed to resize the pixel buffer");
 
-                let pixmap = Pixmap::new(size.width, size.height).unwrap();
                 self.renderer.resize(size.width, size.height);
                 self.state.window_size = Size::from(size);
             }

@@ -5,7 +5,6 @@ use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
-use tiny_skia::Pixmap;
 
 /// A widget that wraps another widget.
 #[derive(Clone, PartialEq)]

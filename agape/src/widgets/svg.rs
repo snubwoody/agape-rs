@@ -7,7 +7,6 @@ use agape_renderer::Renderer;
 use std::fs;
 use std::path::Path;
 use std::rc::Rc;
-use tiny_skia::Pixmap;
 use usvg::Tree;
 
 /// Displays an SVG to the screen.

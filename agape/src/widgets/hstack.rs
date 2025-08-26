@@ -4,7 +4,6 @@ use agape_core::GlobalId;
 use agape_layout::{AxisAlignment, HorizontalLayout, Layout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
-use tiny_skia::Pixmap;
 
 /// A horizontal stack of widgets, placed one after another.
 ///
