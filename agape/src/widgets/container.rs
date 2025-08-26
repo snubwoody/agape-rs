@@ -48,7 +48,7 @@ impl<W: Widget> Widget for Container<W> {
         Box::new(layout)
     }
 
-    fn render(&self, pixmap: &mut Pixmap, renderer: &mut Renderer, layout: &dyn Layout) {
+    fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
         let layout = layout.get(self.id).unwrap();
         let size = layout.size();
         let position = layout.position();
@@ -59,8 +59,8 @@ impl<W: Widget> Widget for Container<W> {
             .color(self.style.background_color.clone());
 
         rect.border = self.style.border.clone();
-        renderer.draw_rect(pixmap, rect);
-        self.child.render(pixmap, renderer, layout);
+        renderer.draw_rect(rect);
+        self.child.render(renderer, layout);
     }
 }
 
@@ -84,7 +84,7 @@ mod test {
         let mut renderer = Renderer::new();
         let mut layout = container.layout(&mut renderer);
         solve_layout(layout.as_mut(), Size::default());
-        container.render(&mut pixmap, &mut renderer, layout.as_ref());
+        container.render(&mut renderer, layout.as_ref());
 
         for pixel in pixmap.pixels() {
             assert_eq!(pixel.red(), 53);

@@ -92,14 +92,14 @@ impl Widget for Svg {
         };
         Box::new(layout)
     }
-    fn render(&self, pixmap: &mut Pixmap, renderer: &mut Renderer, layout: &dyn Layout) {
+    fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
         let layout = layout.get(self.id).unwrap();
         let size = layout.size();
         let position = layout.position();
         let mut svg = agape_renderer::Svg::new(self.data.clone());
         svg.size = size;
         svg.position = position;
-        renderer.draw_svg(pixmap, svg);
+        renderer.draw_svg(svg);
     }
 }
 

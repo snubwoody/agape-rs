@@ -45,7 +45,6 @@ use winit::{
 pub struct App<'app, V> {
     window: Option<Arc<Window>>,
     pixels: Option<Pixels<'app>>,
-    pixmap: Option<Pixmap>,
     renderer: Renderer,
     view: V,
     state: State,
@@ -68,7 +67,6 @@ impl<V: View> App<'_, V> {
 
         Self {
             window: None,
-            pixmap: None,
             pixels: None,
             renderer,
             view,
@@ -92,13 +90,14 @@ impl<V: View> App<'_, V> {
         solve_layout(&mut *layout, self.state.window_size);
 
         let pixels = self.pixels.as_mut().unwrap();
-        let pixmap = self.pixmap.as_mut().unwrap();
-        pixmap.fill(tiny_skia::Color::WHITE);
+        self.renderer.pixmap_mut().fill(tiny_skia::Color::WHITE);
 
-        widget.render(pixmap, &mut self.renderer, layout.as_ref());
+        widget.render(&mut self.renderer, layout.as_ref());
 
         self.state.update_layout(layout);
-        pixels.frame_mut().copy_from_slice(pixmap.data());
+        pixels
+            .frame_mut()
+            .copy_from_slice(self.renderer.pixmap().data());
         pixels.render().unwrap();
     }
 
@@ -136,7 +135,6 @@ impl<V: View> ApplicationHandler for App<'_, V> {
 
         self.pixels = Some(pixels);
         self.window = Some(Arc::clone(&window));
-        self.pixmap = Some(pixmap);
     }
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
@@ -168,7 +166,7 @@ impl<V: View> ApplicationHandler for App<'_, V> {
                     .expect("Failed to resize the pixel buffer");
 
                 let pixmap = Pixmap::new(size.width, size.height).unwrap();
-                self.pixmap = Some(pixmap);
+                self.renderer.resize(size.width, size.height);
                 self.state.window_size = Size::from(size);
             }
             WindowEvent::CursorMoved { position, .. } => {

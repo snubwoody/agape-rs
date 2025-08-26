@@ -55,10 +55,10 @@ impl Renderer {
     pub fn load_fonts_dir(&mut self, path: impl AsRef<Path>) {
         self.font_system.db_mut().load_fonts_dir(path)
     }
-    
+
     /// Resize the `Pixmap`. Does nothing if the `width` or `height` is 0.
-    pub fn resize(&mut self,width: u32, height: u32) {
-        if width > 0 && height > 0{
+    pub fn resize(&mut self, width: u32, height: u32) {
+        if width > 0 && height > 0 {
             self.pixmap = Pixmap::new(width, height).unwrap();
         }
     }
@@ -66,6 +66,10 @@ impl Renderer {
     /// Get a reference to the `Pixmap`.
     pub fn pixmap(&self) -> &Pixmap {
         &self.pixmap
+    }
+
+    pub fn pixmap_mut(&mut self) -> &mut Pixmap {
+        &mut self.pixmap
     }
 
     /// Draw an svg onto the pixmap.
@@ -86,7 +90,12 @@ impl Renderer {
     /// Draw text onto the `Pixmap`.
     pub fn draw_text(&mut self, text: Text) {
         let size = self.text_size(&text.content, text.font_size);
-        text.draw_text(&mut self.pixmap, size, &mut self.font_system, &mut self.swash_cache)
+        text.draw_text(
+            &mut self.pixmap,
+            size,
+            &mut self.font_system,
+            &mut self.swash_cache,
+        )
     }
 
     /// Get the text size.

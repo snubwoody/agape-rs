@@ -66,5 +66,5 @@ pub trait Widget {
     fn layout(&self, _: &mut Renderer) -> Box<dyn Layout>;
 
     /// Draw the widget to the screen.
-    fn render(&self, _: &mut Pixmap, _: &mut Renderer, _: &dyn Layout) {}
+    fn render(&self, _: &mut Renderer, _: &dyn Layout) {}
 }

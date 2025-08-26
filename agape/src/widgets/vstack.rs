@@ -103,7 +103,7 @@ impl Widget for VStack {
         Box::new(layout)
     }
 
-    fn render(&self, pixmap: &mut Pixmap, renderer: &mut Renderer, layout: &dyn Layout) {
+    fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
         let layout = layout.get(self.id).unwrap();
         let size = layout.size();
         let position = layout.position();
@@ -114,11 +114,11 @@ impl Widget for VStack {
 
         rect.border = self.style.border.clone();
 
-        renderer.draw_rect(pixmap, rect);
+        renderer.draw_rect(rect);
         // TODO: test this
         self.children
             .iter()
-            .for_each(|child| child.render(pixmap, renderer, layout));
+            .for_each(|child| child.render(renderer, layout));
     }
 }
 
