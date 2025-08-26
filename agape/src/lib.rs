@@ -81,10 +81,12 @@ impl<V: View> App<'_, V> {
     fn render(&mut self) {
         let mut messages = self.world.get_resource_mut::<MessageQueue>().unwrap();
         // TODO: move tick and clear to system
+        // TODO: update_view
         messages.tick();
         self.view.update(&self.state, messages.as_mut());
         messages.clear();
 
+        // TODO: update_layout
         let widget = self.view.view();
         let mut layout = widget.layout(&mut self.renderer);
         solve_layout(&mut *layout, self.state.window_size);

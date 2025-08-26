@@ -17,6 +17,7 @@ resvg.workspace = true
 usvg.workspace = true
 tempfile.workspace = true
 rand.workspace = true
+bevy_ecs.workspace = true
 
 [lints]
 workspace = true
