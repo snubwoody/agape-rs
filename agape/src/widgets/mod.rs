@@ -24,7 +24,7 @@ pub use text::Text;
 pub use vstack::*;
 
 #[derive(Resource)]
-pub(crate) struct ViewTree(Box<dyn View>);
+pub(crate) struct ViewTree(pub Box<dyn View>);
 
 /// A [`View`].
 ///

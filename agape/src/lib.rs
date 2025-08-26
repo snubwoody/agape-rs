@@ -3,7 +3,7 @@
 //! ## Getting started
 //! To get started you'll need to create an [`App`], which is the entry point
 //! of the program, and a root [`Widget`].
-use crate::widgets::{HStack, Widget};
+use crate::widgets::{HStack, ViewTree, Widget};
 pub mod error;
 mod macros;
 pub mod message;
@@ -44,8 +44,6 @@ use winit::{
 pub struct App<'app> {
     window: Option<Arc<Window>>,
     pixels: Option<Pixels<'app>>,
-    renderer: Renderer,
-    view: Box<dyn View>,
     state: State,
     world: World,
     schedule: Schedule,
@@ -58,17 +56,19 @@ impl App<'_> {
         let mut renderer = Renderer::new();
         let layout = widget.layout(&mut renderer);
         let state = State::new(layout);
+        let view_tree = ViewTree(Box::new(view));
 
         let mut world = World::new();
         world.insert_resource(CursorPosition::default());
+        world.insert_resource(CursorPosition::default());
         world.insert_resource(EventQueue::default());
         world.insert_resource(MessageQueue::default());
+        world.insert_resource(view_tree);
+        world.insert_resource(renderer);
 
         Self {
             window: None,
             pixels: None,
-            renderer,
-            view: Box::new(view),
             state,
             world,
             schedule: Schedule::default(),
@@ -110,6 +110,8 @@ impl App<'_> {
         self.schedule
             .add_systems(update_cursor_pos)
             .add_systems(handle_click)
+            .add_systems(update_layout)
+            .add_systems(update_view)
             .add_systems(clear_events);
         let event_loop = EventLoop::new()?;
         event_loop.set_control_flow(ControlFlow::Poll);
@@ -163,7 +165,10 @@ impl ApplicationHandler for App<'_> {
                     .resize_buffer(size.width, size.height)
                     .expect("Failed to resize the pixel buffer");
 
-                self.renderer.resize(size.width, size.height);
+                self.world
+                    .get_resource_mut::<Renderer>()
+                    .unwrap()
+                    .resize(size.width, size.height);
                 self.state.window_size = Size::from(size);
             }
             WindowEvent::CursorMoved { position, .. } => {
@@ -209,33 +214,39 @@ impl State {
     }
 }
 
-fn render(
-    mut renderer: ResMut<Renderer>,
+pub fn update_view(
+    mut view_tree: ResMut<ViewTree>,
     mut messages: ResMut<MessageQueue>,
-    mut view: Box<dyn View>, // ResMut
+    state: Res<State>,
+) {
+    let view = &mut view_tree.0;
+    view.update(&state, &mut messages)
+}
+
+pub fn update_layout(
+    view_tree: Res<ViewTree>,
+    mut renderer: ResMut<Renderer>,
     mut state: ResMut<State>,
 ) {
-    messages.tick();
-    view.update(&state, messages.as_mut());
-    messages.clear();
-
-    // TODO: update_layout
+    let view = &view_tree.0;
     let widget = view.view();
     let mut layout = widget.layout(&mut renderer);
     solve_layout(&mut *layout, state.window_size);
-
-    // let pixels = self.pixels.as_mut().unwrap();
-    // self.renderer.pixmap_mut().fill(tiny_skia::Color::WHITE);
-
-    // widget.render(&mut self.renderer, layout.as_ref());
-
     state.update_layout(layout);
 }
 
-fn update_layout(mut view: Box<dyn View>, mut renderer: ResMut<Renderer>, state: Res<State>) {
-    let widget = view.view();
-    let mut layout = widget.layout(&mut renderer);
-    solve_layout(&mut *layout, state.window_size);
+fn render() {
+    // TODO: update_layout
+    let widget = self.view.view();
+    let pixels = self.pixels.as_mut().unwrap();
+    self.renderer.pixmap_mut().fill(tiny_skia::Color::WHITE);
+
+    widget.render(&mut self.renderer, layout.as_ref());
+
+    pixels
+        .frame_mut()
+        .copy_from_slice(self.renderer.pixmap().data());
+    pixels.render().unwrap();
 }
 
 fn handle_click(queue: ResMut<EventQueue>, mut messages: ResMut<MessageQueue>) {
@@ -256,7 +267,9 @@ fn handle_click(queue: ResMut<EventQueue>, mut messages: ResMut<MessageQueue>) {
     }
 }
 
-fn clear_events(mut queue: ResMut<EventQueue>) {
+fn clear_events(mut queue: ResMut<EventQueue>, mut messages: ResMut<MessageQueue>) {
+    messages.tick();
+    messages.clear();
     queue.clear();
     queue.tick();
 }
