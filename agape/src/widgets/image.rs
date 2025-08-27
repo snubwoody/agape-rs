@@ -16,7 +16,7 @@ use image::{DynamicImage, ImageFormat, ImageReader};
 use std::fs;
 use std::io::Cursor;
 use std::path::Path;
-use std::rc::Rc;
+use std::sync::Arc;
 
 /// Displays an image to the screen. Only `JPEG`, `PNG` and `WebP` formats
 /// are currently supported.
@@ -29,7 +29,7 @@ use std::rc::Rc;
 /// ```
 pub struct Image {
     id: GlobalId,
-    data: Rc<DynamicImage>,
+    data: Arc<DynamicImage>,
     style: BoxStyle,
 }
 
@@ -61,7 +61,7 @@ impl Image {
 
         Ok(Self {
             id: GlobalId::new(),
-            data: Rc::new(image),
+            data: Arc::new(image),
             style,
         })
     }

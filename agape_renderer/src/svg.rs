@@ -1,16 +1,16 @@
 use agape_core::{Position, Size};
-use std::rc::Rc;
+use std::sync::Arc;
 use tiny_skia::{Pixmap, Transform};
 use usvg::Tree;
 
 pub struct Svg {
-    tree: Rc<Tree>,
+    tree: Arc<Tree>,
     pub size: Size,
     pub position: Position,
 }
 
 impl Svg {
-    pub fn new(tree: Rc<Tree>) -> Self {
+    pub fn new(tree: Arc<Tree>) -> Self {
         Self {
             size: Size::from(tree.size()),
             position: Position::default(),

@@ -109,12 +109,9 @@ impl<'a> Iterator for LayoutIter<'a> {
         if let Some(layout) = self.stack.pop() {
             let children = layout.children();
 
-            let k = children.iter().map(|child| {
-                // Type gymnastics indeed
-                child.as_ref()
-            });
+            let m = children.iter().map(|child| child.as_ref());
 
-            self.stack.extend(k.rev());
+            self.stack.extend(m.rev());
             return Some(layout);
         }
 
@@ -136,7 +133,7 @@ pub enum BoxSizing {
     Flex(u8),
 }
 
-/// Describes how a [`Layout`] should arrange it's children
+/// Describes how a [`Layout`] should arrange its children
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AxisAlignment {
     #[default]

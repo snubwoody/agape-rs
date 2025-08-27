@@ -2,7 +2,7 @@ use agape_core::Size;
 use agape_renderer::image::Image;
 use image::ImageBuffer;
 use std::path::PathBuf;
-use std::rc::Rc;
+use std::sync::Arc;
 use tempfile::TempDir;
 use tiny_skia::Pixmap;
 
@@ -24,7 +24,7 @@ fn save_image(width: u32, height: u32) -> (TempDir, PathBuf) {
 fn inferred_dimensions() {
     let (_temp, path) = save_image(300, 500);
     let data = image::open(path).unwrap();
-    let image = Image::new(Rc::new(data));
+    let image = Image::new(Arc::new(data));
     assert_eq!(image.size, Size::new(300.0, 500.0));
 }
 
@@ -34,7 +34,7 @@ fn render_output() {
     pixmap.fill(tiny_skia::Color::WHITE);
     let (_temp, path) = save_image(300, 500);
     let data = image::open(path).unwrap();
-    let image = Image::new(Rc::new(data));
+    let image = Image::new(Arc::new(data));
     image.draw(&mut pixmap);
     for pixel in pixmap.pixels() {
         assert_eq!(pixel.red(), 0);

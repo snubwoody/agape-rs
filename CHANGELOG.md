@@ -20,6 +20,7 @@ All notable changes to agape will be documented in this file.
 ### Changed
 
 - Removed the `LayoutSolver` struct and renamed its single method to `solve_layout`.
+- `Widget`s now need to be `Send` and `Sync`.
 
 ### Bug fixes
 
