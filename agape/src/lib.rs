@@ -3,7 +3,7 @@
 //! ## Getting started
 //! To get started you'll need to create an [`App`], which is the entry point
 //! of the program, and a root [`Widget`].
-use crate::widgets::{HStack, ViewTree, Widget};
+use crate::widgets::{ViewTree, WidgetTree};
 pub mod error;
 mod macros;
 pub mod message;
@@ -39,12 +39,17 @@ use winit::{
     window::WindowId,
 };
 
+#[derive(Resource)]
+struct LayoutTree(Box<dyn Layout>);
+
+#[derive(Resource)]
+struct WindowSize(Size);
+
 // TODO: store the pixmap in the renderer?
 /// An `App` is a single program.
 pub struct App<'app> {
     window: Option<Arc<Window>>,
     pixels: Option<Pixels<'app>>,
-    state: State,
     world: World,
     schedule: Schedule,
 }
@@ -55,48 +60,32 @@ impl App<'_> {
         let widget = view.view();
         let mut renderer = Renderer::new();
         let layout = widget.layout(&mut renderer);
-        let state = State::new(layout);
         let view_tree = ViewTree(Box::new(view));
 
         let mut world = World::new();
         world.insert_resource(CursorPosition::default());
+        world.insert_resource(WidgetTree(widget));
         world.insert_resource(CursorPosition::default());
         world.insert_resource(EventQueue::default());
         world.insert_resource(MessageQueue::default());
         world.insert_resource(view_tree);
         world.insert_resource(renderer);
+        world.insert_resource(LayoutTree(layout));
+        world.insert_resource(WindowSize(Size::unit(1.0)));
 
         Self {
             window: None,
             pixels: None,
-            state,
             world,
             schedule: Schedule::default(),
         }
     }
 
     fn render(&mut self) {
-        let mut messages = self.world.get_resource_mut::<MessageQueue>().unwrap();
-        // TODO: move tick and clear to system
-        // TODO: update_view
-        messages.tick();
-        self.view.update(&self.state, messages.as_mut());
-        messages.clear();
-
-        // TODO: update_layout
-        let widget = self.view.view();
-        let mut layout = widget.layout(&mut self.renderer);
-        solve_layout(&mut *layout, self.state.window_size);
-
+        let renderer = self.world.get_resource::<Renderer>().unwrap();
         let pixels = self.pixels.as_mut().unwrap();
-        self.renderer.pixmap_mut().fill(tiny_skia::Color::WHITE);
 
-        widget.render(&mut self.renderer, layout.as_ref());
-
-        self.state.update_layout(layout);
-        pixels
-            .frame_mut()
-            .copy_from_slice(self.renderer.pixmap().data());
+        pixels.frame_mut().copy_from_slice(renderer.pixmap().data());
         pixels.render().unwrap();
     }
 
@@ -110,9 +99,12 @@ impl App<'_> {
         self.schedule
             .add_systems(update_cursor_pos)
             .add_systems(handle_click)
+            .add_systems(update_window_size)
+            .add_systems(render_widget)
             .add_systems(update_layout)
             .add_systems(update_view)
             .add_systems(clear_events);
+
         let event_loop = EventLoop::new()?;
         event_loop.set_control_flow(ControlFlow::Poll);
         event_loop.run_app(&mut self)?;
@@ -169,84 +161,57 @@ impl ApplicationHandler for App<'_> {
                     .get_resource_mut::<Renderer>()
                     .unwrap()
                     .resize(size.width, size.height);
-                self.state.window_size = Size::from(size);
+                // self.state.window_size = Size::from(size);
             }
             WindowEvent::CursorMoved { position, .. } => {
                 let pos: Position = position.into();
-                self.state.update_cursor_pos(pos);
+                // self.state.update_cursor_pos(pos);
             }
             _ => {}
         }
     }
 }
 
-#[derive(Debug, Resource)]
-pub struct State {
-    cursor_position: Position,
-    window_size: Size,
-    layout: Box<dyn Layout>,
-}
-
-impl State {
-    pub fn new(layout: Box<dyn Layout>) -> Self {
-        Self {
-            cursor_position: Position::default(),
-            window_size: Size::default(),
-            layout,
+// TODO: test these
+fn update_window_size(event_queue: Res<EventQueue>, mut window_suze: ResMut<WindowSize>) {
+    for event in event_queue.events() {
+        if let WindowEvent::Resized(size) = event {
+            window_suze.0 = Size::from(*size);
         }
-    }
-
-    /// Check if the cursor is over the [`Widget`].
-    pub fn is_hovered(&self, id: &GlobalId) -> bool {
-        if let Some(layout) = self.layout.get(*id) {
-            return layout.bounds().within(&self.cursor_position);
-        }
-
-        false
-    }
-
-    pub fn update_cursor_pos(&mut self, pos: Position) {
-        self.cursor_position = pos;
-    }
-
-    pub fn update_layout(&mut self, layout: Box<dyn Layout>) {
-        self.layout = layout;
     }
 }
 
-pub fn update_view(
+fn update_view(
     mut view_tree: ResMut<ViewTree>,
     mut messages: ResMut<MessageQueue>,
-    state: Res<State>,
+    mut widget_tree: ResMut<WidgetTree>,
 ) {
     let view = &mut view_tree.0;
-    view.update(&state, &mut messages)
+    view.update(&mut messages);
+    widget_tree.0 = view.view();
 }
 
-pub fn update_layout(
-    view_tree: Res<ViewTree>,
+fn update_layout(
+    widget_tree: Res<WidgetTree>,
+    window_size: Res<WindowSize>,
     mut renderer: ResMut<Renderer>,
-    mut state: ResMut<State>,
+    mut layout_tree: ResMut<LayoutTree>,
 ) {
-    let view = &view_tree.0;
-    let widget = view.view();
+    let widget = &widget_tree.0;
     let mut layout = widget.layout(&mut renderer);
-    solve_layout(&mut *layout, state.window_size);
-    state.update_layout(layout);
+    solve_layout(&mut *layout, window_size.0);
+    layout_tree.0 = layout;
 }
 
-fn render() {
-    // TODO: update_layout
-    let widget = self.view.view();
-    let pixels = self.pixels.as_mut().unwrap();
-    self.renderer.pixmap_mut().fill(tiny_skia::Color::WHITE);
+fn render_widget(
+    widget_tree: Res<WidgetTree>,
+    mut renderer: ResMut<Renderer>,
+    layout_tree: Res<LayoutTree>,
+) {
+    let widget = &widget_tree.0;
 
-    widget.render(&mut self.renderer, layout.as_ref());
-
-    pixels
-        .frame_mut()
-        .copy_from_slice(self.renderer.pixmap().data());
-    pixels.render().unwrap();
+    renderer.pixmap_mut().fill(tiny_skia::Color::WHITE);
+    widget.render(&mut renderer, layout_tree.0.as_ref());
 }
 
 fn handle_click(queue: ResMut<EventQueue>, mut messages: ResMut<MessageQueue>) {

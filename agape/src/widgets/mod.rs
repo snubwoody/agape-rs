@@ -9,7 +9,6 @@ mod svg;
 mod text;
 mod vstack;
 
-use crate::State;
 use crate::message::MessageQueue;
 use agape_core::GlobalId;
 use agape_layout::Layout;
@@ -25,6 +24,8 @@ pub use vstack::*;
 
 #[derive(Resource)]
 pub(crate) struct ViewTree(pub Box<dyn View>);
+#[derive(Resource)]
+pub(crate) struct WidgetTree(pub Box<dyn Widget>);
 
 /// A [`View`].
 ///
@@ -54,7 +55,7 @@ pub(crate) struct ViewTree(pub Box<dyn View>);
 ///
 /// [`update`]: View::update
 pub trait View: Send + Sync {
-    fn update(&mut self, _: &State, _: &mut MessageQueue) {}
+    fn update(&mut self, _: &mut MessageQueue) {}
 
     fn view(&self) -> Box<dyn Widget>;
 }
