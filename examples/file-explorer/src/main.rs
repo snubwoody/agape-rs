@@ -1,5 +1,4 @@
-use agape::message::MouseButtonDown;
-use agape::{App, Color, MessageQueue, hstack, vstack, widgets::*};
+use agape::{App, MessageQueue, hstack, widgets::*};
 use std::fs;
 use std::path::PathBuf;
 
@@ -88,19 +87,18 @@ impl View for Navbar {
 }
 
 struct DirEntry {
-    path: PathBuf,
     widget: Container<Text>,
 }
 
 impl DirEntry {
-    pub fn new(path: PathBuf, title: &str) -> Self {
+    pub fn new(_: PathBuf, title: &str) -> Self {
         let widget = Container::new(Text::new(title)).padding(12);
-        Self { widget, path }
+        Self { widget }
     }
 }
 
 impl View for DirEntry {
-    fn update(&mut self, messages: &mut MessageQueue) {}
+    fn update(&mut self, _: &mut MessageQueue) {}
 
     fn view(&self) -> Box<dyn Widget> {
         Box::new(self.widget.clone())

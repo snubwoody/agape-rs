@@ -163,8 +163,8 @@ impl ApplicationHandler for App<'_> {
                     .resize(size.width, size.height);
                 // self.state.window_size = Size::from(size);
             }
-            WindowEvent::CursorMoved { position, .. } => {
-                let pos: Position = position.into();
+            WindowEvent::CursorMoved { .. } => {
+                // let pos: Position = position.into();
                 // self.state.update_cursor_pos(pos);
             }
             _ => {}

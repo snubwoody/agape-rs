@@ -1,5 +1,4 @@
 use agape_core::{Position, Size};
-use std::rc::Rc;
 use std::sync::Arc;
 use tiny_skia::{Pixmap, Transform};
 use usvg::Tree;

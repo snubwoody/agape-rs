@@ -6,7 +6,6 @@ use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
 use agape_renderer::Renderer;
 use std::fs;
 use std::path::Path;
-use std::rc::Rc;
 use std::sync::Arc;
 use usvg::Tree;
 

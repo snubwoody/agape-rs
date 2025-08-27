@@ -2,7 +2,6 @@ use agape_core::Size;
 use agape_renderer::image::Image;
 use image::ImageBuffer;
 use std::path::PathBuf;
-use std::rc::Rc;
 use std::sync::Arc;
 use tempfile::TempDir;
 use tiny_skia::Pixmap;

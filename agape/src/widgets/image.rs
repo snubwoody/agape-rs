@@ -16,7 +16,6 @@ use image::{DynamicImage, ImageFormat, ImageReader};
 use std::fs;
 use std::io::Cursor;
 use std::path::Path;
-use std::rc::Rc;
 use std::sync::Arc;
 
 /// Displays an image to the screen. Only `JPEG`, `PNG` and `WebP` formats
