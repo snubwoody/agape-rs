@@ -1,5 +1,5 @@
 use crate::resources::{CursorPosition, EventQueue};
-use agape_core::Position;
+use agape_core::{GlobalId, Position};
 use bevy_ecs::prelude::*;
 use std::any::Any;
 use winit::event::WindowEvent;
@@ -9,6 +9,8 @@ pub struct MouseButtonDown;
 
 /// Emitted when the left mouse button is pressed.
 pub struct MouseButtonUp;
+
+pub struct MouseEntered(GlobalId);
 
 pub trait Message: Any + Send + Sync {
     fn as_any(&self) -> &dyn Any;

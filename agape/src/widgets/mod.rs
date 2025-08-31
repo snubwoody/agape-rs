@@ -18,6 +18,7 @@ pub use container::Container;
 pub use hstack::*;
 pub use image::Image;
 pub use rect::*;
+use std::collections::HashMap;
 pub use svg::Svg;
 pub use text::Text;
 pub use vstack::*;
@@ -72,4 +73,17 @@ pub trait Widget: Send + Sync {
 
     /// Draw the widget to the screen.
     fn render(&self, _: &mut Renderer, _: &dyn Layout);
+}
+
+#[derive(Default, Resource)]
+pub struct StateTracker {
+    state: HashMap<GlobalId, WidgetState>,
+}
+
+#[derive(Resource, Default, Debug)]
+pub struct WidgetState {
+    /// True when the mouse is over the widget.
+    pub hovered: bool,
+    pub focused: bool,
+    pub clicked: bool,
 }

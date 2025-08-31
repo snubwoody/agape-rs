@@ -10,7 +10,7 @@ pub mod resources;
 pub mod style;
 pub mod widgets;
 
-use crate::widgets::{ViewTree, WidgetTree};
+use crate::widgets::{StateTracker, ViewTree, WidgetState, WidgetTree};
 pub use agape_core::*;
 pub use agape_layout as layout;
 pub use agape_macros::hex;
@@ -71,6 +71,7 @@ impl App<'_> {
         world.insert_resource(view_tree);
         world.insert_resource(renderer);
         world.insert_resource(LayoutTree(layout));
+        world.insert_resource(StateTracker::default());
         world.insert_resource(WindowSize(Size::unit(1.0)));
 
         Self {
@@ -130,7 +131,6 @@ impl ApplicationHandler for App<'_> {
     }
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
-        self.schedule.run(&mut self.world);
         self.world
             .get_resource_mut::<EventQueue>()
             .unwrap()
@@ -161,14 +161,10 @@ impl ApplicationHandler for App<'_> {
                     .get_resource_mut::<Renderer>()
                     .unwrap()
                     .resize(size.width, size.height);
-                // self.state.window_size = Size::from(size);
-            }
-            WindowEvent::CursorMoved { .. } => {
-                // let pos: Position = position.into();
-                // self.state.update_cursor_pos(pos);
             }
             _ => {}
         }
+        self.schedule.run(&mut self.world);
     }
 }
 
@@ -237,4 +233,30 @@ fn clear_events(mut queue: ResMut<EventQueue>, mut messages: ResMut<MessageQueue
     messages.clear();
     queue.clear();
     queue.tick();
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::widgets::*;
+
+    struct DummyView;
+    impl View for DummyView {
+        fn view(&self) -> Box<dyn Widget> {
+            Box::new(Text::new(""))
+        }
+    }
+
+    #[test]
+    fn important_resources() {
+        // Make sure some of the important resources are present
+        let app = App::new(DummyView);
+        app.world.get_resource::<WindowSize>().unwrap();
+        app.world.get_resource::<CursorPosition>().unwrap();
+        app.world.get_resource::<ViewTree>().unwrap();
+        app.world.get_resource::<WidgetTree>().unwrap();
+        app.world.get_resource::<LayoutTree>().unwrap();
+        app.world.get_resource::<EventQueue>().unwrap();
+        app.world.get_resource::<MessageQueue>().unwrap();
+    }
 }
