@@ -10,7 +10,7 @@ pub mod resources;
 pub mod style;
 pub mod widgets;
 
-use crate::widgets::{StateTracker, ViewTree, WidgetState, WidgetTree};
+use crate::widgets::{StateTracker, ViewTree, WidgetState, WidgetTree, update_hovered_state};
 pub use agape_core::*;
 pub use agape_layout as layout;
 pub use agape_macros::hex;
@@ -104,6 +104,7 @@ impl App<'_> {
             .add_systems(render_widget)
             .add_systems(update_layout)
             .add_systems(update_view)
+            .add_systems(update_hovered_state)
             .add_systems(clear_events);
 
         let event_loop = EventLoop::new()?;

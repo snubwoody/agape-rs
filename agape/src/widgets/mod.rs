@@ -9,11 +9,13 @@ mod svg;
 mod text;
 mod vstack;
 
+use crate::LayoutTree;
 use crate::message::MessageQueue;
+use crate::resources::CursorPosition;
 use agape_core::GlobalId;
 use agape_layout::Layout;
 use agape_renderer::Renderer;
-use bevy_ecs::prelude::Resource;
+use bevy_ecs::prelude::*;
 pub use container::Container;
 pub use hstack::*;
 pub use image::Image;
@@ -75,15 +77,82 @@ pub trait Widget: Send + Sync {
     fn render(&self, _: &mut Renderer, _: &dyn Layout);
 }
 
-#[derive(Default, Resource)]
+#[derive(Default, Resource, Debug, PartialEq)]
 pub struct StateTracker {
+    previous: HashMap<GlobalId, WidgetState>,
     state: HashMap<GlobalId, WidgetState>,
 }
 
-#[derive(Resource, Default, Debug)]
+impl StateTracker {
+    pub fn from_layout(layout_tree: &dyn Layout) -> Self {
+        let mut state = HashMap::new();
+        for layout in layout_tree.iter() {
+            state.insert(layout.id(), WidgetState::default());
+        }
+        let previous = state.clone();
+        Self { state, previous }
+    }
+
+    fn check_hovered(&mut self, layout_tree: &dyn Layout, cursor_pos: &CursorPosition) {
+        // TODO: Test this
+        self.previous = self.state.clone();
+        for (id, state) in self.state.iter_mut() {
+            let layout = layout_tree.get(*id).unwrap();
+            if layout.bounds().within(cursor_pos) {
+                state.hovered = true
+            }
+        }
+    }
+
+    fn just_hovered(&self, id: GlobalId) {}
+}
+
+#[derive(Resource, Default, Debug, PartialOrd, PartialEq, Clone, Copy)]
 pub struct WidgetState {
     /// True when the mouse is over the widget.
     pub hovered: bool,
     pub focused: bool,
     pub clicked: bool,
+}
+
+/// Go through all the widgets and check if they are hovered.
+pub(crate) fn update_hovered_state(
+    mut state_tracker: ResMut<StateTracker>,
+    cursor_position: Res<CursorPosition>,
+    layout_tree: Res<LayoutTree>,
+) {
+    state_tracker.check_hovered(&*layout_tree.0, &cursor_position);
+    dbg!(&state_tracker);
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::vstack;
+    use agape_core::{Position, Size};
+    use agape_layout::solve_layout;
+
+    #[test]
+    fn check_hovered() {
+        let widget = vstack! {}.fill();
+        let mut layout = widget.layout(&mut Renderer::new());
+        solve_layout(layout.as_mut(), Size::unit(200.0));
+        let cursor_pos = CursorPosition(Position::unit(100.0));
+        let mut state = StateTracker::from_layout(layout.as_ref());
+        state.check_hovered(layout.as_ref(), &cursor_pos);
+        assert!(state.state[&widget.id()].hovered);
+    }
+
+    #[test]
+    fn update_previous_hovered() {
+        let widget = vstack! {}.fill();
+        let mut layout = widget.layout(&mut Renderer::new());
+        solve_layout(layout.as_mut(), Size::unit(200.0));
+        let cursor_pos = CursorPosition(Position::unit(100.0));
+        let mut state = StateTracker::from_layout(layout.as_ref());
+        state.check_hovered(layout.as_ref(), &cursor_pos);
+        assert!(!state.previous[&widget.id()].hovered);
+        state.check_hovered(layout.as_ref(), &cursor_pos);
+        assert!(state.previous[&widget.id()].hovered);
+    }
 }

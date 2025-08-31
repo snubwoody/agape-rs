@@ -89,9 +89,10 @@ impl Widget for VStack {
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
         let children: Vec<Box<dyn Layout>> =
             self.children.iter().map(|w| w.layout(renderer)).collect();
+        // TODO: join style and layout
         let layout = VerticalLayout {
             id: self.id,
-            intrinsic_size: self.layout.intrinsic_size,
+            intrinsic_size: self.style.intrinsic_size,
             main_axis_alignment: self.layout.main_axis_alignment,
             cross_axis_alignment: self.layout.cross_axis_alignment,
             spacing: self.layout.spacing,
