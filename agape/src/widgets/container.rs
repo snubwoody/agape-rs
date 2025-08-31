@@ -1,5 +1,6 @@
+use std::any::Any;
 use super::Widget;
-use crate::impl_style;
+use crate::{impl_style, MessageQueue};
 use crate::style::BoxStyle;
 use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
@@ -7,12 +8,12 @@ use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
 
 /// A widget that wraps another widget.
-#[derive(Clone, PartialEq)]
 pub struct Container<W> {
     id: GlobalId,
     child: W,
     style: BoxStyle,
     padding: u32,
+    click_message: Option<Box<dyn Any + Send + Sync>>,
 }
 
 impl<W> Container<W> {
@@ -22,6 +23,7 @@ impl<W> Container<W> {
             style: BoxStyle::new(),
             child,
             padding: 0,
+            click_message: None,
         }
     }
 
@@ -29,7 +31,12 @@ impl<W> Container<W> {
         self.padding = padding;
         self
     }
-
+    
+    pub fn on_click<M: Any + Send + Sync>(mut self, message: M) -> Self {
+        self.click_message = Some(Box::new(message));
+        self
+    }
+    
     impl_style!();
 }
 

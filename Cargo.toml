@@ -18,7 +18,8 @@ members = [
     "agape_core",
     "agape_layout",
     "agape_renderer",
-    "examples/file-explorer"
+    "examples/file-explorer",
+    "examples/playground",
 ]
 
 [profile.bench]

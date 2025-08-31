@@ -3,7 +3,6 @@
 //! ## Getting started
 //! To get started you'll need to create an [`App`], which is the entry point
 //! of the program, and a root [`Widget`].
-use crate::widgets::{ViewTree, WidgetTree};
 pub mod error;
 mod macros;
 pub mod message;
@@ -11,6 +10,7 @@ pub mod resources;
 pub mod style;
 pub mod widgets;
 
+use crate::widgets::{ViewTree, WidgetTree};
 pub use agape_core::*;
 pub use agape_layout as layout;
 pub use agape_macros::hex;

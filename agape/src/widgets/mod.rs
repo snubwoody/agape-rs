@@ -60,12 +60,16 @@ pub trait View: Send + Sync {
     fn view(&self) -> Box<dyn Widget>;
 }
 
+/// A `Widget` is anything that can ultimately be drawn to the screen. Widgets internally
+/// can be composed of anything, but each widget must have a [`GlobalId`] and a [`Layout`].
 pub trait Widget: Send + Sync {
     /// Get the `id` of the [`Widget`]
     fn id(&self) -> GlobalId;
 
+    /// Construct a [`Layout`] to solve layout for the whole
+    /// widget tree.
     fn layout(&self, _: &mut Renderer) -> Box<dyn Layout>;
 
     /// Draw the widget to the screen.
-    fn render(&self, _: &mut Renderer, _: &dyn Layout) {}
+    fn render(&self, _: &mut Renderer, _: &dyn Layout);
 }
