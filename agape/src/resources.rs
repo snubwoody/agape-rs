@@ -10,6 +10,7 @@ use std::ops::Deref;
 use winit::event::WindowEvent;
 
 /// Global resources
+#[deprecated]
 #[derive(Default)]
 pub struct Resources {
     items: Vec<Box<dyn Any>>,
