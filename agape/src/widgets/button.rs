@@ -1,26 +1,29 @@
-use super::Widget;
-use crate::impl_style;
+use super::{Callback, Widget, WidgetGestures};
 use crate::style::BoxStyle;
+use crate::{MessageQueue, impl_style};
 use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
+use std::sync::Arc;
 
 /// A widget that wraps another widget.
-pub struct Container<W> {
+pub struct Button<W> {
     id: GlobalId,
     child: W,
     style: BoxStyle,
     padding: u32,
+    hover_callback: Option<Callback>,
 }
 
-impl<W> Container<W> {
+impl<W> Button<W> {
     pub fn new(child: W) -> Self {
         Self {
             id: GlobalId::new(),
             style: BoxStyle::new(),
             child,
             padding: 0,
+            hover_callback: None,
         }
     }
 
@@ -29,12 +32,25 @@ impl<W> Container<W> {
         self
     }
 
+    pub fn on_hover(mut self, f: impl Fn(&mut MessageQueue) + Send + Sync + 'static) -> Self {
+        self.hover_callback = Some(Arc::new(f));
+        self
+    }
+
     impl_style!();
 }
 
-impl<W: Widget> Widget for Container<W> {
+impl<W: Widget> Widget for Button<W> {
     fn id(&self) -> GlobalId {
         self.id
+    }
+
+    fn gestures(&self) -> Option<WidgetGestures> {
+        let gestures = WidgetGestures {
+            id: self.id,
+            hover: self.hover_callback.clone(),
+        };
+        Some(gestures)
     }
 
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
@@ -71,7 +87,7 @@ mod test {
 
     #[test]
     fn render_child() {
-        let container = Container::new(
+        let button = Button::new(
             Rect::new()
                 .fixed(100.0, 100.0)
                 .background_color(Color::rgb(53, 102, 145)),
@@ -80,9 +96,9 @@ mod test {
 
         let mut renderer = Renderer::new();
         renderer.resize(100, 100);
-        let mut layout = container.layout(&mut renderer);
+        let mut layout = button.layout(&mut renderer);
         solve_layout(layout.as_mut(), Size::default());
-        container.render(&mut renderer, layout.as_ref());
+        button.render(&mut renderer, layout.as_ref());
 
         for pixel in renderer.pixmap().pixels() {
             assert_eq!(pixel.red(), 53);

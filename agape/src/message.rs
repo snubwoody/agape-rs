@@ -28,10 +28,21 @@ impl MessageQueue {
         Self::default()
     }
 
-    pub fn tick(&mut self) {
+    pub(crate) fn tick(&mut self) {
         self.frame_count += 1;
     }
 
+    /// Returns true if a message of type `M` is in the queue.
+    ///
+    /// # Example
+    /// ```
+    /// use agape::MessageQueue;
+    ///
+    /// let mut messages = MessageQueue::new();
+    /// messages.add(String::new());
+    ///
+    /// assert!(messages.has::<String>());
+    /// ```
     pub fn has<M: Message>(&self) -> bool {
         self.get::<M>().is_some()
     }
@@ -79,7 +90,7 @@ impl MessageQueue {
         self.items.is_empty()
     }
 
-    pub fn clear(&mut self) {
+    pub(crate) fn clear(&mut self) {
         // TODO: 2 frames might be better
         if self.frame_count >= 3 {
             self.items.clear();
