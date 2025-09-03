@@ -11,7 +11,7 @@ impl View for Main {
         let widget = hstack![
             Rect::new()
                 .fixed(100.0,100.0)
-                .background_color(Color::AMBER);10
+                .background_color(Color::AMBER);3
         ]
         .fill()
         .spacing(32);

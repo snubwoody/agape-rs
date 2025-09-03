@@ -20,6 +20,7 @@ pub use container::Container;
 pub use hstack::*;
 pub use image::Image;
 pub use rect::*;
+use std::any::Any;
 use std::collections::HashMap;
 pub use svg::Svg;
 pub use text::Text;
@@ -58,10 +59,16 @@ pub(crate) struct WidgetTree(pub Box<dyn Widget>);
 ///
 /// [`update`]: View::update
 pub trait View: Send + Sync {
+    // TODO: add const label
     fn update(&mut self, _: &mut MessageQueue) {}
 
     fn view(&self) -> Box<dyn Widget>;
+
+    fn handle_hover(&mut self, layout: &dyn Layout) {}
 }
+
+// TODO: add label on view as an option then get from
+// widget if None
 
 /// A `Widget` is anything that can ultimately be drawn to the screen. Widgets internally
 /// can be composed of anything, but each widget must have a [`GlobalId`] and a [`Layout`].
@@ -75,36 +82,19 @@ pub trait Widget: Send + Sync {
 
     /// Draw the widget to the screen.
     fn render(&self, _: &mut Renderer, _: &dyn Layout);
+
+    fn hover(&mut self) {}
 }
 
-#[derive(Default, Resource, Debug, PartialEq)]
-pub struct StateTracker {
-    previous: HashMap<GlobalId, WidgetState>,
-    state: HashMap<GlobalId, WidgetState>,
+#[derive(Debug, Event)]
+pub(crate) struct GestureDetector<E> {
+    pub id: GlobalId,
+    /// The message to send when the widget is hovered.
+    pub hover: Option<E>,
 }
 
-impl StateTracker {
-    pub fn from_layout(layout_tree: &dyn Layout) -> Self {
-        let mut state = HashMap::new();
-        for layout in layout_tree.iter() {
-            state.insert(layout.id(), WidgetState::default());
-        }
-        let previous = state.clone();
-        Self { state, previous }
-    }
-
-    fn check_hovered(&mut self, layout_tree: &dyn Layout, cursor_pos: &CursorPosition) {
-        // TODO: Test this
-        self.previous = self.state.clone();
-        for (id, state) in self.state.iter_mut() {
-            let layout = layout_tree.get(*id).unwrap();
-            if layout.bounds().within(cursor_pos) {
-                state.hovered = true
-            }
-        }
-    }
-
-    fn just_hovered(&self, id: GlobalId) {}
+impl<E: Event> GestureDetector<E> {
+    pub fn new() {}
 }
 
 #[derive(Resource, Default, Debug, PartialOrd, PartialEq, Clone, Copy)]
@@ -117,42 +107,10 @@ pub struct WidgetState {
 
 /// Go through all the widgets and check if they are hovered.
 pub(crate) fn update_hovered_state(
-    mut state_tracker: ResMut<StateTracker>,
     cursor_position: Res<CursorPosition>,
     layout_tree: Res<LayoutTree>,
 ) {
-    state_tracker.check_hovered(&*layout_tree.0, &cursor_position);
-    dbg!(&state_tracker);
 }
 
 #[cfg(test)]
-mod test {
-    use super::*;
-    use crate::vstack;
-    use agape_core::{Position, Size};
-    use agape_layout::solve_layout;
-
-    #[test]
-    fn check_hovered() {
-        let widget = vstack! {}.fill();
-        let mut layout = widget.layout(&mut Renderer::new());
-        solve_layout(layout.as_mut(), Size::unit(200.0));
-        let cursor_pos = CursorPosition(Position::unit(100.0));
-        let mut state = StateTracker::from_layout(layout.as_ref());
-        state.check_hovered(layout.as_ref(), &cursor_pos);
-        assert!(state.state[&widget.id()].hovered);
-    }
-
-    #[test]
-    fn update_previous_hovered() {
-        let widget = vstack! {}.fill();
-        let mut layout = widget.layout(&mut Renderer::new());
-        solve_layout(layout.as_mut(), Size::unit(200.0));
-        let cursor_pos = CursorPosition(Position::unit(100.0));
-        let mut state = StateTracker::from_layout(layout.as_ref());
-        state.check_hovered(layout.as_ref(), &cursor_pos);
-        assert!(!state.previous[&widget.id()].hovered);
-        state.check_hovered(layout.as_ref(), &cursor_pos);
-        assert!(state.previous[&widget.id()].hovered);
-    }
-}
+mod test {}

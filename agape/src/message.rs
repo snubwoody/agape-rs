@@ -83,7 +83,8 @@ impl MessageQueue {
 pub fn update_cursor_pos(queue: Res<EventQueue>, mut cursor_position: ResMut<CursorPosition>) {
     for event in queue.events() {
         if let WindowEvent::CursorMoved { position, .. } = event {
-            cursor_position.0 = Position::from(*position);
+            cursor_position.update(Position::from(*position));
         }
     }
+    dbg!(&cursor_position);
 }

@@ -10,7 +10,7 @@ pub mod resources;
 pub mod style;
 pub mod widgets;
 
-use crate::widgets::{StateTracker, ViewTree, WidgetState, WidgetTree, update_hovered_state};
+use crate::widgets::{ViewTree, WidgetState, WidgetTree, update_hovered_state};
 pub use agape_core::*;
 pub use agape_layout as layout;
 pub use agape_macros::hex;
@@ -71,7 +71,6 @@ impl App<'_> {
         world.insert_resource(view_tree);
         world.insert_resource(renderer);
         world.insert_resource(LayoutTree(layout));
-        world.insert_resource(StateTracker::default());
         world.insert_resource(WindowSize(Size::unit(1.0)));
 
         Self {
@@ -197,6 +196,7 @@ fn update_layout(
     let widget = &widget_tree.0;
     let mut layout = widget.layout(&mut renderer);
     solve_layout(&mut *layout, window_size.0);
+    // commands.insert_resource(StateTracker::from_layout(layout.as_ref()));
     layout_tree.0 = layout;
 }
 

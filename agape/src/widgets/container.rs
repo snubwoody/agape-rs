@@ -1,11 +1,11 @@
-use std::any::Any;
-use super::Widget;
-use crate::{impl_style, MessageQueue};
+use super::{GestureDetector, Widget};
 use crate::style::BoxStyle;
+use crate::{MessageQueue, impl_style};
 use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
+use std::any::Any;
 
 /// A widget that wraps another widget.
 pub struct Container<W> {
@@ -13,7 +13,7 @@ pub struct Container<W> {
     child: W,
     style: BoxStyle,
     padding: u32,
-    click_message: Option<Box<dyn Any + Send + Sync>>,
+    hover_message: Option<Box<dyn Any + Send + Sync>>,
 }
 
 impl<W> Container<W> {
@@ -23,7 +23,7 @@ impl<W> Container<W> {
             style: BoxStyle::new(),
             child,
             padding: 0,
-            click_message: None,
+            hover_message: None,
         }
     }
 
@@ -31,12 +31,12 @@ impl<W> Container<W> {
         self.padding = padding;
         self
     }
-    
-    pub fn on_click<M: Any + Send + Sync>(mut self, message: M) -> Self {
-        self.click_message = Some(Box::new(message));
+
+    pub fn on_hover<M: Any + Send + Sync>(mut self, message: M) -> Self {
+        self.hover_message = Some(Box::new(message));
         self
     }
-    
+
     impl_style!();
 }
 
