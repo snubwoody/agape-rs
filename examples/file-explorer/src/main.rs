@@ -87,13 +87,13 @@ impl View for Navbar {
 }
 
 struct DirEntry {
-    title: String
+    title: String,
 }
 
 impl DirEntry {
     pub fn new(_: PathBuf, title: &str) -> Self {
-        Self { 
-            title: title.to_string()
+        Self {
+            title: title.to_string(),
         }
     }
 }
