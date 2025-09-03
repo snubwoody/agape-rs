@@ -87,6 +87,10 @@ impl Widget for VStack {
         self.id
     }
 
+    fn children(&self) -> Vec<&dyn Widget> {
+        self.children().iter().map(|w| *w).collect()
+    }
+
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
         let children: Vec<Box<dyn Layout>> =
             self.children.iter().map(|w| w.layout(renderer)).collect();

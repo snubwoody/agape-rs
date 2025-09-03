@@ -45,6 +45,10 @@ impl<W: Widget> Widget for Button<W> {
         self.id
     }
 
+    fn children(&self) -> Vec<&dyn Widget> {
+        vec![&self.child]
+    }
+
     fn gestures(&self) -> Option<WidgetGestures> {
         let gestures = WidgetGestures {
             id: self.id,

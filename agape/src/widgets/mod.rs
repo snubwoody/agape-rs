@@ -22,6 +22,7 @@ pub use container::Container;
 pub use hstack::*;
 pub use image::Image;
 pub use rect::*;
+use std::marker::PhantomData;
 use std::ops::Deref;
 use std::sync::Arc;
 pub use svg::Svg;
@@ -104,11 +105,36 @@ pub trait Widget: Send + Sync {
     fn gestures(&self) -> Option<WidgetGestures> {
         None
     }
+
+    fn children(&self) -> Vec<&dyn Widget>;
 }
 
 pub struct WidgetGestures {
     pub id: GlobalId,
     pub hover: Option<Callback>,
+}
+
+/// An iterator over a tree of widgets.
+pub struct WidgetIter<'a> {
+    stack: Vec<&'a dyn Widget>,
+}
+
+impl<'a> Iterator for WidgetIter<'a> {
+    type Item = &'a dyn Widget;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(widget) = self.stack.pop() {
+            self.stack.extend(widget.children());
+            return Some(widget);
+        }
+        None
+    }
+}
+
+impl dyn Widget {
+    pub fn iter(&self) -> WidgetIter {
+        WidgetIter { stack: vec![self] }
+    }
 }
 
 /// Go through all the widgets and check if they are hovered.

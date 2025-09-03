@@ -83,6 +83,10 @@ impl Widget for Svg {
         self.id
     }
 
+    fn children(&self) -> Vec<&dyn Widget> {
+        vec![]
+    }
+
     fn layout(&self, _: &mut Renderer) -> Box<dyn Layout> {
         let layout = EmptyLayout {
             id: self.id,
