@@ -18,17 +18,17 @@ pub enum ColorError {
 }
 
 // TODO change this to static string and make color copy
-/// Container for Hex [`Color`]s
+/// Container for hexadecimal colors
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Hex(String);
 
-/// Container for Rgba [`Color`]s
+/// Container for rgba colors.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Rgba {
     r: u8,
     g: u8,
     b: u8,
-    a: u8,
+    a: u8, // TODO: make alpha channel an f32?
 }
 
 impl Rgba {
@@ -37,7 +37,8 @@ impl Rgba {
     }
 }
 
-/// Represents a color.
+/// A color representation. [`Color`] is a generic wrapper around
+/// different color formats.
 ///
 /// ## Create an [`Rgba`] color
 /// ```
@@ -45,16 +46,21 @@ impl Rgba {
 /// let color = Color::rgba(237,102,50,100);
 /// ```
 ///
+/// Note that the alpha channel goes from 0-100.
+///
 /// ## Create a [`Hex`] color.
+/// `hex` returns a result.
 /// ```
 /// use agape_core::Color;
 /// let color = Color::hex("#000000");
 /// assert!(color.is_ok())
 /// ```
-/// Use the `hex! macro for a more convenient way of creating
+/// Use the `hex!` macro for a more convenient way of creating
 /// hex colors.
+///
+/// [`hex`]: Color<Hex>::hex
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Color<C>(C);
+pub struct Color<C = Rgba>(C);
 
 impl Color<Rgba> {
     pub const WHITE: Color<Rgba> = Color::rgb(255, 255, 255);
