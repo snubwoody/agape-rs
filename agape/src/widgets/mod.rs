@@ -1,6 +1,7 @@
 //! [`Widget`]'s describe what you want to present onto the screen. Agape tries to provide
 //! as many [`Widget`]'s as possible for various uses such as [`Text`],[`Button`],[`HStack`]
 //! and [`VStack`], and the list goes on. Every widget must implement the [`Widget`] trait.
+mod button;
 mod container;
 mod hstack;
 pub mod image;
@@ -16,6 +17,7 @@ use agape_core::GlobalId;
 use agape_layout::Layout;
 use agape_renderer::Renderer;
 use bevy_ecs::prelude::*;
+pub use button::*;
 pub use container::Container;
 pub use hstack::*;
 pub use image::Image;

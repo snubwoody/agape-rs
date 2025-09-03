@@ -29,6 +29,7 @@ impl Default for VStack {
     }
 }
 
+// TODO: add children method that takes into iterator
 impl VStack {
     pub fn new() -> Self {
         VStack {
