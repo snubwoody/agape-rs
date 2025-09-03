@@ -8,14 +8,7 @@ struct Main;
 
 impl View for Main {
     fn view(&self) -> Box<dyn Widget> {
-        let widget = hstack![
-            Rect::new()
-                .fixed(100.0,100.0)
-                .background_color(Color::AMBER);3
-        ]
-        .fill()
-        .spacing(32);
-
+        let widget = Container::new(Text::new("Hello World!"));
         Box::new(widget)
     }
 }

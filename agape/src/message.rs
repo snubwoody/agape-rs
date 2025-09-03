@@ -86,5 +86,4 @@ pub fn update_cursor_pos(queue: Res<EventQueue>, mut cursor_position: ResMut<Cur
             cursor_position.update(Position::from(*position));
         }
     }
-    dbg!(&cursor_position);
 }

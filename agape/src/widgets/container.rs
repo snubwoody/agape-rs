@@ -1,11 +1,11 @@
-use super::{GestureDetector, Widget};
+use super::{Callback, Widget, WidgetGestures};
+use crate::impl_style;
 use crate::style::BoxStyle;
-use crate::{MessageQueue, impl_style};
 use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
-use std::any::Any;
+use std::sync::Arc;
 
 /// A widget that wraps another widget.
 pub struct Container<W> {
@@ -13,7 +13,7 @@ pub struct Container<W> {
     child: W,
     style: BoxStyle,
     padding: u32,
-    hover_message: Option<Box<dyn Any + Send + Sync>>,
+    hover_callback: Option<Callback>,
 }
 
 impl<W> Container<W> {
@@ -23,17 +23,14 @@ impl<W> Container<W> {
             style: BoxStyle::new(),
             child,
             padding: 0,
-            hover_message: None,
+            hover_callback: Some(Arc::new(|| {
+                dbg!("Hovered");
+            })),
         }
     }
 
     pub fn padding(mut self, padding: u32) -> Self {
         self.padding = padding;
-        self
-    }
-
-    pub fn on_hover<M: Any + Send + Sync>(mut self, message: M) -> Self {
-        self.hover_message = Some(Box::new(message));
         self
     }
 
@@ -43,6 +40,14 @@ impl<W> Container<W> {
 impl<W: Widget> Widget for Container<W> {
     fn id(&self) -> GlobalId {
         self.id
+    }
+
+    fn gestures(&self) -> Option<WidgetGestures> {
+        let gestures = WidgetGestures {
+            id: self.id,
+            hover: self.hover_callback.clone(),
+        };
+        Some(gestures)
     }
 
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {

@@ -20,8 +20,8 @@ pub use container::Container;
 pub use hstack::*;
 pub use image::Image;
 pub use rect::*;
-use std::any::Any;
-use std::collections::HashMap;
+use std::fmt::{Debug, Formatter};
+use std::sync::Arc;
 pub use svg::Svg;
 pub use text::Text;
 pub use vstack::*;
@@ -30,6 +30,8 @@ pub use vstack::*;
 pub(crate) struct ViewTree(pub Box<dyn View>);
 #[derive(Resource)]
 pub(crate) struct WidgetTree(pub Box<dyn Widget>);
+
+pub type Callback = Arc<dyn Fn() + Send + Sync>;
 
 /// A [`View`].
 ///
@@ -63,8 +65,6 @@ pub trait View: Send + Sync {
     fn update(&mut self, _: &mut MessageQueue) {}
 
     fn view(&self) -> Box<dyn Widget>;
-
-    fn handle_hover(&mut self, layout: &dyn Layout) {}
 }
 
 // TODO: add label on view as an option then get from
@@ -73,7 +73,7 @@ pub trait View: Send + Sync {
 /// A `Widget` is anything that can ultimately be drawn to the screen. Widgets internally
 /// can be composed of anything, but each widget must have a [`GlobalId`] and a [`Layout`].
 pub trait Widget: Send + Sync {
-    /// Get the `id` of the [`Widget`]
+    /// Get the `id` of the [`Widget`].
     fn id(&self) -> GlobalId;
 
     /// Construct a [`Layout`] to solve layout for the whole
@@ -84,33 +84,43 @@ pub trait Widget: Send + Sync {
     fn render(&self, _: &mut Renderer, _: &dyn Layout);
 
     fn hover(&mut self) {}
+
+    fn gestures(&self) -> Option<WidgetGestures> {
+        None
+    }
 }
 
-#[derive(Debug, Event)]
-pub(crate) struct GestureDetector<E> {
-    pub id: GlobalId,
-    /// The message to send when the widget is hovered.
-    pub hover: Option<E>,
+struct WidgetGestures {
+    id: GlobalId,
+    hover: Option<Callback>,
 }
 
-impl<E: Event> GestureDetector<E> {
-    pub fn new() {}
-}
-
-#[derive(Resource, Default, Debug, PartialOrd, PartialEq, Clone, Copy)]
-pub struct WidgetState {
-    /// True when the mouse is over the widget.
-    pub hovered: bool,
-    pub focused: bool,
-    pub clicked: bool,
+impl Debug for WidgetGestures {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("WidgetGestures")
+            .field("id", &self.id)
+            .field(
+                "hover",
+                &self
+                    .hover
+                    .as_ref()
+                    .map(|_| Some("Callback {...}"))
+                    .unwrap_or(None),
+            )
+            .finish()
+    }
 }
 
 /// Go through all the widgets and check if they are hovered.
 pub(crate) fn update_hovered_state(
     cursor_position: Res<CursorPosition>,
     layout_tree: Res<LayoutTree>,
+    widget_tree: Res<WidgetTree>,
 ) {
+    let gestures = widget_tree.0.gestures().unwrap();
+    let layout = layout_tree.0.as_ref();
+    if cursor_position.just_hovered(layout) {
+        // dbg!("Hovered");
+        gestures.hover.unwrap()();
+    }
 }
-
-#[cfg(test)]
-mod test {}

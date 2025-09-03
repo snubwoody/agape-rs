@@ -10,7 +10,7 @@ pub mod resources;
 pub mod style;
 pub mod widgets;
 
-use crate::widgets::{ViewTree, WidgetState, WidgetTree, update_hovered_state};
+use crate::widgets::{ViewTree, WidgetTree, update_hovered_state};
 pub use agape_core::*;
 pub use agape_layout as layout;
 pub use agape_macros::hex;
