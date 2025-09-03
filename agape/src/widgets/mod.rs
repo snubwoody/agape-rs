@@ -20,7 +20,6 @@ pub use container::Container;
 pub use hstack::*;
 pub use image::Image;
 pub use rect::*;
-use std::fmt::{Debug, Formatter};
 use std::sync::Arc;
 pub use svg::Svg;
 pub use text::Text;
@@ -90,37 +89,18 @@ pub trait Widget: Send + Sync {
     }
 }
 
-struct WidgetGestures {
-    id: GlobalId,
-    hover: Option<Callback>,
-}
-
-impl Debug for WidgetGestures {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("WidgetGestures")
-            .field("id", &self.id)
-            .field(
-                "hover",
-                &self
-                    .hover
-                    .as_ref()
-                    .map(|_| Some("Callback {...}"))
-                    .unwrap_or(None),
-            )
-            .finish()
-    }
+pub struct WidgetGestures {
+    pub id: GlobalId,
+    pub hover: Option<Callback>,
 }
 
 /// Go through all the widgets and check if they are hovered.
 pub(crate) fn update_hovered_state(
     cursor_position: Res<CursorPosition>,
     layout_tree: Res<LayoutTree>,
-    widget_tree: Res<WidgetTree>,
 ) {
-    let gestures = widget_tree.0.gestures().unwrap();
     let layout = layout_tree.0.as_ref();
     if cursor_position.just_hovered(layout) {
         // dbg!("Hovered");
-        gestures.hover.unwrap()();
     }
 }

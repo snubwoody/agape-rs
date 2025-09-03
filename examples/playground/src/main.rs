@@ -1,4 +1,4 @@
-use agape::{App, Color, hstack, vstack, widgets::*};
+use agape::{App, widgets::*};
 
 fn main() -> agape::Result<()> {
     App::new(Main).run()

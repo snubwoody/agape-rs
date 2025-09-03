@@ -28,6 +28,7 @@ impl Text {
         font_system: &mut FontSystem,
         cache: &mut SwashCache,
     ) {
+        // TODO: cache text that has the same content and font size
         let metrics = Metrics::new(self.font_size, self.font_size);
         let mut buffer = Buffer::new(font_system, metrics);
         let mut buffer = buffer.borrow_with(font_system);

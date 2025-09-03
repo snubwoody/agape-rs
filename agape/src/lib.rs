@@ -20,7 +20,6 @@ pub use message::MessageQueue;
 use message::update_cursor_pos;
 use resources::CursorPosition;
 use resources::EventQueue;
-pub use resources::Resources;
 use widgets::View;
 
 use crate::message::{MouseButtonDown, MouseButtonUp};
