@@ -87,13 +87,14 @@ impl View for Navbar {
 }
 
 struct DirEntry {
-    widget: Container<Text>,
+    title: String,
 }
 
 impl DirEntry {
     pub fn new(_: PathBuf, title: &str) -> Self {
-        let widget = Container::new(Text::new(title)).padding(12);
-        Self { widget }
+        Self {
+            title: title.to_string(),
+        }
     }
 }
 
@@ -101,6 +102,7 @@ impl View for DirEntry {
     fn update(&mut self, _: &mut MessageQueue) {}
 
     fn view(&self) -> Box<dyn Widget> {
-        Box::new(self.widget.clone())
+        let widget = Container::new(Text::new(&self.title)).padding(12);
+        Box::new(widget)
     }
 }

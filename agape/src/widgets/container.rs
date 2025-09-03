@@ -1,18 +1,19 @@
-use super::Widget;
+use super::{Callback, Widget, WidgetGestures};
 use crate::impl_style;
 use crate::style::BoxStyle;
 use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
+use std::sync::Arc;
 
 /// A widget that wraps another widget.
-#[derive(Clone, PartialEq)]
 pub struct Container<W> {
     id: GlobalId,
     child: W,
     style: BoxStyle,
     padding: u32,
+    hover_callback: Option<Callback>,
 }
 
 impl<W> Container<W> {
@@ -22,6 +23,9 @@ impl<W> Container<W> {
             style: BoxStyle::new(),
             child,
             padding: 0,
+            hover_callback: Some(Arc::new(|| {
+                dbg!("Hovered");
+            })),
         }
     }
 
@@ -36,6 +40,14 @@ impl<W> Container<W> {
 impl<W: Widget> Widget for Container<W> {
     fn id(&self) -> GlobalId {
         self.id
+    }
+
+    fn gestures(&self) -> Option<WidgetGestures> {
+        let gestures = WidgetGestures {
+            id: self.id,
+            hover: self.hover_callback.clone(),
+        };
+        Some(gestures)
     }
 
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {

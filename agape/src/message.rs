@@ -10,6 +10,11 @@ pub struct MouseButtonDown;
 /// Emitted when the left mouse button is pressed.
 pub struct MouseButtonUp;
 
+pub trait Message: Any + Send + Sync {
+    fn as_any(&self) -> &dyn Any;
+}
+
+// TODO: replace Any with Message
 #[derive(Default, Resource, Debug)]
 pub struct MessageQueue {
     items: Vec<Box<dyn Any + Send + Sync>>,
@@ -77,7 +82,7 @@ impl MessageQueue {
 pub fn update_cursor_pos(queue: Res<EventQueue>, mut cursor_position: ResMut<CursorPosition>) {
     for event in queue.events() {
         if let WindowEvent::CursorMoved { position, .. } = event {
-            cursor_position.0 = Position::from(*position);
+            cursor_position.update(Position::from(*position));
         }
     }
 }

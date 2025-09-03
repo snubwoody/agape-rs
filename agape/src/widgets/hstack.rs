@@ -100,6 +100,7 @@ impl Widget for HStack {
             main_axis_alignment: self.layout.main_axis_alignment,
             cross_axis_alignment: self.layout.cross_axis_alignment,
             spacing: self.layout.spacing,
+            padding: self.layout.padding,
             children,
             ..Default::default()
         };
@@ -111,8 +112,10 @@ impl Widget for HStack {
         let layout = layout.get(self.id).unwrap();
         let size = layout.size();
         let position = layout.position();
+        // TODO: test this
         let mut rect = Rect::new()
             .size(size.width, size.height)
+            .color(self.style.background_color.clone())
             .position(position.x, position.y)
             .corner_radius(self.style.corner_radius);
 

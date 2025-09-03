@@ -3,7 +3,6 @@
 //! ## Getting started
 //! To get started you'll need to create an [`App`], which is the entry point
 //! of the program, and a root [`Widget`].
-use crate::widgets::{ViewTree, WidgetTree};
 pub mod error;
 mod macros;
 pub mod message;
@@ -11,6 +10,7 @@ pub mod resources;
 pub mod style;
 pub mod widgets;
 
+use crate::widgets::{ViewTree, WidgetTree, update_hovered_state};
 pub use agape_core::*;
 pub use agape_layout as layout;
 pub use agape_macros::hex;
@@ -20,7 +20,6 @@ pub use message::MessageQueue;
 use message::update_cursor_pos;
 use resources::CursorPosition;
 use resources::EventQueue;
-pub use resources::Resources;
 use widgets::View;
 
 use crate::message::{MouseButtonDown, MouseButtonUp};
@@ -103,6 +102,7 @@ impl App<'_> {
             .add_systems(render_widget)
             .add_systems(update_layout)
             .add_systems(update_view)
+            .add_systems(update_hovered_state)
             .add_systems(clear_events);
 
         let event_loop = EventLoop::new()?;
@@ -130,7 +130,6 @@ impl ApplicationHandler for App<'_> {
     }
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
-        self.schedule.run(&mut self.world);
         self.world
             .get_resource_mut::<EventQueue>()
             .unwrap()
@@ -161,14 +160,10 @@ impl ApplicationHandler for App<'_> {
                     .get_resource_mut::<Renderer>()
                     .unwrap()
                     .resize(size.width, size.height);
-                // self.state.window_size = Size::from(size);
-            }
-            WindowEvent::CursorMoved { .. } => {
-                // let pos: Position = position.into();
-                // self.state.update_cursor_pos(pos);
             }
             _ => {}
         }
+        self.schedule.run(&mut self.world);
     }
 }
 
@@ -200,6 +195,7 @@ fn update_layout(
     let widget = &widget_tree.0;
     let mut layout = widget.layout(&mut renderer);
     solve_layout(&mut *layout, window_size.0);
+    // commands.insert_resource(StateTracker::from_layout(layout.as_ref()));
     layout_tree.0 = layout;
 }
 
@@ -237,4 +233,30 @@ fn clear_events(mut queue: ResMut<EventQueue>, mut messages: ResMut<MessageQueue
     messages.clear();
     queue.clear();
     queue.tick();
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::widgets::*;
+
+    struct DummyView;
+    impl View for DummyView {
+        fn view(&self) -> Box<dyn Widget> {
+            Box::new(Text::new(""))
+        }
+    }
+
+    #[test]
+    fn important_resources() {
+        // Make sure some of the important resources are present
+        let app = App::new(DummyView);
+        app.world.get_resource::<WindowSize>().unwrap();
+        app.world.get_resource::<CursorPosition>().unwrap();
+        app.world.get_resource::<ViewTree>().unwrap();
+        app.world.get_resource::<WidgetTree>().unwrap();
+        app.world.get_resource::<LayoutTree>().unwrap();
+        app.world.get_resource::<EventQueue>().unwrap();
+        app.world.get_resource::<MessageQueue>().unwrap();
+    }
 }

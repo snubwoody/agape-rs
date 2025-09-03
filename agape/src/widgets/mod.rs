@@ -9,15 +9,18 @@ mod svg;
 mod text;
 mod vstack;
 
+use crate::LayoutTree;
 use crate::message::MessageQueue;
+use crate::resources::CursorPosition;
 use agape_core::GlobalId;
 use agape_layout::Layout;
 use agape_renderer::Renderer;
-use bevy_ecs::prelude::Resource;
+use bevy_ecs::prelude::*;
 pub use container::Container;
 pub use hstack::*;
 pub use image::Image;
 pub use rect::*;
+use std::sync::Arc;
 pub use svg::Svg;
 pub use text::Text;
 pub use vstack::*;
@@ -26,6 +29,8 @@ pub use vstack::*;
 pub(crate) struct ViewTree(pub Box<dyn View>);
 #[derive(Resource)]
 pub(crate) struct WidgetTree(pub Box<dyn Widget>);
+
+pub type Callback = Arc<dyn Fn() + Send + Sync>;
 
 /// A [`View`].
 ///
@@ -55,17 +60,47 @@ pub(crate) struct WidgetTree(pub Box<dyn Widget>);
 ///
 /// [`update`]: View::update
 pub trait View: Send + Sync {
+    // TODO: add const label
     fn update(&mut self, _: &mut MessageQueue) {}
 
     fn view(&self) -> Box<dyn Widget>;
 }
 
+// TODO: add label on view as an option then get from
+// widget if None
+
+/// A `Widget` is anything that can ultimately be drawn to the screen. Widgets internally
+/// can be composed of anything, but each widget must have a [`GlobalId`] and a [`Layout`].
 pub trait Widget: Send + Sync {
-    /// Get the `id` of the [`Widget`]
+    /// Get the `id` of the [`Widget`].
     fn id(&self) -> GlobalId;
 
+    /// Construct a [`Layout`] to solve layout for the whole
+    /// widget tree.
     fn layout(&self, _: &mut Renderer) -> Box<dyn Layout>;
 
     /// Draw the widget to the screen.
-    fn render(&self, _: &mut Renderer, _: &dyn Layout) {}
+    fn render(&self, _: &mut Renderer, _: &dyn Layout);
+
+    fn hover(&mut self) {}
+
+    fn gestures(&self) -> Option<WidgetGestures> {
+        None
+    }
+}
+
+pub struct WidgetGestures {
+    pub id: GlobalId,
+    pub hover: Option<Callback>,
+}
+
+/// Go through all the widgets and check if they are hovered.
+pub(crate) fn update_hovered_state(
+    cursor_position: Res<CursorPosition>,
+    layout_tree: Res<LayoutTree>,
+) {
+    let layout = layout_tree.0.as_ref();
+    if cursor_position.just_hovered(layout) {
+        // dbg!("Hovered");
+    }
 }

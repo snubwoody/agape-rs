@@ -10,15 +10,14 @@ keywords = ["gui", "graphics"]
 [workspace]
 resolver = "3"
 
-
 members = [
     "agape",
-    "examples",
     "agape_macros",
     "agape_core",
     "agape_layout",
     "agape_renderer",
-    "examples/file-explorer"
+    "examples/file-explorer",
+    "examples/playground",
 ]
 
 [profile.bench]
