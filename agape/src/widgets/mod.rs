@@ -10,7 +10,7 @@ mod text;
 mod vstack;
 
 use crate::LayoutTree;
-use crate::message::MessageQueue;
+use crate::message::{Message, MessageQueue};
 use crate::resources::CursorPosition;
 use agape_core::GlobalId;
 use agape_layout::Layout;
@@ -20,6 +20,7 @@ pub use container::Container;
 pub use hstack::*;
 pub use image::Image;
 pub use rect::*;
+use std::ops::Deref;
 use std::sync::Arc;
 pub use svg::Svg;
 pub use text::Text;
@@ -30,7 +31,23 @@ pub(crate) struct ViewTree(pub Box<dyn View>);
 #[derive(Resource)]
 pub(crate) struct WidgetTree(pub Box<dyn Widget>);
 
-pub type Callback = Arc<dyn Fn() + Send + Sync>;
+impl Deref for ViewTree {
+    type Target = Box<dyn View>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Deref for WidgetTree {
+    type Target = Box<dyn Widget>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+pub type Callback = Arc<dyn Fn(&mut MessageQueue) + Send + Sync>;
 
 /// A [`View`].
 ///
@@ -82,8 +99,6 @@ pub trait Widget: Send + Sync {
     /// Draw the widget to the screen.
     fn render(&self, _: &mut Renderer, _: &dyn Layout);
 
-    fn hover(&mut self) {}
-
     fn gestures(&self) -> Option<WidgetGestures> {
         None
     }
@@ -98,9 +113,14 @@ pub struct WidgetGestures {
 pub(crate) fn update_hovered_state(
     cursor_position: Res<CursorPosition>,
     layout_tree: Res<LayoutTree>,
+    widget: Res<WidgetTree>,
+    mut messages: ResMut<MessageQueue>,
 ) {
+    let gestures = widget.gestures().unwrap();
     let layout = layout_tree.0.as_ref();
     if cursor_position.just_hovered(layout) {
-        // dbg!("Hovered");
+        if let Some(hover) = gestures.hover {
+            hover(&mut messages);
+        }
     }
 }

@@ -1,6 +1,7 @@
 use super::{Callback, Widget, WidgetGestures};
-use crate::impl_style;
+use crate::message::Message;
 use crate::style::BoxStyle;
+use crate::{MessageQueue, impl_style};
 use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
@@ -23,14 +24,17 @@ impl<W> Container<W> {
             style: BoxStyle::new(),
             child,
             padding: 0,
-            hover_callback: Some(Arc::new(|| {
-                dbg!("Hovered");
-            })),
+            hover_callback: None,
         }
     }
 
     pub fn padding(mut self, padding: u32) -> Self {
         self.padding = padding;
+        self
+    }
+
+    pub fn on_hover(mut self, f: impl Fn(&mut MessageQueue) + Send + Sync + 'static) -> Self {
+        self.hover_callback = Some(Arc::new(f));
         self
     }
 
