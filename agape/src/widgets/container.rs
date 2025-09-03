@@ -1,12 +1,10 @@
-use super::{Callback, Widget, WidgetGestures};
-use crate::message::Message;
+use super::Widget;
+use crate::impl_style;
 use crate::style::BoxStyle;
-use crate::{MessageQueue, impl_style};
 use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
-use std::sync::Arc;
 
 /// A widget that wraps another widget.
 pub struct Container<W> {

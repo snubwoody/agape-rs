@@ -11,7 +11,7 @@ mod text;
 mod vstack;
 
 use crate::LayoutTree;
-use crate::message::{Message, MessageQueue};
+use crate::message::MessageQueue;
 use crate::resources::CursorPosition;
 use agape_core::GlobalId;
 use agape_layout::Layout;
@@ -120,9 +120,9 @@ pub(crate) fn update_hovered_state(
 ) {
     let gestures = widget.gestures().unwrap();
     let layout = layout_tree.0.as_ref();
-    if cursor_position.just_hovered(layout) {
-        if let Some(hover) = gestures.hover {
-            hover(&mut messages);
-        }
+    if cursor_position.just_hovered(layout)
+        && let Some(hover) = gestures.hover
+    {
+        hover(&mut messages);
     }
 }
