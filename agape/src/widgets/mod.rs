@@ -22,7 +22,6 @@ pub use container::Container;
 pub use hstack::*;
 pub use image::Image;
 pub use rect::*;
-use std::marker::PhantomData;
 use std::ops::Deref;
 use std::sync::Arc;
 pub use svg::Svg;
@@ -132,7 +131,7 @@ impl<'a> Iterator for WidgetIter<'a> {
 }
 
 impl dyn Widget {
-    pub fn iter(&self) -> WidgetIter {
+    pub fn iter(&self) -> WidgetIter<'_> {
         WidgetIter { stack: vec![self] }
     }
 }

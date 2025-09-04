@@ -88,7 +88,7 @@ impl Widget for VStack {
     }
 
     fn children(&self) -> Vec<&dyn Widget> {
-        self.children().iter().map(|w| *w).collect()
+        self.children.iter().map(|w| w.as_ref()).collect()
     }
 
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
