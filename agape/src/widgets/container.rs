@@ -37,6 +37,10 @@ impl<W: Widget> Widget for Container<W> {
         self.id
     }
 
+    fn children(&self) -> Vec<&dyn Widget> {
+        vec![&self.child]
+    }
+
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
         let child = self.child.layout(renderer);
         let mut layout = BlockLayout::new(child);
