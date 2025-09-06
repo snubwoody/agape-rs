@@ -108,6 +108,7 @@ pub trait Widget: Send + Sync {
     fn children(&self) -> Vec<&dyn Widget>;
 }
 
+#[derive(Component)]
 pub struct WidgetGestures {
     pub id: GlobalId,
     pub hover: Option<Callback>,
@@ -149,5 +150,20 @@ pub(crate) fn update_hovered_state(
         && let Some(hover) = gestures.hover
     {
         hover(&mut messages);
+    }
+}
+
+pub(crate) fn spawn_widget_gestures(
+    mut commands: Commands,
+    widget: Res<WidgetTree>,
+    query: Query<Entity,With<WidgetGestures>>
+){
+    for entity in query.iter(){
+        commands.entity(entity).despawn();
+    }
+
+    let gestures: Vec<WidgetGestures> = widget.iter().filter_map(|w|w.gestures()).collect();
+    for gesture in gestures{
+        commands.spawn(gesture);
     }
 }
