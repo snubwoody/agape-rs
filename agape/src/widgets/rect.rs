@@ -30,6 +30,10 @@ impl Widget for Rect {
         vec![]
     }
 
+    fn set_id(&mut self, id: GlobalId) {
+        self.id = id
+    }
+
     fn layout(&self, _: &mut Renderer) -> Box<dyn Layout> {
         let layout = EmptyLayout {
             id: self.id,

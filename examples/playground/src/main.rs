@@ -1,14 +1,15 @@
-use agape::{App, MessageQueue, widgets::*};
+use agape::{App, GlobalId, MessageQueue, widgets::*};
 use tracing::info;
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
-    App::new(Main).run()
+    App::new(Main::default()).run()
 }
 
 struct Hover;
 
-struct Main;
+#[derive(Default)]
+struct Main(GlobalId);
 
 impl View for Main {
     fn update(&mut self, messages: &mut MessageQueue) {
@@ -17,8 +18,11 @@ impl View for Main {
         }
     }
     fn view(&self) -> Box<dyn Widget> {
-        let widget =
-            Button::new(Text::new("Hello World!")).on_hover(|messages| messages.add(Hover));
+        let mut widget = Button::new(Text::new("Hello World!"))
+            .on_hover(|messages| messages.add(Hover))
+            .on_click(|_| info!("Clicked!"));
+
+        widget.set_id(self.0);
         Box::new(widget)
     }
 }

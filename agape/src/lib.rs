@@ -11,6 +11,7 @@ pub mod style;
 pub mod widgets;
 
 use crate::widgets::{ViewTree, WidgetTree, update_hovered_state};
+use crate::widgets::{click_widget, spawn_widget_gestures};
 pub use agape_core::*;
 pub use agape_layout as layout;
 pub use agape_macros::hex;
@@ -102,7 +103,9 @@ impl App<'_> {
             .add_systems(render_widget)
             .add_systems(update_layout)
             .add_systems(update_view)
+            .add_systems(spawn_widget_gestures)
             .add_systems(update_hovered_state)
+            .add_systems(click_widget)
             .add_systems(clear_events);
 
         let event_loop = EventLoop::new()?;
@@ -195,7 +198,6 @@ fn update_layout(
     let widget = &widget_tree.0;
     let mut layout = widget.layout(&mut renderer);
     solve_layout(&mut *layout, window_size.0);
-    // commands.insert_resource(StateTracker::from_layout(layout.as_ref()));
     layout_tree.0 = layout;
 }
 

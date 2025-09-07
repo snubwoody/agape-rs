@@ -50,6 +50,9 @@ impl Widget for Text {
         vec![]
     }
 
+    fn set_id(&mut self, id: GlobalId) {
+        self.id = id
+    }
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
         let size = renderer.text_size(&self.value, self.font_size as f32);
         let layout = EmptyLayout {
