@@ -58,8 +58,6 @@ impl VStack {
         self
     }
 
-
-
     pub fn spacing(mut self, spacing: u32) -> Self {
         self.layout.spacing = spacing;
         self
