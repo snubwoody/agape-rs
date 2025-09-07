@@ -38,6 +38,11 @@ impl CursorPosition {
         let bounds = layout.bounds();
         !bounds.within(&self.previous) && bounds.within(&self.current)
     }
+
+    /// Check if the widget is being hovered.
+    pub fn is_hovered(&self, layout: &dyn Layout) -> bool {
+        layout.bounds().within(&self.current)
+    }
 }
 
 /// The window size.

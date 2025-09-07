@@ -14,6 +14,7 @@ pub struct Button<W> {
     style: BoxStyle,
     padding: u32,
     hover_callback: Option<Callback>,
+    click_callback: Option<Callback>,
 }
 
 impl<W> Button<W> {
@@ -24,6 +25,7 @@ impl<W> Button<W> {
             child,
             padding: 0,
             hover_callback: None,
+            click_callback: None,
         }
     }
 
@@ -34,6 +36,11 @@ impl<W> Button<W> {
 
     pub fn on_hover(mut self, f: impl Fn(&mut MessageQueue) + Send + Sync + 'static) -> Self {
         self.hover_callback = Some(Arc::new(f));
+        self
+    }
+
+    pub fn on_click(mut self, f: impl Fn(&mut MessageQueue) + Send + Sync + 'static) -> Self {
+        self.click_callback = Some(Arc::new(f));
         self
     }
 
@@ -57,6 +64,7 @@ impl<W: Widget> Widget for Button<W> {
         let gestures = WidgetGestures {
             id: self.id,
             hover: self.hover_callback.clone(),
+            click: self.click_callback.clone(),
         };
         Some(gestures)
     }

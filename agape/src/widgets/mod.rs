@@ -11,7 +11,7 @@ mod text;
 mod vstack;
 
 use crate::LayoutTree;
-use crate::message::MessageQueue;
+use crate::message::{MessageQueue, MouseButtonDown};
 use crate::resources::CursorPosition;
 use agape_core::GlobalId;
 use agape_layout::Layout;
@@ -79,14 +79,10 @@ pub type Callback = Arc<dyn Fn(&mut MessageQueue) + Send + Sync>;
 ///
 /// [`update`]: View::update
 pub trait View: Send + Sync {
-    // TODO: add const label
     fn update(&mut self, _: &mut MessageQueue) {}
 
     fn view(&self) -> Box<dyn Widget>;
 }
-
-// TODO: add label on view as an option then get from
-// widget if None
 
 /// A `Widget` is anything that can ultimately be drawn to the screen. Widgets internally
 /// can be composed of anything, but each widget must have a [`GlobalId`] and a [`Layout`].
@@ -114,6 +110,7 @@ pub trait Widget: Send + Sync {
 pub struct WidgetGestures {
     pub id: GlobalId,
     pub hover: Option<Callback>,
+    pub click: Option<Callback>,
 }
 
 /// An iterator over a tree of widgets.
@@ -153,6 +150,27 @@ pub(crate) fn update_hovered_state(
             && let Some(hover) = &gesture.hover
         {
             hover(&mut messages);
+        }
+    }
+}
+
+pub(crate) fn click_widget(
+    cursor_position: Res<CursorPosition>,
+    layout_tree: Res<LayoutTree>,
+    mut messages: ResMut<MessageQueue>,
+    query: Query<&WidgetGestures>,
+) {
+    if !messages.has::<MouseButtonDown>() {
+        return;
+    }
+
+    let layout = layout_tree.0.as_ref();
+    for gesture in query.iter() {
+        if let Some(l) = layout.get(gesture.id)
+            && cursor_position.is_hovered(l)
+            && let Some(click) = &gesture.click
+        {
+            click(&mut messages);
         }
     }
 }
