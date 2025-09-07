@@ -105,6 +105,8 @@ pub trait Widget: Send + Sync {
         None
     }
 
+    fn set_id(&mut self, id: GlobalId);
+
     fn children(&self) -> Vec<&dyn Widget>;
 }
 
@@ -141,29 +143,31 @@ impl dyn Widget {
 pub(crate) fn update_hovered_state(
     cursor_position: Res<CursorPosition>,
     layout_tree: Res<LayoutTree>,
-    widget: Res<WidgetTree>,
     mut messages: ResMut<MessageQueue>,
+    query: Query<&WidgetGestures>,
 ) {
-    let gestures = widget.gestures().unwrap();
     let layout = layout_tree.0.as_ref();
-    if cursor_position.just_hovered(layout)
-        && let Some(hover) = gestures.hover
-    {
-        hover(&mut messages);
+    for gesture in query.iter() {
+        if let Some(l) = layout.get(gesture.id)
+            && cursor_position.just_hovered(l)
+            && let Some(hover) = &gesture.hover
+        {
+            hover(&mut messages);
+        }
     }
 }
 
 pub(crate) fn spawn_widget_gestures(
     mut commands: Commands,
     widget: Res<WidgetTree>,
-    query: Query<Entity,With<WidgetGestures>>
-){
-    for entity in query.iter(){
+    query: Query<Entity, With<WidgetGestures>>,
+) {
+    for entity in query.iter() {
         commands.entity(entity).despawn();
     }
 
-    let gestures: Vec<WidgetGestures> = widget.iter().filter_map(|w|w.gestures()).collect();
-    for gesture in gestures{
+    let gestures: Vec<WidgetGestures> = widget.iter().filter_map(|w| w.gestures()).collect();
+    for gesture in gestures {
         commands.spawn(gesture);
     }
 }

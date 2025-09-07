@@ -41,6 +41,10 @@ impl<W: Widget> Widget for Container<W> {
         vec![&self.child]
     }
 
+    fn set_id(&mut self, id: GlobalId) {
+        self.id = id
+    }
+
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
         let child = self.child.layout(renderer);
         let mut layout = BlockLayout::new(child);

@@ -49,6 +49,10 @@ impl<W: Widget> Widget for Button<W> {
         vec![&self.child]
     }
 
+    fn set_id(&mut self, id: GlobalId) {
+        self.id = id
+    }
+
     fn gestures(&self) -> Option<WidgetGestures> {
         let gestures = WidgetGestures {
             id: self.id,

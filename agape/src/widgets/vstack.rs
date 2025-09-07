@@ -58,6 +58,8 @@ impl VStack {
         self
     }
 
+
+
     pub fn spacing(mut self, spacing: u32) -> Self {
         self.layout.spacing = spacing;
         self
@@ -89,6 +91,10 @@ impl Widget for VStack {
 
     fn children(&self) -> Vec<&dyn Widget> {
         self.children.iter().map(|w| w.as_ref()).collect()
+    }
+
+    fn set_id(&mut self, id: GlobalId) {
+        self.id = id
     }
 
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {

@@ -197,7 +197,6 @@ fn update_layout(
     let widget = &widget_tree.0;
     let mut layout = widget.layout(&mut renderer);
     solve_layout(&mut *layout, window_size.0);
-    // commands.insert_resource(StateTracker::from_layout(layout.as_ref()));
     layout_tree.0 = layout;
 }
 
