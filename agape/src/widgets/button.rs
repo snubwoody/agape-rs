@@ -1,4 +1,4 @@
-use super::{Callback, Widget, WidgetGestures};
+use super::{Callback, Widget};
 use crate::style::BoxStyle;
 use crate::{MessageQueue, impl_style};
 use agape_core::GlobalId;
@@ -60,22 +60,16 @@ impl<W: Widget> Widget for Button<W> {
     fn children(&self) -> Vec<&dyn Widget> {
         vec![&self.child]
     }
-    fn set_id(&mut self, id: GlobalId) {
-        self.id = id
-    }
-
-    fn gestures(&self) -> Option<WidgetGestures> {
-        let gestures = WidgetGestures {
-            id: self.id,
-            hover: self.hover_callback.clone(),
-            click: None,
-        };
-        Some(gestures)
-    }
 
     fn click(&mut self, messages: &mut MessageQueue) {
-        if let Some(c) = &mut self.click_callback {
-            c(messages);
+        if let Some(f) = &mut self.click_callback {
+            f(messages);
+        }
+    }
+
+    fn hover(&mut self, messages: &mut MessageQueue) {
+        if let Some(f) = &mut self.hover_callback {
+            f(messages);
         }
     }
 

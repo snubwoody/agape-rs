@@ -97,12 +97,6 @@ pub trait Widget: Send + Sync {
     /// Draw the widget to the screen.
     fn render(&self, _: &mut Renderer, _: &dyn Layout);
 
-    fn gestures(&self) -> Option<WidgetGestures> {
-        None
-    }
-
-    fn set_id(&mut self, id: GlobalId);
-
     fn children(&self) -> Vec<&dyn Widget>;
 
     /// Traverse the widgets children. Note that this doesn't
@@ -111,13 +105,6 @@ pub trait Widget: Send + Sync {
 
     fn click(&mut self, _: &mut MessageQueue) {}
     fn hover(&mut self, _: &mut MessageQueue) {}
-}
-
-#[derive(Component)]
-pub struct WidgetGestures {
-    pub id: GlobalId,
-    pub hover: Option<Callback>,
-    pub click: Option<Callback>,
 }
 
 /// An iterator over a tree of widgets.
@@ -148,66 +135,46 @@ pub(crate) fn update_hovered_state(
     cursor_position: Res<CursorPosition>,
     layout_tree: Res<LayoutTree>,
     mut messages: ResMut<MessageQueue>,
-    query: Query<&WidgetGestures>,
+    mut widget_tree: ResMut<WidgetTree>,
 ) {
+    let widget = widget_tree.0.as_mut();
     let layout = layout_tree.0.as_ref();
-    for gesture in query.iter() {
-        if let Some(l) = layout.get(gesture.id)
-            && cursor_position.just_hovered(l)
-            && let Some(hover) = &gesture.hover
-        {
-            hover(&mut messages);
-        }
+    if let Some(l) = layout.get(widget.id())
+        && cursor_position.just_hovered(l)
+    {
+        widget.hover(&mut messages);
     }
+    widget.traverse(&mut |widget| {
+        if let Some(l) = layout.get(widget.id())
+            && cursor_position.just_hovered(l)
+        {
+            widget.hover(&mut messages);
+        }
+    });
 }
 
 pub(crate) fn click_widget(
     cursor_position: Res<CursorPosition>,
     layout_tree: Res<LayoutTree>,
     mut messages: ResMut<MessageQueue>,
-    query: Query<&WidgetGestures>,
-    // mut widget_tree: ResMut<WidgetTree>,
+    mut widget_tree: ResMut<WidgetTree>,
 ) {
     if !messages.has::<MouseButtonDown>() {
         return;
     }
 
-    // let widget = widget_tree.0.as_mut();
+    let widget = widget_tree.0.as_mut();
     let layout = layout_tree.0.as_ref();
-    // if let Some(l) = layout.get(widget.id())
-    //     && cursor_position.is_hovered(l)
-    // {
-    //     widget.click(&mut messages);
-    // }
-    // widget.traverse(&mut |widget| {
-    //     if let Some(l) = layout.get(widget.id())
-    //         && cursor_position.is_hovered(l)
-    //     {
-    //         widget.click(&mut messages);
-    //     }
-    // });
-
-    for gesture in query.iter() {
-        if let Some(l) = layout.get(gesture.id)
+    if let Some(l) = layout.get(widget.id())
+        && cursor_position.is_hovered(l)
+    {
+        widget.click(&mut messages);
+    }
+    widget.traverse(&mut |widget| {
+        if let Some(l) = layout.get(widget.id())
             && cursor_position.is_hovered(l)
-            && let Some(click) = &gesture.click
         {
-            click(&mut messages);
+            widget.click(&mut messages);
         }
-    }
-}
-
-pub(crate) fn spawn_widget_gestures(
-    mut commands: Commands,
-    widget: Res<WidgetTree>,
-    query: Query<Entity, With<WidgetGestures>>,
-) {
-    for entity in query.iter() {
-        commands.entity(entity).despawn();
-    }
-
-    let gestures: Vec<WidgetGestures> = widget.iter().filter_map(|w| w.gestures()).collect();
-    for gesture in gestures {
-        commands.spawn(gesture);
-    }
+    });
 }

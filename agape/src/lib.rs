@@ -10,8 +10,8 @@ pub mod resources;
 pub mod style;
 pub mod widgets;
 
+use crate::widgets::click_widget;
 use crate::widgets::{ViewTree, WidgetTree, update_hovered_state};
-use crate::widgets::{click_widget, spawn_widget_gestures};
 pub use agape_core::*;
 pub use agape_layout as layout;
 pub use agape_macros::hex;
@@ -103,7 +103,6 @@ impl App<'_> {
             .add_systems(render_widget)
             .add_systems(update_layout)
             .add_systems(update_view)
-            .add_systems(spawn_widget_gestures)
             .add_systems(update_hovered_state)
             .add_systems(click_widget)
             .add_systems(clear_events);

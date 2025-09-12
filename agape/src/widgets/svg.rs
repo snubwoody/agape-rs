@@ -87,10 +87,6 @@ impl Widget for Svg {
         vec![]
     }
 
-    fn set_id(&mut self, id: GlobalId) {
-        self.id = id
-    }
-
     fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget)) {}
 
     fn layout(&self, _: &mut Renderer) -> Box<dyn Layout> {
