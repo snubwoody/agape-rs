@@ -1,15 +1,15 @@
-use agape::{App, GlobalId, MessageQueue, widgets::*};
+use agape::{App, MessageQueue, widgets::*};
 use tracing::info;
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
-    App::new(Main::default()).run()
+    App::new(Main).run()
 }
 
 struct Hover;
 
 #[derive(Default)]
-struct Main(GlobalId);
+struct Main;
 
 impl View for Main {
     fn update(&mut self, messages: &mut MessageQueue) {
