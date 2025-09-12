@@ -87,6 +87,10 @@ impl Widget for VStack {
         self.id
     }
 
+    fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
+        self.children.iter_mut().for_each(|child| f(&mut **child));
+    }
+
     fn children(&self) -> Vec<&dyn Widget> {
         self.children.iter().map(|w| w.as_ref()).collect()
     }

@@ -55,7 +55,6 @@ impl<W: Widget> Widget for Button<W> {
     fn children(&self) -> Vec<&dyn Widget> {
         vec![&self.child]
     }
-
     fn set_id(&mut self, id: GlobalId) {
         self.id = id
     }
@@ -64,9 +63,15 @@ impl<W: Widget> Widget for Button<W> {
         let gestures = WidgetGestures {
             id: self.id,
             hover: self.hover_callback.clone(),
-            click: self.click_callback.clone(),
+            click: None,
         };
         Some(gestures)
+    }
+
+    fn click(&mut self) {
+        if let Some(c) = &mut self.click_callback {
+            c(&mut MessageQueue::new())
+        }
     }
 
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {

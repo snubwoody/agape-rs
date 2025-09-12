@@ -167,6 +167,14 @@ pub trait Widget: Send + Sync {
     fn set_id(&mut self, id: GlobalId);
 
     fn children(&self) -> Vec<&dyn Widget>;
+    fn children_mut(&mut self) -> Vec<&mut dyn Widget> {
+        vec![]
+    }
+
+    fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {}
+
+    /// Click the widget.
+    fn click(&mut self) {}
 }
 
 #[derive(Component)]
@@ -222,11 +230,18 @@ pub(crate) fn click_widget(
     layout_tree: Res<LayoutTree>,
     mut messages: ResMut<MessageQueue>,
     query: Query<&WidgetGestures>,
+    mut widget_tree: ResMut<WidgetTree>,
 ) {
     if !messages.has::<MouseButtonDown>() {
         return;
     }
 
+    let widget = widget_tree.0.as_mut();
+    widget.click();
+    widget.traverse(&mut |widget| {
+        messages.has::<MouseButtonDown>();
+        widget.click()
+    });
     let layout = layout_tree.0.as_ref();
     for gesture in query.iter() {
         if let Some(l) = layout.get(gesture.id)
