@@ -73,9 +73,9 @@ impl<W: Widget> Widget for Button<W> {
         Some(gestures)
     }
 
-    fn click(&mut self) {
+    fn click(&mut self, messages: &mut MessageQueue) {
         if let Some(c) = &mut self.click_callback {
-            c(&mut MessageQueue::new())
+            c(messages);
         }
     }
 

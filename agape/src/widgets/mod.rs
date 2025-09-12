@@ -109,8 +109,8 @@ pub trait Widget: Send + Sync {
     /// include the widget itself.
     fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget));
 
-    fn click(&mut self) {}
-    fn hover(&mut self) {}
+    fn click(&mut self, _: &mut MessageQueue) {}
+    fn hover(&mut self, _: &mut MessageQueue) {}
 }
 
 #[derive(Component)]
@@ -166,19 +166,27 @@ pub(crate) fn click_widget(
     layout_tree: Res<LayoutTree>,
     mut messages: ResMut<MessageQueue>,
     query: Query<&WidgetGestures>,
-    mut widget_tree: ResMut<WidgetTree>,
+    // mut widget_tree: ResMut<WidgetTree>,
 ) {
     if !messages.has::<MouseButtonDown>() {
         return;
     }
 
-    let widget = widget_tree.0.as_mut();
-    widget.click();
-    widget.traverse(&mut |widget| {
-        messages.has::<MouseButtonDown>();
-        widget.click()
-    });
+    // let widget = widget_tree.0.as_mut();
     let layout = layout_tree.0.as_ref();
+    // if let Some(l) = layout.get(widget.id())
+    //     && cursor_position.is_hovered(l)
+    // {
+    //     widget.click(&mut messages);
+    // }
+    // widget.traverse(&mut |widget| {
+    //     if let Some(l) = layout.get(widget.id())
+    //         && cursor_position.is_hovered(l)
+    //     {
+    //         widget.click(&mut messages);
+    //     }
+    // });
+
     for gesture in query.iter() {
         if let Some(l) = layout.get(gesture.id)
             && cursor_position.is_hovered(l)
