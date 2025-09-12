@@ -91,6 +91,8 @@ impl Widget for Svg {
         self.id = id
     }
 
+    fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {}
+
     fn layout(&self, _: &mut Renderer) -> Box<dyn Layout> {
         let layout = EmptyLayout {
             id: self.id,

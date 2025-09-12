@@ -63,6 +63,8 @@ impl Widget for Text {
         Box::new(layout)
     }
 
+    fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {}
+
     fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
         let layout = layout.get(self.id).unwrap();
         let position = layout.position();

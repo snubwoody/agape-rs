@@ -88,7 +88,10 @@ impl Widget for VStack {
     }
 
     fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
-        self.children.iter_mut().for_each(|child| f(&mut **child));
+        self.children.iter_mut().for_each(|w| {
+            f(w.as_mut());
+            w.traverse(f);
+        })
     }
 
     fn children(&self) -> Vec<&dyn Widget> {
@@ -186,7 +189,7 @@ macro_rules! vstack {
 
 #[cfg(test)]
 mod test {
-    use crate::widgets::{Rect, Text};
+    use crate::widgets::{Rect, Text, Widget};
 
     #[test]
     fn vstack_expansion() {
@@ -203,5 +206,25 @@ mod test {
     fn vstack_repeat_syntax() {
         let vstack = vstack![Text::new("Repeat!");10];
         assert_eq!(vstack.children.len(), 10);
+    }
+
+    #[test]
+    fn traverse() {
+        let mut vstack = vstack![Text::default();3];
+        let mut ids = vec![];
+        vstack.traverse(&mut |w| {
+            ids.push(w.id());
+        });
+        assert_eq!(vstack.children.len(), ids.len());
+    }
+
+    #[test]
+    fn traverse_nested_children() {
+        let mut vstack = vstack![vstack![Text::default()], vstack![Rect::new(),]];
+        let mut ids = vec![];
+        vstack.traverse(&mut |w| {
+            ids.push(w.id());
+        });
+        assert_eq!(ids.len(), 4);
     }
 }

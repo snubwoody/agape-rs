@@ -171,10 +171,12 @@ pub trait Widget: Send + Sync {
         vec![]
     }
 
-    fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {}
+    /// Traverse the widgets children. Note that this doesn't
+    /// include the widget itself.
+    fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget));
 
-    /// Click the widget.
     fn click(&mut self) {}
+    fn hover(&mut self) {}
 }
 
 #[derive(Component)]
