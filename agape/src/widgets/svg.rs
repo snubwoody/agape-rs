@@ -9,7 +9,7 @@ use std::path::Path;
 use std::sync::Arc;
 use usvg::Tree;
 
-/// Displays an SVG to the screen.
+/// Displays an SVG onto the screen.
 ///
 /// - Open an SVG file
 /// ```no_run

@@ -2,7 +2,24 @@
 //!
 //! ## Getting started
 //! To get started you'll need to create an [`App`], which is the entry point
-//! of the program, and a root [`Widget`].
+//! of the program, and a root [`View`].
+//!
+//! ```
+//! use agape::{App,Error,widgets::*};
+//!
+//! fn main() -> Result<(),Error>{
+//!     App::new(Main)
+//!         .run()
+//! }
+//!
+//! struct Main;
+//!
+//! impl View for Main{
+//!     fn view(&self) -> Box<dyn Widget> {
+//!         Box::new(Text::new("Hello!"))
+//!     }
+//! }
+//! ```
 pub mod error;
 mod macros;
 pub mod message;

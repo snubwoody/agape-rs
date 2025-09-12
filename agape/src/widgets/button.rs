@@ -7,6 +7,7 @@ use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
 use std::sync::Arc;
 
+// TODO: add prefix and suffix icon
 /// A widget that wraps another widget.
 pub struct Button<W> {
     id: GlobalId,
