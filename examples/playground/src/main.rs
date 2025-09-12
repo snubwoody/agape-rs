@@ -18,11 +18,10 @@ impl View for Main {
         }
     }
     fn view(&self) -> Box<dyn Widget> {
-        let mut widget = Button::new(Text::new("Hello World!"))
+        let widget = Button::new(Text::new("Hello World!"))
             .on_hover(|messages| messages.add(Hover))
             .on_click(|_| info!("Clicked!"));
 
-        widget.set_id(self.0);
         Box::new(widget)
     }
 }

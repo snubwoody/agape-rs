@@ -98,10 +98,6 @@ impl Widget for VStack {
         self.children.iter().map(|w| w.as_ref()).collect()
     }
 
-    fn set_id(&mut self, id: GlobalId) {
-        self.id = id
-    }
-
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
         let children: Vec<Box<dyn Layout>> =
             self.children.iter().map(|w| w.layout(renderer)).collect();

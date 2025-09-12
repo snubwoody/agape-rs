@@ -97,12 +97,6 @@ pub trait Widget: Send + Sync {
     /// Draw the widget to the screen.
     fn render(&self, _: &mut Renderer, _: &dyn Layout);
 
-    fn gestures(&self) -> Option<WidgetGestures> {
-        None
-    }
-
-    fn set_id(&mut self, id: GlobalId);
-
     fn children(&self) -> Vec<&dyn Widget>;
 
     /// Traverse the widgets children. Note that this doesn't
@@ -111,13 +105,6 @@ pub trait Widget: Send + Sync {
 
     fn click(&mut self, _: &mut MessageQueue) {}
     fn hover(&mut self, _: &mut MessageQueue) {}
-}
-
-#[derive(Component)]
-pub struct WidgetGestures {
-    pub id: GlobalId,
-    pub hover: Option<Callback>,
-    pub click: Option<Callback>,
 }
 
 /// An iterator over a tree of widgets.
@@ -190,19 +177,4 @@ pub(crate) fn click_widget(
             widget.click(&mut messages);
         }
     });
-}
-
-pub(crate) fn spawn_widget_gestures(
-    mut commands: Commands,
-    widget: Res<WidgetTree>,
-    query: Query<Entity, With<WidgetGestures>>,
-) {
-    for entity in query.iter() {
-        commands.entity(entity).despawn();
-    }
-
-    let gestures: Vec<WidgetGestures> = widget.iter().filter_map(|w| w.gestures()).collect();
-    for gesture in gestures {
-        commands.spawn(gesture);
-    }
 }

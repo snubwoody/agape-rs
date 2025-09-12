@@ -95,10 +95,6 @@ impl Widget for HStack {
         self.children.iter().map(|w| w.as_ref()).collect()
     }
 
-    fn set_id(&mut self, id: GlobalId) {
-        self.id = id
-    }
-
     fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
         self.children.iter_mut().for_each(|w| {
             f(w.as_mut());
