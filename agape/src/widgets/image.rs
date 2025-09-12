@@ -87,6 +87,7 @@ impl Widget for Image {
         self.id = id
     }
 
+    fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget)) {}
     fn layout(&self, _: &mut Renderer) -> Box<dyn Layout> {
         let layout = EmptyLayout {
             id: self.id,

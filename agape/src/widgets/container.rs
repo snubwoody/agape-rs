@@ -37,6 +37,11 @@ impl<W: Widget> Widget for Container<W> {
         self.id
     }
 
+    fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
+        f(&mut self.child);
+        self.child.traverse(f);
+    }
+
     fn children(&self) -> Vec<&dyn Widget> {
         vec![&self.child]
     }

@@ -1,8 +1,3 @@
-//! A resource is anything that needs to be accessed globally by different
-//! systems, common items such as the cursor position or the window size.
-//!
-//! Resources work on types, `T`, so avoid setting primitive or commonly used types
-//! like `String` or `Box` as it will make tracking things much harder.
 use agape_core::{Position, Size};
 use agape_layout::Layout;
 use bevy_ecs::prelude::Resource;
@@ -25,21 +20,23 @@ impl CursorPosition {
         self.current = position;
     }
 
+    /// Get the current cursor position.
     pub fn current(&self) -> Position {
         self.current
     }
 
+    /// Get the cursor position of the last frame.
     pub fn previous(&self) -> Position {
         self.previous
     }
 
-    /// Check if the widget was just hovered.
+    /// Returns `true` if the cursor just hovered the [`Widget`].
     pub fn just_hovered(&self, layout: &dyn Layout) -> bool {
         let bounds = layout.bounds();
         !bounds.within(&self.previous) && bounds.within(&self.current)
     }
 
-    /// Check if the widget is being hovered.
+    /// Returns `true` if the cursor is over the [`Widget`].
     pub fn is_hovered(&self, layout: &dyn Layout) -> bool {
         layout.bounds().within(&self.current)
     }
@@ -49,6 +46,7 @@ impl CursorPosition {
 #[derive(Debug, Default, Copy, Clone)]
 pub struct WindowSize(pub Size);
 
+// TODO: deprecate this
 #[derive(Debug, Default, Resource)]
 pub struct EventQueue {
     events: Vec<WindowEvent>,

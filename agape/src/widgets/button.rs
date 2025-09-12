@@ -52,10 +52,14 @@ impl<W: Widget> Widget for Button<W> {
         self.id
     }
 
+    fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
+        f(&mut self.child);
+        self.child.traverse(f);
+    }
+
     fn children(&self) -> Vec<&dyn Widget> {
         vec![&self.child]
     }
-
     fn set_id(&mut self, id: GlobalId) {
         self.id = id
     }
@@ -64,9 +68,15 @@ impl<W: Widget> Widget for Button<W> {
         let gestures = WidgetGestures {
             id: self.id,
             hover: self.hover_callback.clone(),
-            click: self.click_callback.clone(),
+            click: None,
         };
         Some(gestures)
+    }
+
+    fn click(&mut self, messages: &mut MessageQueue) {
+        if let Some(c) = &mut self.click_callback {
+            c(messages);
+        }
     }
 
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
@@ -100,6 +110,16 @@ mod test {
     use crate::widgets::Rect;
     use agape_core::{Color, Size};
     use agape_layout::solve_layout;
+
+    #[test]
+    fn traverse() {
+        let mut button = Button::new(Rect::default());
+        let mut ids = vec![];
+        button.traverse(&mut |w| {
+            ids.push(w.id());
+        });
+        assert_eq!(ids.len(), 1);
+    }
 
     #[test]
     fn render_child() {

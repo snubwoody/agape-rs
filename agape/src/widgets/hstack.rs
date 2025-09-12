@@ -98,6 +98,14 @@ impl Widget for HStack {
     fn set_id(&mut self, id: GlobalId) {
         self.id = id
     }
+
+    fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
+        self.children.iter_mut().for_each(|w| {
+            f(w.as_mut());
+            w.traverse(f);
+        })
+    }
+
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
         let children: Vec<Box<dyn Layout>> =
             self.children.iter().map(|w| w.layout(renderer)).collect();
@@ -186,7 +194,7 @@ macro_rules! hstack {
 
 #[cfg(test)]
 mod test {
-    use crate::widgets::{Rect, Text};
+    use crate::widgets::{Rect, Text, Widget};
 
     #[test]
     fn hstack_expansion() {
@@ -208,5 +216,25 @@ mod test {
     fn empty_hstack_expansion() {
         let hstack = hstack! {};
         assert!(hstack.children.is_empty());
+    }
+
+    #[test]
+    fn traverse() {
+        let mut hstack = hstack![Text::default();3];
+        let mut ids = vec![];
+        hstack.traverse(&mut |w| {
+            ids.push(w.id());
+        });
+        assert_eq!(hstack.children.len(), ids.len());
+    }
+
+    #[test]
+    fn traverse_nested_children() {
+        let mut hstack = hstack![hstack![Text::default()], hstack![Rect::new(),]];
+        let mut ids = vec![];
+        hstack.traverse(&mut |w| {
+            ids.push(w.id());
+        });
+        assert_eq!(ids.len(), 4);
     }
 }
