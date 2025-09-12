@@ -148,53 +148,48 @@ pub(crate) fn update_hovered_state(
     cursor_position: Res<CursorPosition>,
     layout_tree: Res<LayoutTree>,
     mut messages: ResMut<MessageQueue>,
-    query: Query<&WidgetGestures>,
+    mut widget_tree: ResMut<WidgetTree>,
 ) {
+    let widget = widget_tree.0.as_mut();
     let layout = layout_tree.0.as_ref();
-    for gesture in query.iter() {
-        if let Some(l) = layout.get(gesture.id)
-            && cursor_position.just_hovered(l)
-            && let Some(hover) = &gesture.hover
-        {
-            hover(&mut messages);
-        }
+    if let Some(l) = layout.get(widget.id())
+        && cursor_position.just_hovered(l)
+    {
+        widget.hover(&mut messages);
     }
+    widget.traverse(&mut |widget| {
+        if let Some(l) = layout.get(widget.id())
+            && cursor_position.just_hovered(l)
+        {
+            widget.hover(&mut messages);
+        }
+    });
 }
 
 pub(crate) fn click_widget(
     cursor_position: Res<CursorPosition>,
     layout_tree: Res<LayoutTree>,
     mut messages: ResMut<MessageQueue>,
-    query: Query<&WidgetGestures>,
-    // mut widget_tree: ResMut<WidgetTree>,
+    mut widget_tree: ResMut<WidgetTree>,
 ) {
     if !messages.has::<MouseButtonDown>() {
         return;
     }
 
-    // let widget = widget_tree.0.as_mut();
+    let widget = widget_tree.0.as_mut();
     let layout = layout_tree.0.as_ref();
-    // if let Some(l) = layout.get(widget.id())
-    //     && cursor_position.is_hovered(l)
-    // {
-    //     widget.click(&mut messages);
-    // }
-    // widget.traverse(&mut |widget| {
-    //     if let Some(l) = layout.get(widget.id())
-    //         && cursor_position.is_hovered(l)
-    //     {
-    //         widget.click(&mut messages);
-    //     }
-    // });
-
-    for gesture in query.iter() {
-        if let Some(l) = layout.get(gesture.id)
-            && cursor_position.is_hovered(l)
-            && let Some(click) = &gesture.click
-        {
-            click(&mut messages);
-        }
+    if let Some(l) = layout.get(widget.id())
+        && cursor_position.is_hovered(l)
+    {
+        widget.click(&mut messages);
     }
+    widget.traverse(&mut |widget| {
+        if let Some(l) = layout.get(widget.id())
+            && cursor_position.is_hovered(l)
+        {
+            widget.click(&mut messages);
+        }
+    });
 }
 
 pub(crate) fn spawn_widget_gestures(

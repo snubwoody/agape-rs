@@ -74,8 +74,14 @@ impl<W: Widget> Widget for Button<W> {
     }
 
     fn click(&mut self, messages: &mut MessageQueue) {
-        if let Some(c) = &mut self.click_callback {
-            c(messages);
+        if let Some(f) = &mut self.click_callback {
+            f(messages);
+        }
+    }
+
+    fn hover(&mut self, messages: &mut MessageQueue) {
+        if let Some(f) = &mut self.hover_callback {
+            f(messages);
         }
     }
 
