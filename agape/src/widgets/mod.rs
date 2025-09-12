@@ -28,69 +28,6 @@ pub use svg::Svg;
 pub use text::Text;
 pub use vstack::*;
 
-#[derive(Default)]
-pub struct WidgetTree2 {
-    nodes: Vec<WidgetNode>,
-}
-
-impl WidgetTree2 {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn insert(&mut self, widget: WidgetNode) {
-        self.nodes.push(widget);
-    }
-}
-
-pub struct WidgetNode {
-    // Parent should only be None for the root widget
-    parent: Option<GlobalId>,
-    children: Vec<GlobalId>,
-    inner: Box<dyn Widget>,
-}
-
-impl WidgetNode {
-    pub fn new<W: Widget + 'static>(inner: W) -> Self {
-        Self {
-            inner: Box::new(inner),
-            children: Vec::new(),
-            parent: None,
-        }
-    }
-
-    pub fn with_parent(mut self, parent: GlobalId) -> Self {
-        self.parent = Some(parent);
-        self
-    }
-
-    pub fn add_child(mut self, child: GlobalId) -> Self {
-        self.children.push(child);
-        self
-    }
-
-    pub fn add_children<I: IntoIterator<Item = GlobalId>>(mut self, children: I) -> Self {
-        self.children.extend(children);
-        self
-    }
-
-    pub fn parent(&self) -> Option<GlobalId> {
-        self.parent
-    }
-
-    pub fn children(&self) -> &[GlobalId] {
-        self.children.as_slice()
-    }
-
-    pub fn inner(&self) -> &dyn Widget {
-        self.inner.as_ref()
-    }
-
-    pub fn inner_mut(&mut self) -> &mut dyn Widget {
-        self.inner.as_mut()
-    }
-}
-
 #[derive(Resource)]
 pub(crate) struct ViewTree(pub Box<dyn View>);
 #[derive(Resource)]
@@ -167,9 +104,6 @@ pub trait Widget: Send + Sync {
     fn set_id(&mut self, id: GlobalId);
 
     fn children(&self) -> Vec<&dyn Widget>;
-    fn children_mut(&mut self) -> Vec<&mut dyn Widget> {
-        vec![]
-    }
 
     /// Traverse the widgets children. Note that this doesn't
     /// include the widget itself.
