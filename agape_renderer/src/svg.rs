@@ -23,8 +23,8 @@ impl Svg {
         let svg_height = self.tree.size().height();
         let scale_x = self.size.width / svg_width;
         let scale_y = self.size.height / svg_height;
-        let transform = Transform::from_translate(self.position.x, self.position.y)
-            .post_scale(scale_x, scale_y);
+        let transform = Transform::from_scale(scale_x, scale_y)
+            .post_translate(self.position.x, self.position.y);
 
         resvg::render(&self.tree, transform, &mut pixmap.as_mut());
     }
