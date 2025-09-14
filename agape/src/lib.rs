@@ -28,8 +28,8 @@ pub mod resources;
 pub mod style;
 pub mod widgets;
 
-use crate::widgets::click_widget;
 use crate::widgets::{ViewTree, WidgetTree, update_hovered_state};
+use crate::widgets::{click_widget, get_assets};
 pub use agape_core::*;
 pub use agape_layout as layout;
 pub use agape_macros::hex;
@@ -125,6 +125,7 @@ impl App<'_> {
             .add_systems(update_view)
             .add_systems(update_hovered_state)
             .add_systems(click_widget)
+            .add_systems(get_assets)
             .add_systems(clear_events);
 
         let event_loop = EventLoop::new()?;

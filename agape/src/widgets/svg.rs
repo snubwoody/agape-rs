@@ -43,7 +43,7 @@ use usvg::Tree;
 /// Only basic SVG functionality is supported, i.e. rendering vector graphics
 /// to the screen. None of the other complex features such as animation, scripting
 /// or audio is covered.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Svg {
     id: GlobalId,
     data: Arc<Tree>,

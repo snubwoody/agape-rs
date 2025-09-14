@@ -12,6 +12,7 @@ mod text;
 mod vstack;
 
 use crate::LayoutTree;
+use crate::assets::AssetManager;
 use crate::message::{MessageQueue, MouseButtonDown};
 use crate::resources::CursorPosition;
 use agape_core::GlobalId;
@@ -21,6 +22,7 @@ use bevy_ecs::prelude::*;
 pub use button::*;
 pub use container::Container;
 pub use hstack::*;
+pub use icon::Icon;
 pub use image::Image;
 pub use rect::*;
 use std::ops::Deref;
@@ -104,6 +106,8 @@ pub trait Widget: Send + Sync {
     /// include the widget itself.
     fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget));
 
+    fn get_assets(&mut self, _: &AssetManager) {}
+
     fn click(&mut self, _: &mut MessageQueue) {}
     fn hover(&mut self, _: &mut MessageQueue) {}
 }
@@ -129,6 +133,14 @@ impl dyn Widget {
     pub fn iter(&self) -> WidgetIter<'_> {
         WidgetIter { stack: vec![self] }
     }
+}
+
+pub(crate) fn get_assets(assets: Res<AssetManager>, mut widget_tree: ResMut<WidgetTree>) {
+    let widget = &mut widget_tree.0;
+    widget.get_assets(&assets);
+    widget.traverse(&mut |widget| {
+        widget.get_assets(&assets);
+    })
 }
 
 /// Go through all the widgets and check if they are hovered.
