@@ -41,6 +41,7 @@ use resources::CursorPosition;
 use resources::EventQueue;
 use widgets::View;
 
+use crate::assets::AssetManager;
 use crate::message::{MouseButtonDown, MouseButtonUp};
 use agape_layout::{Layout, solve_layout};
 use agape_renderer::Renderer;
@@ -88,6 +89,7 @@ impl App<'_> {
         world.insert_resource(MessageQueue::default());
         world.insert_resource(view_tree);
         world.insert_resource(renderer);
+        world.insert_resource(AssetManager::new("examples/file-explorer/assets"));
         world.insert_resource(LayoutTree(layout));
         world.insert_resource(WindowSize(Size::unit(1.0)));
 

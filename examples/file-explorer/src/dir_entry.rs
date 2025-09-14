@@ -1,5 +1,5 @@
 use agape::layout::AxisAlignment;
-use agape::widgets::{Container, Svg, Text, View, Widget};
+use agape::widgets::{Svg, Text, View, Widget};
 use agape::{MessageQueue, hstack};
 use std::path::PathBuf;
 

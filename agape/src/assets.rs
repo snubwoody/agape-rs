@@ -1,12 +1,18 @@
+use bevy_ecs::prelude::Resource;
+use std::fs;
 use std::fs::File;
 use std::path::{Path, PathBuf};
+use tracing::info;
 
+#[derive(Resource)]
 pub struct AssetManager {
     base: PathBuf,
 }
 
 impl AssetManager {
     pub fn new(base: impl AsRef<Path>) -> Self {
+        let full_path = fs::canonicalize(&base).unwrap();
+        info!("Initialised asset directory: {:?}", full_path);
         AssetManager {
             base: base.as_ref().to_path_buf(),
         }

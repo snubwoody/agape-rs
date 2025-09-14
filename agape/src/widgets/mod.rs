@@ -4,6 +4,7 @@
 mod button;
 mod container;
 mod hstack;
+mod icon;
 pub mod image;
 mod rect;
 mod svg;
