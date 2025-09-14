@@ -20,6 +20,7 @@
 //!     }
 //! }
 //! ```
+mod assets;
 pub mod error;
 mod macros;
 pub mod message;
