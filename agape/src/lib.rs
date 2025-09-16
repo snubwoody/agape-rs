@@ -25,6 +25,7 @@ pub mod error;
 mod macros;
 pub mod message;
 pub mod resources;
+mod state;
 pub mod style;
 pub mod widgets;
 
@@ -44,6 +45,7 @@ use widgets::View;
 
 use crate::assets::AssetManager;
 use crate::message::{MouseButtonDown, MouseButtonUp};
+use crate::state::State;
 use agape_layout::{Layout, solve_layout};
 use agape_renderer::Renderer;
 use bevy_ecs::prelude::*;
@@ -65,50 +67,36 @@ struct LayoutTree(Box<dyn Layout>);
 #[derive(Resource)]
 struct WindowSize(Size);
 
-// TODO: store the pixmap in the renderer?
 /// An `App` is a single program.
 pub struct App<'app> {
+    // The window and pixel buffer only get populated
+    // when the window actually opens.
     window: Option<Arc<Window>>,
     pixels: Option<Pixels<'app>>,
-    world: World,
-    schedule: Schedule,
+    state: State,
 }
 
 impl App<'_> {
     /// Create a new app.
     pub fn new(view: impl View + 'static) -> Self {
-        let widget = view.view();
-        let mut renderer = Renderer::new();
-        let layout = widget.layout(&mut renderer);
-        let view_tree = ViewTree(Box::new(view));
-
-        let mut world = World::new();
-        world.insert_resource(CursorPosition::default());
-        world.insert_resource(WidgetTree(widget));
-        world.insert_resource(CursorPosition::default());
-        world.insert_resource(EventQueue::default());
-        world.insert_resource(MessageQueue::default());
-        world.insert_resource(view_tree);
-        world.insert_resource(renderer);
-        world.insert_resource(AssetManager::new("."));
-        world.insert_resource(LayoutTree(layout));
-        world.insert_resource(WindowSize(Size::unit(1.0)));
+        let state = State::new(view);
 
         Self {
             window: None,
             pixels: None,
-            world,
-            schedule: Schedule::default(),
+            state,
         }
     }
 
     pub fn assets(mut self, path: impl AsRef<Path>) -> Self {
-        self.world.insert_resource(AssetManager::new(path));
+        // FIXME
+        // self.world.insert_resource(AssetManager::new(path));
         self
     }
 
     fn render(&mut self) {
-        let renderer = self.world.get_resource::<Renderer>().unwrap();
+        self.state.render();
+        let renderer = self.state.renderer();
         let pixels = self.pixels.as_mut().unwrap();
 
         pixels.frame_mut().copy_from_slice(renderer.pixmap().data());
@@ -122,15 +110,15 @@ impl App<'_> {
     /// because accessing windows in other threads is unsafe on
     /// certain platforms.
     pub fn run(mut self) -> Result<()> {
-        self.schedule
-            .add_systems(update_window_size)
-            .add_systems(update_cursor_pos)
-            .add_systems(handle_click)
-            .add_systems((get_assets, update_layout, render_widget, update_view).chain())
-            // .add_systems(get_assets)
-            .add_systems(update_hovered_state)
-            .add_systems(click_widget)
-            .add_systems(clear_events);
+        // self.schedule
+        //     .add_systems(update_window_size)
+        //     .add_systems(update_cursor_pos)
+        //     .add_systems(handle_click)
+        //     .add_systems((get_assets, update_layout, render_widget, update_view).chain())
+        //     // .add_systems(get_assets)
+        //     .add_systems(update_hovered_state)
+        //     .add_systems(click_widget)
+        //     .add_systems(clear_events);
 
         let event_loop = EventLoop::new()?;
         event_loop.set_control_flow(ControlFlow::Poll);
@@ -157,10 +145,10 @@ impl ApplicationHandler for App<'_> {
     }
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
-        self.world
-            .get_resource_mut::<EventQueue>()
-            .unwrap()
-            .push(event.clone());
+        // self.world
+        //     .get_resource_mut::<EventQueue>()
+        //     .unwrap()
+        //     .push(event.clone());
         match event {
             WindowEvent::CloseRequested => {
                 log::info!("Exiting app");
@@ -183,14 +171,15 @@ impl ApplicationHandler for App<'_> {
                     .resize_buffer(size.width, size.height)
                     .expect("Failed to resize the pixel buffer");
 
-                self.world
-                    .get_resource_mut::<Renderer>()
-                    .unwrap()
-                    .resize(size.width, size.height);
+                self.state.resize(size.into());
+                // self.world
+                //     .get_resource_mut::<Renderer>()
+                //     .unwrap()
+                //     .resize(size.width, size.height);
             }
             _ => {}
         }
-        self.schedule.run(&mut self.world);
+        // self.schedule.run(&mut self.world);
     }
 }
 
@@ -275,14 +264,15 @@ mod test {
 
     #[test]
     fn important_resources() {
+        panic!("No longer valid");
         // Make sure some of the important resources are present
-        let app = App::new(DummyView);
-        app.world.get_resource::<WindowSize>().unwrap();
-        app.world.get_resource::<CursorPosition>().unwrap();
-        app.world.get_resource::<ViewTree>().unwrap();
-        app.world.get_resource::<WidgetTree>().unwrap();
-        app.world.get_resource::<LayoutTree>().unwrap();
-        app.world.get_resource::<EventQueue>().unwrap();
-        app.world.get_resource::<MessageQueue>().unwrap();
+        // let app = App::new(DummyView);
+        // app.world.get_resource::<WindowSize>().unwrap();
+        // app.world.get_resource::<CursorPosition>().unwrap();
+        // app.world.get_resource::<ViewTree>().unwrap();
+        // app.world.get_resource::<WidgetTree>().unwrap();
+        // app.world.get_resource::<LayoutTree>().unwrap();
+        // app.world.get_resource::<EventQueue>().unwrap();
+        // app.world.get_resource::<MessageQueue>().unwrap();
     }
 }

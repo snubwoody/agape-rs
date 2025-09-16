@@ -4,7 +4,7 @@ use bevy_ecs::prelude::Resource;
 use winit::event::WindowEvent;
 
 /// The current cursor position.
-#[derive(Debug, Default, Copy, Clone, Resource)]
+#[derive(Debug, Default, Copy, Clone, Resource, PartialOrd, PartialEq)]
 pub struct CursorPosition {
     current: Position,
     previous: Position,
