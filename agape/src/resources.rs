@@ -1,6 +1,5 @@
-use agape_core::{Position, Size};
+use agape_core::Position;
 use agape_layout::Layout;
-use winit::event::WindowEvent;
 
 /// The current cursor position.
 #[derive(Debug, Default, Copy, Clone, PartialOrd, PartialEq)]
@@ -41,42 +40,10 @@ impl CursorPosition {
     }
 }
 
-// TODO: deprecate this
-#[derive(Debug, Default)]
-pub struct EventQueue {
-    events: Vec<WindowEvent>,
-    frame_count: u32,
-}
-
-impl EventQueue {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// Push an event to the queue.
-    pub fn push(&mut self, event: WindowEvent) {
-        self.events.push(event);
-    }
-
-    pub fn events(&self) -> &[WindowEvent] {
-        self.events.as_slice()
-    }
-
-    pub fn tick(&mut self) {
-        self.frame_count += 1;
-    }
-
-    pub fn clear(&mut self) {
-        if self.frame_count > 3 {
-            self.events.clear();
-            self.frame_count = 0;
-        }
-    }
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
+    use agape_core::Size;
     use agape_layout::{EmptyLayout, IntrinsicSize, solve_layout};
 
     #[test]

@@ -1,7 +1,7 @@
 use crate::MessageQueue;
 use crate::assets::AssetManager;
 use crate::message::MouseButtonDown;
-use crate::resources::{CursorPosition, EventQueue};
+use crate::resources::CursorPosition;
 use crate::widgets::{View, Widget};
 use agape_core::{Position, Size};
 use agape_layout::{Layout, solve_layout};
@@ -78,16 +78,8 @@ impl State {
         self.renderer.resize(size.width as u32, size.height as u32);
     }
 
-    pub fn window_size(&self) -> Size {
-        self.window_size
-    }
-
     pub fn update_cursor_position(&mut self, position: Position) {
         self.cursor_position.update(position);
-    }
-
-    pub fn cursor_position(&self) -> CursorPosition {
-        self.cursor_position
     }
 
     pub fn check_hovered(&mut self) {
