@@ -4,7 +4,7 @@
 //! To get started you'll need to create an [`App`], which is the entry point
 //! of the program, and a root [`View`].
 //!
-//! ```
+//! ```no_run
 //! use agape::{App,Error,widgets::*};
 //!
 //! fn main() -> Result<(),Error>{
@@ -39,6 +39,7 @@ pub use message::MessageQueue;
 use message::update_cursor_pos;
 use resources::CursorPosition;
 use resources::EventQueue;
+use std::path::Path;
 use widgets::View;
 
 use crate::assets::AssetManager;
@@ -89,7 +90,7 @@ impl App<'_> {
         world.insert_resource(MessageQueue::default());
         world.insert_resource(view_tree);
         world.insert_resource(renderer);
-        world.insert_resource(AssetManager::new("examples/file-explorer/assets"));
+        world.insert_resource(AssetManager::new("."));
         world.insert_resource(LayoutTree(layout));
         world.insert_resource(WindowSize(Size::unit(1.0)));
 
@@ -99,6 +100,11 @@ impl App<'_> {
             world,
             schedule: Schedule::default(),
         }
+    }
+
+    pub fn assets(mut self, path: impl AsRef<Path>) -> Self {
+        self.world.insert_resource(AssetManager::new(path));
+        self
     }
 
     fn render(&mut self) {

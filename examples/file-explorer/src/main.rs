@@ -12,7 +12,7 @@ pub struct ChangeDir(PathBuf);
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
     let home = Home::new();
-    App::new(home).run()
+    App::new(home).assets("examples/file-explorer/assets").run()
 }
 
 struct Home {
