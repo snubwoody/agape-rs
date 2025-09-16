@@ -22,12 +22,11 @@ pub use hstack::*;
 pub use icon::Icon;
 pub use image::Image;
 pub use rect::*;
-use std::sync::{Arc, Mutex};
 pub use svg::Svg;
 pub use text::Text;
 pub use vstack::*;
 
-pub type Callback = Arc<Mutex<dyn FnMut(&mut MessageQueue) + Send + Sync>>;
+pub type Callback = Box<dyn FnMut(&mut MessageQueue)>;
 
 /// A [`View`].
 ///
@@ -56,7 +55,7 @@ pub type Callback = Arc<Mutex<dyn FnMut(&mut MessageQueue) + Send + Sync>>;
 /// to state changes and events.
 ///
 /// [`update`]: View::update
-pub trait View: Send + Sync {
+pub trait View {
     fn update(&mut self, _: &mut MessageQueue) {}
 
     fn view(&self) -> Box<dyn Widget>;
@@ -64,7 +63,7 @@ pub trait View: Send + Sync {
 
 /// A `Widget` is anything that can ultimately be drawn to the screen. Widgets internally
 /// can be composed of anything, but each widget must have a [`GlobalId`] and a [`Layout`].
-pub trait Widget: Send + Sync {
+pub trait Widget {
     /// Get the `id` of the [`Widget`].
     fn id(&self) -> GlobalId;
 

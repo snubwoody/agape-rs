@@ -1,18 +1,17 @@
-use crate::resources::{CursorPosition, EventQueue};
 use std::any::Any;
 
 /// Emitted when the left mouse button is pressed.
 pub struct MouseButtonDown;
 
-/// Emitted when the left mouse button is pressed.
+/// Emitted when the left mouse button is released.
 pub struct MouseButtonUp;
 
 // Marker trait
 /// The message trait is implemented for anything which implements
-/// `Any + Send + Sync`.
-pub trait Message: Any + Send + Sync {}
+/// `Any`.
+pub trait Message: Any {}
 
-impl<T: Any + Send + Sync> Message for T {}
+impl<T: Any> Message for T {}
 
 #[derive(Default)]
 pub struct MessageQueue {
