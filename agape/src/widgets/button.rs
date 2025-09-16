@@ -5,7 +5,7 @@ use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 // TODO: add prefix and suffix icon
 /// A widget that wraps another widget.
@@ -35,13 +35,13 @@ impl<W> Button<W> {
         self
     }
 
-    pub fn on_hover(mut self, f: impl Fn(&mut MessageQueue) + Send + Sync + 'static) -> Self {
-        self.hover_callback = Some(Arc::new(f));
+    pub fn on_hover(mut self, f: impl FnMut(&mut MessageQueue) + Send + Sync + 'static) -> Self {
+        self.hover_callback = Some(Arc::new(Mutex::new(f)));
         self
     }
 
-    pub fn on_click(mut self, f: impl Fn(&mut MessageQueue) + Send + Sync + 'static) -> Self {
-        self.click_callback = Some(Arc::new(f));
+    pub fn on_click(mut self, f: impl FnMut(&mut MessageQueue) + Send + Sync + 'static) -> Self {
+        self.click_callback = Some(Arc::new(Mutex::new(f)));
         self
     }
 
@@ -64,13 +64,14 @@ impl<W: Widget> Widget for Button<W> {
 
     fn click(&mut self, messages: &mut MessageQueue) {
         if let Some(f) = &mut self.click_callback {
-            f(messages);
+            f.lock().unwrap()(messages);
+            // f(messages);
         }
     }
 
     fn hover(&mut self, messages: &mut MessageQueue) {
         if let Some(f) = &mut self.hover_callback {
-            f(messages);
+            f.lock().unwrap()(messages);
         }
     }
 

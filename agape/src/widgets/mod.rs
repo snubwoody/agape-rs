@@ -26,7 +26,7 @@ pub use icon::Icon;
 pub use image::Image;
 pub use rect::*;
 use std::ops::Deref;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 pub use svg::Svg;
 pub use text::Text;
 pub use vstack::*;
@@ -52,7 +52,7 @@ impl Deref for WidgetTree {
     }
 }
 
-pub type Callback = Arc<dyn Fn(&mut MessageQueue) + Send + Sync>;
+pub type Callback = Arc<Mutex<dyn FnMut(&mut MessageQueue) + Send + Sync>>;
 
 /// A [`View`].
 ///
