@@ -19,7 +19,7 @@ impl View for Main {
     }
     fn view(&self) -> Box<dyn Widget> {
         let widget = Button::new(Text::new("Hello World!"))
-            .on_hover(|messages| messages.add(Hover))
+            .on_hover(|_| info!("Hovered"))
             .on_click(|_| info!("Clicked!"));
 
         Box::new(widget)

@@ -90,6 +90,7 @@ impl App<'_> {
 
     pub fn assets(mut self, path: impl AsRef<Path>) -> Self {
         // FIXME
+        self.state.asset_dir(path);
         // self.world.insert_resource(AssetManager::new(path));
         self
     }
@@ -154,6 +155,23 @@ impl ApplicationHandler for App<'_> {
                 log::info!("Exiting app");
                 event_loop.exit();
             }
+            WindowEvent::CursorMoved { position, .. } => {
+                self.state.update_cursor_position(position.into());
+            }
+            WindowEvent::MouseInput { state, button, .. } => {
+                let messages = self.state.messages_mut();
+                if let MouseButton::Left = button
+                    && let ElementState::Pressed = state
+                {
+                    messages.add(MouseButtonDown);
+                }
+
+                if let MouseButton::Left = button
+                    && let ElementState::Released = state
+                {
+                    messages.add(MouseButtonUp);
+                }
+            }
             WindowEvent::RedrawRequested => {
                 self.render();
                 self.window.as_mut().unwrap().request_redraw();
@@ -172,82 +190,11 @@ impl ApplicationHandler for App<'_> {
                     .expect("Failed to resize the pixel buffer");
 
                 self.state.resize(size.into());
-                // self.world
-                //     .get_resource_mut::<Renderer>()
-                //     .unwrap()
-                //     .resize(size.width, size.height);
             }
             _ => {}
         }
-        // self.schedule.run(&mut self.world);
+        self.state.update();
     }
-}
-
-// TODO: test these
-fn update_window_size(event_queue: Res<EventQueue>, mut window_suze: ResMut<WindowSize>) {
-    for event in event_queue.events() {
-        if let WindowEvent::Resized(size) = event {
-            window_suze.0 = Size::from(*size);
-        }
-    }
-}
-
-fn update_view(
-    mut view_tree: ResMut<ViewTree>,
-    mut messages: ResMut<MessageQueue>,
-    mut widget_tree: ResMut<WidgetTree>,
-) {
-    let view = &mut view_tree.0;
-    view.update(&mut messages);
-    widget_tree.0 = view.view();
-}
-
-fn update_layout(
-    widget_tree: Res<WidgetTree>,
-    window_size: Res<WindowSize>,
-    mut renderer: ResMut<Renderer>,
-    mut layout_tree: ResMut<LayoutTree>,
-) {
-    let widget = &widget_tree.0;
-    let mut layout = widget.layout(&mut renderer);
-    solve_layout(&mut *layout, window_size.0);
-    layout_tree.0 = layout;
-}
-
-fn render_widget(
-    widget_tree: Res<WidgetTree>,
-    mut renderer: ResMut<Renderer>,
-    layout_tree: Res<LayoutTree>,
-) {
-    let widget = &widget_tree.0;
-
-    renderer.pixmap_mut().fill(tiny_skia::Color::WHITE);
-    widget.render(&mut renderer, layout_tree.0.as_ref());
-}
-
-fn handle_click(queue: ResMut<EventQueue>, mut messages: ResMut<MessageQueue>) {
-    for event in queue.events() {
-        if let WindowEvent::MouseInput { button, state, .. } = event {
-            if let MouseButton::Left = button
-                && let ElementState::Pressed = state
-            {
-                messages.add(MouseButtonDown);
-            }
-
-            if let MouseButton::Left = button
-                && let ElementState::Released = state
-            {
-                messages.add(MouseButtonUp);
-            }
-        }
-    }
-}
-
-fn clear_events(mut queue: ResMut<EventQueue>, mut messages: ResMut<MessageQueue>) {
-    messages.tick();
-    messages.clear();
-    queue.clear();
-    queue.tick();
 }
 
 #[cfg(test)]
