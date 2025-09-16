@@ -11,48 +11,22 @@ mod svg;
 mod text;
 mod vstack;
 
-use crate::LayoutTree;
 use crate::assets::AssetManager;
-use crate::message::{MessageQueue, MouseButtonDown};
-use crate::resources::CursorPosition;
+use crate::message::MessageQueue;
 use agape_core::GlobalId;
 use agape_layout::Layout;
 use agape_renderer::Renderer;
-use bevy_ecs::prelude::*;
 pub use button::*;
 pub use container::Container;
 pub use hstack::*;
 pub use icon::Icon;
 pub use image::Image;
 pub use rect::*;
-use std::ops::Deref;
-use std::sync::{Arc, Mutex};
 pub use svg::Svg;
 pub use text::Text;
 pub use vstack::*;
 
-#[derive(Resource)]
-pub(crate) struct ViewTree(pub Box<dyn View>);
-#[derive(Resource)]
-pub(crate) struct WidgetTree(pub Box<dyn Widget>);
-
-impl Deref for ViewTree {
-    type Target = Box<dyn View>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl Deref for WidgetTree {
-    type Target = Box<dyn Widget>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-pub type Callback = Arc<Mutex<dyn FnMut(&mut MessageQueue) + Send + Sync>>;
+pub type Callback = Box<dyn FnMut(&mut MessageQueue)>;
 
 /// A [`View`].
 ///
@@ -81,7 +55,7 @@ pub type Callback = Arc<Mutex<dyn FnMut(&mut MessageQueue) + Send + Sync>>;
 /// to state changes and events.
 ///
 /// [`update`]: View::update
-pub trait View: Send + Sync {
+pub trait View {
     fn update(&mut self, _: &mut MessageQueue) {}
 
     fn view(&self) -> Box<dyn Widget>;
@@ -89,7 +63,7 @@ pub trait View: Send + Sync {
 
 /// A `Widget` is anything that can ultimately be drawn to the screen. Widgets internally
 /// can be composed of anything, but each widget must have a [`GlobalId`] and a [`Layout`].
-pub trait Widget: Send + Sync {
+pub trait Widget {
     /// Get the `id` of the [`Widget`].
     fn id(&self) -> GlobalId;
 
@@ -133,61 +107,4 @@ impl dyn Widget {
     pub fn iter(&self) -> WidgetIter<'_> {
         WidgetIter { stack: vec![self] }
     }
-}
-
-pub(crate) fn get_assets(assets: Res<AssetManager>, mut widget_tree: ResMut<WidgetTree>) {
-    let widget = &mut widget_tree.0;
-    widget.get_assets(&assets);
-    widget.traverse(&mut |widget| {
-        widget.get_assets(&assets);
-    })
-}
-
-/// Go through all the widgets and check if they are hovered.
-pub(crate) fn update_hovered_state(
-    cursor_position: Res<CursorPosition>,
-    layout_tree: Res<LayoutTree>,
-    mut messages: ResMut<MessageQueue>,
-    mut widget_tree: ResMut<WidgetTree>,
-) {
-    let widget = widget_tree.0.as_mut();
-    let layout = layout_tree.0.as_ref();
-    if let Some(l) = layout.get(widget.id())
-        && cursor_position.just_hovered(l)
-    {
-        widget.hover(&mut messages);
-    }
-    widget.traverse(&mut |widget| {
-        if let Some(l) = layout.get(widget.id())
-            && cursor_position.just_hovered(l)
-        {
-            widget.hover(&mut messages);
-        }
-    });
-}
-
-pub(crate) fn click_widget(
-    cursor_position: Res<CursorPosition>,
-    layout_tree: Res<LayoutTree>,
-    mut messages: ResMut<MessageQueue>,
-    mut widget_tree: ResMut<WidgetTree>,
-) {
-    if !messages.has::<MouseButtonDown>() {
-        return;
-    }
-
-    let widget = widget_tree.0.as_mut();
-    let layout = layout_tree.0.as_ref();
-    if let Some(l) = layout.get(widget.id())
-        && cursor_position.is_hovered(l)
-    {
-        widget.click(&mut messages);
-    }
-    widget.traverse(&mut |widget| {
-        if let Some(l) = layout.get(widget.id())
-            && cursor_position.is_hovered(l)
-        {
-            widget.click(&mut messages);
-        }
-    });
 }

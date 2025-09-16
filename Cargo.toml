@@ -33,7 +33,6 @@ thiserror = "2.0.9"
 image = "0.25.2"
 winit = { version = "0.30.11", features = ["rwh_05"] }
 bytemuck = { version = "1.16", features = ["derive"] }
-log = { version = "0.4.27", features = ["kv"] }
 pixels = "0.15.0"
 rand = "0.9.1"
 tiny-skia = "0.11.4"
@@ -42,8 +41,6 @@ usvg = "0.45.1"
 resvg = "0.45.1"
 tracing = "0.1.41"
 tempfile = "3.20.0"
-bevy_ecs = "0.16.1"
-bon = "3.7.1"
 
 [workspace.lints.clippy]
 enum_glob_use = "warn"

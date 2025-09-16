@@ -14,7 +14,6 @@ license.workspace = true
 image.workspace = true
 thiserror.workspace = true
 winit.workspace = true
-log.workspace = true
 agape_renderer.workspace = true
 agape_core.workspace = true
 agape_macros.workspace = true
@@ -24,7 +23,6 @@ pixels.workspace = true
 rand = "0.9.1"
 usvg = "0.45.1"
 tracing.workspace = true
-bevy_ecs.workspace = true
 tempfile.workspace = true
 
 [lints]
