@@ -2,7 +2,25 @@
 //!
 //! ## Getting started
 //! To get started you'll need to create an [`App`], which is the entry point
-//! of the program, and a root [`Widget`].
+//! of the program, and a root [`View`].
+//!
+//! ```no_run
+//! use agape::{App,Error,widgets::*};
+//!
+//! fn main() -> Result<(),Error>{
+//!     App::new(Main)
+//!         .run()
+//! }
+//!
+//! struct Main;
+//!
+//! impl View for Main{
+//!     fn view(&self) -> Box<dyn Widget> {
+//!         Box::new(Text::new("Hello!"))
+//!     }
+//! }
+//! ```
+mod assets;
 pub mod error;
 mod macros;
 pub mod message;
@@ -10,8 +28,8 @@ pub mod resources;
 pub mod style;
 pub mod widgets;
 
-use crate::widgets::click_widget;
 use crate::widgets::{ViewTree, WidgetTree, update_hovered_state};
+use crate::widgets::{click_widget, get_assets};
 pub use agape_core::*;
 pub use agape_layout as layout;
 pub use agape_macros::hex;
@@ -21,8 +39,10 @@ pub use message::MessageQueue;
 use message::update_cursor_pos;
 use resources::CursorPosition;
 use resources::EventQueue;
+use std::path::Path;
 use widgets::View;
 
+use crate::assets::AssetManager;
 use crate::message::{MouseButtonDown, MouseButtonUp};
 use agape_layout::{Layout, solve_layout};
 use agape_renderer::Renderer;
@@ -70,6 +90,7 @@ impl App<'_> {
         world.insert_resource(MessageQueue::default());
         world.insert_resource(view_tree);
         world.insert_resource(renderer);
+        world.insert_resource(AssetManager::new("."));
         world.insert_resource(LayoutTree(layout));
         world.insert_resource(WindowSize(Size::unit(1.0)));
 
@@ -79,6 +100,11 @@ impl App<'_> {
             world,
             schedule: Schedule::default(),
         }
+    }
+
+    pub fn assets(mut self, path: impl AsRef<Path>) -> Self {
+        self.world.insert_resource(AssetManager::new(path));
+        self
     }
 
     fn render(&mut self) {
@@ -97,12 +123,11 @@ impl App<'_> {
     /// certain platforms.
     pub fn run(mut self) -> Result<()> {
         self.schedule
+            .add_systems(update_window_size)
             .add_systems(update_cursor_pos)
             .add_systems(handle_click)
-            .add_systems(update_window_size)
-            .add_systems(render_widget)
-            .add_systems(update_layout)
-            .add_systems(update_view)
+            .add_systems((get_assets, update_layout, render_widget, update_view).chain())
+            // .add_systems(get_assets)
             .add_systems(update_hovered_state)
             .add_systems(click_widget)
             .add_systems(clear_events);

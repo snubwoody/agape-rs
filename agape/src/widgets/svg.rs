@@ -9,7 +9,7 @@ use std::path::Path;
 use std::sync::Arc;
 use usvg::Tree;
 
-/// Displays an SVG to the screen.
+/// Displays an SVG onto the screen.
 ///
 /// - Open an SVG file
 /// ```no_run
@@ -43,11 +43,11 @@ use usvg::Tree;
 /// Only basic SVG functionality is supported, i.e. rendering vector graphics
 /// to the screen. None of the other complex features such as animation, scripting
 /// or audio is covered.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Svg {
     id: GlobalId,
     data: Arc<Tree>,
-    style: BoxStyle,
+    pub style: BoxStyle,
 }
 
 impl Svg {

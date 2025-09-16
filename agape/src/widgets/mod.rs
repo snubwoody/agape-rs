@@ -4,6 +4,7 @@
 mod button;
 mod container;
 mod hstack;
+mod icon;
 pub mod image;
 mod rect;
 mod svg;
@@ -11,6 +12,7 @@ mod text;
 mod vstack;
 
 use crate::LayoutTree;
+use crate::assets::AssetManager;
 use crate::message::{MessageQueue, MouseButtonDown};
 use crate::resources::CursorPosition;
 use agape_core::GlobalId;
@@ -20,10 +22,11 @@ use bevy_ecs::prelude::*;
 pub use button::*;
 pub use container::Container;
 pub use hstack::*;
+pub use icon::Icon;
 pub use image::Image;
 pub use rect::*;
 use std::ops::Deref;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 pub use svg::Svg;
 pub use text::Text;
 pub use vstack::*;
@@ -49,7 +52,7 @@ impl Deref for WidgetTree {
     }
 }
 
-pub type Callback = Arc<dyn Fn(&mut MessageQueue) + Send + Sync>;
+pub type Callback = Arc<Mutex<dyn FnMut(&mut MessageQueue) + Send + Sync>>;
 
 /// A [`View`].
 ///
@@ -103,6 +106,8 @@ pub trait Widget: Send + Sync {
     /// include the widget itself.
     fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget));
 
+    fn get_assets(&mut self, _: &AssetManager) {}
+
     fn click(&mut self, _: &mut MessageQueue) {}
     fn hover(&mut self, _: &mut MessageQueue) {}
 }
@@ -128,6 +133,14 @@ impl dyn Widget {
     pub fn iter(&self) -> WidgetIter<'_> {
         WidgetIter { stack: vec![self] }
     }
+}
+
+pub(crate) fn get_assets(assets: Res<AssetManager>, mut widget_tree: ResMut<WidgetTree>) {
+    let widget = &mut widget_tree.0;
+    widget.get_assets(&assets);
+    widget.traverse(&mut |widget| {
+        widget.get_assets(&assets);
+    })
 }
 
 /// Go through all the widgets and check if they are hovered.
