@@ -1,10 +1,9 @@
 use agape_core::{Position, Size};
 use agape_layout::Layout;
-use bevy_ecs::prelude::Resource;
 use winit::event::WindowEvent;
 
 /// The current cursor position.
-#[derive(Debug, Default, Copy, Clone, Resource, PartialOrd, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, PartialOrd, PartialEq)]
 pub struct CursorPosition {
     current: Position,
     previous: Position,
@@ -42,12 +41,8 @@ impl CursorPosition {
     }
 }
 
-/// The window size.
-#[derive(Debug, Default, Copy, Clone)]
-pub struct WindowSize(pub Size);
-
 // TODO: deprecate this
-#[derive(Debug, Default, Resource)]
+#[derive(Debug, Default)]
 pub struct EventQueue {
     events: Vec<WindowEvent>,
     frame_count: u32,

@@ -1,8 +1,8 @@
+use crate::MessageQueue;
 use crate::assets::AssetManager;
 use crate::message::MouseButtonDown;
 use crate::resources::{CursorPosition, EventQueue};
-use crate::widgets::{View, ViewTree, Widget, WidgetTree};
-use crate::{LayoutTree, MessageQueue, WindowSize};
+use crate::widgets::{View, Widget};
 use agape_core::{Position, Size};
 use agape_layout::{Layout, solve_layout};
 use agape_renderer::Renderer;
@@ -10,7 +10,6 @@ use std::path::Path;
 
 pub struct State {
     cursor_position: CursorPosition,
-    event_queue: EventQueue,
     message_queue: MessageQueue,
     view: Box<dyn View>,
     layout: Box<dyn Layout>,
@@ -28,7 +27,6 @@ impl State {
 
         Self {
             asset_manager: AssetManager::new("."),
-            event_queue: EventQueue::default(),
             message_queue: MessageQueue::default(),
             view: Box::new(view),
             cursor_position: CursorPosition::default(),
@@ -46,6 +44,12 @@ impl State {
     pub fn update(&mut self) {
         self.view.update(&mut self.message_queue);
         self.widget = self.view.view();
+        // Assets need to be fetched before recreating the
+        // layout tree
+        self.widget.get_assets(&self.asset_manager);
+        self.widget.traverse(&mut |widget| {
+            widget.get_assets(&self.asset_manager);
+        });
         let mut layout = self.widget.layout(&mut self.renderer);
         solve_layout(layout.as_mut(), self.window_size);
         self.layout = layout;
@@ -54,11 +58,6 @@ impl State {
         // TODO test this please
         self.message_queue.tick();
         self.message_queue.clear();
-        // FIXME
-        // self.widget.get_assets(&self.asset_manager);
-        // self.widget.traverse(&mut |w| {
-        //     w.get_assets(&self.asset_manager);
-        // });
     }
 
     pub fn render(&mut self) {

@@ -7,7 +7,6 @@ pub use crate::image::Image;
 use crate::rect::Rect;
 pub use crate::text::Text;
 use agape_core::Size;
-use bevy_ecs::prelude::Resource;
 use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, Shaping, SwashCache};
 use std::path::Path;
 pub use svg::Svg;
@@ -15,14 +14,12 @@ use tiny_skia::Pixmap;
 
 // TODO: mention that only ttf/otf fonts are supported
 
-#[derive(Resource)]
 pub struct Renderer {
     font_system: FontSystem,
     swash_cache: SwashCache,
     pixmap: Pixmap,
 }
 
-// TODO: text size
 impl Default for Renderer {
     fn default() -> Self {
         Self::new()

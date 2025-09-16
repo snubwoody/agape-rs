@@ -1,8 +1,5 @@
 use crate::resources::{CursorPosition, EventQueue};
-use agape_core::Position;
-use bevy_ecs::prelude::*;
 use std::any::Any;
-use winit::event::WindowEvent;
 
 /// Emitted when the left mouse button is pressed.
 pub struct MouseButtonDown;
@@ -17,7 +14,7 @@ pub trait Message: Any + Send + Sync {}
 
 impl<T: Any + Send + Sync> Message for T {}
 
-#[derive(Default, Resource)]
+#[derive(Default)]
 pub struct MessageQueue {
     items: Vec<Box<dyn Message>>,
     frame_count: u32,
@@ -28,6 +25,7 @@ impl MessageQueue {
         Self::default()
     }
 
+    /// Increment the frame count.
     pub(crate) fn tick(&mut self) {
         self.frame_count += 1;
     }
@@ -95,14 +93,6 @@ impl MessageQueue {
         if self.frame_count >= 3 {
             self.items.clear();
             self.frame_count = 0;
-        }
-    }
-}
-
-pub fn update_cursor_pos(queue: Res<EventQueue>, mut cursor_position: ResMut<CursorPosition>) {
-    for event in queue.events() {
-        if let WindowEvent::CursorMoved { position, .. } = event {
-            cursor_position.update(Position::from(*position));
         }
     }
 }
