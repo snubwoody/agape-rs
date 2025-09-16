@@ -2,10 +2,12 @@ use crate::assets::AssetManager;
 use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::widgets::{Svg, Widget};
-use agape_core::GlobalId;
-use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
+use agape_core::{Color, GlobalId};
+use agape_layout::{BlockLayout, EmptyLayout, IntrinsicSize, Layout};
 use agape_renderer::Renderer;
+use agape_renderer::rect::Rect;
 use std::fs;
+use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tracing::info;
@@ -39,8 +41,17 @@ impl Widget for Icon {
     }
 
     fn get_assets(&mut self, assets: &AssetManager) {
-        let file = assets.get("PARTYNEXTDOOR Album Cover.jpg").unwrap();
-        dbg!(file);
+        // TODO bad!
+        if self.data.is_some() {
+            return;
+        }
+        let mut file = assets.get(&self.path).unwrap().unwrap();
+        let mut bytes = vec![];
+        file.read_to_end(&mut bytes).unwrap();
+        let mut svg = Svg::bytes(&bytes).unwrap();
+        svg.style = self.style.clone();
+
+        self.data = Some(svg);
     }
 
     fn children(&self) -> Vec<&dyn Widget> {
@@ -57,7 +68,15 @@ impl Widget for Icon {
         }
     }
 
-    fn layout(&self, _: &mut Renderer) -> Box<dyn Layout> {
+    fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
+        if let Some(child) = &self.data {
+            let child_layout = child.layout(renderer);
+            let mut layout = BlockLayout::new(child_layout);
+            layout.id = self.id;
+            layout.intrinsic_size = self.style.intrinsic_size;
+            return Box::new(layout);
+        }
+
         // FIXME
         let layout = EmptyLayout {
             id: self.id,
@@ -67,9 +86,19 @@ impl Widget for Icon {
         Box::new(layout)
     }
 
-    fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
+    fn render(&self, renderer: &mut Renderer, layout_tree: &dyn Layout) {
+        let layout = layout_tree.get(self.id).unwrap();
+        let size = layout.size();
+        let position = layout.position();
+
         if let Some(child) = &self.data {
-            child.render(renderer, layout);
+            child.render(renderer, layout_tree);
+        } else {
+            let rect = Rect::new()
+                .color(Color::BLACK)
+                .size(size.width, size.height)
+                .position(position.x, position.y);
+            renderer.draw_rect(rect);
         }
     }
 }

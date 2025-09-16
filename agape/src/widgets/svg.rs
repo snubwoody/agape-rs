@@ -47,7 +47,7 @@ use usvg::Tree;
 pub struct Svg {
     id: GlobalId,
     data: Arc<Tree>,
-    style: BoxStyle,
+    pub style: BoxStyle,
 }
 
 impl Svg {

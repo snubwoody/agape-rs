@@ -4,6 +4,7 @@ use std::fs::File;
 use std::path::{Path, PathBuf};
 use tracing::info;
 
+// TODO keep assets loaded
 #[derive(Resource)]
 pub struct AssetManager {
     base: PathBuf,

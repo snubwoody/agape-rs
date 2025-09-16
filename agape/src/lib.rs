@@ -117,15 +117,13 @@ impl App<'_> {
     /// certain platforms.
     pub fn run(mut self) -> Result<()> {
         self.schedule
+            .add_systems(update_window_size)
             .add_systems(update_cursor_pos)
             .add_systems(handle_click)
-            .add_systems(update_window_size)
-            .add_systems(render_widget)
-            .add_systems(update_layout)
-            .add_systems(update_view)
+            .add_systems((get_assets, update_layout, render_widget, update_view).chain())
+            // .add_systems(get_assets)
             .add_systems(update_hovered_state)
             .add_systems(click_widget)
-            .add_systems(get_assets)
             .add_systems(clear_events);
 
         let event_loop = EventLoop::new()?;
