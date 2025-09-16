@@ -3,15 +3,11 @@ use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::widgets::{Svg, Widget};
 use agape_core::{Color, GlobalId};
-use agape_layout::{BlockLayout, EmptyLayout, IntrinsicSize, Layout};
+use agape_layout::{BlockLayout, EmptyLayout, Layout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
-use std::fs;
 use std::io::Read;
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
-use tracing::info;
-use usvg::Tree;
 
 /// Displays an icon onto the screen.
 #[derive(Debug, Clone)]

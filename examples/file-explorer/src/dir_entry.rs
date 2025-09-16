@@ -1,9 +1,8 @@
 use crate::ChangeDir;
 use agape::layout::AxisAlignment;
-use agape::widgets::{Button, Icon, Svg, Text, View, Widget};
+use agape::widgets::{Button, Icon, Text, View, Widget};
 use agape::{MessageQueue, hstack};
 use std::path::PathBuf;
-use tracing::info;
 
 pub struct DirEntry {
     title: String,
