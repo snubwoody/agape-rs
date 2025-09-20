@@ -1,7 +1,7 @@
 use super::{Callback, Widget};
 use crate::style::BoxStyle;
 use crate::{MessageQueue, impl_style};
-use agape_core::{Color, GlobalId, IntoColor};
+use agape_core::{Color, GlobalId, IntoColor, Rgba};
 use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
@@ -14,6 +14,7 @@ pub struct Button<W> {
     style: BoxStyle,
     hovered_style: BoxStyle,
     padding: u32,
+    background_color: Color<Rgba>,
     hover_callback: Option<Callback>,
     click_callback: Option<Callback>,
 }
@@ -21,14 +22,16 @@ pub struct Button<W> {
 
 impl<W> Button<W> {
     pub fn new(child: W) -> Self {
-        let mut style = BoxStyle::default();
-        style.background_color = Color::hex("#000000").unwrap().into_color();
+        let style = BoxStyle::default();
+        let mut hovered_style = style.clone();
+        hovered_style.background_color = Color::rgb(100, 100, 0);
         Self {
             id: GlobalId::new(),
             style: BoxStyle::new(),
-            hovered_style: style,
+            hovered_style,
             child,
             padding: 0,
+            background_color: Color::default(),
             hover_callback: None,
             click_callback: None,
         }
@@ -79,6 +82,14 @@ impl<W: Widget> Widget for Button<W> {
         }
     }
 
+    fn mouse_entered(&mut self, _: &mut MessageQueue) {
+        self.background_color = self.hovered_style.background_color.clone();
+    }
+
+    fn mouse_left(&mut self, _: &mut MessageQueue) {
+        self.background_color = self.style.background_color.clone();
+    }
+
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
         let child = self.child.layout(renderer);
         let mut layout = BlockLayout::new(child);
@@ -96,7 +107,7 @@ impl<W: Widget> Widget for Button<W> {
             .size(size.width, size.height)
             .position(position.x, position.y)
             .corner_radius(self.style.corner_radius)
-            .color(self.style.background_color.clone());
+            .color(self.background_color.clone());
 
         rect.border = self.style.border.clone();
         renderer.draw_rect(rect);
