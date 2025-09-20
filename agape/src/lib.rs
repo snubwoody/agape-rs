@@ -40,6 +40,8 @@ use widgets::View;
 
 use crate::message::{MouseButtonDown, MouseButtonUp};
 use crate::state::State;
+use crate::widgets::Widget;
+pub use agape_macros::Widget;
 use pixels::{Pixels, SurfaceTexture};
 use std::sync::Arc;
 use tracing::info;
@@ -64,7 +66,7 @@ pub struct App<'app> {
 
 impl App<'_> {
     /// Create a new app.
-    pub fn new(view: impl View + 'static) -> Self {
+    pub fn new(view: impl Widget + 'static) -> Self {
         Self {
             state: State::new(view),
             pixels: None,

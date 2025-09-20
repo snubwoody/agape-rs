@@ -11,7 +11,6 @@ use std::path::Path;
 pub struct State {
     cursor_position: CursorPosition,
     message_queue: MessageQueue,
-    view: Box<dyn View>,
     layout: Box<dyn Layout>,
     widget: Box<dyn Widget>,
     asset_manager: AssetManager,
@@ -20,18 +19,15 @@ pub struct State {
 }
 
 impl State {
-    pub fn new(view: impl View + 'static) -> Self {
+    pub fn new(widget: impl Widget + 'static) -> Self {
         let mut renderer = Renderer::new();
-        let widget = view.view();
         let layout = widget.layout(&mut renderer);
-
         Self {
             asset_manager: AssetManager::new("."),
             message_queue: MessageQueue::default(),
-            view: Box::new(view),
             cursor_position: CursorPosition::default(),
             window_size: Size::default(),
-            widget,
+            widget: Box::new(widget),
             layout,
             renderer,
         }
@@ -42,8 +38,8 @@ impl State {
     }
 
     pub fn update(&mut self) {
-        self.view.update(&mut self.message_queue);
-        self.widget = self.view.view();
+        // self.view.update(&mut self.message_queue);
+        // self.widget = self.view.view();
         // Assets need to be fetched before recreating the
         // layout tree
         self.widget.get_assets(&self.asset_manager);
