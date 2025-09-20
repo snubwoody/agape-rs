@@ -99,7 +99,8 @@ pub fn include_icons(dir: TokenStream) -> TokenStream {
 #[proc_macro_derive(Widget)]
 pub fn derive_widget(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
-    dbg!(&input.ident);
+    // TODO get generics
+    dbg!(&input);
 
     let name = input.ident;
     quote! {
@@ -109,32 +110,24 @@ pub fn derive_widget(input: TokenStream) -> TokenStream {
             }
 
             fn children(&self) -> Vec<&dyn agape::widgets::Widget> {
-                vec![]
+                vec![&self.child]
             }
 
             fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn agape::widgets::Widget)) {
-                // f(&mut self.child);
-                // self.child.traverse(f);
+                f(&mut self.child);
+                self.child.traverse(f);
             }
 
-            fn layout(&self, _: &mut agape::renderer::Renderer) -> Box<dyn agape::layout::Layout> {
-                todo!();
+            fn layout(&self, renderer: &mut agape::renderer::Renderer) -> Box<dyn agape::layout::Layout> {
+                let child_layout = self.child.layout(renderer);
+                let mut layout = BlockLayout::new(child_layout);
+                layout.id = self.id;
+                Box::new(layout)
             }
 
 
             fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
-                // let layout = layout.get(self.id).unwrap();
-                // let size = layout.size();
-                // let position = layout.position();
-                // let mut rect = Rect::new()
-                //     .size(size.width, size.height)
-                //     .position(position.x, position.y)
-                //     .corner_radius(self.style.corner_radius)
-                //     .color(self.style.background_color.clone());
-                //
-                // rect.border = self.style.border.clone();
-                // renderer.draw_rect(rect);
-                // self.child.render(renderer, layout);
+                self.child.render(renderer, layout);
             }
         }
     }

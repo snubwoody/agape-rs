@@ -5,14 +5,22 @@ use tracing::info;
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
-    Ok(())
-    // App::new(Main::new("Hello world")).run()
+    App::new(Main::new("Hello world")).run()
 }
 
 #[derive(Default, Widget)]
 struct Main {
     id: GlobalId,
     child: Text,
+}
+
+impl Main {
+    pub fn new(text: &str) -> Self {
+        Self {
+            id: GlobalId::new(),
+            child: Text::new(text),
+        }
+    }
 }
 
 //
