@@ -1,8 +1,12 @@
 <h1 align="center">Agape</h1>
 <p align="center">An easy to use rust GUI library.</p>
 <div align="center">
-    <img alt="Crates.io Version" src="https://img.shields.io/crates/v/agape">
-    <img src="https://img.shields.io/docsrs/agape"/>
+    <a href="https://crates.io/crates/agape">
+        <img alt="Crates.io Version" src="https://img.shields.io/crates/v/agape">
+    </a>
+    <a href="https://docs.rs/agape/latest/agape/">
+        <img src="https://img.shields.io/docsrs/agape"/>
+    </a>
     <img src="https://img.shields.io/github/actions/workflow/status/snubwoody/agape-rs/rust.yml"/>
     <img alt="Crates.io License" src="https://img.shields.io/crates/l/agape">
     <img alt="Crates.io Size" src="https://img.shields.io/crates/size/agape">
@@ -19,7 +23,7 @@
 
 ## Overview
 
-`agape` is a cross platform, CPU-rendered, GUI library.
+`agape` is a cross-platform, CPU-rendered, GUI library.
 
 ## Add to your project
 
@@ -57,15 +61,6 @@ fn main() -> Result<(), agape::Error> {
     app.run()
 }
 ```
-
-## Features
-
-- [x] Text rendering
-    - [x] Emoji support
-    - [ ] RTL text
-- [x] Image rendering
-- [x] Svg rendering
-- [ ] Cli
 
 ## Support
 
