@@ -144,7 +144,7 @@ impl Color<Rgba> {
         self.0.a
     }
 
-    /// Get all the inner color components
+    /// Get all the inner color components, i.e. (r,g,b,a).
     pub fn inner(&self) -> (u8, u8, u8, u8) {
         (self.r(), self.g(), self.b(), self.a())
     }
@@ -265,6 +265,19 @@ impl std::fmt::Display for Color<Hex> {
     }
 }
 
+impl std::fmt::Display for Color<Rgba> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "Rgba({},{},{},{})",
+            self.r(),
+            self.g(),
+            self.b(),
+            self.a()
+        )
+    }
+}
+
 impl Default for Color<Rgba> {
     fn default() -> Color<Rgba> {
         Color::rgba(0, 0, 0, 0)
@@ -321,6 +334,20 @@ impl IntoColor<Rgba> for (u8, u8, u8) {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn rgba_display() {
+        let color = Color::rgba(10, 255, 100, 25);
+        let display = format!("{color}");
+        assert_eq!(display, "Rgba(10,255,100,25)");
+    }
+
+    #[test]
+    fn hex_display() {
+        let color = Color::hex("#FFFAAA").unwrap();
+        let display = format!("{color}");
+        assert_eq!(display, "#FFFAAAFF");
+    }
 
     #[test]
     fn hex_colors_length() {

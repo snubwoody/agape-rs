@@ -1,7 +1,11 @@
+mod derive_widget;
+
+use crate::derive_widget::expand_widget;
 use proc_macro::TokenStream;
 use proc_macro2::{Literal, Span};
 use quote::quote;
 use std::{fs, path::Path};
+use syn::{DeriveInput, parse_macro_input};
 
 /// A macro for creating compile time verified hex colors.
 #[proc_macro]
@@ -93,4 +97,11 @@ pub fn include_icons(dir: TokenStream) -> TokenStream {
         #(#icons)*
     }
     .into()
+}
+
+/// A trait for implementing widgets.
+#[proc_macro_derive(Widget, attributes(child, interactive))]
+pub fn derive_widget(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    expand_widget(input)
 }

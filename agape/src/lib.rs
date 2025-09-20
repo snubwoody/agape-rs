@@ -2,23 +2,32 @@
 //!
 //! ## Getting started
 //! To get started you'll need to create an [`App`], which is the entry point
-//! of the program, and a root [`View`].
+//! of the program, and a root [`Widget`].
 //!
 //! ```no_run
-//! use agape::{App,Error,widgets::*};
+//! use agape::{App,Error,widgets::Text,Widget,GlobalId};
 //!
 //! fn main() -> Result<(),Error>{
-//!     App::new(Main)
+//!     App::new(Main::new("Hello world"))
 //!         .run()
 //! }
 //!
-//! struct Main;
+//! #[derive(Widget)]
+//! struct Main{
+//!     id: GlobalId,
+//!     #[child]
+//!     child: Text
+//! }
 //!
-//! impl View for Main{
-//!     fn view(&self) -> Box<dyn Widget> {
-//!         Box::new(Text::new("Hello!"))
+//! impl Main{
+//!     pub fn new(text: &str) -> Self{
+//!         Self{
+//!             id: GlobalId::new(),
+//!             child: Text::new(text)
+//!         }
 //!     }
 //! }
+//!
 //! ```
 mod assets;
 pub mod error;
@@ -36,10 +45,11 @@ pub use agape_renderer as renderer;
 pub use error::{Error, Result};
 pub use message::MessageQueue;
 use std::path::Path;
-use widgets::View;
 
 use crate::message::{MouseButtonDown, MouseButtonUp};
 use crate::state::State;
+use crate::widgets::Widget;
+pub use agape_macros::Widget;
 use pixels::{Pixels, SurfaceTexture};
 use std::sync::Arc;
 use tracing::info;
@@ -64,7 +74,7 @@ pub struct App<'app> {
 
 impl App<'_> {
     /// Create a new app.
-    pub fn new(view: impl View + 'static) -> Self {
+    pub fn new(view: impl Widget + 'static) -> Self {
         Self {
             state: State::new(view),
             pixels: None,

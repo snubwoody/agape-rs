@@ -2,7 +2,7 @@
 
 All notable changes to agape will be documented in this file.
 
-## [unreleased]
+## 0.3.0 [unreleased]
 
 ### Features
 
@@ -20,7 +20,7 @@ All notable changes to agape will be documented in this file.
 ### Changed
 
 - Removed the `LayoutSolver` struct and renamed its single method to `solve_layout`.
-- `Widget`s now need to be `Send` and `Sync`.
+- Switch to cosmic text for rendering
 
 ### Bug fixes
 
@@ -30,7 +30,6 @@ All notable changes to agape will be documented in this file.
 
 - Removed views, rendering is done through functions now.
 - Removed widget iterators
-- Removed `Button` widget.
 - Removed `hstack`, `vstack`, `input` examples.
 
 ## 0.2.0 - 2025-07-17

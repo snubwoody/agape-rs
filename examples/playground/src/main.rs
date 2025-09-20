@@ -1,27 +1,22 @@
-use agape::{App, MessageQueue, widgets::*};
-use tracing::info;
+use agape::{App, GlobalId, Widget, widgets::Text};
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
-    App::new(Main).run()
+    App::new(Main::new("Hello world")).run()
 }
 
-struct Hover;
+#[derive(Default, Widget)]
+struct Main {
+    id: GlobalId,
+    #[child]
+    text: Text,
+}
 
-#[derive(Default)]
-struct Main;
-
-impl View for Main {
-    fn update(&mut self, messages: &mut MessageQueue) {
-        if messages.has::<Hover>() {
-            info!("Hover");
+impl Main {
+    pub fn new(text: &str) -> Self {
+        Self {
+            id: GlobalId::new(),
+            text: Text::new(text),
         }
-    }
-    fn view(&self) -> Box<dyn Widget> {
-        let widget = Button::new(Text::new("Hello World!"))
-            .on_hover(|_| info!("Hovered"))
-            .on_click(|_| info!("Clicked!"));
-
-        Box::new(widget)
     }
 }
