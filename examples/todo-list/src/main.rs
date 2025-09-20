@@ -1,5 +1,5 @@
 use agape::widgets::{Button, HStack, VStack};
-use agape::{App, GlobalId, MessageQueue, Widget, hex, hstack, vstack, widgets::Text};
+use agape::{App, GlobalId, MessageQueue, Widget, hstack, vstack, widgets::Text};
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
