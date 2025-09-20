@@ -79,8 +79,8 @@ fn main() -> Result<(), agape::Error> {
 
 This project is dual-licensed under either
 
-- Apache License, Version 2.0
-- MIT License
+- [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- [MIT License](https://opensource.org/license/MIT)
 
 at your choice.
 

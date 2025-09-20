@@ -169,6 +169,9 @@ impl ApplicationHandler for App<'_> {
 
                 self.state.resize(size.into());
             }
+            WindowEvent::KeyboardInput { event, .. } => {
+                self.state.key_event(&event);
+            }
             _ => {}
         }
         self.state.update();
