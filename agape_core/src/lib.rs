@@ -28,7 +28,7 @@ impl std::fmt::Display for GlobalId {
     }
 }
 
-/// Border style for [`View`]s;
+/// Border style for widgets.
 #[derive(Clone, PartialEq, Debug, Default, PartialOrd)]
 pub struct Border {
     pub width: f32,
@@ -39,6 +39,18 @@ impl Border {
     /// Create a new border.
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Set the border width.
+    pub fn widget(mut self, width: f32) -> Self {
+        self.width = width;
+        self
+    }
+
+    /// Set the border color.
+    pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
+        self.color = color.into_color();
+        self
     }
 }
 

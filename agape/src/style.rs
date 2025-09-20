@@ -1,11 +1,25 @@
 use agape_core::{Border, Color, IntoColor, Rgba};
-use agape_layout::{BoxSizing, IntrinsicSize};
+use agape_layout::{AxisAlignment, BoxSizing, IntrinsicSize};
 
+#[derive(Debug, Default, PartialOrd, PartialEq, Clone)]
+pub struct Style {
+    default: BoxStyle,
+    /// This style will be applied while the widget is being hovered.
+    hovered: Option<BoxStyle>,
+}
+
+impl Style {}
+
+// TODO add foreground color
 #[derive(Default, Debug, PartialOrd, PartialEq, Clone)]
 pub struct BoxStyle {
+    pub main_axis_alignment: AxisAlignment,
+    pub cross_axis_alignment: AxisAlignment,
     pub intrinsic_size: IntrinsicSize,
     pub background_color: Color<Rgba>,
     pub border: Option<Border>,
+    pub padding: u32,
+    pub spacing: u32,
     pub corner_radius: u32,
 }
 

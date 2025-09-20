@@ -1,7 +1,7 @@
 use super::{Callback, Widget};
 use crate::style::BoxStyle;
 use crate::{MessageQueue, impl_style};
-use agape_core::GlobalId;
+use agape_core::{Color, GlobalId, IntoColor};
 use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
@@ -12,16 +12,21 @@ pub struct Button<W> {
     id: GlobalId,
     child: W,
     style: BoxStyle,
+    hovered_style: BoxStyle,
     padding: u32,
     hover_callback: Option<Callback>,
     click_callback: Option<Callback>,
 }
+// TODO Add Button::text
 
 impl<W> Button<W> {
     pub fn new(child: W) -> Self {
+        let mut style = BoxStyle::default();
+        style.background_color = Color::hex("#000000").unwrap().into_color();
         Self {
             id: GlobalId::new(),
             style: BoxStyle::new(),
+            hovered_style: style,
             child,
             padding: 0,
             hover_callback: None,
@@ -68,6 +73,7 @@ impl<W: Widget> Widget for Button<W> {
     }
 
     fn hover(&mut self, messages: &mut MessageQueue) {
+        self.style.background_color = self.hovered_style.background_color.clone();
         if let Some(f) = &mut self.hover_callback {
             f(messages);
         }

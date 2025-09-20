@@ -133,7 +133,7 @@ pub enum BoxSizing {
     Flex(u8),
 }
 
-/// Describes how a [`Layout`] should arrange its children
+/// Describes how a [`Layout`] should arrange its children.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AxisAlignment {
     #[default]
