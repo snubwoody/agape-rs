@@ -30,27 +30,6 @@ pub type Callback = Box<dyn FnMut(&mut MessageQueue)>;
 
 /// A [`View`].
 ///
-/// # Example
-/// ```no_run
-/// use agape::{widgets::*,App};
-///
-/// #[derive(Default)]
-/// struct TextBox{
-///     text: String
-/// }
-///
-/// impl View for TextBox{
-///     fn view(&self) -> Box<dyn Widget>{
-///         Box::new(Text::new(&self.text))
-///     }
-/// }
-///
-/// fn main() -> agape::Result<()>{
-///     App::new(TextBox::default())
-///         .run()
-/// }
-/// ```
-///
 /// The [`update`] method runs every frame and enables you to respond
 /// to state changes and events.
 ///
