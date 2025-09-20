@@ -1,27 +1,43 @@
-use agape::{App, MessageQueue, widgets::*};
+use agape::layout::{BlockLayout, EmptyLayout, Layout};
+use agape::renderer::Renderer;
+use agape::{App, GlobalId, MessageQueue, Widget, widgets::Text};
 use tracing::info;
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
-    App::new(Main).run()
+    Ok(())
+    // App::new(Main::new("Hello world")).run()
 }
 
-struct Hover;
-
-#[derive(Default)]
-struct Main;
-
-impl View for Main {
-    fn update(&mut self, messages: &mut MessageQueue) {
-        if messages.has::<Hover>() {
-            info!("Hover");
-        }
-    }
-    fn view(&self) -> Box<dyn Widget> {
-        let widget = Button::new(Text::new("Hello World!"))
-            .on_hover(|_| info!("Hovered"))
-            .on_click(|_| info!("Clicked!"));
-
-        Box::new(widget)
-    }
+#[derive(Default, Widget)]
+struct Main {
+    id: GlobalId,
+    child: Text,
 }
+
+//
+// impl Widget for Main {
+//     fn id(&self) -> GlobalId {
+//         self.id
+//     }
+//
+//     fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
+//         f(&mut self.child);
+//         self.child.traverse(f);
+//     }
+//
+//     fn children(&self) -> Vec<&dyn Widget> {
+//         vec![&self.child]
+//     }
+//
+//     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
+//         let child_layout = self.child.layout(renderer);
+//         let mut layout = BlockLayout::new(child_layout);
+//         layout.id = self.id;
+//         Box::new(layout)
+//     }
+//
+//     fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
+//         self.child.render(renderer, layout);
+//     }
+// }
