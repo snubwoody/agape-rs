@@ -30,7 +30,7 @@ impl Home {
 
         let mut vstack = VStack::new();
         for entry in directories {
-            vstack.append_child(Box::new(entry));
+            vstack.append_child(entry);
         }
 
         Self {
@@ -55,7 +55,7 @@ impl Home {
             self.child.clear();
             let directories = Self::entries(path);
             for entry in directories {
-                self.child.append_child(Box::new(entry));
+                self.child.append_child(entry);
             }
         }
     }

@@ -49,8 +49,8 @@ impl VStack {
         self.children.get(index).map(|w| &**w)
     }
 
-    pub fn append_child(&mut self, child: Box<dyn Widget>) {
-        self.children.push(child);
+    pub fn append_child(&mut self, child: impl Widget + 'static) {
+        self.children.push(Box::new(child));
     }
 
     pub fn add_child(mut self, widget: impl Widget + 'static) -> Self {
@@ -113,6 +113,7 @@ impl Widget for VStack {
             main_axis_alignment: self.layout.main_axis_alignment,
             cross_axis_alignment: self.layout.cross_axis_alignment,
             spacing: self.layout.spacing,
+            padding: self.layout.padding,
             children,
             ..Default::default()
         };

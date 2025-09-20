@@ -1,0 +1,15 @@
+[package]
+name = "todo-list"
+version = "0.1.0"
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+publish = false
+
+[dependencies]
+agape = { path = "../../agape" }
+tracing-subscriber = "0.3.19"
+tracing.workspace = true
+
+[lints]
+workspace = true
