@@ -1,3 +1,6 @@
+mod derive_widget;
+
+use crate::derive_widget::expand_widget;
 use proc_macro::TokenStream;
 use proc_macro2::{Literal, Span};
 use quote::quote;
@@ -96,40 +99,8 @@ pub fn include_icons(dir: TokenStream) -> TokenStream {
     .into()
 }
 
-#[proc_macro_derive(Widget)]
+#[proc_macro_derive(Widget, attributes(child))]
 pub fn derive_widget(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
-    // TODO get generics
-    dbg!(&input);
-
-    let name = input.ident;
-    quote! {
-        impl agape::widgets::Widget for #name {
-            fn id(&self) -> GlobalId{
-                self.id
-            }
-
-            fn children(&self) -> Vec<&dyn agape::widgets::Widget> {
-                vec![&self.child]
-            }
-
-            fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn agape::widgets::Widget)) {
-                f(&mut self.child);
-                self.child.traverse(f);
-            }
-
-            fn layout(&self, renderer: &mut agape::renderer::Renderer) -> Box<dyn agape::layout::Layout> {
-                let child_layout = self.child.layout(renderer);
-                let mut layout = BlockLayout::new(child_layout);
-                layout.id = self.id;
-                Box::new(layout)
-            }
-
-
-            fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
-                self.child.render(renderer, layout);
-            }
-        }
-    }
-    .into()
+    expand_widget(input)
 }

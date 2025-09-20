@@ -11,14 +11,15 @@ fn main() -> agape::Result<()> {
 #[derive(Default, Widget)]
 struct Main {
     id: GlobalId,
-    child: Text,
+    #[child]
+    text: Text,
 }
 
 impl Main {
     pub fn new(text: &str) -> Self {
         Self {
             id: GlobalId::new(),
-            child: Text::new(text),
+            text: Text::new(text),
         }
     }
 }
