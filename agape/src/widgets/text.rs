@@ -73,6 +73,10 @@ impl Widget for Text {
     fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget)) {}
 
     fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
+        if self.value.is_empty() {
+            return;
+        }
+
         let layout = layout.get(self.id).unwrap();
         let position = layout.position();
         let mut text = agape_renderer::Text::new(self.value.as_str());
