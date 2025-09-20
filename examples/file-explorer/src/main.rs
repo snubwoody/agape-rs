@@ -4,7 +4,6 @@ use agape::{App, GlobalId, MessageQueue, Widget, widgets::*};
 use dir_entry::DirEntry;
 use std::fs;
 use std::path::{Path, PathBuf};
-use tracing::info;
 
 #[derive(Debug, Clone)]
 pub struct ChangeDir(PathBuf);

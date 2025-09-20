@@ -24,7 +24,6 @@ pub use image::Image;
 pub use rect::*;
 pub use svg::Svg;
 pub use text::Text;
-use tracing::info;
 pub use vstack::*;
 
 pub type Callback = Box<dyn FnMut(&mut MessageQueue)>;

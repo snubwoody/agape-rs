@@ -1,7 +1,7 @@
 use crate::ChangeDir;
 use agape::layout::AxisAlignment;
-use agape::widgets::{Button, HStack, Icon, Text, View, Widget};
-use agape::{GlobalId, MessageQueue, Widget, hstack};
+use agape::widgets::{Button, HStack, Icon, Text};
+use agape::{GlobalId, Widget, hstack};
 use std::path::PathBuf;
 
 #[derive(Widget)]
@@ -15,7 +15,7 @@ impl DirEntry {
     pub fn new(path: PathBuf, title: &str) -> Self {
         let widget = hstack![
             Icon::asset("icons/regular/folder.svg").fixed(24.0, 24.0),
-            Text::new(&title)
+            Text::new(title)
         ]
         .padding(12)
         .cross_axis_alignment(AxisAlignment::Center)

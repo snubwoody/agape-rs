@@ -1,6 +1,4 @@
-use agape::layout::{BlockLayout, Layout};
-use agape::renderer::Renderer;
-use agape::{App, GlobalId, MessageQueue, Widget, widgets::Text};
+use agape::{App, GlobalId, Widget, widgets::Text};
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();

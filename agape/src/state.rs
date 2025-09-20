@@ -2,12 +2,11 @@ use crate::MessageQueue;
 use crate::assets::AssetManager;
 use crate::message::MouseButtonDown;
 use crate::resources::CursorPosition;
-use crate::widgets::{View, Widget};
+use crate::widgets::Widget;
 use agape_core::{Position, Size};
 use agape_layout::{Layout, solve_layout};
 use agape_renderer::Renderer;
 use std::path::Path;
-use tracing::info;
 
 pub struct State {
     cursor_position: CursorPosition,

@@ -36,7 +36,6 @@ pub use agape_renderer as renderer;
 pub use error::{Error, Result};
 pub use message::MessageQueue;
 use std::path::Path;
-use widgets::View;
 
 use crate::message::{MouseButtonDown, MouseButtonUp};
 use crate::state::State;
