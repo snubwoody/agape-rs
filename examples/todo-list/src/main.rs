@@ -6,7 +6,10 @@ fn main() -> agape::Result<()> {
     App::new(TodoList::new()).run()
 }
 
+#[derive(Clone, Copy)]
 struct AddTodo(&'static str);
+#[derive(Clone, Copy)]
+struct ClearTodos;
 
 #[derive(Widget)]
 struct TodoList {
@@ -52,6 +55,10 @@ impl Items {
         if let Some(add_todo) = messages.get::<AddTodo>() {
             self.widget.append_child(Text::new(add_todo.0))
         }
+
+        if messages.has::<ClearTodos>() {
+            self.widget.clear();
+        }
     }
 }
 
@@ -66,7 +73,7 @@ impl Menu {
     pub fn new() -> Self {
         let widget = hstack![
             Button::new(Text::new("Add item")).on_click(|messages| messages.add(AddTodo("Item"))),
-            Button::new(Text::new("Clear")),
+            Button::new(Text::new("Clear")).on_click(|messages| messages.add(ClearTodos)),
         ]
         .spacing(12);
 
