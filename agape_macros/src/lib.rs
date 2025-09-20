@@ -99,7 +99,8 @@ pub fn include_icons(dir: TokenStream) -> TokenStream {
     .into()
 }
 
-#[proc_macro_derive(Widget, attributes(child))]
+/// A trait for implementing widgets.
+#[proc_macro_derive(Widget, attributes(child, interactive))]
 pub fn derive_widget(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     expand_widget(input)

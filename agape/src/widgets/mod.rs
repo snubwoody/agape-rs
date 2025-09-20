@@ -24,6 +24,7 @@ pub use image::Image;
 pub use rect::*;
 pub use svg::Svg;
 pub use text::Text;
+use tracing::info;
 pub use vstack::*;
 
 pub type Callback = Box<dyn FnMut(&mut MessageQueue)>;
@@ -82,6 +83,8 @@ pub trait Widget {
 
     fn get_assets(&mut self, _: &AssetManager) {}
 
+    /// Called every frame.
+    fn tick(&mut self, _: &mut MessageQueue) {}
     fn click(&mut self, _: &mut MessageQueue) {}
     fn hover(&mut self, _: &mut MessageQueue) {}
 }

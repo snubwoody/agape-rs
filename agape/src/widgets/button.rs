@@ -5,6 +5,7 @@ use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
+use tracing::info;
 
 // TODO: add prefix and suffix icon
 /// A widget that wraps another widget.

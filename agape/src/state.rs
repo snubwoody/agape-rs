@@ -7,6 +7,7 @@ use agape_core::{Position, Size};
 use agape_layout::{Layout, solve_layout};
 use agape_renderer::Renderer;
 use std::path::Path;
+use tracing::info;
 
 pub struct State {
     cursor_position: CursorPosition,
@@ -42,8 +43,10 @@ impl State {
         // self.widget = self.view.view();
         // Assets need to be fetched before recreating the
         // layout tree
+        self.widget.tick(&mut self.message_queue);
         self.widget.get_assets(&self.asset_manager);
         self.widget.traverse(&mut |widget| {
+            widget.tick(&mut self.message_queue);
             widget.get_assets(&self.asset_manager);
         });
         let mut layout = self.widget.layout(&mut self.renderer);
@@ -99,7 +102,6 @@ impl State {
         if !self.message_queue.has::<MouseButtonDown>() {
             return;
         }
-
         let widget = self.widget.as_mut();
         let layout = self.layout.as_ref();
         if let Some(l) = layout.get(widget.id())

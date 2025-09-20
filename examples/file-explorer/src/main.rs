@@ -22,6 +22,7 @@ struct Home {
     child: VStack,
 }
 
+// TODO add update method
 impl Home {
     pub fn new() -> Self {
         let home_dir = std::env::home_dir().unwrap();
