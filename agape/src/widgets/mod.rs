@@ -65,6 +65,9 @@ pub trait Widget {
     fn tick(&mut self, _: &mut MessageQueue) {}
     fn click(&mut self, _: &mut MessageQueue) {}
     fn hover(&mut self, _: &mut MessageQueue) {}
+
+    fn mouse_entered(&mut self, _: &mut MessageQueue) {}
+    fn mouse_left(&mut self, _: &mut MessageQueue) {}
 }
 
 /// An iterator over a tree of widgets.
