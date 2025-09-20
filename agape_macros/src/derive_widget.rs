@@ -1,13 +1,13 @@
-use proc_macro2::{Ident, TokenStream};
+use proc_macro2::Ident;
 use quote::quote;
 use syn::{Data, DeriveInput};
 
 pub fn expand_widget(input: DeriveInput) -> proc_macro::TokenStream {
     let name = input.ident;
-    let generics = input.generics;
+    let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
     let child = get_children(&input.data).unwrap();
     quote! {
-        impl agape::widgets::Widget for #name #generics {
+        impl #impl_generics agape::widgets::Widget for #name #ty_generics #where_clause {
             fn id(&self) -> GlobalId{
                 self.id
             }
@@ -23,13 +23,17 @@ pub fn expand_widget(input: DeriveInput) -> proc_macro::TokenStream {
 
             fn layout(&self, renderer: &mut agape::renderer::Renderer) -> Box<dyn agape::layout::Layout> {
                 let child_layout = self.#child.layout(renderer);
-                let mut layout = BlockLayout::new(child_layout);
+                let mut layout = agape::layout::BlockLayout::new(child_layout);
                 layout.id = self.id;
                 Box::new(layout)
             }
 
 
-            fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
+            fn render(
+                &self, 
+                renderer: &mut agape::renderer::Renderer, 
+                layout: &dyn agape::layout::Layout
+            ) {
                 self.#child.render(renderer, layout);
             }
         }
@@ -50,8 +54,6 @@ fn get_children(data: &Data) -> Option<Ident> {
                     child = field.ident.clone();
                 }
             }
-
-            dbg!(&field.attrs);
         }
     }
     child

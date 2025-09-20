@@ -1,7 +1,6 @@
-use agape::layout::{BlockLayout, EmptyLayout, Layout};
+use agape::layout::{BlockLayout, Layout};
 use agape::renderer::Renderer;
-use agape::{App, GlobalId, MessageQueue, Widget, widgets::Text};
-use tracing::info;
+use agape::{App, GlobalId, Widget, widgets::Text};
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
@@ -24,29 +23,3 @@ impl Main {
     }
 }
 
-//
-// impl Widget for Main {
-//     fn id(&self) -> GlobalId {
-//         self.id
-//     }
-//
-//     fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
-//         f(&mut self.child);
-//         self.child.traverse(f);
-//     }
-//
-//     fn children(&self) -> Vec<&dyn Widget> {
-//         vec![&self.child]
-//     }
-//
-//     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
-//         let child_layout = self.child.layout(renderer);
-//         let mut layout = BlockLayout::new(child_layout);
-//         layout.id = self.id;
-//         Box::new(layout)
-//     }
-//
-//     fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
-//         self.child.render(renderer, layout);
-//     }
-// }
