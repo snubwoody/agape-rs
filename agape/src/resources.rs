@@ -29,9 +29,15 @@ impl CursorPosition {
     }
 
     /// Returns `true` if the cursor just hovered the [`Widget`].
-    pub fn just_hovered(&self, layout: &dyn Layout) -> bool {
+    pub fn mouse_entered(&self, layout: &dyn Layout) -> bool {
         let bounds = layout.bounds();
         !bounds.within(&self.previous) && bounds.within(&self.current)
+    }
+
+    /// Returns `true` if the cursor just left the [`Widget`].
+    pub fn mouse_left(&self, layout: &dyn Layout) -> bool {
+        let bounds = layout.bounds();
+        bounds.within(&self.previous) && !bounds.within(&self.current)
     }
 
     /// Returns `true` if the cursor is over the [`Widget`].
@@ -54,7 +60,18 @@ mod test {
         let mut cursor_pos = CursorPosition::new();
         cursor_pos.current = Position::unit(10.0);
         cursor_pos.previous = Position::unit(300.0);
-        assert!(cursor_pos.just_hovered(&layout));
+        assert!(cursor_pos.mouse_entered(&layout));
+    }
+
+    #[test]
+    fn mouse_left() {
+        let mut layout = EmptyLayout::new();
+        layout.intrinsic_size = IntrinsicSize::fixed(200.0, 50.0);
+        solve_layout(&mut layout, Size::unit(1000.0));
+        let mut cursor_pos = CursorPosition::new();
+        cursor_pos.previous = Position::unit(10.0);
+        cursor_pos.current = Position::unit(300.0);
+        assert!(cursor_pos.mouse_left(&layout));
     }
 
     #[test]
@@ -65,7 +82,7 @@ mod test {
         let mut cursor_pos = CursorPosition::new();
         cursor_pos.current = Position::unit(10.0);
         cursor_pos.previous = Position::unit(40.0);
-        assert!(!cursor_pos.just_hovered(&layout));
+        assert!(!cursor_pos.mouse_entered(&layout));
     }
 
     #[test]
@@ -76,6 +93,6 @@ mod test {
         let mut cursor_pos = CursorPosition::new();
         cursor_pos.current = Position::unit(350.0);
         cursor_pos.previous = Position::unit(400.0);
-        assert!(!cursor_pos.just_hovered(&layout));
+        assert!(!cursor_pos.mouse_entered(&layout));
     }
 }

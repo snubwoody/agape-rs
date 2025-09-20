@@ -84,15 +84,29 @@ impl State {
         let widget = &mut self.widget;
         let layout = &self.layout;
         if let Some(l) = layout.get(widget.id())
-            && self.cursor_position.just_hovered(l)
+            && self.cursor_position.mouse_entered(l)
         {
             widget.hover(&mut self.message_queue);
+            widget.mouse_entered(&mut self.message_queue);
+        }
+
+        if let Some(l) = layout.get(widget.id())
+            && self.cursor_position.mouse_left(l)
+        {
+            widget.hover(&mut self.message_queue);
+            widget.mouse_left(&mut self.message_queue);
         }
         widget.traverse(&mut |widget| {
             if let Some(l) = layout.get(widget.id())
-                && self.cursor_position.just_hovered(l)
+                && self.cursor_position.mouse_entered(l)
             {
-                widget.hover(&mut self.message_queue);
+                widget.mouse_entered(&mut self.message_queue);
+            }
+
+            if let Some(l) = layout.get(widget.id())
+                && self.cursor_position.mouse_left(l)
+            {
+                widget.mouse_left(&mut self.message_queue);
             }
         });
     }
