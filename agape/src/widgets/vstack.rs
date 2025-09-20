@@ -40,6 +40,11 @@ impl VStack {
         }
     }
 
+    /// Clear the vstack, removing all children.
+    pub fn clear(&mut self) {
+        self.children.clear();
+    }
+
     pub fn get(&self, index: usize) -> Option<&dyn Widget> {
         self.children.get(index).map(|w| &**w)
     }

@@ -3,7 +3,7 @@ mod dir_entry;
 use agape::{App, GlobalId, MessageQueue, Widget, widgets::*};
 use dir_entry::DirEntry;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use tracing::info;
 
 #[derive(Debug, Clone)]
@@ -16,6 +16,7 @@ fn main() -> agape::Result<()> {
 }
 
 #[derive(Widget)]
+#[interactive]
 struct Home {
     id: GlobalId,
     #[child]
@@ -39,7 +40,7 @@ impl Home {
         }
     }
 
-    pub fn entries(dir: PathBuf) -> Vec<DirEntry> {
+    pub fn entries(dir: impl AsRef<Path>) -> Vec<DirEntry> {
         let mut directories = vec![];
         for entry in fs::read_dir(dir).unwrap() {
             let entry = entry.unwrap();
@@ -48,24 +49,15 @@ impl Home {
         }
         directories
     }
-}
 
-// impl View for Home {
-//     fn update(&mut self, messages: &mut MessageQueue) {
-//         // TODO: Check if directory
-//         if let Some(path) = messages.get::<ChangeDir>() {
-//             info!("Changing directory: {:?}", path);
-//             self.directories = Self::entries(path.0.clone());
-//         }
-//
-//         self.directories.iter_mut().for_each(|d| d.update(messages));
-//     }
-//
-//     fn view(&self) -> Box<dyn Widget> {
-//         let mut vstack = VStack::new();
-//         for entry in &self.directories {
-//             vstack.append_child(entry.view());
-//         }
-//         Box::new(vstack)
-//     }
-// }
+    pub fn update(&mut self, messages: &mut MessageQueue) {
+        if let Some(change_dir) = messages.get::<ChangeDir>() {
+            let path = &change_dir.0;
+            self.child.clear();
+            let directories = Self::entries(path);
+            for entry in directories {
+                self.child.append_child(Box::new(entry));
+            }
+        }
+    }
+}
