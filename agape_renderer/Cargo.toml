@@ -1,5 +1,6 @@
 [package]
 name = "agape_renderer"
+description = "2D graphics renderer"
 version.workspace = true
 authors.workspace = true
 license.workspace = true
