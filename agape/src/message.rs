@@ -138,6 +138,8 @@ mod test {
         let mut messages = MessageQueue::new();
         messages.add(String::new());
         messages.tick();
+        messages.tick();
+        messages.tick();
         messages.clear();
         assert!(messages.is_empty());
     }
