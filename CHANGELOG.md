@@ -7,21 +7,17 @@ All notable changes to agape will be documented in this file.
 ### Features
 
 - Added support for emojis.
-- Added support for images ([`#102`](https://github.com/snubwoody/agape-rs/pull/102)).
+- Added support for images ([#102](https://github.com/snubwoody/agape-rs/pull/102)).
     - New `Image` widget.
 - Added support for svgs ([#104](https://github.com/snubwoody/agape-rs/pull/104)).
     - New `Svg` widget.
 - Added corner radius ([#126](https://github.com/snubwoody/agape-rs/pull/126)).
-- Added text input.
+- Added asset manager ([#157](https://github.com/snubwoody/agape-rs/pull/157)).
+- Added support text input ([#170](https://github.com/snubwoody/agape-rs/pull/170)).
+    - New `TextField`: Receive text input.
 - `VStack` widget now have scrolling ([#172](https://github.com/snubwoody/agape-rs/pull/172)).
 - Added `#[derive(Widget)]` macro ([#161](https://github.com/snubwoody/agape-rs/pull/161)).
 - Added `Container` widget.
-
-#### New widgets
-
-- `Image`: Draw an image to the screen.
-- `Svg`: Draws an svg to the screen ([#104](https://github.com/snubwoody/agape-rs/pull/104)).
-- `TextField`: Receive text input ([#170](https://github.com/snubwoody/agape-rs/pull/170)).
 
 ### Changed
 
@@ -31,12 +27,11 @@ All notable changes to agape will be documented in this file.
 
 ### Bug fixes
 
-- Fixed incorrect text size
+- Fixed incorrect text size being reported by renderer.
 
 ### Removed
 
-- Removed views, rendering is done through functions now.
-- Removed widget iterators
+- Removed views, rendering is now done through the `Renderer`.
 - Removed `hstack`, `vstack`, `input` examples.
 
 ## 0.2.0 - 2025-07-17
@@ -63,4 +58,4 @@ All notable changes to agape will be documented in this file.
 
 ### Performance
 
-- Use global font variable, instead of creating one each frame [#77](https://github.com/snubwoody/agape-rs/pull/77)
+- Use global font variable, instead of creating one each frame ([#77])(https://github.com/snubwoody/agape-rs/pull/77)
