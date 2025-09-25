@@ -15,7 +15,6 @@ pub struct MouseButtonUp;
 pub trait Message: Any + Debug {}
 impl<T: Any + Debug> Message for T {}
 
-// TODO: track messages per frame individually
 #[derive(Debug)]
 struct MessageNode {
     frame_delta: u32,
@@ -28,6 +27,7 @@ pub struct MessageQueue {
 }
 
 impl MessageQueue {
+    /// Create a new message queue.
     pub fn new() -> Self {
         Self::default()
     }
@@ -37,7 +37,7 @@ impl MessageQueue {
         self.items.iter_mut().for_each(|node| node.frame_delta += 1);
     }
 
-    /// Returns true if a message of type `M` is in the queue.
+    /// Returns `true` if a message of type `M` is in the queue.
     ///
     /// # Example
     /// ```
@@ -85,6 +85,17 @@ impl MessageQueue {
         self.items.swap_remove(index);
     }
 
+    /// Get a message from the message queue.
+    ///
+    /// ```
+    /// use agape::MessageQueue;
+    ///
+    /// #[derive(Debug,Copy, Clone)]
+    /// struct DummyMessage;
+    ///
+    /// let message_queue = MessageQueue::new();
+    /// assert!(message_queue.get::<DummyMessage>().is_some())
+    /// ```
     pub fn get<T: 'static>(&self) -> Option<&T> {
         for item in &self.items {
             let item = item.inner.as_ref() as &dyn Any;
@@ -106,7 +117,6 @@ impl MessageQueue {
     }
 
     pub(crate) fn clear(&mut self) {
-        // TODO: 2 frames might be better
         let mut indices = vec![];
         for (index, item) in &mut self.items.iter().enumerate() {
             if item.frame_delta >= 2 {

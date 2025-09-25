@@ -1,33 +1,20 @@
-//! A cross-platform GUI library.
+//! Agape is a cross-platform GUI library.
 //!
-//! ## Getting started
-//! To get started you'll need to create an [`App`], which is the entry point
-//! of the program, and a root [`Widget`].
+//! ## Overview
+//! At the core of `agape` is widgets, a [`Widget`] is anything that holds state and can be drawn
+//! to the screen. To get started create an [`App`] with a root widget.
 //!
 //! ```no_run
-//! use agape::{App,Error,widgets::Text,Widget,GlobalId};
-//!
+//! use agape::{App,widgets::*,Error};
 //! fn main() -> Result<(),Error>{
-//!     App::new(Main::new("Hello world"))
+//!     App::new(Home())
 //!         .run()
 //! }
 //!
-//! #[derive(Widget)]
-//! struct Main{
-//!     id: GlobalId,
-//!     #[child]
-//!     child: Text
+//! fn Home() -> impl Widget{
+//!     Text::new("Hello!!")
+//!         .font_size(24)
 //! }
-//!
-//! impl Main{
-//!     pub fn new(text: &str) -> Self{
-//!         Self{
-//!             id: GlobalId::new(),
-//!             child: Text::new(text)
-//!         }
-//!     }
-//! }
-//!
 //! ```
 mod assets;
 pub mod error;
@@ -43,7 +30,7 @@ pub use agape_layout as layout;
 pub use agape_macros::hex;
 pub use agape_renderer as renderer;
 pub use error::{Error, Result};
-pub use message::MessageQueue;
+pub use message::{Message, MessageQueue};
 use std::path::Path;
 
 use crate::message::{MouseButtonDown, MouseButtonUp};
@@ -74,9 +61,9 @@ pub struct App<'app> {
 
 impl App<'_> {
     /// Create a new app.
-    pub fn new(view: impl Widget + 'static) -> Self {
+    pub fn new(widget: impl Widget + 'static) -> Self {
         Self {
-            state: State::new(view),
+            state: State::new(widget),
             pixels: None,
             window: None,
         }

@@ -1,4 +1,4 @@
-use super::{Callback, Widget};
+use super::Widget;
 use crate::style::BoxStyle;
 use crate::{MessageQueue, impl_style};
 use agape_core::GlobalId;
@@ -6,8 +6,19 @@ use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
 
+type Callback = Box<dyn FnMut(&mut MessageQueue)>;
+
 // TODO: add prefix and suffix icon
-/// A widget that wraps another widget.
+/// A widget that reacts to click and hover gestures.
+///
+/// # Example
+/// ```
+/// use agape::widgets::Button;
+///
+/// Button::new("Sign up")
+///     .on_hover(|_| println!("About to sign up!"))
+///     .on_click(|_| println!("Signed up!!!!"))
+/// ```
 pub struct Button<W> {
     id: GlobalId,
     child: W,
