@@ -100,22 +100,14 @@ impl Menu {
     }
 
     fn update(&mut self, messages: &mut MessageQueue) {
-        if !messages.is_empty() {
-            dbg!(&messages);
-        }
         if messages.has::<EnableMenu>() && !self.menu_active {
             self.menu_active = true;
             self.widget.append_child(TodoInput::new());
         }
 
-        if messages.has::<DisableMenu>() {
-            dbg!("Disable menu");
-        }
-
         if messages.has::<DisableMenu>() && self.menu_active {
             self.menu_active = false;
             self.widget.pop();
-            dbg!(self.widget.len());
         }
     }
 }
@@ -161,7 +153,6 @@ impl TodoInput {
             messages.add(AddTodo(self.current_todo.clone()));
             messages.add(DisableMenu);
             self.current_todo.clear();
-            dbg!(messages);
         }
     }
 }
