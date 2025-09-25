@@ -9,6 +9,7 @@ pub mod image;
 mod rect;
 mod svg;
 mod text;
+mod text_field;
 mod vstack;
 
 use crate::assets::AssetManager;
@@ -24,6 +25,7 @@ pub use image::Image;
 pub use rect::*;
 pub use svg::Svg;
 pub use text::Text;
+pub use text_field::TextField;
 pub use vstack::*;
 
 pub type Callback = Box<dyn FnMut(&mut MessageQueue)>;

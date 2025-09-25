@@ -36,16 +36,22 @@ impl Text {
         buffer.set_text(&self.content, &attrs, Shaping::Advanced);
         buffer.shape_until_scroll(true);
 
+        // FIXME text is being clipped
         // TODO: add clippy lint for conversion
         let text_color = cosmic_text::Color::rgb(0, 0, 0);
         let width = text_size.width.ceil() as u32;
-        let height = text_size.width.ceil() as u32;
+        let height = text_size.height.ceil() as u32;
 
         let mut image = RgbaImage::new(width, height);
         let size = IntSize::from_wh(image.width(), image.height()).unwrap();
+
         buffer.draw(cache, text_color, |x, y, _, _, color| {
             let [r, g, b, a] = color.as_rgba();
-            image.put_pixel(x.max(0) as u32, y as u32, image::Rgba([r, g, b, a]));
+            let x = x as u32;
+            let y = y as u32;
+            if x < image.width() && y < image.height() {
+                image.put_pixel(x, y, image::Rgba([r, g, b, a]));
+            }
         });
 
         let glyph_pixmap = Pixmap::from_vec(image.to_vec(), size).unwrap();

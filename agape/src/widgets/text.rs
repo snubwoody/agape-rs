@@ -3,9 +3,19 @@ use agape_core::GlobalId;
 use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
 use agape_renderer::Renderer;
 
-/// Draw text onto the screen.
+/// Draw text onto the screen. Emojis are fully supported.
 ///
-/// Emojis are currently unsupported.
+/// # Example
+///
+/// ```
+/// use agape::widgets::Text;
+///
+/// let text = Text::new("🦀 Hi!")
+///     .font_size(20);
+///
+/// assert_eq!(text.font_size,20);
+/// assert_eq!(text.value,"🦀 Hi!");
+/// ```
 #[derive(Clone, PartialEq, Debug)]
 pub struct Text {
     id: GlobalId,
@@ -63,6 +73,10 @@ impl Widget for Text {
     fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget)) {}
 
     fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
+        if self.value.is_empty() {
+            return;
+        }
+
         let layout = layout.get(self.id).unwrap();
         let position = layout.position();
         let mut text = agape_renderer::Text::new(self.value.as_str());

@@ -45,6 +45,7 @@ impl Items {
             Text::new("Item 4"),
         ]
         .spacing(12);
+
         Self {
             id: GlobalId::new(),
             widget,

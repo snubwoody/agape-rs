@@ -89,7 +89,7 @@ impl MessageQueue {
 
     pub(crate) fn clear(&mut self) {
         // TODO: 2 frames might be better
-        if self.frame_count >= 3 {
+        if self.frame_count >= 1 {
             self.items.clear();
             self.frame_count = 0;
         }
@@ -112,10 +112,6 @@ mod test {
     fn clear_messages() {
         let mut messages = MessageQueue::new();
         messages.add(String::new());
-        messages.tick();
-        messages.tick();
-        messages.clear();
-        assert_eq!(messages.len(), 1);
         messages.tick();
         messages.clear();
         assert!(messages.is_empty());

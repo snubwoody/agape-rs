@@ -7,6 +7,8 @@ use agape_core::{Position, Size};
 use agape_layout::{Layout, solve_layout};
 use agape_renderer::Renderer;
 use std::path::Path;
+use winit::event::{ElementState, KeyEvent};
+use winit::keyboard::NamedKey;
 
 pub struct State {
     cursor_position: CursorPosition,
@@ -63,6 +65,7 @@ impl State {
         self.widget.render(&mut self.renderer, self.layout.as_ref());
     }
 
+    /// Get a reference to the [`Renderer`].
     pub fn renderer(&self) -> &Renderer {
         &self.renderer
     }
@@ -129,5 +132,41 @@ impl State {
                 widget.click(&mut self.message_queue);
             }
         });
+    }
+
+    pub fn key_event(&mut self, event: &KeyEvent) {
+        if let ElementState::Released = event.state {
+            return;
+        }
+        if let Some(named_key) = NamedKeyInput::from_key(&event.logical_key) {
+            self.message_queue.add(named_key);
+        }
+
+        if let Some(character) = CharacterInput::from_key(&event.logical_key) {
+            self.message_queue.add(character);
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct NamedKeyInput(pub NamedKey);
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
+pub struct CharacterInput(pub String);
+
+impl NamedKeyInput {
+    pub fn from_key(key: &winit::keyboard::Key) -> Option<Self> {
+        if let winit::keyboard::Key::Named(key) = key {
+            return Some(Self(*key));
+        }
+        None
+    }
+}
+
+impl CharacterInput {
+    pub fn from_key(key: &winit::keyboard::Key) -> Option<Self> {
+        if let winit::keyboard::Key::Character(chr) = key {
+            return Some(Self(chr.to_string()));
+        }
+        None
     }
 }
