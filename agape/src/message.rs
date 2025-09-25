@@ -89,7 +89,7 @@ impl MessageQueue {
 
     pub(crate) fn clear(&mut self) {
         // TODO: 2 frames might be better
-        if self.frame_count >= 3 {
+        if self.frame_count >= 1 {
             self.items.clear();
             self.frame_count = 0;
         }

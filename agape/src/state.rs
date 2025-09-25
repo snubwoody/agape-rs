@@ -7,7 +7,6 @@ use agape_core::{Position, Size};
 use agape_layout::{Layout, solve_layout};
 use agape_renderer::Renderer;
 use std::path::Path;
-use tracing::info;
 use winit::event::{ElementState, KeyEvent};
 use winit::keyboard::NamedKey;
 
@@ -140,12 +139,10 @@ impl State {
             return;
         }
         if let Some(named_key) = NamedKeyInput::from_key(&event.logical_key) {
-            info!(key=?named_key);
             self.message_queue.add(named_key);
         }
 
         if let Some(character) = CharacterInput::from_key(&event.logical_key) {
-            info!(key=?character);
             self.message_queue.add(character);
         }
     }

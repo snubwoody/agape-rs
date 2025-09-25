@@ -50,7 +50,7 @@ impl Text {
             let x = x as u32;
             let y = y as u32;
             if x < image.width() && y < image.height() {
-                image.put_pixel(x.max(0), y, image::Rgba([r, g, b, a]));
+                image.put_pixel(x, y, image::Rgba([r, g, b, a]));
             }
         });
 

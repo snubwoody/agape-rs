@@ -1,16 +1,17 @@
-use super::{Text, Widget};
+use super::{Container, Text, Widget};
 use crate::MessageQueue;
 use crate::state::{CharacterInput, NamedKeyInput};
 use agape_core::GlobalId;
-use agape_layout::{BlockLayout, EmptyLayout, IntrinsicSize, Layout};
+use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
 use winit::keyboard::NamedKey;
 
-#[derive(Clone, PartialEq, Debug, Default)]
+#[derive(Clone)]
 pub struct TextField {
     id: GlobalId,
-    pub value: Text,
+    pub child: Container<Text>,
+    focused: bool,
 }
 
 impl TextField {
@@ -19,17 +20,43 @@ impl TextField {
     }
 }
 
+impl Default for TextField {
+    fn default() -> Self {
+        let child = Container::new(Text::new(""))
+            .padding(12)
+            .border_width(1.0)
+            .border_color(0)
+            .corner_radius(12);
+        Self {
+            id: GlobalId::new(),
+            child,
+            focused: false,
+        }
+    }
+}
+
 impl Widget for TextField {
+    fn click(&mut self, _: &mut MessageQueue) {
+        self.focused = !self.focused
+    }
+
     fn tick(&mut self, messages: &mut MessageQueue) {
+        if !self.focused {
+            return;
+        }
+
         // TODO check for focus
         if let Some(input) = messages.get::<CharacterInput>() {
-            self.value.value.push_str(&input.0);
+            self.child.child.value.push_str(&input.0);
         }
 
         if let Some(input) = messages.get::<NamedKeyInput>() {
             match input.0 {
                 NamedKey::Backspace => {
-                    self.value.value.pop();
+                    self.child.child.value.pop();
+                }
+                NamedKey::Space => {
+                    self.child.child.value.push(' ');
                 }
                 _ => {}
             }
@@ -41,7 +68,7 @@ impl Widget for TextField {
     }
 
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
-        let child_layout = self.value.layout(renderer);
+        let child_layout = self.child.layout(renderer);
         let mut layout = BlockLayout::new(child_layout);
         layout.id = self.id;
         Box::new(layout)
@@ -57,7 +84,7 @@ impl Widget for TextField {
             .position(position.x, position.y)
             .size(layout.size().width, layout.size().height);
         renderer.draw_rect(rect);
-        self.value.render(renderer, layout);
+        self.child.render(renderer, layout);
     }
 
     fn id(&self) -> GlobalId {

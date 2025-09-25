@@ -7,10 +7,11 @@ use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
 
 /// A widget that wraps another widget.
+#[derive(Clone)]
 pub struct Container<W> {
     id: GlobalId,
-    child: W,
-    style: BoxStyle,
+    pub child: W,
+    pub style: BoxStyle,
     padding: u32,
 }
 

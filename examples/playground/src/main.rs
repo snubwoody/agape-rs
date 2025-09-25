@@ -1,5 +1,5 @@
 use agape::widgets::{HStack, TextField};
-use agape::{App, GlobalId, Widget, hstack, widgets::Text};
+use agape::{App, GlobalId, Widget, hstack};
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
