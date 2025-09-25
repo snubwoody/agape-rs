@@ -397,8 +397,6 @@ impl Layout for VerticalLayout {
             AxisAlignment::End => self.align_cross_axis_end(),
         }
 
-        let overflow = self.main_axis_overflow();
-
         for child in &mut self.children {
             let y = child.position().y;
             child.set_y(y + self.scroll_offset);

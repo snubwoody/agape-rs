@@ -5,7 +5,6 @@ use agape_core::GlobalId;
 use agape_layout::{AxisAlignment, Layout, VerticalLayout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
-use tracing::info;
 
 /// A vertical stack that places its children vertically one after
 /// another.

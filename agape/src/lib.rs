@@ -172,12 +172,12 @@ impl ApplicationHandler for App<'_> {
             WindowEvent::KeyboardInput { event, .. } => {
                 self.state.key_event(&event);
             }
-            WindowEvent::MouseWheel { delta, .. } => match delta {
-                MouseScrollDelta::LineDelta(_, y) => {
-                    self.state.messages_mut().add(Scroll(y));
-                }
-                _ => (),
-            },
+            WindowEvent::MouseWheel {
+                delta: MouseScrollDelta::LineDelta(_, y),
+                ..
+            } => {
+                self.state.messages_mut().add(Scroll(y));
+            }
             _ => {}
         }
         self.state.update();
