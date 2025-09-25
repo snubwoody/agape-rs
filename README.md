@@ -23,44 +23,8 @@
 
 ## Overview
 
-`agape` is a cross-platform, CPU-rendered, GUI library.
-
-## Add to your project
-
-```toml
-[dependencies]
-agape = "0.2.0"
-```
-
-## Quick start
-
-```rust
-use agape::{App, widgets::*};
-
-#[derive(Debug)]
-struct TextBox {
-    text: String
-}
-
-impl TextBox {
-    pub fn new(text: &str) -> Self {
-        Self { text: String::from(text) }
-    }
-}
-
-impl View for TextBox {
-    fn view() -> Box<dyn Widget> {
-        Box::new(
-            Text::new(&self.text)
-        )
-    }
-}
-
-fn main() -> Result<(), agape::Error> {
-    let mut app = App::new(TextBox::new("Hi there"));
-    app.run()
-}
-```
+`agape` is a cross-platform, CPU-rendered, GUI library, focused on performance and ergonomics.
+See the [documentation](https://docs.rs/agape/latest/agape/) for more info.
 
 ## Support
 
