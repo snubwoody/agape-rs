@@ -128,10 +128,10 @@ mod test {
     #[test]
     fn message_queue_tick() {
         let mut messages = MessageQueue::new();
+        messages.add(MouseButtonDown);
         messages.tick();
         messages.tick();
-        panic!("Fix me")
-        // assert_eq!(messages.frame_count, 2);
+        assert_eq!(messages.items[0].frame_delta, 2);
     }
 
     #[test]
