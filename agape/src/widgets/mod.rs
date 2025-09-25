@@ -37,10 +37,10 @@
 //! impl Menu{
 //!     pub fn new() -> Self{
 //!         let child = hstack![
-//!             Button::new("File"),
-//!             Button::new("Edit"),
-//!             Button::new("View"),
-//!             Button::new("About"),
+//!             Button::text("File"),
+//!             Button::text("Edit"),
+//!             Button::text("View"),
+//!             Button::text("About"),
 //!         ]
 //!             .spacing(12)
 //!             .padding(16);
@@ -79,9 +79,9 @@
 //! impl Menu{
 //!     pub fn new() -> Self{
 //!         let child = hstack![
-//!             Button::new("Marco")
+//!             Button::text("Marco")
 //!                 .on_click(|messages|messages.add(Marco)),
-//!             Button::new("Polo")
+//!             Button::text("Polo")
 //!                 .on_click(|messages|messages.add(Polo))
 //!         ];
 //!

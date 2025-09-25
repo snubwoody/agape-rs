@@ -1,4 +1,4 @@
-use super::Widget;
+use super::{Text, Widget};
 use crate::style::BoxStyle;
 use crate::{MessageQueue, impl_style};
 use agape_core::GlobalId;
@@ -15,9 +15,9 @@ type Callback = Box<dyn FnMut(&mut MessageQueue)>;
 /// ```
 /// use agape::widgets::Button;
 ///
-/// Button::new("Sign up")
+/// Button::text("Sign up")
 ///     .on_hover(|_| println!("About to sign up!"))
-///     .on_click(|_| println!("Signed up!!!!"))
+///     .on_click(|_| println!("Signed up!!!!"));
 /// ```
 pub struct Button<W> {
     id: GlobalId,
@@ -26,6 +26,12 @@ pub struct Button<W> {
     padding: u32,
     hover_callback: Option<Callback>,
     click_callback: Option<Callback>,
+}
+
+impl Button<Text> {
+    pub fn text(text: &str) -> Self {
+        Self::new(Text::new(text))
+    }
 }
 
 impl<W> Button<W> {
