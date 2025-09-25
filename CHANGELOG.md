@@ -2,27 +2,29 @@
 
 All notable changes to agape will be documented in this file.
 
-## 0.3.0 [unreleased]
+## 0.3.0 - 2025-09-25
 
 ### Features
 
 - Added support for emojis.
 - Added support for images.
 - Added support for svgs.
-- Added corner radius.
-- Added text input
+- Added corner radius ([`#126`](https://github.com/snubwoody/agape-rs/pull/126)).
+- Added text input.
+- `VStack` widget now have scrolling ([`#172`](https://github.com/snubwoody/agape-rs/pull/172)).
+- Added `#[derive(Widget)]` macro ([`#161`](https://github.com/snubwoody/agape-rs/pull/161)).
 
 #### New widgets
 
 - `Image`: Draw an image to the screen.
-- `Svg`: Draws an svg to the screen.
+- `Svg`: Draws an svg to the screen ([`#104`](https://github.com/snubwoody/agape-rs/pull/104)).
 - `Container`: Wrapper around another widget, useful for styling.
-- `TextField`: Receive text input
+- `TextField`: Receive text input ([`#170`](https://github.com/snubwoody/agape-rs/pull/170)).
 
 ### Changed
 
 - Removed the `LayoutSolver` struct and renamed its single method to `solve_layout`.
-- Switch to cosmic text for rendering
+- Switch to cosmic text for rendering ([`#113`](https://github.com/snubwoody/agape-rs/pull/113))
 
 ### Bug fixes
 
