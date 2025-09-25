@@ -7,11 +7,13 @@ use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
 use winit::keyboard::NamedKey;
 
+type Callback = Option<Box<dyn FnMut(&str, &mut MessageQueue)>>;
+
 pub struct TextField {
     id: GlobalId,
     pub child: Container<Text>,
     focused: bool,
-    on_change: Option<Box<dyn FnMut(&str, &mut MessageQueue)>>,
+    on_change: Callback,
 }
 
 impl TextField {
@@ -19,6 +21,7 @@ impl TextField {
         Self::default()
     }
 
+    /// Run a callback when the text field value is updated.
     pub fn on_change<F>(mut self, f: F) -> Self
     where
         F: FnMut(&str, &mut MessageQueue) + 'static,

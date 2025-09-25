@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
-use agape::widgets::{Button, HStack, TextField, VStack};
+use agape::widgets::{Button, TextField, VStack};
 use agape::{App, GlobalId, MessageQueue, Widget, hstack, vstack, widgets::Text};
-use log::info;
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
@@ -70,7 +69,7 @@ impl Items {
 
     pub fn update(&mut self, messages: &mut MessageQueue) {
         if let Some(add_todo) = messages.get::<AddTodo>() {
-            self.widget.append_child(Text::new(&*add_todo.0))
+            self.widget.append_child(Text::new(&add_todo.0))
         }
 
         if messages.has::<ClearTodos>() {

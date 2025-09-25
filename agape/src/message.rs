@@ -1,6 +1,5 @@
 use std::any::Any;
 use std::fmt::Debug;
-use tracing::info;
 
 /// Emitted when the left mouse button is pressed.
 #[derive(Debug)]
