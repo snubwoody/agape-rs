@@ -10,12 +10,14 @@ All notable changes to agape will be documented in this file.
 - Added support for images.
 - Added support for svgs.
 - Added corner radius.
+- Added text input
 
 #### New widgets
 
 - `Image`: Draw an image to the screen.
 - `Svg`: Draws an svg to the screen.
 - `Container`: Wrapper around another widget, useful for styling.
+- `TextField`: Receive text input
 
 ### Changed
 
