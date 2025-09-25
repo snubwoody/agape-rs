@@ -40,8 +40,8 @@ impl State {
     }
 
     pub fn update(&mut self) {
-        // self.view.update(&mut self.message_queue);
-        // self.widget = self.view.view();
+        self.message_queue.tick();
+        self.message_queue.clear();
         // Assets need to be fetched before recreating the
         // layout tree
         self.widget.tick(&mut self.message_queue);
@@ -55,9 +55,6 @@ impl State {
         self.layout = layout;
         self.check_hovered();
         self.check_clicked();
-        // TODO test this please
-        self.message_queue.tick();
-        self.message_queue.clear();
     }
 
     pub fn render(&mut self) {

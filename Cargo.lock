@@ -2639,6 +2639,7 @@ name = "todo-list"
 version = "0.1.0"
 dependencies = [
  "agape",
+ "log",
  "tracing",
  "tracing-subscriber",
 ]

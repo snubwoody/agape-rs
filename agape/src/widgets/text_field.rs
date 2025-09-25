@@ -7,16 +7,27 @@ use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
 use winit::keyboard::NamedKey;
 
-#[derive(Clone)]
+type Callback = Option<Box<dyn FnMut(&str, &mut MessageQueue)>>;
+
 pub struct TextField {
     id: GlobalId,
     pub child: Container<Text>,
     focused: bool,
+    on_change: Callback,
 }
 
 impl TextField {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Run a callback when the text field value is updated.
+    pub fn on_change<F>(mut self, f: F) -> Self
+    where
+        F: FnMut(&str, &mut MessageQueue) + 'static,
+    {
+        self.on_change = Some(Box::new(f));
+        self
     }
 }
 
@@ -31,6 +42,7 @@ impl Default for TextField {
             id: GlobalId::new(),
             child,
             focused: false,
+            on_change: None,
         }
     }
 }
@@ -48,15 +60,24 @@ impl Widget for TextField {
         // TODO check for focus
         if let Some(input) = messages.get::<CharacterInput>() {
             self.child.child.value.push_str(&input.0);
+            if let Some(f) = self.on_change.as_mut() {
+                f(self.child.child.value.as_str(), messages);
+            }
         }
 
         if let Some(input) = messages.get::<NamedKeyInput>() {
             match input.0 {
                 NamedKey::Backspace => {
                     self.child.child.value.pop();
+                    if let Some(f) = self.on_change.as_mut() {
+                        f(self.child.child.value.as_str(), messages);
+                    }
                 }
                 NamedKey::Space => {
                     self.child.child.value.push(' ');
+                    if let Some(f) = self.on_change.as_mut() {
+                        f(self.child.child.value.as_str(), messages);
+                    }
                 }
                 _ => {}
             }

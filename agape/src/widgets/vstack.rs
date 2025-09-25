@@ -40,6 +40,19 @@ impl VStack {
         }
     }
 
+    /// Removes the last child of the vstack and returns it.
+    pub fn pop(&mut self) -> Option<Box<dyn Widget>> {
+        self.children.pop()
+    }
+
+    pub fn len(&self) -> usize {
+        self.children.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.children.is_empty()
+    }
+
     /// Clear the vstack, removing all children.
     pub fn clear(&mut self) {
         self.children.clear();
