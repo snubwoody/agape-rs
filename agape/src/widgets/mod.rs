@@ -9,7 +9,7 @@
 //! use agape::{widgets::*,Color};
 //!
 //! fn CtaButton() -> impl Widget{
-//!     Button::new("Get started")
+//!     Button::text("Get started")
 //!         .background_color(Color::rgb(100,25,255))
 //!         .padding(16)
 //!         .corner_radius(12)
