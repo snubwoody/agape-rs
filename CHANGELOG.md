@@ -7,24 +7,27 @@ All notable changes to agape will be documented in this file.
 ### Features
 
 - Added support for emojis.
-- Added support for images.
-- Added support for svgs.
-- Added corner radius ([`#126`](https://github.com/snubwoody/agape-rs/pull/126)).
+- Added support for images ([`#102`](https://github.com/snubwoody/agape-rs/pull/102)).
+    - New `Image` widget.
+- Added support for svgs ([#104](https://github.com/snubwoody/agape-rs/pull/104)).
+    - New `Svg` widget.
+- Added corner radius ([#126](https://github.com/snubwoody/agape-rs/pull/126)).
 - Added text input.
-- `VStack` widget now have scrolling ([`#172`](https://github.com/snubwoody/agape-rs/pull/172)).
-- Added `#[derive(Widget)]` macro ([`#161`](https://github.com/snubwoody/agape-rs/pull/161)).
+- `VStack` widget now have scrolling ([#172](https://github.com/snubwoody/agape-rs/pull/172)).
+- Added `#[derive(Widget)]` macro ([#161](https://github.com/snubwoody/agape-rs/pull/161)).
+- Added `Container` widget.
 
 #### New widgets
 
 - `Image`: Draw an image to the screen.
-- `Svg`: Draws an svg to the screen ([`#104`](https://github.com/snubwoody/agape-rs/pull/104)).
-- `Container`: Wrapper around another widget, useful for styling.
-- `TextField`: Receive text input ([`#170`](https://github.com/snubwoody/agape-rs/pull/170)).
+- `Svg`: Draws an svg to the screen ([#104](https://github.com/snubwoody/agape-rs/pull/104)).
+- `TextField`: Receive text input ([#170](https://github.com/snubwoody/agape-rs/pull/170)).
 
 ### Changed
 
-- Removed the `LayoutSolver` struct and renamed its single method to `solve_layout`.
-- Switch to cosmic text for rendering ([`#113`](https://github.com/snubwoody/agape-rs/pull/113))
+- Removed the `LayoutSolver` struct and renamed its single method to
+  `solve_layout` ([#98](https://github.com/snubwoody/agape-rs/pull/98)).
+- Switch to cosmic text for rendering ([#113](https://github.com/snubwoody/agape-rs/pull/113))
 
 ### Bug fixes
 
