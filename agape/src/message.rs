@@ -94,7 +94,7 @@ impl MessageQueue {
     /// struct DummyMessage;
     ///
     /// let mut message_queue = MessageQueue::new();
-    /// message_queue.add(DummyMessage)
+    /// message_queue.add(DummyMessage);
     /// assert!(message_queue.get::<DummyMessage>().is_some())
     /// ```
     pub fn get<T: 'static>(&self) -> Option<&T> {
