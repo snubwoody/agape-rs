@@ -25,11 +25,13 @@
 
 `agape` is a cross-platform, CPU-rendered, GUI library.
 
+> ![]
+
 ## Add to your project
 
 ```toml
 [dependencies]
-agape = "0.2.0"
+agape = "0.3.0"
 ```
 
 ## Quick start
