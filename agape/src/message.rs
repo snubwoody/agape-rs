@@ -1,19 +1,23 @@
 use std::any::Any;
+use std::fmt::Debug;
+use tracing::info;
 
 /// Emitted when the left mouse button is pressed.
+#[derive(Debug)]
 pub struct MouseButtonDown;
 
 /// Emitted when the left mouse button is released.
+#[derive(Debug)]
 pub struct MouseButtonUp;
 
 // Marker trait
 /// The message trait is implemented for anything which implements
 /// `Any`.
-pub trait Message: Any {}
+pub trait Message: Any + Debug {}
+impl<T: Any + Debug> Message for T {}
 
-impl<T: Any> Message for T {}
-
-#[derive(Default)]
+// TODO: track messages per frame individually
+#[derive(Default, Debug)]
 pub struct MessageQueue {
     items: Vec<Box<dyn Message>>,
     frame_count: u32,
@@ -89,7 +93,7 @@ impl MessageQueue {
 
     pub(crate) fn clear(&mut self) {
         // TODO: 2 frames might be better
-        if self.frame_count >= 1 {
+        if self.frame_count >= 3 {
             self.items.clear();
             self.frame_count = 0;
         }
