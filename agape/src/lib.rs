@@ -47,13 +47,13 @@ pub use message::MessageQueue;
 use std::path::Path;
 
 use crate::message::{MouseButtonDown, MouseButtonUp};
-use crate::state::State;
+use crate::state::{Scroll, State};
 use crate::widgets::Widget;
 pub use agape_macros::Widget;
 use pixels::{Pixels, SurfaceTexture};
 use std::sync::Arc;
 use tracing::info;
-use winit::event::{ElementState, MouseButton};
+use winit::event::{ElementState, MouseButton, MouseScrollDelta};
 use winit::event_loop::ActiveEventLoop;
 use winit::{
     application::ApplicationHandler,
@@ -172,6 +172,12 @@ impl ApplicationHandler for App<'_> {
             WindowEvent::KeyboardInput { event, .. } => {
                 self.state.key_event(&event);
             }
+            WindowEvent::MouseWheel { delta, .. } => match delta {
+                MouseScrollDelta::LineDelta(_, y) => {
+                    self.state.messages_mut().add(Scroll(y));
+                }
+                _ => (),
+            },
             _ => {}
         }
         self.state.update();

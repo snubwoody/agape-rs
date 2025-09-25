@@ -1,9 +1,11 @@
+use crate::state::Scroll;
 use crate::style::BoxStyle;
-use crate::{impl_style, widgets::Widget};
+use crate::{MessageQueue, impl_style, widgets::Widget};
 use agape_core::GlobalId;
 use agape_layout::{AxisAlignment, Layout, VerticalLayout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
+use tracing::info;
 
 /// A vertical stack that places its children vertically one after
 /// another.
@@ -105,6 +107,12 @@ impl Widget for VStack {
         self.id
     }
 
+    fn tick(&mut self, messages: &mut MessageQueue) {
+        if let Some(scroll) = messages.get::<Scroll>() {
+            self.layout.scroll(scroll.0);
+        }
+    }
+
     fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
         self.children.iter_mut().for_each(|w| {
             f(w.as_mut());
@@ -127,6 +135,7 @@ impl Widget for VStack {
             cross_axis_alignment: self.layout.cross_axis_alignment,
             spacing: self.layout.spacing,
             padding: self.layout.padding,
+            scroll_offset: self.layout.scroll_offset,
             children,
             ..Default::default()
         };
