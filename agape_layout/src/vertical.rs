@@ -15,15 +15,13 @@ pub struct VerticalLayout {
     pub padding: u32,
     pub scroll_offset: f32,
     pub intrinsic_size: IntrinsicSize,
-    // TODO i'm thinking of adding user constraints as well so that people can define their own
-    // constraints
     pub children: Vec<Box<dyn Layout>>,
     /// The main axis is the `y-axis`
     pub main_axis_alignment: AxisAlignment,
     /// The cross axis is the `x-axis`
     pub cross_axis_alignment: AxisAlignment,
     pub constraints: BoxConstraints,
-    pub errors: Vec<crate::LayoutError>,
+    pub errors: Vec<LayoutError>,
 }
 
 impl VerticalLayout {
@@ -217,7 +215,7 @@ impl Layout for VerticalLayout {
             .collect::<Vec<_>>()
     }
 
-    fn iter(&self) -> crate::LayoutIter<'_> {
+    fn iter(&self) -> LayoutIter<'_> {
         LayoutIter { stack: vec![self] }
     }
 
@@ -399,14 +397,9 @@ impl Layout for VerticalLayout {
             AxisAlignment::End => self.align_cross_axis_end(),
         }
 
-        let overflow = self.main_axis_overflow();
-
         for child in &mut self.children {
-            // Only scroll if children are overflowing
-            if overflow {
-                let y = child.position().y;
-                child.set_y(y + self.scroll_offset);
-            }
+            let y = child.position().y;
+            child.set_y(y + self.scroll_offset);
 
             if child.position().y > self.position.y + self.size.height {
                 self.errors.push(LayoutError::OutOfBounds {

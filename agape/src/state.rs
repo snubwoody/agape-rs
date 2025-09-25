@@ -10,6 +10,9 @@ use std::path::Path;
 use winit::event::{ElementState, KeyEvent};
 use winit::keyboard::NamedKey;
 
+#[derive(Debug, Clone, Copy, PartialOrd, PartialEq)]
+pub struct Scroll(pub f32);
+
 pub struct State {
     cursor_position: CursorPosition,
     message_queue: MessageQueue,
