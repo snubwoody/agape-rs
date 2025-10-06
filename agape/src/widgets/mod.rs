@@ -115,8 +115,9 @@ mod vstack;
 
 use crate::assets::AssetManager;
 use crate::message::MessageQueue;
+use crate::style::BoxStyle;
 use agape_core::GlobalId;
-use agape_layout::Layout;
+use agape_layout::{EmptyLayout, Layout};
 use agape_renderer::Renderer;
 pub use button::*;
 pub use container::Container;
@@ -160,6 +161,10 @@ pub trait Widget {
 
     fn mouse_entered(&mut self, _: &mut MessageQueue) {}
     fn mouse_left(&mut self, _: &mut MessageQueue) {}
+}
+
+pub trait IntoWidget {
+    fn build(&self) -> Box<dyn Widget>;
 }
 
 /// An iterator over a tree of widgets.

@@ -2,6 +2,8 @@
 
 All notable changes to agape will be documented in this file.
 
+## (unreleased)
+
 ## 0.3.0 - 2025-09-25
 
 ### Features
