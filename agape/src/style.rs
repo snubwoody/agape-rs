@@ -1,5 +1,5 @@
 use agape_core::{Border, Color, IntoColor, Rgba};
-use agape_layout::{BoxSizing, IntrinsicSize};
+use agape_layout::{AxisAlignment, BoxSizing, IntrinsicSize};
 
 #[derive(Default, Debug, PartialOrd, PartialEq, Clone)]
 pub struct BoxStyle {
@@ -7,6 +7,10 @@ pub struct BoxStyle {
     pub background_color: Color<Rgba>,
     pub border: Option<Border>,
     pub corner_radius: u32,
+    pub padding: u32,
+    pub spacing: u32,
+    pub cross_axis_alignment: AxisAlignment,
+    pub main_axis_alignment: AxisAlignment,
 }
 
 impl BoxStyle {

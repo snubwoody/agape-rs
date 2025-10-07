@@ -1,4 +1,5 @@
 use super::Widget;
+use crate::element::{Element, ElementKind, LayoutKind};
 use crate::impl_style;
 use crate::style::BoxStyle;
 use agape_core::GlobalId;
@@ -12,7 +13,7 @@ pub struct Container<W> {
     id: GlobalId,
     pub child: W,
     pub style: BoxStyle,
-    padding: u32,
+    pub padding: u32,
 }
 
 impl<W> Container<W> {
@@ -36,6 +37,20 @@ impl<W> Container<W> {
 impl<W: Widget> Widget for Container<W> {
     fn id(&self) -> GlobalId {
         self.id
+    }
+
+    fn build(&self) -> Element {
+        let element = self.child.build();
+        let kind = ElementKind::Rect {
+            style: self.style.clone(),
+            layout: LayoutKind::Block,
+        };
+
+        Element {
+            id: self.id,
+            kind,
+            children: vec![element],
+        }
     }
 
     fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {

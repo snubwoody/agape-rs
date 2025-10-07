@@ -1,3 +1,4 @@
+use crate::element::{Element, ElementKind};
 use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::widgets::Widget;
@@ -88,6 +89,16 @@ impl Widget for Svg {
     }
 
     fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget)) {}
+
+    fn build(&self) -> Element {
+        Element {
+            id: self.id,
+            kind: ElementKind::Svg {
+                data: self.data.clone(),
+                style: self.style.clone(),
+            },
+        }
+    }
 
     fn layout(&self, _: &mut Renderer) -> Box<dyn Layout> {
         let layout = EmptyLayout {

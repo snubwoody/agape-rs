@@ -1,4 +1,5 @@
 use crate::Error::UnsupportedImageFormat;
+use crate::element::{Element, ElementKind};
 use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::widgets::Widget;
@@ -74,6 +75,16 @@ impl Widget for Image {
 
     fn children(&self) -> Vec<&dyn Widget> {
         vec![]
+    }
+
+    fn build(&self) -> Element {
+        Element {
+            id: self.id,
+            kind: ElementKind::Image {
+                data: self.data.clone(),
+                style: self.style.clone(),
+            },
+        }
     }
 
     fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget)) {}
