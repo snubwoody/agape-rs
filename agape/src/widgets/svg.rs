@@ -100,24 +100,6 @@ impl Widget for Svg {
             children: Vec::new(),
         }
     }
-
-    fn layout(&self, _: &mut Renderer) -> Box<dyn Layout> {
-        let layout = EmptyLayout {
-            id: self.id,
-            intrinsic_size: self.style.intrinsic_size,
-            ..Default::default()
-        };
-        Box::new(layout)
-    }
-    fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
-        let layout = layout.get(self.id).unwrap();
-        let size = layout.size();
-        let position = layout.position();
-        let mut svg = agape_renderer::Svg::new(self.data.clone());
-        svg.size = size;
-        svg.position = position;
-        renderer.draw_svg(svg);
-    }
 }
 
 #[cfg(test)]

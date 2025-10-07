@@ -89,23 +89,4 @@ impl Widget for Image {
     }
 
     fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget)) {}
-    fn layout(&self, _: &mut Renderer) -> Box<dyn Layout> {
-        let layout = EmptyLayout {
-            id: self.id,
-            intrinsic_size: self.style.intrinsic_size,
-            ..Default::default()
-        };
-
-        Box::new(layout)
-    }
-
-    fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
-        let layout = layout.get(self.id()).unwrap();
-        let size = layout.size();
-        let position = layout.position();
-        let mut image = agape_renderer::image::Image::new(self.data.clone());
-        image.size = size;
-        image.position = position;
-        renderer.draw_image(image);
-    }
 }

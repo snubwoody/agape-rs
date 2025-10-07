@@ -140,15 +140,8 @@ pub trait Widget {
     /// Get the `id` of the [`Widget`].
     fn id(&self) -> GlobalId;
 
+    /// Build the widget into a primitive [`Element`].
     fn build(&self) -> Element;
-
-    /// Construct a [`Layout`] to solve layout for the whole
-    /// widget tree.
-    fn layout(&self, _: &mut Renderer) -> Box<dyn Layout>;
-
-    /// Draw the widget to the screen.
-    fn render(&self, _: &mut Renderer, _: &dyn Layout);
-
     fn children(&self) -> Vec<&dyn Widget>;
 
     /// Traverse the widgets children. Note that this doesn't
@@ -164,10 +157,6 @@ pub trait Widget {
 
     fn mouse_entered(&mut self, _: &mut MessageQueue) {}
     fn mouse_left(&mut self, _: &mut MessageQueue) {}
-}
-
-pub trait IntoWidget {
-    fn build(&self) -> Box<dyn Widget>;
 }
 
 /// An iterator over a tree of widgets.

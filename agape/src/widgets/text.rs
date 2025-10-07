@@ -61,16 +61,6 @@ impl Widget for Text {
         vec![]
     }
 
-    fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
-        let size = renderer.text_size(&self.value, self.font_size as f32);
-        let layout = EmptyLayout {
-            id: self.id,
-            intrinsic_size: IntrinsicSize::from(size),
-            ..Default::default()
-        };
-        Box::new(layout)
-    }
-
     fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget)) {}
 
     fn build(&self) -> Element {
@@ -84,19 +74,6 @@ impl Widget for Text {
             kind,
             children: Vec::new(),
         }
-    }
-
-    fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
-        if self.value.is_empty() {
-            return;
-        }
-
-        let layout = layout.get(self.id).unwrap();
-        let position = layout.position();
-        let mut text = agape_renderer::Text::new(self.value.as_str());
-        text.font_size = self.font_size as f32;
-        text.position = position;
-        renderer.draw_text(text)
     }
 
     fn id(&self) -> GlobalId {

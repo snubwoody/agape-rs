@@ -28,8 +28,8 @@ pub struct State {
 impl State {
     pub fn new(widget: impl Widget + 'static) -> Self {
         let mut renderer = Renderer::new();
-        let layout = widget.layout(&mut renderer);
         let element = widget.build();
+        let layout = element.layout(&mut renderer);
         Self {
             asset_manager: AssetManager::new("."),
             message_queue: MessageQueue::default(),

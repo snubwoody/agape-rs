@@ -135,43 +135,6 @@ impl Widget for VStack {
     fn children(&self) -> Vec<&dyn Widget> {
         self.children.iter().map(|w| w.as_ref()).collect()
     }
-
-    fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
-        let children: Vec<Box<dyn Layout>> =
-            self.children.iter().map(|w| w.layout(renderer)).collect();
-        // TODO: join style and layout
-        let layout = VerticalLayout {
-            id: self.id,
-            intrinsic_size: self.style.intrinsic_size,
-            main_axis_alignment: self.layout.main_axis_alignment,
-            cross_axis_alignment: self.layout.cross_axis_alignment,
-            spacing: self.layout.spacing,
-            padding: self.layout.padding,
-            scroll_offset: self.layout.scroll_offset,
-            children,
-            ..Default::default()
-        };
-
-        Box::new(layout)
-    }
-
-    fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
-        let layout = layout.get(self.id).unwrap();
-        let size = layout.size();
-        let position = layout.position();
-        let mut rect = Rect::new()
-            .size(size.width, size.height)
-            .position(position.x, position.y)
-            .corner_radius(self.style.corner_radius);
-
-        rect.border = self.style.border.clone();
-
-        renderer.draw_rect(rect);
-        // TODO: test this
-        self.children
-            .iter()
-            .for_each(|child| child.render(renderer, layout));
-    }
 }
 
 /// Creates a [`Vstack`].

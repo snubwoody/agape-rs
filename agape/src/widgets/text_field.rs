@@ -102,25 +102,7 @@ impl Widget for TextField {
         vec![]
     }
 
-    fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
-        let child_layout = self.child.layout(renderer);
-        let mut layout = BlockLayout::new(child_layout);
-        layout.id = self.id;
-        Box::new(layout)
-    }
-
     fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget)) {}
-
-    fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
-        let layout = layout.get(self.id).unwrap();
-        let position = layout.position();
-        // TODO use Into<Position>
-        let rect = Rect::new()
-            .position(position.x, position.y)
-            .size(layout.size().width, layout.size().height);
-        renderer.draw_rect(rect);
-        self.child.render(renderer, layout);
-    }
 
     fn id(&self) -> GlobalId {
         self.id

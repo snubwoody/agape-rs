@@ -13,6 +13,20 @@ pub fn expand_widget(input: DeriveInput) -> proc_macro::TokenStream {
             fn id(&self) -> GlobalId{
                 self.id
             }
+            
+            fn build(&self) -> agape::element::Element {
+                let element = self.child.build();
+                let kind = agape::element::ElementKind::Rect {
+                    style: agape::style::Style::default(),
+                    layout: agape::element::LayoutKind::Block,
+                };
+        
+                Element {
+                    id: self.id,
+                    kind,
+                    children: vec![element],
+                }
+            }
 
             #impl_update
 

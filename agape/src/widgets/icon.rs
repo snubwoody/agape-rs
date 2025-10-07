@@ -91,38 +91,4 @@ impl Widget for Icon {
             child.traverse(f);
         }
     }
-
-    fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
-        if let Some(child) = &self.data {
-            let child_layout = child.layout(renderer);
-            let mut layout = BlockLayout::new(child_layout);
-            layout.id = self.id;
-            layout.intrinsic_size = self.style.intrinsic_size;
-            return Box::new(layout);
-        }
-
-        // FIXME
-        let layout = EmptyLayout {
-            id: self.id,
-            intrinsic_size: self.style.intrinsic_size,
-            ..Default::default()
-        };
-        Box::new(layout)
-    }
-
-    fn render(&self, renderer: &mut Renderer, layout_tree: &dyn Layout) {
-        let layout = layout_tree.get(self.id).unwrap();
-        let size = layout.size();
-        let position = layout.position();
-
-        if let Some(child) = &self.data {
-            child.render(renderer, layout_tree);
-        } else {
-            let rect = Rect::new()
-                .color(Color::BLACK)
-                .size(size.width, size.height)
-                .position(position.x, position.y);
-            renderer.draw_rect(rect);
-        }
-    }
 }

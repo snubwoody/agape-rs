@@ -114,42 +114,6 @@ impl Widget for HStack {
             w.traverse(f);
         })
     }
-
-    fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
-        let children: Vec<Box<dyn Layout>> =
-            self.children.iter().map(|w| w.layout(renderer)).collect();
-        let layout = HorizontalLayout {
-            id: self.id,
-            intrinsic_size: self.layout.intrinsic_size,
-            main_axis_alignment: self.layout.main_axis_alignment,
-            cross_axis_alignment: self.layout.cross_axis_alignment,
-            spacing: self.layout.spacing,
-            padding: self.layout.padding,
-            children,
-            ..Default::default()
-        };
-
-        Box::new(layout)
-    }
-
-    fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
-        let layout = layout.get(self.id).unwrap();
-        let size = layout.size();
-        let position = layout.position();
-        // TODO: test this
-        let mut rect = Rect::new()
-            .size(size.width, size.height)
-            .color(self.style.background_color.clone())
-            .position(position.x, position.y)
-            .corner_radius(self.style.corner_radius);
-
-        rect.border = self.style.border.clone();
-        renderer.draw_rect(rect);
-        // TODO: test this
-        self.children
-            .iter()
-            .for_each(|child| child.render(renderer, layout));
-    }
 }
 
 /// Creates an [`HStack`].  
