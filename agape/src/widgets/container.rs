@@ -50,6 +50,7 @@ impl<W: Widget> Widget for Container<W> {
             id: self.id,
             kind,
             children: vec![element],
+            on_click: None,
         }
     }
 

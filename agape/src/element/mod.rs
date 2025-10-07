@@ -1,5 +1,7 @@
+use crate::MessageQueue;
+use crate::message::MouseButtonDown;
+use crate::resources::CursorPosition;
 use crate::style::BoxStyle;
-use crate::widgets::Widget;
 use agape_core::GlobalId;
 use agape_layout::{
     BlockLayout, EmptyLayout, HorizontalLayout, IntrinsicSize, Layout, VerticalLayout,
@@ -9,28 +11,38 @@ use agape_renderer::rect::Rect;
 use image::DynamicImage;
 use std::sync::Arc;
 use usvg::Tree;
-
 // TODO: State arena
-pub trait Element1 {
-    /// Get the `id` of the [`Widget`].
-    fn id(&self) -> GlobalId;
-
-    /// Construct a [`Layout`] to solve layout for the whole
-    /// widget tree.
-    fn layout(&self, _: &mut Renderer) -> Box<dyn Layout>;
-
-    /// Draw the widget to the screen.
-    fn render(&self, _: &mut Renderer, _: &dyn Layout);
-}
-
-#[derive(Debug)]
+// TODO: impl Debug manually
 pub struct Element {
     pub id: GlobalId,
     pub kind: ElementKind,
     pub children: Vec<Element>,
+    pub on_click: Option<fn(&mut MessageQueue)>,
 }
 
 impl Element {
+    pub(crate) fn check_clicked(
+        &mut self,
+        message_queue: &mut MessageQueue,
+        layout: &dyn Layout,
+        cursor_position: CursorPosition,
+    ) {
+        if !message_queue.has::<MouseButtonDown>() || self.on_click.is_some() {
+            return;
+        }
+
+        if let Some(l) = layout.get(self.id)
+            && cursor_position.is_hovered(l)
+        {
+            self.on_click.as_mut().unwrap()(message_queue);
+        }
+        self.children
+            .iter_mut()
+            .for_each(|child| child.check_clicked(message_queue, layout, cursor_position));
+    }
+
+    pub(crate) fn check_hovered(&self) {}
+
     fn rect_layout(
         &self,
         renderer: &mut Renderer,

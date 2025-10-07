@@ -100,6 +100,7 @@ impl Widget for HStack {
                 style: self.style.clone(),
                 layout: LayoutKind::Horizontal,
             },
+            on_click: None,
             children,
         }
     }

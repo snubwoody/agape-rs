@@ -85,6 +85,7 @@ impl Widget for Image {
                 style: self.style.clone(),
             },
             children: Vec::new(),
+            on_click: None,
         }
     }
 

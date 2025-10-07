@@ -49,6 +49,7 @@ impl Widget for Icon {
                 id: self.id,
                 kind,
                 children: vec![element],
+                on_click: None,
             };
         }
 
@@ -61,6 +62,7 @@ impl Widget for Icon {
             id: self.id,
             kind,
             children: Vec::new(),
+            on_click: None,
         }
     }
 

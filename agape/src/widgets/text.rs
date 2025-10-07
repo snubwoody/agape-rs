@@ -72,6 +72,7 @@ impl Widget for Text {
         Element {
             id: self.id,
             kind,
+            on_click: None,
             children: Vec::new(),
         }
     }

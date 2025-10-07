@@ -26,7 +26,7 @@ pub struct Button<W> {
     style: BoxStyle,
     padding: u32,
     hover_callback: Option<Callback>,
-    click_callback: Option<Callback>,
+    click_callback: Option<fn(&mut MessageQueue)>,
 }
 
 impl Button<Text> {
@@ -57,8 +57,8 @@ impl<W> Button<W> {
         self
     }
 
-    pub fn on_click(mut self, f: impl FnMut(&mut MessageQueue) + Send + Sync + 'static) -> Self {
-        self.click_callback = Some(Box::new(f));
+    pub fn on_click(mut self, f: fn(&mut MessageQueue)) -> Self {
+        self.click_callback = Some(f);
         self
     }
 
@@ -86,6 +86,7 @@ impl<W: Widget> Widget for Button<W> {
             id: self.id,
             kind,
             children: vec![element],
+            on_click: self.click_callback,
         }
     }
 

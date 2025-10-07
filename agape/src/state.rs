@@ -123,6 +123,11 @@ impl State {
     }
 
     pub fn check_clicked(&mut self) {
+        self.element.check_clicked(
+            &mut self.message_queue,
+            self.layout.as_ref(),
+            self.cursor_position,
+        );
         if !self.message_queue.has::<MouseButtonDown>() {
             return;
         }

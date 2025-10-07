@@ -58,6 +58,7 @@ impl Widget for TextField {
                 style: BoxStyle::default(),
                 layout: LayoutKind::Block,
             },
+            on_click: None,
             children: vec![child],
         }
     }
