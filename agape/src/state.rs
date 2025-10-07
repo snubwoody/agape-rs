@@ -68,6 +68,7 @@ impl State {
 
     pub fn render(&mut self) {
         self.renderer.pixmap_mut().fill(tiny_skia::Color::WHITE);
+        // dbg!(&self.element);
         self.element
             .render(&mut self.renderer, self.layout.as_ref());
     }

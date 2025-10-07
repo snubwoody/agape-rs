@@ -74,28 +74,28 @@ impl VStack {
     }
 
     pub fn padding(mut self, padding: u32) -> Self {
-        self.layout.padding = padding;
+        self.style.padding = padding;
         self
     }
 
     pub fn spacing(mut self, spacing: u32) -> Self {
-        self.layout.spacing = spacing;
+        self.style.spacing = spacing;
         self
     }
 
     pub fn align_center(mut self) -> Self {
-        self.layout.main_axis_alignment = AxisAlignment::Center;
-        self.layout.cross_axis_alignment = AxisAlignment::Center;
+        self.style.main_axis_alignment = AxisAlignment::Center;
+        self.style.cross_axis_alignment = AxisAlignment::Center;
         self
     }
 
     pub fn main_axis_alignment(mut self, alignment: AxisAlignment) -> Self {
-        self.layout.main_axis_alignment = alignment;
+        self.style.main_axis_alignment = alignment;
         self
     }
 
     pub fn cross_axis_alignment(mut self, alignment: AxisAlignment) -> Self {
-        self.layout.cross_axis_alignment = alignment;
+        self.style.cross_axis_alignment = alignment;
         self
     }
 

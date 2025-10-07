@@ -23,6 +23,7 @@ pub trait Element1 {
     fn render(&self, _: &mut Renderer, _: &dyn Layout);
 }
 
+#[derive(Debug)]
 pub struct Element {
     pub id: GlobalId,
     pub kind: ElementKind,
@@ -168,9 +169,13 @@ impl Element {
                 renderer.draw_svg(svg);
             }
         }
+        self.children
+            .iter()
+            .for_each(|child| child.render(renderer, layout));
     }
 }
 
+#[derive(Debug)]
 pub enum ElementKind {
     Text {
         font_size: f32,
@@ -190,7 +195,7 @@ pub enum ElementKind {
     },
 }
 
-#[derive(PartialOrd, PartialEq, Copy, Clone)]
+#[derive(PartialOrd, PartialEq, Copy, Clone, Debug)]
 pub enum LayoutKind {
     Empty,
     Block,
