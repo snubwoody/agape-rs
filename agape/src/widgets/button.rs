@@ -1,4 +1,5 @@
 use super::{Text, Widget};
+use crate::element::{Element, ElementKind, LayoutKind};
 use crate::style::BoxStyle;
 use crate::{MessageQueue, impl_style};
 use agape_core::GlobalId;
@@ -72,6 +73,20 @@ impl<W: Widget> Widget for Button<W> {
     fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn Widget)) {
         f(&mut self.child);
         self.child.traverse(f);
+    }
+
+    fn build(&self) -> Element {
+        let element = self.child.build();
+        let kind = ElementKind::Rect {
+            style: self.style.clone(),
+            layout: LayoutKind::Block,
+        };
+
+        Element {
+            id: self.id,
+            kind,
+            children: vec![element],
+        }
     }
 
     fn children(&self) -> Vec<&dyn Widget> {

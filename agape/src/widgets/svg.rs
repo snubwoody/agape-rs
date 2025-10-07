@@ -97,6 +97,7 @@ impl Widget for Svg {
                 data: self.data.clone(),
                 style: self.style.clone(),
             },
+            children: Vec::new(),
         }
     }
 

@@ -79,7 +79,11 @@ impl Widget for Text {
             font_size: self.font_size as f32,
         };
 
-        Element { id: self.id, kind }
+        Element {
+            id: self.id,
+            kind,
+            children: Vec::new(),
+        }
     }
 
     fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {

@@ -1,3 +1,4 @@
+use crate::element::{Element, ElementKind, LayoutKind};
 use crate::state::Scroll;
 use crate::style::BoxStyle;
 use crate::{MessageQueue, impl_style, widgets::Widget};
@@ -104,6 +105,18 @@ impl VStack {
 impl Widget for VStack {
     fn id(&self) -> GlobalId {
         self.id
+    }
+
+    fn build(&self) -> Element {
+        let children = self.children.iter().map(|w| w.build()).collect();
+        Element {
+            id: self.id,
+            kind: ElementKind::Rect {
+                style: self.style.clone(),
+                layout: LayoutKind::Vertical,
+            },
+            children,
+        }
     }
 
     fn tick(&mut self, messages: &mut MessageQueue) {

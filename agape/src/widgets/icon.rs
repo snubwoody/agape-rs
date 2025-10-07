@@ -1,4 +1,5 @@
 use crate::assets::AssetManager;
+use crate::element::{Element, ElementKind, LayoutKind};
 use crate::impl_style;
 use crate::style::BoxStyle;
 use crate::widgets::{Svg, Widget};
@@ -34,6 +35,33 @@ impl Icon {
 impl Widget for Icon {
     fn id(&self) -> GlobalId {
         self.id
+    }
+
+    fn build(&self) -> Element {
+        if let Some(data) = &self.data {
+            let element = data.build();
+            let kind = ElementKind::Rect {
+                style: self.style.clone(),
+                layout: LayoutKind::Block,
+            };
+
+            return Element {
+                id: self.id,
+                kind,
+                children: vec![element],
+            };
+        }
+
+        let kind = ElementKind::Rect {
+            style: self.style.clone(),
+            layout: LayoutKind::Empty,
+        };
+
+        Element {
+            id: self.id,
+            kind,
+            children: Vec::new(),
+        }
     }
 
     fn get_assets(&mut self, assets: &AssetManager) {

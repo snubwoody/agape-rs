@@ -140,15 +140,7 @@ pub trait Widget {
     /// Get the `id` of the [`Widget`].
     fn id(&self) -> GlobalId;
 
-    fn build(&self) -> Element {
-        Element {
-            id: self.id(),
-            kind: ElementKind::Text {
-                value: String::new(),
-                font_size: 16.0,
-            },
-        }
-    }
+    fn build(&self) -> Element;
 
     /// Construct a [`Layout`] to solve layout for the whole
     /// widget tree.

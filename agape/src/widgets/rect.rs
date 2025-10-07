@@ -1,5 +1,5 @@
 use super::Widget;
-use crate::element::{Element, ElementKind};
+use crate::element::{Element, ElementKind, LayoutKind};
 use crate::impl_style;
 use crate::style::BoxStyle;
 use agape_core::{GlobalId, Position, Size};
@@ -35,8 +35,10 @@ impl Widget for Rect {
         Element {
             id: GlobalId::new(),
             kind: ElementKind::Rect {
+                layout: LayoutKind::Empty,
                 style: self.style.clone(),
             },
+            children: Vec::new(),
         }
     }
 

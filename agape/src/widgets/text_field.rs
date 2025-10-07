@@ -1,6 +1,8 @@
 use super::{Container, Text, Widget};
 use crate::MessageQueue;
+use crate::element::{Element, ElementKind, LayoutKind};
 use crate::state::{CharacterInput, NamedKeyInput};
+use crate::style::BoxStyle;
 use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
@@ -48,6 +50,18 @@ impl Default for TextField {
 }
 
 impl Widget for TextField {
+    fn build(&self) -> Element {
+        let child = self.child.build();
+        Element {
+            id: self.id,
+            kind: ElementKind::Rect {
+                style: BoxStyle::default(),
+                layout: LayoutKind::Block,
+            },
+            children: vec![child],
+        }
+    }
+
     fn click(&mut self, _: &mut MessageQueue) {
         self.focused = !self.focused
     }

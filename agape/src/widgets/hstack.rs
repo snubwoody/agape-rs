@@ -1,3 +1,4 @@
+use crate::element::{Element, ElementKind, LayoutKind};
 use crate::style::BoxStyle;
 use crate::{impl_style, widgets::Widget};
 use agape_core::GlobalId;
@@ -89,6 +90,18 @@ impl HStack {
 impl Widget for HStack {
     fn id(&self) -> GlobalId {
         self.id
+    }
+
+    fn build(&self) -> Element {
+        let children = self.children.iter().map(|w| w.build()).collect();
+        Element {
+            id: self.id,
+            kind: ElementKind::Rect {
+                style: self.style.clone(),
+                layout: LayoutKind::Horizontal,
+            },
+            children,
+        }
     }
 
     fn children(&self) -> Vec<&dyn Widget> {
