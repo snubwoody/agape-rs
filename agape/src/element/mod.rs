@@ -35,6 +35,14 @@ impl Element {
                 };
                 Box::new(layout)
             }
+            ElementKind::Rect { style } => {
+                let layout = EmptyLayout {
+                    id: self.id,
+                    intrinsic_size: style.intrinsic_size,
+                    ..Default::default()
+                };
+                Box::new(layout)
+            }
         }
     }
 
@@ -52,10 +60,25 @@ impl Element {
                 text.position = position;
                 renderer.draw_text(text)
             }
+            ElementKind::Rect { style } => {
+                let layout = layout.get(self.id).unwrap();
+                let size = layout.size();
+                let position = layout.position();
+
+                let mut rect = Rect::new()
+                    .size(size.width, size.height)
+                    .position(position.x, position.y)
+                    .corner_radius(style.corner_radius)
+                    .color(style.background_color.clone());
+
+                rect.border = style.border.clone();
+                renderer.draw_rect(rect);
+            }
         }
     }
 }
 
 pub enum ElementKind {
     Text { font_size: f32, value: String },
+    Rect { style: BoxStyle },
 }

@@ -1,4 +1,5 @@
 use super::Widget;
+use crate::element::{Element, ElementKind};
 use crate::impl_style;
 use crate::style::BoxStyle;
 use agape_core::{GlobalId, Position, Size};
@@ -28,6 +29,15 @@ impl Widget for Rect {
 
     fn children(&self) -> Vec<&dyn Widget> {
         vec![]
+    }
+
+    fn build(&self) -> Element {
+        Element {
+            id: GlobalId::new(),
+            kind: ElementKind::Rect {
+                style: self.style.clone(),
+            },
+        }
     }
 
     fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget)) {}
