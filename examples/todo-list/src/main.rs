@@ -1,25 +1,14 @@
 #![allow(non_snake_case)]
+mod messages;
 use agape::element::Element;
 use agape::widgets::{Button, TextField, VStack, Widget};
 use agape::{App, GlobalId, MessageQueue, hstack, vstack, widgets::Text};
+use messages::*;
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
     App::new(TodoList::new()).run()
 }
-
-#[derive(Clone, Debug)]
-struct AddTodo(String);
-#[derive(Clone, Copy, Debug, PartialEq)]
-struct InsertTodo;
-#[derive(Clone, Debug, Copy, PartialEq)]
-struct EnableMenu;
-#[derive(Clone, Copy, PartialEq, Debug)]
-struct DisableMenu;
-#[derive(Clone, Copy, Debug)]
-struct ClearTodos;
-#[derive(Clone, PartialEq, Debug)]
-struct InputTodo(String);
 
 struct TodoList {
     id: GlobalId,
@@ -144,7 +133,10 @@ impl Widget for Menu {
 
 fn MenuBar() -> impl Widget {
     hstack![
-        Button::new(Text::new("Add item")).on_click(|messages| messages.add(EnableMenu)),
+        Button::new(Text::new("Add item")).on_click(|messages| {
+            messages.add(EnableMenu);
+            println!("Clicked")
+        }),
         Button::new(Text::new("Clear")).on_click(|messages| messages.add(ClearTodos)),
     ]
     .spacing(12)
