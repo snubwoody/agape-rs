@@ -114,6 +114,7 @@ mod text_field;
 mod vstack;
 
 use crate::assets::AssetManager;
+use crate::element::{Element, ElementKind};
 use crate::message::MessageQueue;
 use crate::style::BoxStyle;
 use agape_core::GlobalId;
@@ -138,6 +139,16 @@ pub use vstack::*;
 pub trait Widget {
     /// Get the `id` of the [`Widget`].
     fn id(&self) -> GlobalId;
+
+    fn build(&self) -> Element {
+        Element {
+            id: self.id(),
+            kind: ElementKind::Text {
+                value: String::new(),
+                font_size: 16.0,
+            },
+        }
+    }
 
     /// Construct a [`Layout`] to solve layout for the whole
     /// widget tree.

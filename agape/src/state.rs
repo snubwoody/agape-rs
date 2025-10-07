@@ -1,5 +1,6 @@
 use crate::MessageQueue;
 use crate::assets::AssetManager;
+use crate::element::{Element, ElementKind};
 use crate::message::MouseButtonDown;
 use crate::resources::CursorPosition;
 use crate::widgets::Widget;
@@ -18,6 +19,7 @@ pub struct State {
     message_queue: MessageQueue,
     layout: Box<dyn Layout>,
     widget: Box<dyn Widget>,
+    element: Element,
     asset_manager: AssetManager,
     window_size: Size,
     renderer: Renderer,
@@ -27,12 +29,14 @@ impl State {
     pub fn new(widget: impl Widget + 'static) -> Self {
         let mut renderer = Renderer::new();
         let layout = widget.layout(&mut renderer);
+        let element = widget.build();
         Self {
             asset_manager: AssetManager::new("."),
             message_queue: MessageQueue::default(),
             cursor_position: CursorPosition::default(),
             window_size: Size::default(),
             widget: Box::new(widget),
+            element,
             layout,
             renderer,
         }
@@ -53,7 +57,9 @@ impl State {
             widget.tick(&mut self.message_queue);
             widget.get_assets(&self.asset_manager);
         });
-        let mut layout = self.widget.layout(&mut self.renderer);
+        // let element = self.widget.build();
+        let mut layout = self.element.layout(&mut self.renderer);
+        // let mut layout = self.widget.layout(&mut self.renderer);
         solve_layout(layout.as_mut(), self.window_size);
         self.layout = layout;
         self.check_hovered();
@@ -62,7 +68,8 @@ impl State {
 
     pub fn render(&mut self) {
         self.renderer.pixmap_mut().fill(tiny_skia::Color::WHITE);
-        self.widget.render(&mut self.renderer, self.layout.as_ref());
+        self.element
+            .render(&mut self.renderer, self.layout.as_ref());
     }
 
     /// Get a reference to the [`Renderer`].

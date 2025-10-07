@@ -17,6 +17,7 @@
 //! }
 //! ```
 mod assets;
+mod element;
 pub mod error;
 mod macros;
 pub mod message;

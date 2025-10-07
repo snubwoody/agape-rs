@@ -1,9 +1,9 @@
-use agape::widgets::{HStack, TextField};
+use agape::widgets::{HStack, Text, TextField};
 use agape::{App, GlobalId, Widget, hstack};
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
-    App::new(Main::new()).run()
+    App::new(Text::new("Hello world")).run()
 }
 
 #[derive(Default, Widget)]

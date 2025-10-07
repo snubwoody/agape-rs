@@ -1,4 +1,5 @@
 use super::Widget;
+use crate::element::{Element, ElementKind};
 use agape_core::GlobalId;
 use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
 use agape_renderer::Renderer;
@@ -71,6 +72,15 @@ impl Widget for Text {
     }
 
     fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget)) {}
+
+    fn build(&self) -> Element {
+        let kind = ElementKind::Text {
+            value: self.value.clone(),
+            font_size: self.font_size as f32,
+        };
+
+        Element { id: self.id, kind }
+    }
 
     fn render(&self, renderer: &mut Renderer, layout: &dyn Layout) {
         if self.value.is_empty() {
