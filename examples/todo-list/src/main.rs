@@ -134,8 +134,8 @@ impl Widget for Menu {
 fn MenuBar() -> impl Widget {
     hstack![
         Button::new(Text::new("Add item")).on_click(|messages| {
+            println!("Clicked");
             messages.add(EnableMenu);
-            println!("Clicked")
         }),
         Button::new(Text::new("Clear")).on_click(|messages| messages.add(ClearTodos)),
     ]

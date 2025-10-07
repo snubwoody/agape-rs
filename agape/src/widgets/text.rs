@@ -73,6 +73,7 @@ impl Widget for Text {
             id: self.id,
             kind,
             on_click: None,
+            label: String::from("Text"),
             children: Vec::new(),
         }
     }

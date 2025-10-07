@@ -98,6 +98,7 @@ impl Widget for Svg {
                 style: self.style.clone(),
             },
             on_click: None,
+            label: String::from("Svg"),
             children: Vec::new(),
         }
     }

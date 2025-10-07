@@ -39,6 +39,7 @@ impl Widget for Rect {
                 style: self.style.clone(),
             },
             on_click: None,
+            label: String::from("Rect"),
             children: Vec::new(),
         }
     }

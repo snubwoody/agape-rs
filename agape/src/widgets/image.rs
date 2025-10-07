@@ -84,6 +84,7 @@ impl Widget for Image {
                 data: self.data.clone(),
                 style: self.style.clone(),
             },
+            label: String::from("Button"),
             children: Vec::new(),
             on_click: None,
         }

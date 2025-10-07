@@ -85,6 +85,7 @@ impl<W: Widget> Widget for Button<W> {
         Element {
             id: self.id,
             kind,
+            label: String::from("Button"),
             children: vec![element],
             on_click: self.click_callback,
         }

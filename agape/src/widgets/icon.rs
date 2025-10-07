@@ -48,6 +48,7 @@ impl Widget for Icon {
             return Element {
                 id: self.id,
                 kind,
+                label: String::from("Icon"),
                 children: vec![element],
                 on_click: None,
             };
@@ -61,6 +62,7 @@ impl Widget for Icon {
         Element {
             id: self.id,
             kind,
+            label: String::from("Icon"),
             children: Vec::new(),
             on_click: None,
         }

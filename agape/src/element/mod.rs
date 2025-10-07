@@ -17,6 +17,8 @@ pub struct Element {
     pub id: GlobalId,
     pub kind: ElementKind,
     pub children: Vec<Element>,
+    /// Label used for debugging
+    pub label: String,
     pub on_click: Option<fn(&mut MessageQueue)>,
 }
 
@@ -33,8 +35,10 @@ impl Element {
 
         if let Some(l) = layout.get(self.id)
             && cursor_position.is_hovered(l)
+            && let Some(f) = self.on_click
         {
-            self.on_click.as_mut().unwrap()(message_queue);
+            f(message_queue);
+            // self.on_click.as_mut().unwrap()(message_queue);
         }
         self.children
             .iter_mut()

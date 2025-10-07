@@ -49,6 +49,7 @@ impl<W: Widget> Widget for Container<W> {
         Element {
             id: self.id,
             kind,
+            label: String::from("Container"),
             children: vec![element],
             on_click: None,
         }

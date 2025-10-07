@@ -115,6 +115,7 @@ impl Widget for VStack {
                 style: self.style.clone(),
                 layout: LayoutKind::Vertical,
             },
+            label: String::from("VStack"),
             on_click: None,
             children,
         }

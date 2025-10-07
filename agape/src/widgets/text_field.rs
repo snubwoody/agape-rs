@@ -59,6 +59,7 @@ impl Widget for TextField {
                 layout: LayoutKind::Block,
             },
             on_click: None,
+            label: String::from("TextField"),
             children: vec![child],
         }
     }
