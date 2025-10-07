@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
-use agape::widgets::{Button, TextField, VStack};
-use agape::{App, GlobalId, MessageQueue, Widget, hstack, vstack, widgets::Text};
+use agape::element::Element;
+use agape::widgets::{Button, TextField, VStack, Widget};
+use agape::{App, GlobalId, MessageQueue, hstack, vstack, widgets::Text};
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
@@ -20,80 +21,94 @@ struct ClearTodos;
 #[derive(Clone, PartialEq, Debug)]
 struct InputTodo(String);
 
-#[derive(Widget)]
 struct TodoList {
     id: GlobalId,
-    #[child]
-    child: VStack,
 }
 
 impl TodoList {
     pub fn new() -> Self {
-        let child = vstack![Menu::new(), Items::new(),]
-            .spacing(24)
-            .padding(16)
-            .fill()
-            .align_center();
-
         Self {
             id: GlobalId::default(),
-            child,
         }
     }
 }
 
-#[derive(Default, Widget)]
-#[interactive]
+#[derive(Default)]
 struct Items {
     id: GlobalId,
-    #[child]
-    widget: VStack,
 }
 
 impl Items {
     pub fn new() -> Self {
-        // TODO add x button to clear
-        let widget = vstack![
-            Text::new("Item 1"),
-            Text::new("Item 2"),
-            Text::new("Item 3"),
-            Text::new("Item 4"),
-        ]
-        .spacing(12);
-
         Self {
             id: GlobalId::new(),
-            widget,
         }
     }
 
     pub fn update(&mut self, messages: &mut MessageQueue) {
         if let Some(add_todo) = messages.get::<AddTodo>() {
-            self.widget.append_child(Text::new(&add_todo.0))
+            // self.widget.append_child(Text::new(&add_todo.0))
         }
 
         if messages.has::<ClearTodos>() {
-            self.widget.clear();
+            // self.widget.clear();
         }
     }
 }
 
-#[derive(Widget)]
-#[interactive]
+impl Widget for Items {
+    fn id(&self) -> GlobalId {
+        self.id
+    }
+
+    fn children(&self) -> Vec<&dyn Widget> {
+        vec![]
+    }
+
+    fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget)) {}
+
+    fn build(&self) -> Element {
+        vstack![
+            Text::new("Item 1"),
+            Text::new("Item 2"),
+            Text::new("Item 3"),
+            Text::new("Item 4"),
+        ]
+        .spacing(12)
+        .build()
+    }
+}
+
+impl Widget for TodoList {
+    fn id(&self) -> GlobalId {
+        self.id
+    }
+
+    fn children(&self) -> Vec<&dyn Widget> {
+        vec![]
+    }
+
+    fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget)) {}
+
+    fn build(&self) -> Element {
+        vstack![Menu::new(), Items::new(),]
+            .spacing(24)
+            .padding(16)
+            .fill()
+            .align_center()
+            .build()
+    }
+}
+
 struct Menu {
     id: GlobalId,
-    #[child]
-    widget: VStack,
     menu_active: bool,
 }
 
 impl Menu {
     pub fn new() -> Self {
-        let widget = vstack![MenuBar()].spacing(12);
-
         Self {
             id: GlobalId::new(),
-            widget,
             menu_active: false,
         }
     }
@@ -101,17 +116,33 @@ impl Menu {
     fn update(&mut self, messages: &mut MessageQueue) {
         if messages.has::<EnableMenu>() && !self.menu_active {
             self.menu_active = true;
-            self.widget.append_child(TodoInput::new());
+            // self.widget.append_child(TodoInput::new());
         }
 
         if messages.has::<DisableMenu>() && self.menu_active {
             self.menu_active = false;
-            self.widget.pop();
+            // self.widget.pop();
         }
     }
 }
 
-fn MenuBar() -> impl agape::widgets::Widget {
+impl Widget for Menu {
+    fn id(&self) -> GlobalId {
+        self.id
+    }
+
+    fn children(&self) -> Vec<&dyn Widget> {
+        vec![]
+    }
+
+    fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget)) {}
+
+    fn build(&self) -> Element {
+        vstack![MenuBar()].spacing(12).build()
+    }
+}
+
+fn MenuBar() -> impl Widget {
     hstack![
         Button::new(Text::new("Add item")).on_click(|messages| messages.add(EnableMenu)),
         Button::new(Text::new("Clear")).on_click(|messages| messages.add(ClearTodos)),
@@ -119,26 +150,15 @@ fn MenuBar() -> impl agape::widgets::Widget {
     .spacing(12)
 }
 
-#[derive(Widget)]
-#[interactive]
 struct TodoInput {
     id: GlobalId,
-    #[child]
-    child: VStack,
     current_todo: String,
 }
 
 impl TodoInput {
     pub fn new() -> Self {
-        let child = vstack![
-            TextField::new().on_change(|value, messages| messages.add(InputTodo(value.to_owned()))),
-            Button::new(Text::new("Add item")).on_click(|messages| messages.add(InsertTodo)),
-        ]
-        .spacing(12);
-
         Self {
             id: GlobalId::new(),
-            child,
             current_todo: String::new(),
         }
     }
@@ -153,5 +173,26 @@ impl TodoInput {
             messages.add(DisableMenu);
             self.current_todo.clear();
         }
+    }
+}
+
+impl Widget for TodoInput {
+    fn id(&self) -> GlobalId {
+        self.id
+    }
+
+    fn children(&self) -> Vec<&dyn Widget> {
+        vec![]
+    }
+
+    fn traverse(&mut self, _: &mut dyn FnMut(&mut dyn Widget)) {}
+
+    fn build(&self) -> Element {
+        vstack![
+            TextField::new().on_change(|value, messages| messages.add(InputTodo(value.to_owned()))),
+            Button::new(Text::new("Add item")).on_click(|messages| messages.add(InsertTodo)),
+        ]
+        .spacing(12)
+        .build()
     }
 }
