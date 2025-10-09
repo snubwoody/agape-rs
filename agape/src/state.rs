@@ -6,7 +6,8 @@ use crate::widgets::{StatelessWidget, Widget};
 use agape_core::{Position, Size};
 use agape_layout::{Layout, solve_layout};
 use agape_renderer::Renderer;
-use std::any::Any;
+use std::any::{Any, TypeId};
+use std::collections::HashMap;
 use std::path::Path;
 use std::sync::{Arc, Mutex, MutexGuard};
 use winit::event::{ElementState, KeyEvent};
@@ -187,11 +188,15 @@ where
     pub fn set(&self, mut f: impl FnMut(T) -> T) {
         *self.data.lock().unwrap() = f(self.get());
     }
+
+    pub fn update(&self, mut f: impl FnMut(&mut T)) {
+        f(&mut *self.data.lock().unwrap());
+    }
 }
 
 #[derive(Debug, Default)]
 pub struct Context {
-    items: Vec<Arc<Mutex<dyn Any>>>,
+    items: HashMap<TypeId, Arc<Mutex<dyn Any>>>,
 }
 
 impl Context {
@@ -200,7 +205,8 @@ impl Context {
     }
 
     pub fn insert<T: 'static>(&mut self, item: T) {
-        self.items.push(Arc::new(Mutex::new(item)));
+        self.items
+            .insert(item.type_id(), Arc::new(Mutex::new(item)));
     }
 
     pub fn get<T: 'static>(&self) -> Option<&T> {
