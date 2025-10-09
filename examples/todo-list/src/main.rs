@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+use agape::state::StateCell;
 use agape::widgets::*;
 use agape::{App, hstack, vstack};
 use std::sync::{Arc, Mutex};
@@ -8,9 +9,9 @@ fn main() -> agape::Result<()> {
     App::new(TodoList::default()).run()
 }
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 struct TodoList {
-    items: Arc<Mutex<Vec<String>>>,
+    items: StateCell<Vec<String>>,
 }
 
 impl StatelessWidget for TodoList {
@@ -18,22 +19,21 @@ impl StatelessWidget for TodoList {
 
     fn build(&self) -> Self::Widget {
         // TODO: get or init
+        let items = self.items.clone();
         let mut item_list = VStack::new().spacing(20);
-        let todo_items = self.items.clone();
-        let todo_items2 = self.items.clone();
-        // let mut items = todo_items.lock().unwrap();
-        for item in self.items.lock().unwrap().iter() {
+        for item in items.get().iter() {
             item_list.append_child(Text::new(item));
         }
+        let items2 = items.clone();
         vstack![
             hstack![
-                Button::text("Add item")
-                    .on_click(move |_| todo_items.lock().unwrap().push(String::from("New item"))),
-                Button::text("Clear").on_click(move |_| todo_items2.lock().unwrap().clear()),
+                Button::text("Add item").on_click(move |_| {
+                    items2.update(|items| items.push(String::from("New item")))
+                }),
+                Button::text("Clear").on_click(move |_| items.update(|items| items.clear())),
             ]
             .spacing(12),
             item_list,
-            // vstack![Text::new("Wash clothes"), Text::new("Take out the trash"),].spacing(20)
         ]
         .fill()
         .align_center()
