@@ -162,6 +162,12 @@ pub trait Widget {
     fn mouse_left(&mut self, _: &mut MessageQueue) {}
 }
 
+pub trait StatelessWidget {
+    type Widget: Widget;
+
+    fn build(&self) -> Self::Widget;
+}
+
 /// An iterator over a tree of widgets.
 pub struct WidgetIter<'a> {
     stack: Vec<&'a dyn Widget>,
