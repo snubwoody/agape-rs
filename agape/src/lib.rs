@@ -21,7 +21,7 @@ pub mod error;
 mod macros;
 pub mod message;
 pub mod resources;
-mod state;
+pub mod state;
 pub mod style;
 pub mod widgets;
 
@@ -35,7 +35,7 @@ use std::path::Path;
 
 use crate::message::{MouseButtonDown, MouseButtonUp};
 use crate::state::{Scroll, State};
-use crate::widgets::Widget;
+use crate::widgets::{StatelessWidget, Widget};
 pub use agape_macros::Widget;
 use pixels::{Pixels, SurfaceTexture};
 use std::sync::Arc;
@@ -51,17 +51,20 @@ use winit::{
 };
 
 /// An `App` is a single program.
-pub struct App<'app> {
+pub struct App<'app, T> {
     // The window and pixel buffer only get populated
     // when the window actually opens.
     window: Option<Arc<Window>>,
     pixels: Option<Pixels<'app>>,
-    state: State,
+    state: State<T>,
 }
 
-impl App<'_> {
+impl<T> App<'_, T>
+where
+    T: Widget + 'static,
+{
     /// Create a new app.
-    pub fn new(widget: impl Widget + 'static) -> Self {
+    pub fn new(widget: impl StatelessWidget<Widget = T> + 'static) -> Self {
         Self {
             state: State::new(widget),
             pixels: None,
@@ -97,7 +100,10 @@ impl App<'_> {
     }
 }
 
-impl ApplicationHandler for App<'_> {
+impl<T> ApplicationHandler for App<'_, T>
+where
+    T: Widget + 'static,
+{
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         info!("Initializing resources");
         let window = event_loop.create_window(Default::default()).unwrap();

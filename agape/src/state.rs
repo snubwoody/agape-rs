@@ -2,18 +2,20 @@ use crate::MessageQueue;
 use crate::assets::AssetManager;
 use crate::message::MouseButtonDown;
 use crate::resources::CursorPosition;
-use crate::widgets::Widget;
+use crate::widgets::{StatelessWidget, Widget};
 use agape_core::{Position, Size};
 use agape_layout::{Layout, solve_layout};
 use agape_renderer::Renderer;
+use std::any::Any;
 use std::path::Path;
+use std::sync::{Arc, Mutex, MutexGuard};
 use winit::event::{ElementState, KeyEvent};
 use winit::keyboard::NamedKey;
 
 #[derive(Debug, Clone, Copy, PartialOrd, PartialEq)]
 pub struct Scroll(pub f32);
 
-pub struct State {
+pub struct State<T> {
     cursor_position: CursorPosition,
     message_queue: MessageQueue,
     layout: Box<dyn Layout>,
@@ -21,11 +23,16 @@ pub struct State {
     asset_manager: AssetManager,
     window_size: Size,
     renderer: Renderer,
+    root: Box<dyn StatelessWidget<Widget = T>>,
 }
 
-impl State {
-    pub fn new(widget: impl Widget + 'static) -> Self {
+impl<T> State<T>
+where
+    T: Widget + 'static,
+{
+    pub fn new(root: impl StatelessWidget<Widget = T> + 'static) -> Self {
         let mut renderer = Renderer::new();
+        let widget = root.build();
         let layout = widget.layout(&mut renderer);
         Self {
             asset_manager: AssetManager::new("."),
@@ -34,6 +41,7 @@ impl State {
             window_size: Size::default(),
             widget: Box::new(widget),
             layout,
+            root: Box::new(root),
             renderer,
         }
     }
@@ -43,6 +51,7 @@ impl State {
     }
 
     pub fn update(&mut self) {
+        self.widget = Box::new(self.root.build());
         self.message_queue.tick();
         self.message_queue.clear();
         // Assets need to be fetched before recreating the
@@ -145,6 +154,65 @@ impl State {
         if let Some(character) = CharacterInput::from_key(&event.logical_key) {
             self.message_queue.add(character);
         }
+    }
+}
+
+#[derive(Clone)]
+pub struct StateCell<T> {
+    data: Arc<Mutex<T>>,
+}
+
+impl<T: Default> Default for StateCell<T> {
+    fn default() -> Self {
+        Self {
+            data: Arc::new(Mutex::new(T::default())),
+        }
+    }
+}
+
+impl<T> StateCell<T>
+where
+    T: Clone,
+{
+    pub fn new(data: T) -> Self {
+        Self {
+            data: Arc::new(Mutex::new(data)),
+        }
+    }
+
+    pub fn get(&self) -> T {
+        self.data.lock().unwrap().clone()
+    }
+
+    pub fn set(&self, mut f: impl FnMut(T) -> T) {
+        *self.data.lock().unwrap() = f(self.get());
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct Context {
+    items: Vec<Arc<Mutex<dyn Any>>>,
+}
+
+impl Context {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn insert<T: 'static>(&mut self, item: T) {
+        self.items.push(Arc::new(Mutex::new(item)));
+    }
+
+    pub fn get<T: 'static>(&self) -> Option<&T> {
+        // for item in &self.items {
+        //     let a = item.clone();
+        //     match item.clone().lock().unwrap().downcast_ref::<T>() {
+        //         Some(item) => return Some(item),
+        //         None => continue,
+        //     }
+        // }
+
+        None
     }
 }
 
