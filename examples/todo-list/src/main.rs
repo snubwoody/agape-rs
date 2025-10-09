@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use agape::widgets::{Button, TextField, VStack};
+use agape::widgets::{Button, HStack, StatelessWidget, TextField, VStack};
 use agape::{App, GlobalId, MessageQueue, Widget, hstack, vstack, widgets::Text};
 
 fn main() -> agape::Result<()> {
@@ -20,6 +20,20 @@ struct ClearTodos;
 #[derive(Clone, PartialEq, Debug)]
 struct InputTodo(String);
 
+struct TodoList2;
+
+impl StatelessWidget for TodoList2 {
+    type Widget = VStack;
+
+    fn build(&self) -> Self::Widget {
+        vstack![Menu::new(), Items2.build(),]
+            .spacing(24)
+            .padding(16)
+            .fill()
+            .align_center()
+    }
+}
+
 #[derive(Widget)]
 struct TodoList {
     id: GlobalId,
@@ -39,6 +53,22 @@ impl TodoList {
             id: GlobalId::default(),
             child,
         }
+    }
+}
+
+struct Items2;
+
+impl StatelessWidget for Items2 {
+    type Widget = VStack;
+
+    fn build(&self) -> Self::Widget {
+        vstack![
+            Text::new("Item 1"),
+            Text::new("Item 2"),
+            Text::new("Item 3"),
+            Text::new("Item 4"),
+        ]
+        .spacing(12)
     }
 }
 
@@ -108,6 +138,21 @@ impl Menu {
             self.menu_active = false;
             self.widget.pop();
         }
+    }
+}
+
+struct MenuBar {
+    id: GlobalId,
+}
+
+impl StatelessWidget for MenuBar {
+    type Widget = HStack;
+    fn build(&self) -> Self::Widget {
+        hstack![
+            Button::new(Text::new("Add item")).on_click(|messages| messages.add(EnableMenu)),
+            Button::new(Text::new("Clear")).on_click(|messages| messages.add(ClearTodos)),
+        ]
+        .spacing(12)
     }
 }
 
