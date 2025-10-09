@@ -1,0 +1,19 @@
+[package]
+name = "agape_cli"
+version = "0.1.0"
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+categories.workspace = true
+keywords.workspace = true
+
+[dependencies]
+clap = { version = "4.5.48", features = ["derive"] }
+
+[[bin]]
+name = "agape"
+path = "./src/main.rs"
+
+[lints]
+workspace = true
