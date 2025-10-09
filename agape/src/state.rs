@@ -24,6 +24,7 @@ pub struct State<T> {
     asset_manager: AssetManager,
     window_size: Size,
     renderer: Renderer,
+    context: Context,
     root: Box<dyn StatelessWidget<Widget = T>>,
 }
 
@@ -32,8 +33,9 @@ where
     T: Widget + 'static,
 {
     pub fn new(root: impl StatelessWidget<Widget = T> + 'static) -> Self {
+        let mut context = Context::new();
         let mut renderer = Renderer::new();
-        let widget = root.build();
+        let widget = root.build(&mut context);
         let layout = widget.layout(&mut renderer);
         Self {
             asset_manager: AssetManager::new("."),
@@ -42,6 +44,7 @@ where
             window_size: Size::default(),
             widget: Box::new(widget),
             layout,
+            context,
             root: Box::new(root),
             renderer,
         }
@@ -52,7 +55,7 @@ where
     }
 
     pub fn update(&mut self) {
-        self.widget = Box::new(self.root.build());
+        self.widget = Box::new(self.root.build(&mut self.context));
         self.message_queue.tick();
         self.message_queue.clear();
         // Assets need to be fetched before recreating the
@@ -181,6 +184,10 @@ where
         }
     }
 
+    pub fn is<S>(&self) {
+        let a = self.data.lock().unwrap();
+    }
+
     pub fn get(&self) -> T {
         self.data.lock().unwrap().clone()
     }
@@ -196,7 +203,7 @@ where
 
 #[derive(Debug, Default)]
 pub struct Context {
-    items: HashMap<TypeId, Arc<Mutex<dyn Any>>>,
+    items: HashMap<TypeId, Box<dyn Any>>,
 }
 
 impl Context {
@@ -204,21 +211,27 @@ impl Context {
         Self::default()
     }
 
-    pub fn insert<T: 'static>(&mut self, item: T) {
+    pub fn insert<T: Clone + 'static>(&mut self, item: T) {
         self.items
-            .insert(item.type_id(), Arc::new(Mutex::new(item)));
+            .insert(item.type_id(), Box::new(StateCell::new(item)));
     }
 
-    pub fn get<T: 'static>(&self) -> Option<&T> {
-        // for item in &self.items {
-        //     let a = item.clone();
-        //     match item.clone().lock().unwrap().downcast_ref::<T>() {
-        //         Some(item) => return Some(item),
-        //         None => continue,
-        //     }
-        // }
+    pub fn get<T: Clone + 'static>(&self) -> StateCell<T> {
+        self.items
+            .get(&TypeId::of::<T>())
+            .and_then(|item| item.downcast_ref::<StateCell<T>>())
+            .cloned()
+            .unwrap()
+    }
 
-        None
+    pub fn get_or_init<T: Clone + 'static>(&mut self, f: impl FnOnce() -> T) -> StateCell<T> {
+        match self.items.get(&TypeId::of::<T>()) {
+            Some(item) => item.downcast_ref::<StateCell<T>>().cloned().unwrap(),
+            None => {
+                self.insert(f());
+                self.get::<T>()
+            }
+        }
     }
 }
 
