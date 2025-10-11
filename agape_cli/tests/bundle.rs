@@ -6,7 +6,7 @@ use std::fs;
 use std::fs::read_dir;
 use std::path::PathBuf;
 use std::process::Command;
-use tempfile::TempDir;
+use tempfile::{TempDir, tempdir};
 
 /// Set up a cargo project for testing.
 fn setup_cargo() -> Result<(TempDir, PathBuf)> {
@@ -55,5 +55,26 @@ fn bundle_release_bin() -> Result<()> {
     #[cfg(target_os = "windows")]
     dist.set_extension("exe");
     assert!(fs::exists(dist)?);
+    Ok(())
+}
+
+#[test]
+fn bundle_assets() -> Result<()> {
+    let (_dir, app) = setup_cargo()?;
+    let asset_dir = app.join("assets");
+
+    fs::create_dir(&asset_dir)?;
+    fs::write(asset_dir.join("index.html"), "")?;
+    fs::write(asset_dir.join("img.png"), "")?;
+    bundle_app(&app)?;
+    let dist_assets = app.join("dist").join("assets");
+
+    let entries = read_dir(&dist_assets)?
+        .map(|e| e.unwrap())
+        .collect::<Vec<_>>();
+
+    assert_eq!(entries.len(), 2);
+    assert_eq!(entries[0].path(), dist_assets.join("img.png"));
+    assert_eq!(entries[1].path(), dist_assets.join("index.html"));
     Ok(())
 }

@@ -92,15 +92,10 @@ fn copy_assets<P: AsRef<Path>, Q: AsRef<Path>>(src: P, dest: Q) -> Result<()> {
 
     for entry in fs::read_dir(&src)? {
         let entry = entry?;
-        // dbg!(entry.path().display());
         if entry.file_type()?.is_dir() {
-            // dbg!(&dest.join(entry.file_name()));
-            // let new_dir = src.as_ref().join(entry.file_name());
             copy_assets(entry.path(), &dest.join(entry.file_name()))?;
         } else {
             let dist_path = dest.join(entry.file_name());
-            dbg!(&dist_path);
-            dbg!(&entry.path());
             fs::copy(entry.path(), dist_path)?;
         }
     }
