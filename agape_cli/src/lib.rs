@@ -5,10 +5,8 @@ pub use crate::error::Result;
 use crate::parse::CargoMetadata;
 use clap::{Parser, Subcommand};
 pub use error::CliError;
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-use std::path::{Path, PathBuf};
-use std::{fs, io};
+use std::fs;
+use std::path::Path;
 
 #[derive(Parser, Debug)]
 #[command(version, about)]
@@ -73,9 +71,9 @@ pub fn bundle_app(path: impl AsRef<Path>, project: Option<String>) -> Result<()>
     fs::create_dir_all(&dist)?;
 
     let output = std::process::Command::new("cargo")
-        .args(&["build", "--release"])
+        .args(["build", "--release"])
         .stdout(std::process::Stdio::piped())
-        .current_dir(&path)
+        .current_dir(path)
         .status()?;
 
     if !output.success() {
@@ -98,12 +96,12 @@ fn copy_assets<P: AsRef<Path>, Q: AsRef<Path>>(src: P, dest: Q) -> Result<()> {
         return Ok(());
     }
     let dest = dest.as_ref();
-    fs::create_dir_all(&dest)?;
+    fs::create_dir_all(dest)?;
 
     for entry in fs::read_dir(&src)? {
         let entry = entry?;
         if entry.file_type()?.is_dir() {
-            copy_assets(entry.path(), &dest.join(entry.file_name()))?;
+            copy_assets(entry.path(), dest.join(entry.file_name()))?;
         } else {
             let dist_path = dest.join(entry.file_name());
             fs::copy(entry.path(), dist_path)?;
@@ -143,7 +141,7 @@ mod test {
         let asset_dir = temp.path().join("assets");
         let dist_dir = temp.path().join("dist");
 
-        fs::create_dir_all(&asset_dir.join("images"))?;
+        fs::create_dir_all(asset_dir.join("images"))?;
         fs::write(asset_dir.join("index.html"), "")?;
         fs::write(asset_dir.join("images").join("img.png"), "")?;
         copy_assets(asset_dir, &dist_dir)?;
@@ -153,10 +151,16 @@ mod test {
             .collect::<Vec<_>>();
 
         assert_eq!(assets.len(), 2);
-        assert_eq!(assets[0].path(), dist_dir.join("images"));
-        assert_eq!(assets[1].path(), dist_dir.join("index.html"));
+        assets
+            .iter()
+            .find(|e| e.path() == dist_dir.join("images"))
+            .unwrap();
+        assets
+            .iter()
+            .find(|e| e.path() == dist_dir.join("index.html"))
+            .unwrap();
 
-        let images = fs::read_dir(&assets[0].path())?
+        let images = fs::read_dir(assets[0].path())?
             .map(|e| e.unwrap())
             .collect::<Vec<_>>();
         assert_eq!(images.len(), 1);

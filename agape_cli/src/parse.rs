@@ -1,6 +1,5 @@
 use crate::{CliError, Result};
 use serde::Deserialize;
-use serde_json::Value;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -18,7 +17,7 @@ impl CargoMetadata {
 
     pub fn from_path(path: impl AsRef<Path>) -> Result<Self> {
         let output = Command::new("cargo")
-            .args(&["metadata", "--format-version", "1", "--no-deps"])
+            .args(["metadata", "--format-version", "1", "--no-deps"])
             .current_dir(&path)
             .output()?;
 
@@ -34,7 +33,7 @@ impl CargoMetadata {
             ));
         }
 
-        if self.packages.len() < 1 {
+        if self.packages.is_empty() {
             return Err(CliError::generic("No packages were found"));
         }
 
@@ -61,8 +60,8 @@ impl CargoMetadata {
 
 #[derive(Debug, Deserialize)]
 pub struct CargoPackage {
-    name: String,
-    version: String,
+    pub name: String,
+    pub version: String,
     targets: Vec<CargoTarget>,
 }
 

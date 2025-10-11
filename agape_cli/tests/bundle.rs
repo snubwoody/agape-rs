@@ -1,7 +1,5 @@
 use agape_cli::parse::CargoMetadata;
 use agape_cli::{Result, bundle_app};
-use serde::Deserialize;
-use serde_json::Value;
 use std::fs;
 use std::fs::read_dir;
 use std::path::PathBuf;
@@ -13,7 +11,7 @@ fn setup_cargo() -> Result<(TempDir, PathBuf)> {
     let dir = tempdir()?;
     let app_path = dir.path().join("test-app");
     let output = Command::new("cargo")
-        .args(&["new", "test-app"])
+        .args(["new", "test-app"])
         .current_dir(dir.path())
         .output()?;
 
