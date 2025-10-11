@@ -59,7 +59,7 @@ fn run_app(project: &Option<String>) {
 
 pub fn bundle_app(path: impl AsRef<Path>, project: Option<String>) -> Result<()> {
     let metadata = CargoMetadata::from_path(&path)?;
-    let mut bin = match project {
+    let bin = match project {
         Some(p) => p,
         None => metadata.get_default_bin()?,
     };
@@ -81,6 +81,7 @@ pub fn bundle_app(path: impl AsRef<Path>, project: Option<String>) -> Result<()>
     }
 
     #[cfg(target_os = "windows")]
+    let mut bin = bin.clone();
     bin.push_str(".exe");
     fs::copy(metadata.get_release_bin(&bin).unwrap(), dist.join(bin))?;
 
@@ -151,7 +152,7 @@ mod test {
             .collect::<Vec<_>>();
 
         assert_eq!(assets.len(), 2);
-        assets
+        let image_dir = assets
             .iter()
             .find(|e| e.path() == dist_dir.join("images"))
             .unwrap();
@@ -160,7 +161,7 @@ mod test {
             .find(|e| e.path() == dist_dir.join("index.html"))
             .unwrap();
 
-        let images = fs::read_dir(assets[0].path())?
+        let images = fs::read_dir(image_dir.path())?
             .map(|e| e.unwrap())
             .collect::<Vec<_>>();
         assert_eq!(images.len(), 1);

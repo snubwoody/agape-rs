@@ -26,7 +26,7 @@ fn setup_cargo() -> Result<(TempDir, PathBuf)> {
 fn get_default_bin_name() -> Result<()> {
     let (_dir, app_path) = setup_cargo()?;
     let metadata = CargoMetadata::from_path(&app_path)?;
-    let bin = metadata.get_default_bin().unwrap();
+    let bin = metadata.get_default_bin()?;
     assert_eq!(bin, "test-app");
     Ok(())
 }
@@ -35,11 +35,10 @@ fn get_default_bin_name() -> Result<()> {
 fn get_release_bin() -> Result<()> {
     let (_dir, app_path) = setup_cargo()?;
     let metadata = CargoMetadata::from_path(&app_path)?;
-    let bin = metadata
-        .get_release_bin(&metadata.get_default_bin()?)
-        .unwrap();
-    let mut release_name = metadata.target_directory().join("release").join("test-app");
+    let bin = metadata.get_release_bin(&metadata.get_default_bin()?)?;
+    let release_name = metadata.target_directory().join("release").join("test-app");
     #[cfg(target_os = "windows")]
+    let mut release_name = release_name.clone();
     release_name.set_extension("exe");
     assert_eq!(bin, release_name);
     Ok(())
@@ -51,8 +50,9 @@ fn get_release_bin() -> Result<()> {
 fn bundle_release_bin() -> Result<()> {
     let (_dir, app) = setup_cargo()?;
     bundle_app(&app, None)?;
-    let mut dist = app.join("dist").join("test-app");
+    let dist = app.join("dist").join("test-app");
     #[cfg(target_os = "windows")]
+    let mut dist = dist.clone();
     dist.set_extension("exe");
     assert!(fs::exists(dist)?);
     Ok(())
