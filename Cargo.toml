@@ -16,7 +16,7 @@ members = [
     "agape_core",
     "agape_layout",
     "agape_renderer",
-    "examples/*",
+    "examples/*", "agape_cli",
 ]
 
 [profile.bench]

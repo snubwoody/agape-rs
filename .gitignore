@@ -1,5 +1,6 @@
-# Cargo output
+# Output
 target/
+dist/
 
 # IDE settings
 .idea/

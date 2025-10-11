@@ -1,0 +1,26 @@
+[package]
+name = "agape_cli"
+version = "0.1.0"
+description = "Command line utility for Agape"
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+categories.workspace = true
+keywords.workspace = true
+
+[dependencies]
+clap = { version = "4.5.48", features = ["derive"] }
+serde_json = "1.0.145"
+serde = { version = "1.0.228", features = ["derive"] }
+thiserror.workspace = true
+tempfile.workspace = true
+
+[[bin]]
+name = "agape"
+path = "bin/cli.rs"
+
+[lints]
+workspace = true
+
+# TODO add targets as features?
