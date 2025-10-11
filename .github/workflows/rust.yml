@@ -17,8 +17,8 @@ jobs:
       - name: Check semver
         uses: obi1kenobi/cargo-semver-checks-action@v2
         with:
-          # TODO: remove after first release
-          exclude: agape_renderer
+          # TODO: Remove after first release
+          exclude: agape_cli
   clippy:
     runs-on: ubuntu-latest
     steps:
@@ -41,6 +41,7 @@ jobs:
         run: cargo fmt --check
   test:
     strategy:
+      fail-fast: false
       matrix:
         os: [ 'ubuntu-latest','macos-latest','windows-latest' ]
     runs-on: ${{matrix.os}}
