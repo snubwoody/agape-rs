@@ -1,0 +1,5 @@
+[package]
+name = "File explorer"
+
+[assets]
+path = "assets"
