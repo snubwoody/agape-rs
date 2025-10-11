@@ -29,7 +29,11 @@ enum Command {
     // TODO: add architecture
     #[command()]
     /// Bundle your application.
-    Bundle,
+    Bundle {
+        /// The project to run
+        #[arg(short, long)]
+        project: Option<String>,
+    },
 }
 
 pub fn run() -> Result<()> {
@@ -37,7 +41,7 @@ pub fn run() -> Result<()> {
 
     match args.command {
         Command::Run { project } => run_app(&project),
-        Command::Bundle => bundle_app(".")?,
+        Command::Bundle { project } => bundle_app(".", project)?,
     }
 
     Ok(())
@@ -49,32 +53,38 @@ fn run_app(project: &Option<String>) {
         args.push("-p");
         args.push(project);
     }
-    let cmd = std::process::Command::new("cargo")
+    std::process::Command::new("cargo")
         .args(&args)
         .status()
         .expect("Failed to run app");
 }
 
-pub fn bundle_app(path: impl AsRef<Path>) -> Result<()> {
-    let path = path.as_ref();
+pub fn bundle_app(path: impl AsRef<Path>, project: Option<String>) -> Result<()> {
     let metadata = CargoMetadata::from_path(&path)?;
+    let mut bin = match project {
+        Some(p) => p,
+        None => metadata.get_default_bin()?,
+    };
+
+    println!("Bundling project");
+
+    let path = path.as_ref();
     let dist = path.join("dist");
     fs::create_dir_all(&dist)?;
 
-    /// TODO: redirect cargo output
     let output = std::process::Command::new("cargo")
         .args(&["build", "--release"])
+        .stdout(std::process::Stdio::piped())
         .current_dir(&path)
-        .output()?;
-    if !output.status.success() {
-        // TODO: return result instead
-        let error = String::from_utf8_lossy(&output.stderr);
-        panic!("{}", error);
+        .status()?;
+
+    if !output.success() {
+        panic!("Failed to build project");
     }
-    let mut bin = metadata.get_default_bin().unwrap();
+
     #[cfg(target_os = "windows")]
     bin.push_str(".exe");
-    fs::copy(metadata.get_release_bin().unwrap(), dist.join(bin))?;
+    fs::copy(metadata.get_release_bin(&bin).unwrap(), dist.join(bin))?;
 
     copy_assets(path.join("assets"), path.join("dist").join("assets"))?;
     println!("Bundled assets");

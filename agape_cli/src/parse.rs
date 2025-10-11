@@ -1,4 +1,4 @@
-use crate::Result;
+use crate::{CliError, Result};
 use serde::Deserialize;
 use serde_json::Value;
 use std::path::{Path, PathBuf};
@@ -27,26 +27,35 @@ impl CargoMetadata {
     }
 
     /// Get the name of the default binary.
-    pub fn get_default_bin(&self) -> Option<String> {
-        // TODO: check if there are multiple packages
-        let package = self.packages.first()?;
+    pub fn get_default_bin(&self) -> Result<String> {
+        if self.packages.len() > 1 {
+            return Err(CliError::generic(
+                "Failed to find a default package, please specific which package to use",
+            ));
+        }
+
+        if self.packages.len() < 1 {
+            return Err(CliError::generic("No packages were found"));
+        }
+
+        let package = self.packages.first().unwrap();
         let default_target = package
             .targets
             .iter()
-            .find(|t| t.kind.contains(&"bin".to_string()))?;
+            .find(|t| t.kind.contains(&"bin".to_string()))
+            .unwrap();
 
-        Some(default_target.name.clone())
+        Ok(default_target.name.clone())
     }
 
     /// Get the path of the release binary.
-    pub fn get_release_bin(&self) -> Option<PathBuf> {
-        let default_bin = self.get_default_bin()?;
-        let mut path = self.target_directory.join("release").join(default_bin);
+    pub fn get_release_bin(&self, name: &str) -> Result<PathBuf> {
+        let mut path = self.target_directory.join("release").join(name);
 
         #[cfg(target_os = "windows")]
         path.set_extension("exe");
 
-        Some(path)
+        Ok(path)
     }
 }
 
@@ -62,6 +71,3 @@ pub struct CargoTarget {
     kind: Vec<String>,
     name: String,
 }
-
-/// Locate the release binary for the project.
-fn find_release_bin() {}

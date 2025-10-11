@@ -10,7 +10,7 @@ use tempfile::{TempDir, tempdir};
 
 /// Set up a cargo project for testing.
 fn setup_cargo() -> Result<(TempDir, PathBuf)> {
-    let dir = tempfile::tempdir()?;
+    let dir = tempdir()?;
     let app_path = dir.path().join("test-app");
     let output = Command::new("cargo")
         .args(&["new", "test-app"])
@@ -37,7 +37,9 @@ fn get_default_bin_name() -> Result<()> {
 fn get_release_bin() -> Result<()> {
     let (_dir, app_path) = setup_cargo()?;
     let metadata = CargoMetadata::from_path(&app_path)?;
-    let bin = metadata.get_release_bin().unwrap();
+    let bin = metadata
+        .get_release_bin(&metadata.get_default_bin()?)
+        .unwrap();
     let mut release_name = metadata.target_directory().join("release").join("test-app");
     #[cfg(target_os = "windows")]
     release_name.set_extension("exe");
@@ -50,7 +52,7 @@ fn get_release_bin() -> Result<()> {
 #[test]
 fn bundle_release_bin() -> Result<()> {
     let (_dir, app) = setup_cargo()?;
-    bundle_app(&app)?;
+    bundle_app(&app, None)?;
     let mut dist = app.join("dist").join("test-app");
     #[cfg(target_os = "windows")]
     dist.set_extension("exe");
@@ -66,7 +68,7 @@ fn bundle_assets() -> Result<()> {
     fs::create_dir(&asset_dir)?;
     fs::write(asset_dir.join("index.html"), "")?;
     fs::write(asset_dir.join("img.png"), "")?;
-    bundle_app(&app)?;
+    bundle_app(&app, None)?;
     let dist_assets = app.join("dist").join("assets");
 
     let entries = read_dir(&dist_assets)?
