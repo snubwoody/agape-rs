@@ -48,7 +48,6 @@ impl CargoMetadata {
     }
 
     /// Get the path of the release binary.
-    #[cfg(target_os = "windows")]
     pub fn get_release_bin(&self, name: &str) -> Result<PathBuf> {
         #[cfg(windows)]
         let path = self.get_release_bin_windows(name)?;
