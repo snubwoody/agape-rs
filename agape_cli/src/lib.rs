@@ -80,9 +80,12 @@ pub fn bundle_app(path: impl AsRef<Path>, project: Option<String>) -> Result<()>
         panic!("Failed to build project");
     }
 
-    #[cfg(target_os = "windows")]
-    let mut bin = bin.clone();
-    bin.push_str(".exe");
+    let bin = bin.clone();
+    if cfg!(target_os = "windows") {
+        let mut bin = bin.clone();
+        bin.push_str(".exe");
+    }
+
     fs::copy(metadata.get_release_bin(&bin).unwrap(), dist.join(bin))?;
 
     copy_assets(path.join("assets"), path.join("dist").join("assets"))?;

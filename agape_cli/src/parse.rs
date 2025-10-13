@@ -50,10 +50,11 @@ impl CargoMetadata {
     /// Get the path of the release binary.
     pub fn get_release_bin(&self, name: &str) -> Result<PathBuf> {
         let path = self.target_directory.join("release").join(name);
-
-        #[cfg(target_os = "windows")]
-        let mut path = path.clone();
-        path.set_extension("exe");
+        let path = path.clone();
+        if cfg!(target_os = "windows") {
+            let mut path = path.clone();
+            path.set_extension("exe");
+        }
 
         Ok(path)
     }
