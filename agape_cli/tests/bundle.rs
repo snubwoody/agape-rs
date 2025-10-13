@@ -93,7 +93,13 @@ fn bundle_assets() -> Result<()> {
         .collect::<Vec<_>>();
 
     assert_eq!(entries.len(), 2);
-    assert_eq!(entries[0].path(), dist_assets.join("img.png"));
-    assert_eq!(entries[1].path(), dist_assets.join("index.html"));
+    entries
+        .iter()
+        .find(|e| e.path() == dist_assets.join("index.html"))
+        .unwrap();
+    entries
+        .iter()
+        .find(|e| e.path() == dist_assets.join("img.png"))
+        .unwrap();
     Ok(())
 }
