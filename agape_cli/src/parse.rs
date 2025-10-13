@@ -48,14 +48,26 @@ impl CargoMetadata {
     }
 
     /// Get the path of the release binary.
+    #[cfg(target_os = "windows")]
     pub fn get_release_bin(&self, name: &str) -> Result<PathBuf> {
-        let path = self.target_directory.join("release").join(name);
-        let path = path.clone();
-        if cfg!(target_os = "windows") {
-            let mut path = path.clone();
-            path.set_extension("exe");
-        }
+        #[cfg(windows)]
+        let path = self.get_release_bin_windows(name)?;
+        #[cfg(not(windows))]
+        let path = self.get_release_bin_unix(name)?;
+        Ok(path)
+    }
 
+    /// Get the path of the release binary.
+    #[cfg(target_os = "windows")]
+    pub fn get_release_bin_windows(&self, name: &str) -> Result<PathBuf> {
+        let mut path = self.target_directory.join("release").join(name);
+        path.set_extension("exe");
+        Ok(path)
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    pub fn get_release_bin_unix(&self, name: &str) -> Result<PathBuf> {
+        let path = self.target_directory.join("release").join(name);
         Ok(path)
     }
 }
