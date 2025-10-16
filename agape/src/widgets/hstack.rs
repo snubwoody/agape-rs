@@ -107,7 +107,7 @@ impl Widget for HStack {
             self.children.iter().map(|w| w.layout(renderer)).collect();
         let layout = HorizontalLayout {
             id: self.id,
-            intrinsic_size: self.layout.intrinsic_size,
+            intrinsic_size: self.style.intrinsic_size,
             main_axis_alignment: self.layout.main_axis_alignment,
             cross_axis_alignment: self.layout.cross_axis_alignment,
             spacing: self.layout.spacing,

@@ -115,6 +115,7 @@ mod vstack;
 
 use crate::assets::AssetManager;
 use crate::message::MessageQueue;
+use crate::state::Context;
 use agape_core::GlobalId;
 use agape_layout::Layout;
 use agape_renderer::Renderer;
@@ -160,6 +161,12 @@ pub trait Widget {
 
     fn mouse_entered(&mut self, _: &mut MessageQueue) {}
     fn mouse_left(&mut self, _: &mut MessageQueue) {}
+}
+
+pub trait StatelessWidget {
+    type Widget: Widget;
+
+    fn build(&self, ctx: &mut Context) -> Self::Widget;
 }
 
 /// An iterator over a tree of widgets.
