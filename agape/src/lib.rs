@@ -5,16 +5,22 @@
 //! to the screen. To get started create an [`App`] with a root widget.
 //!
 //! ```no_run
-//! use agape::{App,widgets::*,Error};
+//! use agape::{App,widgets::*,Error,state::Context};
 //! fn main() -> Result<(),Error>{
-//!     App::new(Home())
+//!     App::new(Home)
 //!         .run()
 //! }
 //!
-//! fn Home() -> impl Widget{
-//!     Text::new("Hello!!")
-//!         .font_size(24)
+//! struct Home;
+//!
+//! impl StatelessWidget for Home{
+//!     type Widget = Text;
+//!
+//!     fn build(&self, ctx: &mut Context) -> Self::Widget {
+//!        Text::new("Hello world")
+//!    }
 //! }
+//!
 //! ```
 mod assets;
 pub mod error;
