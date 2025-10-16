@@ -1,9 +1,7 @@
-use crate::FileInfo;
 use crate::ui::DirState;
-use agape::state::{Context, StateCell};
+use agape::hstack;
+use agape::state::Context;
 use agape::widgets::*;
-use agape::{Color, hstack};
-use std::fs;
 
 #[derive(Debug, Clone, Default)]
 pub struct MenuBar;

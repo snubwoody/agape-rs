@@ -1,6 +1,6 @@
 mod menu_bar;
 use crate::FileInfo;
-use agape::state::{Context, StateCell};
+use agape::state::Context;
 use agape::widgets::*;
 use agape::{hstack, vstack};
 use menu_bar::MenuBar;
@@ -10,7 +10,6 @@ use std::fs;
 pub struct DirState {
     previous_dir: Option<FileInfo>,
     entries: Vec<FileInfo>,
-    next_dir: Option<FileInfo>,
 }
 
 impl DirState {
@@ -25,7 +24,6 @@ impl DirState {
         Self {
             previous_dir: Some(entries[0].clone()),
             entries,
-            next_dir: None,
         }
     }
 
@@ -58,7 +56,7 @@ impl StatelessWidget for Page {
     type Widget = VStack;
 
     fn build(&self, ctx: &mut Context) -> Self::Widget {
-        ctx.get_or_init(|| DirState::new());
+        ctx.get_or_init(DirState::new);
         vstack![MenuBar.build(ctx), Directories.build(ctx)]
             .fill()
             .spacing(12)
@@ -72,7 +70,7 @@ impl StatelessWidget for Directories {
     type Widget = VStack;
 
     fn build(&self, ctx: &mut Context) -> Self::Widget {
-        let state = ctx.get_or_init(|| DirState::new());
+        let state = ctx.get_or_init(DirState::new);
         // dbg!(&state.get().entries[0]);
         let mut vstack = VStack::new().spacing(16);
         for entry in state.get().entries {
@@ -90,19 +88,6 @@ struct DirectoryEntry {
 impl DirectoryEntry {
     pub fn new(entry: FileInfo) -> Self {
         Self { entry }
-    }
-
-    fn update_entry(entry: FileInfo, entries: StateCell<Vec<FileInfo>>) {
-        if !entry.is_dir {
-            return;
-        }
-
-        entries.update(|entries| entries.clear());
-        for entry in fs::read_dir(entry.path).unwrap() {
-            let entry = entry.unwrap();
-            let info = FileInfo::from(entry);
-            entries.update(move |entries| entries.push(info.clone()));
-        }
     }
 }
 

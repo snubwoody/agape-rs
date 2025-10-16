@@ -1,9 +1,6 @@
-use agape::state::StateCell;
-use agape::widgets::{Button, HStack, StatelessWidget, TextField, VStack, *};
-use agape::{App, GlobalId, Widget, hstack, vstack};
-use std::cell::{Cell, RefCell};
-use std::rc::Rc;
-use std::sync::{Arc, Mutex};
+use agape::state::{Context, StateCell};
+use agape::widgets::{Button, StatelessWidget, VStack, *};
+use agape::{App, vstack};
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
@@ -18,7 +15,7 @@ struct Page {
 impl StatelessWidget for Page {
     type Widget = VStack;
 
-    fn build(&self) -> Self::Widget {
+    fn build(&self, _: &mut Context) -> Self::Widget {
         let count = self.count.clone();
         vstack![
             Text::new(&format!("{}", self.count.get())),

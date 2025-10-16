@@ -9,7 +9,7 @@ use agape_renderer::Renderer;
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
 use std::path::Path;
-use std::sync::{Arc, Mutex, MutexGuard};
+use std::sync::{Arc, Mutex};
 use winit::event::{ElementState, KeyEvent};
 use winit::keyboard::NamedKey;
 
@@ -182,10 +182,6 @@ where
         Self {
             data: Arc::new(Mutex::new(data)),
         }
-    }
-
-    pub fn is<S>(&self) {
-        let a = self.data.lock().unwrap();
     }
 
     pub fn get(&self) -> T {

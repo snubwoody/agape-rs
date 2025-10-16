@@ -1,8 +1,7 @@
 #![allow(non_snake_case)]
-use agape::state::StateCell;
+use agape::state::{Context, StateCell};
 use agape::widgets::*;
 use agape::{App, hstack, vstack};
-use std::sync::{Arc, Mutex};
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
@@ -17,7 +16,7 @@ struct TodoList {
 impl StatelessWidget for TodoList {
     type Widget = VStack;
 
-    fn build(&self) -> Self::Widget {
+    fn build(&self, _: &mut Context) -> Self::Widget {
         // TODO: get or init
         let items = self.items.clone();
         let mut item_list = VStack::new().spacing(20);

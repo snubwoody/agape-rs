@@ -1,16 +1,12 @@
-use agape::state::StateCell;
-use agape::{App, hstack, widgets::*};
+use agape::App;
 use std::fs;
 use std::path::PathBuf;
 mod ui;
 use crate::ui::Page;
-use ui::Directories;
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
-    App::new(Page::default())
-        .assets("examples/file-explorer/assets")
-        .run()
+    App::new(Page).assets("examples/file-explorer/assets").run()
 }
 
 #[derive(Debug, Clone)]
