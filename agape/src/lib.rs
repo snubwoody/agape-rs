@@ -79,8 +79,19 @@ where
     }
 
     pub fn assets(mut self, path: impl AsRef<Path>) -> Self {
+        // TODO: add config file to load fonts and assets
         self.state.asset_dir(path);
         self
+    }
+
+    pub fn load_font(mut self, path: impl AsRef<Path>) -> Result<()> {
+        self.state.renderer_mut().load_font_file(path)?;
+        Ok(())
+    }
+
+    pub fn load_font_dir(mut self, path: impl AsRef<Path>) -> Result<()> {
+        self.state.renderer_mut().load_fonts_dir(path);
+        Ok(())
     }
 
     fn render(&mut self) {

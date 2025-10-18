@@ -1,8 +1,10 @@
 use agape_core::{Position, Size};
-use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, Shaping, SwashCache};
+use cosmic_text::{Attrs, Buffer, Family, FontSystem, Metrics, Shaping, SwashCache};
 use image::RgbaImage;
 use tiny_skia::{IntSize, Pixmap, PixmapPaint, Transform};
+use usvg::FontFamily;
 
+// TODO: add line height
 #[derive(Clone, PartialOrd, PartialEq, Debug, Default)]
 pub struct Text {
     pub content: String,
@@ -65,4 +67,8 @@ impl Text {
             None,
         );
     }
+}
+
+pub struct FontQuery<'a> {
+    families: Vec<cosmic_text::Family<'a>>,
 }
