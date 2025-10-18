@@ -1,5 +1,4 @@
-use agape_core::Color;
-use agape_renderer::{FontQuery, Renderer, Text};
+use agape_renderer::{Renderer, Text};
 use cosmic_text::fontdb::Query;
 use cosmic_text::{Family, Weight};
 

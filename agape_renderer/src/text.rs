@@ -2,7 +2,6 @@ use agape_core::{Color, IntoColor, Position, Rgba, Size};
 use cosmic_text::fontdb::Query;
 use cosmic_text::{Attrs, Buffer, Family, FontSystem, Metrics, Shaping, Style, SwashCache, Weight};
 use image::RgbaImage;
-use std::collections::VecDeque;
 use tiny_skia::{IntSize, Pixmap, PixmapPaint, Transform};
 
 // TODO: add line height
@@ -117,7 +116,7 @@ impl<'a> Text<'a> {
                 if let Family::Name(_name) = family
                     && name == _name
                 {
-                    return Some(family.clone());
+                    return Some(*family);
                 }
             }
         }
@@ -125,7 +124,7 @@ impl<'a> Text<'a> {
         None
     }
 
-    fn attrs(&self, font_system: &mut FontSystem) -> Attrs {
+    fn attrs(&self, font_system: &mut FontSystem) -> Attrs<'_> {
         let family = self.query_font(font_system).unwrap_or(Family::SansSerif);
         Attrs::new()
             .family(family)
@@ -211,7 +210,6 @@ impl<'a> FontQuery<'a> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use cosmic_text::fontdb::Database;
 
     #[test]
     fn font_metrics() {

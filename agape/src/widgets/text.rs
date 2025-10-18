@@ -55,7 +55,7 @@ impl Text {
         self
     }
 
-    fn as_text(&self) -> agape_renderer::Text {
+    fn as_text(&self) -> agape_renderer::Text<'_> {
         agape_renderer::Text::new(self.value.as_str()).font_size(self.font_size as f32)
     }
 }
