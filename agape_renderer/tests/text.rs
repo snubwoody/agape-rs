@@ -1,4 +1,5 @@
-use agape_renderer::{Renderer, Text};
+use agape_core::Color;
+use agape_renderer::{FontQuery, Renderer, Text};
 use cosmic_text::fontdb::Query;
 use cosmic_text::{Family, Weight};
 
@@ -11,6 +12,20 @@ fn render_long_string() {
     }
     let text = Text::new(&text);
     renderer.draw_text(text);
+}
+
+#[test]
+fn render_output() {
+    // TODO: use platform specific fallback
+    let mut renderer = Renderer::new();
+    renderer.load_fonts_dir("assets/Work Sans/static");
+    let text = Text::new("Hello world")
+        .add_family(Family::Name("Work Sans"))
+        .font_size(50.0)
+        .weight(Weight(400));
+    renderer.pixmap_mut().fill(tiny_skia::Color::WHITE);
+    renderer.draw_text(text);
+    renderer.pixmap_mut().save_png("temp-output.png").unwrap();
 }
 
 #[test]

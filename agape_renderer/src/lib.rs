@@ -5,10 +5,11 @@ pub mod text;
 
 pub use crate::image::Image;
 use crate::rect::Rect;
-pub use crate::text::Text;
+pub use crate::text::{FontQuery, Text};
 use agape_core::Size;
 use cosmic_text::fontdb::Database;
 use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, Shaping, SwashCache};
+pub use cosmic_text::{Family, Style, Weight};
 use std::path::Path;
 pub use svg::Svg;
 use tiny_skia::Pixmap;
@@ -97,36 +98,16 @@ impl Renderer {
 
     /// Draw text onto the `Pixmap`.
     pub fn draw_text(&mut self, text: Text) {
-        let size = self.text_size(&text.content, text.font_size);
         text.draw_text(
             &mut self.pixmap,
-            size,
             &mut self.font_system,
             &mut self.swash_cache,
         )
     }
 
     /// Get the text size.
-    pub fn text_size(&mut self, text: &str, font_size: f32) -> Size {
-        // FIXME: add line height
-        let font_system = &mut self.font_system;
-        let metrics = Metrics::new(font_size, font_size);
-        let mut buffer = Buffer::new(font_system, metrics);
-        let mut buffer = buffer.borrow_with(font_system);
-
-        let attrs = Attrs::new();
-        buffer.set_text(text, &attrs, Shaping::Advanced);
-        buffer.shape_until_scroll(true);
-
-        let mut width = 0.0;
-        let mut height = 0.0;
-
-        for run in buffer.layout_runs() {
-            width += run.line_w;
-            height += run.line_height;
-        }
-
-        Size::new(width, height)
+    pub fn text_size(&mut self, text: Text) -> Size {
+        text.size(&mut self.font_system)
     }
 }
 
@@ -137,7 +118,8 @@ mod test {
     #[test]
     fn text_size() {
         let mut renderer = Renderer::new();
-        let size = renderer.text_size("Hello world", 16.0);
+        let text = Text::new("Hello world").font_size(16.0);
+        let size = renderer.text_size(text);
         assert!(size.height >= 16.0);
         assert!(size.width >= 16.0);
     }

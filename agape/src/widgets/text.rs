@@ -23,6 +23,7 @@ pub struct Text {
     pub font_size: u8,
 }
 
+// TODO: add TextStyle
 impl Default for Text {
     fn default() -> Text {
         Text {
@@ -53,6 +54,10 @@ impl Text {
         self.font_size = font_size;
         self
     }
+
+    fn as_text(&self) -> agape_renderer::Text {
+        agape_renderer::Text::new(self.value.as_str()).font_size(self.font_size as f32)
+    }
 }
 
 impl Widget for Text {
@@ -61,7 +66,8 @@ impl Widget for Text {
     }
 
     fn layout(&self, renderer: &mut Renderer) -> Box<dyn Layout> {
-        let size = renderer.text_size(&self.value, self.font_size as f32);
+        let text = self.as_text();
+        let size = renderer.text_size(text);
         let layout = EmptyLayout {
             id: self.id,
             intrinsic_size: IntrinsicSize::from(size),
@@ -79,8 +85,7 @@ impl Widget for Text {
 
         let layout = layout.get(self.id).unwrap();
         let position = layout.position();
-        let mut text = agape_renderer::Text::new(self.value.as_str());
-        text.font_size = self.font_size as f32;
+        let mut text = self.as_text();
         text.position = position;
         renderer.draw_text(text)
     }
