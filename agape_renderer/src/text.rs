@@ -223,8 +223,12 @@ mod test {
     #[test]
     fn get_matched_font() {
         let mut font_system = FontSystem::new();
-        let text = Text::new("Hello world").add_family(Family::Name("Segoe UI"));
+        font_system
+            .db_mut()
+            .load_font_file("assets/Work Sans/static/WorkSans-Regular.ttf")
+            .unwrap();
+        let text = Text::new("Hello world").add_family(Family::Name("Work Sans"));
         let family = text.query_font(&mut font_system);
-        assert_eq!(family.unwrap(), Family::Name("Segoe UI"));
+        assert_eq!(family.unwrap(), Family::Name("Work Sans"));
     }
 }
