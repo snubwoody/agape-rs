@@ -83,6 +83,11 @@ where
         &self.renderer
     }
 
+    /// Get a mutable reference to the [`Renderer`].
+    pub fn renderer_mut(&mut self) -> &mut Renderer {
+        &mut self.renderer
+    }
+
     pub fn messages_mut(&mut self) -> &mut MessageQueue {
         &mut self.message_queue
     }
