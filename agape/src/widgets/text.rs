@@ -1,7 +1,7 @@
 use super::Widget;
-use agape_core::GlobalId;
+use agape_core::{Color, GlobalId, IntoColor, Rgba};
 use agape_layout::{EmptyLayout, IntrinsicSize, Layout};
-use agape_renderer::Renderer;
+use agape_renderer::{Family, Renderer, Style, Weight};
 
 /// Draw text onto the screen. Emojis are fully supported.
 ///
@@ -21,6 +21,11 @@ pub struct Text {
     id: GlobalId,
     pub value: String,
     pub font_size: u8,
+    pub color: Color,
+    pub weight: Weight,
+    pub line_height: f32,
+    pub style: Style,
+    pub families: Vec<String>,
 }
 
 // TODO: add TextStyle
@@ -30,6 +35,11 @@ impl Default for Text {
             id: GlobalId::new(),
             value: String::new(),
             font_size: 16,
+            line_height: 1.25,
+            color: Color::BLACK,
+            families: Vec::new(),
+            style: Style::default(),
+            weight: Weight::default(),
         }
     }
 }
@@ -40,6 +50,26 @@ impl Text {
             value: text.to_owned(),
             ..Default::default()
         }
+    }
+
+    pub fn family(mut self, family: &str) -> Self {
+        self.families.push(family.to_owned());
+        self
+    }
+
+    pub fn weight(mut self, weight: Weight) -> Self {
+        self.weight = weight;
+        self
+    }
+
+    pub fn line_height(mut self, line_height: f32) -> Self {
+        self.line_height = line_height;
+        self
+    }
+
+    pub fn color(mut self, color: impl IntoColor<Rgba>) -> Self {
+        self.color = color.into_color();
+        self
     }
 
     /// Set the font size of the `Text` widget.
@@ -56,7 +86,18 @@ impl Text {
     }
 
     fn as_text(&self) -> agape_renderer::Text<'_> {
-        agape_renderer::Text::new(self.value.as_str()).font_size(self.font_size as f32)
+        let mut text = agape_renderer::Text::new(self.value.as_str())
+            .font_size(self.font_size as f32)
+            .line_height(self.line_height)
+            .color(self.color.clone())
+            .weight(self.weight)
+            .style(self.style);
+
+        for family in &self.families {
+            text = text.add_family(Family::Name(family.as_str()));
+        }
+
+        text
     }
 }
 

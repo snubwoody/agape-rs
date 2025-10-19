@@ -60,6 +60,12 @@ impl<'a> Text<'a> {
         self
     }
 
+    /// Set the font style
+    pub fn style(mut self, style: Style) -> Self {
+        self.font.style = style;
+        self
+    }
+
     /// Add a font family. Font families will be queried in the order
     /// they are pushed and the first match will be used.
     pub fn add_family(mut self, family: Family<'a>) -> Self {
