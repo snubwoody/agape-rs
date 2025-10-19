@@ -18,7 +18,7 @@ impl StatelessWidget for Page {
     fn build(&self, _: &mut Context) -> Self::Widget {
         let count = self.count.clone();
         vstack![
-            Text::new(&format!("{}", self.count.get())),
+            Text::new(&format!("{}", self.count.get())).family("Times New Roman"),
             Button::text("Click me").on_click(move |_| count.set(|count| count + 1)),
         ]
         .spacing(8)
