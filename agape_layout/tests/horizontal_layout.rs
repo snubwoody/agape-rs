@@ -1,5 +1,5 @@
 use agape_layout::{
-    BlockLayout, BoxSizing, EmptyLayout, HorizontalLayout, Layout, Size, solve_layout,
+    BlockLayout, BoxSizing, EmptyLayout, HorizontalLayout, Layout, Padding, Size, solve_layout,
 };
 
 #[test]
@@ -90,7 +90,7 @@ fn test_flex_with_shrink() {
     inner_child.intrinsic_size.height = BoxSizing::Fixed(250.0);
 
     let mut child_1 = BlockLayout::new(Box::new(inner_child));
-    child_1.padding = padding;
+    child_1.padding = Padding::all(24.0);
 
     let mut child_2 = EmptyLayout::new();
     child_2.intrinsic_size.width = BoxSizing::Flex(1);

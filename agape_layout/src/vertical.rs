@@ -415,7 +415,7 @@ impl Layout for VerticalLayout {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{BlockLayout, EmptyLayout, solve_layout};
+    use crate::{BlockLayout, EmptyLayout, Padding, solve_layout};
 
     #[test]
     fn overflow_error() {
@@ -627,7 +627,7 @@ mod test {
         inner_child.intrinsic_size.height = BoxSizing::Fixed(250.0);
 
         let mut child_1 = BlockLayout::new(Box::new(inner_child));
-        child_1.padding = padding;
+        child_1.padding = Padding::all(24.0);
 
         let mut child_2 = EmptyLayout::new();
         child_2.intrinsic_size.width = BoxSizing::Flex(1);

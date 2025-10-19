@@ -1,16 +1,18 @@
 use crate::{
     AxisAlignment, BoxConstraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter,
+    Padding,
 };
 use agape_core::{GlobalId, Position, Size};
+use std::ops::{Add, Mul};
 
-// TODO make these private
+// TODO make these private and add builder
 /// A [`Layout`] that only has one child.
 #[derive(Debug)]
 pub struct BlockLayout {
     pub id: GlobalId,
     pub size: Size,
     pub position: Position,
-    pub padding: u32,
+    pub padding: Padding,
     pub intrinsic_size: IntrinsicSize,
     pub constraints: BoxConstraints,
     /// The main axis is the `x-axis`
@@ -18,7 +20,7 @@ pub struct BlockLayout {
     /// The cross axis is the `y-axis`
     pub cross_axis_alignment: AxisAlignment,
     pub child: Box<dyn Layout>,
-    pub errors: Vec<LayoutError>,
+    errors: Vec<LayoutError>,
 }
 
 impl BlockLayout {
@@ -26,7 +28,7 @@ impl BlockLayout {
         Self {
             id: GlobalId::new(),
             size: Size::default(),
-            padding: 0,
+            padding: Padding::default(),
             position: Position::default(),
             intrinsic_size: IntrinsicSize::default(),
             constraints: BoxConstraints::default(),
@@ -39,8 +41,7 @@ impl BlockLayout {
 
     fn align_main_axis_start(&mut self) {
         let mut x_pos = self.position.x;
-        x_pos += self.padding as f32;
-
+        x_pos += self.padding.left;
         self.child.set_x(x_pos);
     }
 
@@ -52,14 +53,16 @@ impl BlockLayout {
     }
 
     fn align_main_axis_end(&mut self) {
+        // TODO: changed
         let mut x_pos = self.position.x + self.size.width;
-        x_pos -= self.padding as f32;
+        x_pos -= self.padding.right;
 
         self.child.set_x(x_pos);
     }
 
     fn align_cross_axis_start(&mut self) {
-        let y = self.position.y + self.padding as f32;
+        // TODO: changed
+        let y = self.position.y + self.padding.top;
         self.child.set_y(y);
     }
 
@@ -70,8 +73,9 @@ impl BlockLayout {
     }
 
     fn align_cross_axis_end(&mut self) {
+        // TODO: changed
         self.child
-            .set_y(self.position.y + self.size.height - self.padding as f32);
+            .set_y(self.position.y + self.size.height - self.padding.bottom);
     }
 }
 
@@ -142,9 +146,9 @@ impl Layout for BlockLayout {
     fn solve_min_constraints(&mut self) -> (f32, f32) {
         // The sum of the size of all the children with fixed sizes
         let mut min_size = Size::default();
-        min_size += self.padding as f32 * 2.0;
+        min_size += self.padding.bottom; // FIXME: unused
 
-        // Solve the fix size first
+        // Solve the fixed size first
         if let BoxSizing::Fixed(width) = self.intrinsic_size.width {
             self.constraints.min_width = width;
         }
@@ -154,31 +158,32 @@ impl Layout for BlockLayout {
         }
 
         if let BoxSizing::Fixed(width) = self.child.intrinsic_size().width {
-            self.constraints.min_width = (self.padding as f32).mul_add(2.0, width);
+            self.constraints.min_width = self.padding.right + self.padding.left + width;
         }
 
         if let BoxSizing::Fixed(height) = self.child.intrinsic_size().height {
-            self.constraints.min_height = (self.padding as f32).mul_add(2.0, height);
+            self.constraints.min_height = self.padding.top + self.padding.bottom + height;
         }
 
         let (min_width, min_height) = self.child.solve_min_constraints();
 
+        // TODO: combine these
         match self.intrinsic_size.width {
             BoxSizing::Flex(_) => {
-                self.constraints.min_width = (self.padding as f32).mul_add(2.0, min_width);
+                self.constraints.min_width = self.padding.left + self.padding.right + min_width;
             }
             BoxSizing::Shrink => {
-                self.constraints.min_width = (self.padding as f32).mul_add(2.0, min_width);
+                self.constraints.min_width = self.padding.top + self.padding.bottom + min_width;
             }
             _ => {}
         }
 
         match self.intrinsic_size.height {
             BoxSizing::Flex(_) => {
-                self.constraints.min_height = (self.padding as f32).mul_add(2.0, min_height);
+                self.constraints.min_height = self.padding.top + self.padding.bottom + min_height;
             }
             BoxSizing::Shrink => {
-                self.constraints.min_height = (self.padding as f32).mul_add(2.0, min_height);
+                self.constraints.min_height = self.padding.top + self.padding.bottom + min_height;
             }
             _ => {}
         }
@@ -187,7 +192,8 @@ impl Layout for BlockLayout {
     }
 
     fn solve_max_constraints(&mut self, space: Size) {
-        let available_space = space - self.padding as f32;
+        // TODO: check
+        let available_space = space - self.padding.left;
 
         match self.child.intrinsic_size().width {
             BoxSizing::Flex(_) => {
@@ -278,11 +284,77 @@ mod test {
         child.intrinsic_size.height = BoxSizing::Fixed(200.0);
 
         let mut root = BlockLayout::new(Box::new(child));
-        root.padding = 24;
+        root.padding = Padding::all(24.0);
         solve_layout(&mut root, window);
 
         let value = 24.0f32.mul_add(2.0, 200.0);
         assert_eq!(root.size(), Size::unit(value));
+    }
+
+    #[test]
+    fn align_main_axis_start() {
+        let child = EmptyLayout::new();
+        let mut root = BlockLayout::new(Box::new(child));
+        root.padding = Padding::new(0.0, 24.0, 24.24, 24.2);
+        root.align_main_axis_start();
+        let pos = root.child.position();
+        assert_eq!(pos.x, root.position().x);
+        root.padding.left = 10.0;
+        root.align_main_axis_start();
+        assert_eq!(root.child.position().x, root.position().x + 10.0);
+    }
+
+    #[test]
+    fn align_main_axis_end() {
+        let child = EmptyLayout::new();
+        let mut root = BlockLayout::new(Box::new(child));
+        root.size = Size::unit(200.0);
+        root.align_main_axis_end();
+        let pos = root.child.position();
+        assert_eq!(pos.x, 200.0);
+    }
+
+    #[test]
+    fn align_main_axis_center() {
+        let mut child = EmptyLayout::new();
+        child.size = Size::unit(250.0);
+        let mut root = BlockLayout::new(Box::new(child));
+        root.size = Size::unit(500.0);
+        root.align_main_axis_end();
+        let pos = root.child.position();
+        assert_eq!(pos.x, 200.0);
+    }
+
+    #[test]
+    fn align_cross_axis_start() {
+        let child = EmptyLayout::new();
+        let mut root = BlockLayout::new(Box::new(child));
+        root.position.y = 50.0;
+        root.align_cross_axis_start();
+        let pos = root.child.position();
+        assert_eq!(pos.y, 50.0);
+    }
+
+    #[test]
+    fn align_cross_axis_start_uses_top_padding() {
+        let child = EmptyLayout::new();
+        let mut root = BlockLayout::new(Box::new(child));
+        root.position.y = 50.0;
+        root.padding.top = 10.0;
+        root.align_cross_axis_start();
+        let pos = root.child.position();
+        assert_eq!(pos.y, 60.0);
+    }
+
+    #[test]
+    fn align_main_axis_end_uses_right_padding() {
+        let child = EmptyLayout::new();
+        let mut root = BlockLayout::new(Box::new(child));
+        root.padding = Padding::new(20.0, 50.0, 24.24, 24.2);
+        root.size = Size::unit(200.0);
+        root.align_main_axis_end();
+        let pos = root.child.position();
+        assert_eq!(pos.x, 200.0 - 50.0);
     }
 
     #[test]
@@ -294,7 +366,7 @@ mod test {
         inner_child.intrinsic_size.height = BoxSizing::Fixed(15.0);
 
         let mut child = BlockLayout::new(Box::new(inner_child));
-        child.padding = 24;
+        child.padding = Padding::all(24.0);
 
         let mut root = BlockLayout::new(Box::new(child));
 
@@ -318,11 +390,11 @@ mod test {
         let mut root = BlockLayout::new(Box::new(child));
         root.intrinsic_size.width = BoxSizing::Flex(1);
         root.intrinsic_size.height = BoxSizing::Flex(1);
-        root.padding = 24;
+        root.padding = Padding::all(24.0);
 
         solve_layout(&mut root, window);
 
-        let child_size = window - root.padding as f32;
+        let child_size = window - root.padding.left;
         assert_eq!(root.size(), window);
         assert_eq!(root.child.size(), child_size);
     }
@@ -341,11 +413,11 @@ mod test {
         let mut root = BlockLayout::new(Box::new(child));
         root.intrinsic_size.width = BoxSizing::Flex(1);
         root.intrinsic_size.height = BoxSizing::Flex(1);
-        root.padding = 24;
+        root.padding = Padding::all(24.0);
 
         solve_layout(&mut root, window);
 
-        let child_size = window - root.padding as f32;
+        let child_size = window - root.padding.left;
         assert_eq!(root.size(), window);
         assert_eq!(root.child.size(), child_size);
         assert_eq!(root.child.size(), root.child.children()[0].size());
