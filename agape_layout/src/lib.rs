@@ -173,6 +173,13 @@ impl IntrinsicSize {
         }
     }
 
+    pub fn shrink() -> Self {
+        Self {
+            width: BoxSizing::Shrink,
+            height: BoxSizing::Shrink,
+        }
+    }
+
     /// Create a new fixed intrinsic size.
     ///
     /// # Example
@@ -235,5 +242,35 @@ impl Padding {
     /// Create a [`Padding`] with all sides equal.
     pub fn all(padding: f32) -> Self {
         Self::new(padding, padding, padding, padding)
+    }
+
+    /// The sum of the top and bottom padding.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use agape_layout::Padding;
+    ///
+    /// let padding = Padding::symmetric(20.0,10.0);
+    ///
+    /// assert_eq!(padding.vertical_sum(),40.0);
+    /// ```
+    pub fn vertical_sum(&self) -> f32 {
+        self.bottom + self.top
+    }
+
+    /// The sum of the left and right padding.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use agape_layout::Padding;
+    ///
+    /// let padding = Padding::symmetric(20.0,10.0);
+    ///
+    /// assert_eq!(padding.horizontal_sum(),40.0);
+    /// ```
+    pub fn horizontal_sum(&self) -> f32 {
+        self.left + self.right
     }
 }

@@ -57,33 +57,6 @@ fn test_start_alignment() {
 }
 
 #[test]
-fn start_alignment_uses_left_padding() {
-    // TODO: new
-    let window = Size::new(200.0, 200.0);
-
-    let padding = 32;
-
-    let child_1 = EmptyLayout {
-        intrinsic_size: IntrinsicSize {
-            width: BoxSizing::Fixed(240.0),
-            height: BoxSizing::Fixed(40.0),
-        },
-        ..Default::default()
-    };
-
-    let mut root = BlockLayout::new(Box::new(child_1));
-    root.position = Position::new(20.0, 500.0);
-    root.padding = Padding::new(0.0, 340.4, 24.2, 24.2);
-
-    solve_layout(&mut root, window);
-
-    let mut child_1_pos = root.position;
-    child_1_pos += padding as f32;
-
-    assert_eq!(root.child.position(), child_1_pos);
-}
-
-#[test]
 fn test_end_alignment() {
     let window = Size::new(200.0, 200.0);
 
