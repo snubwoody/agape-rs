@@ -436,14 +436,17 @@ mod test {
         child.intrinsic_size.width = BoxSizing::Flex(1);
         child.intrinsic_size.height = BoxSizing::Flex(1);
 
+        let padding = Padding::all(24.0);
         let mut root = BlockLayout::new(Box::new(child));
         root.intrinsic_size.width = BoxSizing::Flex(1);
         root.intrinsic_size.height = BoxSizing::Flex(1);
-        root.padding = Padding::all(24.0);
+        root.padding = padding;
 
         solve_layout(&mut root, window);
 
-        let child_size = window - root.padding.left;
+        let mut child_size = window;
+        child_size.width -= padding.horizontal_sum();
+        child_size.height -= padding.vertical_sum();
         assert_eq!(root.size(), window);
         assert_eq!(root.child.size(), child_size);
     }
@@ -452,21 +455,20 @@ mod test {
     fn inner_grow() {
         let window = Size::new(800.0, 800.0);
         let mut inner_child = EmptyLayout::new();
-        inner_child.intrinsic_size.width = BoxSizing::Flex(1);
-        inner_child.intrinsic_size.height = BoxSizing::Flex(1);
+        inner_child.intrinsic_size = IntrinsicSize::fill();
 
         let mut child = BlockLayout::new(Box::new(inner_child));
-        child.intrinsic_size.width = BoxSizing::Flex(1);
-        child.intrinsic_size.height = BoxSizing::Flex(1);
+        child.intrinsic_size = IntrinsicSize::fill();
 
         let mut root = BlockLayout::new(Box::new(child));
-        root.intrinsic_size.width = BoxSizing::Flex(1);
-        root.intrinsic_size.height = BoxSizing::Flex(1);
+        root.intrinsic_size = IntrinsicSize::fill();
         root.padding = Padding::all(24.0);
 
         solve_layout(&mut root, window);
 
-        let child_size = window - root.padding.left;
+        let mut child_size = window;
+        child_size.width -= root.padding.horizontal_sum();
+        child_size.height -= root.padding.vertical_sum();
         assert_eq!(root.size(), window);
         assert_eq!(root.child.size(), child_size);
         assert_eq!(root.child.size(), root.child.children()[0].size());

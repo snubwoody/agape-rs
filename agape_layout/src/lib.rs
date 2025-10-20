@@ -8,6 +8,11 @@
 //! want to fill the screen, none of them can fulfill this without leaving no space
 //! for the others. So the true final size will be for each layout will be `1/3` of the
 //! actual window size, thus splitting it equally.
+//!
+//! ## Axes
+//! The main axis is the axis that content flows along, for the horizontal layout
+//! (and most layouts) this is the x-axis. The cross axis is the perpendicular axis
+//! to the main axis.
 #![warn(clippy::suboptimal_flops)]
 #![warn(clippy::suspicious_operation_groupings)]
 #![warn(clippy::imprecise_flops)]
@@ -44,6 +49,7 @@ pub fn solve_layout(root: &mut dyn Layout, window_size: Size) -> Vec<LayoutError
     vec![]
 }
 
+// TODO: add anchor layout and grid layout
 pub trait Layout: Debug + Send + Sync {
     /// Solve the minimum constraints of each [`Layout`] node recursively
     fn solve_min_constraints(&mut self) -> (f32, f32);
@@ -86,7 +92,12 @@ pub trait Layout: Debug + Send + Sync {
     fn set_max_height(&mut self, height: f32);
     fn set_min_width(&mut self, width: f32);
     fn set_min_height(&mut self, height: f32);
-    fn set_position(&mut self, position: Position);
+
+    fn set_position(&mut self, position: Position) {
+        self.set_x(position.x);
+        self.set_y(position.y);
+    }
+
     fn set_x(&mut self, x: f32);
     fn set_y(&mut self, y: f32);
 
@@ -221,7 +232,7 @@ impl Padding {
     ///
     /// # Panics
     /// Panics if sides are negative.
-    pub fn new(left: f32, right: f32, top: f32, bottom: f32) -> Self {
+    pub const fn new(left: f32, right: f32, top: f32, bottom: f32) -> Self {
         // TODO: test this
         assert!(
             left >= 0.0 && right >= 0.0 && top >= 0.0 && bottom >= 0.0,
@@ -235,12 +246,12 @@ impl Padding {
         }
     }
 
-    pub fn symmetric(vertical: f32, horizontal: f32) -> Self {
+    pub const fn symmetric(vertical: f32, horizontal: f32) -> Self {
         Self::new(horizontal, horizontal, vertical, vertical)
     }
 
     /// Create a [`Padding`] with all sides equal.
-    pub fn all(padding: f32) -> Self {
+    pub const fn all(padding: f32) -> Self {
         Self::new(padding, padding, padding, padding)
     }
 
@@ -255,7 +266,7 @@ impl Padding {
     ///
     /// assert_eq!(padding.vertical_sum(),40.0);
     /// ```
-    pub fn vertical_sum(&self) -> f32 {
+    pub const fn vertical_sum(&self) -> f32 {
         self.bottom + self.top
     }
 
@@ -270,7 +281,11 @@ impl Padding {
     ///
     /// assert_eq!(padding.horizontal_sum(),40.0);
     /// ```
-    pub fn horizontal_sum(&self) -> f32 {
+    pub const fn horizontal_sum(&self) -> f32 {
         self.left + self.right
+    }
+
+    pub const fn sum(&self) -> f32 {
+        self.horizontal_sum() + self.vertical_sum()
     }
 }

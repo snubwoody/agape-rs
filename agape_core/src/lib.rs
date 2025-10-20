@@ -3,6 +3,7 @@ mod color;
 mod position;
 mod size;
 
+use std::ops::{Add, AddAssign, SubAssign};
 pub use {color::*, position::*, size::*};
 
 /// A global unique identifier

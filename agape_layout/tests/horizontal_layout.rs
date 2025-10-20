@@ -82,7 +82,7 @@ fn test_flex_sizing() {
 #[test]
 fn test_flex_with_shrink() {
     let window = Size::new(800.0, 800.0);
-    let padding = 24;
+    let padding = Padding::all(24.0);
     let spacing = 45;
 
     let mut inner_child = EmptyLayout::new();
@@ -106,16 +106,16 @@ fn test_flex_with_shrink() {
     solve_layout(&mut root, window);
 
     let mut child_1_size = Size::new(250.0, 250.0);
-    child_1_size += (padding * 2) as f32;
+    child_1_size += padding.sum();
 
     let mut root_size = Size::new(800.0, 250.0);
-    root_size.height += (padding * 4) as f32; // Add the padding for child_1 and for the root
+    root_size.height += (padding.vertical_sum()) as f32; // Add the padding for child_1 and for the root
 
     let mut child_2_size = Size::new(window.width, child_1_size.height);
     child_2_size.width -= child_1_size.width;
     child_2_size.width -= spacing as f32;
-    child_2_size.width -= (padding * 2) as f32;
-    child_2_size.height += (padding * 2) as f32;
+    child_2_size.width -= (padding.horizontal_sum()) as f32;
+    child_2_size.height += (padding.vertical_sum()) as f32;
 
     assert_eq!(root.size(), root_size);
     assert_eq!(root.children[0].size(), child_1_size);
@@ -125,7 +125,7 @@ fn test_flex_with_shrink() {
 #[test]
 fn test_flex_with_fixed() {
     let window = Size::new(800.0, 800.0);
-    let padding = 24;
+    let padding = Padding::all(24.0);
     let spacing = 45;
 
     let mut child_1 = EmptyLayout::new();
@@ -150,7 +150,7 @@ fn test_flex_with_fixed() {
     solve_layout(&mut root, window);
 
     let mut space = window;
-    space -= (padding * 2) as f32;
+    space -= padding.sum();
     space -= (spacing * 2) as f32;
     space.width -= 250.0;
 
@@ -158,7 +158,7 @@ fn test_flex_with_fixed() {
     assert_eq!(root.children[2].size().width, 4.0 / 5.0 * space.width);
     assert_eq!(
         root.children[1].size().height,
-        window.height - (padding * 2) as f32
+        window.height - (padding.vertical_sum()) as f32
     );
 }
 

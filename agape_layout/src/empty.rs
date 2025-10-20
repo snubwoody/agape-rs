@@ -1,7 +1,7 @@
 use crate::{BoxConstraints, BoxSizing, IntrinsicSize, Layout, LayoutIter};
 use agape_core::{GlobalId, Position, Size};
 
-/// An [`Layout`] with no children.  
+/// An empty [`Layout`] with no child notes.  
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct EmptyLayout {
     pub id: GlobalId,
@@ -75,7 +75,7 @@ impl Layout for EmptyLayout {
         self.errors.drain(..).collect::<Vec<_>>()
     }
 
-    fn iter(&self) -> crate::LayoutIter<'_> {
+    fn iter(&self) -> LayoutIter<'_> {
         LayoutIter { stack: vec![self] }
     }
 
@@ -91,9 +91,8 @@ impl Layout for EmptyLayout {
         (self.constraints.min_width, self.constraints.min_height)
     }
 
-    fn solve_max_constraints(&mut self, _space: Size) {
-        // No children to solve for
-    }
+    // No children to solve for
+    fn solve_max_constraints(&mut self, _: Size) {}
 
     fn update_size(&mut self) {
         match self.intrinsic_size.width {
