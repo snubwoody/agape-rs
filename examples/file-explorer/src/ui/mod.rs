@@ -93,6 +93,7 @@ impl DirectoryEntry {
 
 impl StatelessWidget for DirectoryEntry {
     type Widget = Button<HStack>;
+
     fn build(&self, ctx: &mut Context) -> Self::Widget {
         let entries = ctx.get::<DirState>().clone();
         let entry = self.entry.clone();

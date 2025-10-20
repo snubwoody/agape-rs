@@ -151,6 +151,24 @@ impl VerticalLayout {
             child.set_x(self.position.x + self.size.width - self.padding.right);
         }
     }
+
+    fn compute_children_min_size(&mut self) -> Size {
+        let mut sum = Size::default();
+        if self.children.is_empty() {
+            return sum;
+        }
+
+        let space_between = (self.children.len() - 1) as f32 * self.spacing as f32;
+        sum.height += space_between;
+        for child in self.children.iter_mut() {
+            let (min_width, min_height) = child.solve_min_constraints();
+            sum.height += min_height;
+            sum.width = sum.width.max(min_width);
+        }
+        sum.width += self.padding.horizontal_sum();
+        sum.height += self.padding.vertical_sum();
+        sum
+    }
 }
 
 impl Layout for VerticalLayout {
@@ -223,26 +241,13 @@ impl Layout for VerticalLayout {
     }
 
     fn solve_min_constraints(&mut self) -> (f32, f32) {
-        let mut child_constraint_sum = Size::default();
-        for child in &mut self.children {
-            let (min_width, min_height) = child.solve_min_constraints();
-            child_constraint_sum.height += min_height;
-            child_constraint_sum.height += self.spacing as f32;
-            child_constraint_sum.width = child_constraint_sum.width.max(min_width);
-        }
-        // FIXME here
-        child_constraint_sum += self.padding.right;
+        let child_constraint_sum = self.compute_children_min_size();
 
-        // TODO i think im supposed to calculate the min constraints of the children as well
         match self.intrinsic_size.width {
             BoxSizing::Fixed(width) => {
                 self.constraints.min_width = width;
             }
-            BoxSizing::Flex(_) => {
-                // TODO maybe set the min constraints to either 0 or the size of the children
-                self.constraints.min_width = child_constraint_sum.width;
-            }
-            BoxSizing::Shrink => {
+            BoxSizing::Flex(_) | BoxSizing::Shrink => {
                 self.constraints.min_width = child_constraint_sum.width;
             }
         }
@@ -251,10 +256,7 @@ impl Layout for VerticalLayout {
             BoxSizing::Fixed(height) => {
                 self.constraints.min_height = height;
             }
-            BoxSizing::Flex(_) => {
-                self.constraints.min_height = child_constraint_sum.height;
-            }
-            BoxSizing::Shrink => {
+            BoxSizing::Flex(_) | BoxSizing::Shrink => {
                 self.constraints.min_height = child_constraint_sum.height;
             }
         }
@@ -330,6 +332,7 @@ impl Layout for VerticalLayout {
             }
 
             // TODO not using size anymore
+            // FIXME check this
             child.solve_max_constraints(Size::default());
         }
     }
@@ -419,7 +422,65 @@ impl Layout for VerticalLayout {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{BlockLayout, EmptyLayout, Padding, solve_layout};
+    use crate::{BlockLayout, EmptyLayout, HorizontalLayout, Padding, solve_layout};
+
+    #[test]
+    fn calculate_min_width() {
+        // TODO: test max height and width
+        let widths: [f32; 5] = [500.0, 200.0, 10.2, 20.2, 45.0];
+        let children: Vec<Box<dyn Layout>> = widths
+            .into_iter()
+            .map(|i| EmptyLayout {
+                intrinsic_size: IntrinsicSize::fixed(i, 0.0),
+                ..Default::default()
+            })
+            .map(|l| Box::new(l) as Box<dyn Layout>)
+            .collect();
+
+        let spacing = 20;
+        let padding = Padding::new(24.0, 42.0, 24.0, 20.0);
+        let mut layout = VerticalLayout {
+            children,
+            spacing,
+            padding,
+            ..Default::default()
+        };
+        layout.solve_min_constraints();
+        let mut max_width = widths
+            .into_iter()
+            .max_by(|x, y| x.partial_cmp(y).unwrap())
+            .unwrap();
+        max_width += padding.horizontal_sum();
+        assert_eq!(layout.constraints.min_width, max_width);
+    }
+
+    #[test]
+    fn calculate_min_height() {
+        let heights: [f32; 5] = [500.0, 200.0, 10.2, 20.2, 45.0];
+        let children: Vec<Box<dyn Layout>> = heights
+            .into_iter()
+            .map(|h| EmptyLayout {
+                intrinsic_size: IntrinsicSize::fixed(0.0, h),
+                ..Default::default()
+            })
+            .map(|l| Box::new(l) as Box<dyn Layout>)
+            .collect();
+
+        let spacing = 20;
+        let padding = Padding::new(24.0, 42.0, 24.0, 20.0);
+        let mut layout = VerticalLayout {
+            children,
+            spacing,
+            padding,
+            ..Default::default()
+        };
+        layout.solve_min_constraints();
+        let space_between = (heights.len() - 1) as f32 * spacing as f32;
+        let mut min_height = heights.iter().sum::<f32>();
+        min_height += space_between;
+        min_height += padding.vertical_sum();
+        assert_eq!(layout.constraints.min_height, min_height);
+    }
 
     #[test]
     fn overflow_error() {

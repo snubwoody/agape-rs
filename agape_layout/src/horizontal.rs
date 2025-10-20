@@ -421,6 +421,36 @@ mod test {
     }
 
     #[test]
+    fn calculate_min_height() {
+        // TODO: test max height and width
+        let heights: [f32; 5] = [500.0, 200.0, 10.2, 20.2, 45.0];
+        let children: Vec<Box<dyn Layout>> = heights
+            .iter()
+            .map(|h| EmptyLayout {
+                intrinsic_size: IntrinsicSize::fixed(0.0, *h),
+                ..Default::default()
+            })
+            .map(|l| Box::new(l) as Box<dyn Layout>)
+            .collect();
+
+        let spacing = 20;
+        let padding = Padding::new(24.0, 42.0, 24.0, 20.0);
+        let mut layout = HorizontalLayout {
+            children,
+            spacing,
+            padding,
+            ..Default::default()
+        };
+        layout.solve_min_constraints();
+        let mut max_height = heights
+            .into_iter()
+            .max_by(|x, y| x.partial_cmp(y).unwrap())
+            .unwrap();
+        max_height += padding.vertical_sum();
+        assert_eq!(layout.constraints.min_height, max_height);
+    }
+
+    #[test]
     fn align_main_axis_center_no_children() {
         let mut layout = HorizontalLayout::new();
         layout.align_main_axis_center();
