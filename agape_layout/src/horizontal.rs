@@ -42,6 +42,29 @@ impl HorizontalLayout {
         }
     }
 
+    /// Calculate the total minimum constraints of all
+    /// the child nodes. The width is the sum of all
+    /// the children's minimum width plus the space in
+    /// between. The height is gotten from the largest
+    /// of the minimum height.
+    fn compute_children_min_size(&mut self) -> Size {
+        let mut sum = Size::default();
+        if self.children.is_empty() {
+            return sum;
+        }
+
+        let space_between = (self.children.len() - 1) as f32 * self.spacing as f32;
+        sum.width += space_between;
+        for child in self.children.iter_mut() {
+            let (min_width, min_height) = child.solve_min_constraints();
+            sum.width += min_width;
+            sum.height = sum.height.max(min_height);
+        }
+        sum.width += self.padding.horizontal_sum();
+        sum.height += self.padding.vertical_sum();
+        sum
+    }
+
     // TODO should probably rename this function
     /// Calculate the sum of the width's of all nodes with fixed sizes and the max height
     fn fixed_size_sum(&self) -> Size {
@@ -205,25 +228,13 @@ impl Layout for HorizontalLayout {
     }
 
     fn solve_min_constraints(&mut self) -> (f32, f32) {
-        let mut child_constraint_sum = Size::default();
-
-        for child in &mut self.children {
-            let (min_width, min_height) = child.solve_min_constraints();
-            child_constraint_sum.width += min_width;
-            child_constraint_sum.width += self.spacing as f32; // Not sure about this
-            child_constraint_sum.height = child_constraint_sum.height.max(min_height);
-        }
-        // FIXME check this
-        child_constraint_sum += self.padding.left * 2.0;
-
+        let child_constraint_sum = self.compute_children_min_size();
         match self.intrinsic_size.width {
             BoxSizing::Fixed(width) => {
                 self.constraints.min_width = width;
             }
-            BoxSizing::Flex(_) => {
-                self.constraints.min_width = child_constraint_sum.width;
-            }
-            BoxSizing::Shrink => {
+            // TODO: combine this
+            BoxSizing::Flex(_) | BoxSizing::Shrink => {
                 self.constraints.min_width = child_constraint_sum.width;
             }
         }
@@ -232,10 +243,7 @@ impl Layout for HorizontalLayout {
             BoxSizing::Fixed(height) => {
                 self.constraints.min_height = height;
             }
-            BoxSizing::Flex(_) => {
-                self.constraints.min_height = child_constraint_sum.height;
-            }
-            BoxSizing::Shrink => {
+            BoxSizing::Flex(_) | BoxSizing::Shrink => {
                 self.constraints.min_height = child_constraint_sum.height;
             }
         }
@@ -376,6 +384,42 @@ impl Layout for HorizontalLayout {
 mod test {
     use super::*;
     use crate::EmptyLayout;
+
+    #[test]
+    fn compute_min_size_no_children() {
+        let mut layout = HorizontalLayout::new();
+        let size = layout.compute_children_min_size();
+        assert_eq!(size, Size::default());
+    }
+
+    #[test]
+    fn calculate_min_width() {
+        // TODO: test max height and width
+        let widths: &[f32] = &[500.0, 200.0, 10.2, 20.2, 45.0];
+        let children: Vec<Box<dyn Layout>> = widths
+            .iter()
+            .map(|w| EmptyLayout {
+                intrinsic_size: IntrinsicSize::fixed(*w, 0.0),
+                ..Default::default()
+            })
+            .map(|l| Box::new(l) as Box<dyn Layout>)
+            .collect();
+
+        let spacing = 20;
+        let padding = Padding::new(24.0, 42.0, 24.0, 20.0);
+        let mut layout = HorizontalLayout {
+            children,
+            spacing,
+            padding,
+            ..Default::default()
+        };
+        layout.solve_min_constraints();
+        let space_between = (widths.len() - 1) as f32 * spacing as f32;
+        let mut min_width = widths.iter().sum::<f32>();
+        min_width += space_between;
+        min_width += padding.horizontal_sum();
+        assert_eq!(layout.constraints.min_width, min_width);
+    }
 
     #[test]
     fn align_main_axis_center_no_children() {

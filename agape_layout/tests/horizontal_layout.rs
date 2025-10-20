@@ -1,5 +1,6 @@
 use agape_layout::{
-    BlockLayout, BoxSizing, EmptyLayout, HorizontalLayout, Layout, Padding, Size, solve_layout,
+    BlockLayout, BoxSizing, EmptyLayout, HorizontalLayout, IntrinsicSize, Layout, Padding, Size,
+    solve_layout,
 };
 
 #[test]
@@ -123,42 +124,45 @@ fn test_flex_with_shrink() {
 }
 
 #[test]
-fn test_flex_with_fixed() {
+fn flex_with_fixed() {
     let window = Size::new(800.0, 800.0);
     let padding = Padding::all(24.0);
     let spacing = 45;
 
-    let mut child_1 = EmptyLayout::new();
-    child_1.intrinsic_size.width = BoxSizing::Fixed(250.0);
-    child_1.intrinsic_size.height = BoxSizing::Fixed(250.0);
+    let child_1 = EmptyLayout {
+        intrinsic_size: IntrinsicSize::fixed(250.0, 250.0),
+        ..Default::default()
+    };
 
     let mut child_2 = EmptyLayout::new();
     child_2.intrinsic_size.width = BoxSizing::Flex(1);
     child_2.intrinsic_size.height = BoxSizing::Flex(2);
 
-    let mut child_3 = EmptyLayout::new();
-    child_3.intrinsic_size.width = BoxSizing::Flex(4);
-    child_3.intrinsic_size.height = BoxSizing::Flex(4);
+    let child_3 = EmptyLayout {
+        intrinsic_size: IntrinsicSize::flex(4),
+        ..Default::default()
+    };
 
-    let mut root = HorizontalLayout::new();
-    root.intrinsic_size.width = BoxSizing::Flex(1);
-    root.intrinsic_size.height = BoxSizing::Flex(1);
-    root.padding = padding;
-    root.spacing = spacing;
+    let mut root = HorizontalLayout {
+        padding,
+        spacing,
+        intrinsic_size: IntrinsicSize::fill(),
+        ..Default::default()
+    };
     root.add_children([child_1, child_2, child_3]);
 
     solve_layout(&mut root, window);
 
     let mut space = window;
-    space -= padding.sum();
-    space -= (spacing * 2) as f32;
+    space.width -= padding.horizontal_sum();
+    space.height -= padding.vertical_sum();
     space.width -= 250.0;
 
     assert_eq!(root.children[1].size().width, 1.0 / 5.0 * space.width);
     assert_eq!(root.children[2].size().width, 4.0 / 5.0 * space.width);
     assert_eq!(
         root.children[1].size().height,
-        window.height - (padding.vertical_sum()) as f32
+        window.height - padding.vertical_sum()
     );
 }
 

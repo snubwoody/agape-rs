@@ -184,6 +184,13 @@ impl IntrinsicSize {
         }
     }
 
+    pub fn flex(factor: u8) -> Self {
+        Self {
+            width: BoxSizing::Flex(factor),
+            height: BoxSizing::Flex(factor),
+        }
+    }
+
     pub fn shrink() -> Self {
         Self {
             width: BoxSizing::Shrink,
