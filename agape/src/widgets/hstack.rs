@@ -56,11 +56,6 @@ impl HStack {
         self
     }
 
-    pub fn padding(mut self, padding: u32) -> Self {
-        self.layout.padding = padding;
-        self
-    }
-
     pub fn spacing(mut self, spacing: u32) -> Self {
         self.layout.spacing = spacing;
         self

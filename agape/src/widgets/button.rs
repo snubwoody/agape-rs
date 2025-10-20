@@ -23,7 +23,6 @@ pub struct Button<W> {
     id: GlobalId,
     child: W,
     style: BoxStyle,
-    padding: u32,
     hover_callback: Option<Callback>,
     click_callback: Option<Callback>,
 }
@@ -40,15 +39,9 @@ impl<W> Button<W> {
             id: GlobalId::new(),
             style: BoxStyle::new(),
             child,
-            padding: 0,
             hover_callback: None,
             click_callback: None,
         }
-    }
-
-    pub fn padding(mut self, padding: u32) -> Self {
-        self.padding = padding;
-        self
     }
 
     pub fn on_hover(mut self, f: impl FnMut(&mut MessageQueue) + Send + Sync + 'static) -> Self {
@@ -94,7 +87,7 @@ impl<W: Widget> Widget for Button<W> {
         let child = self.child.layout(renderer);
         let mut layout = BlockLayout::new(child);
         layout.id = self.id;
-        layout.padding = self.padding;
+        layout.padding = self.style.padding;
         layout.intrinsic_size = self.style.intrinsic_size;
         Box::new(layout)
     }

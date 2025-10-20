@@ -103,7 +103,7 @@ impl StatelessWidget for DirectoryEntry {
         let icon = Icon::asset(asset_path).fixed(24.0, 24.0);
 
         Button::new(hstack![icon, Text::new(&self.entry.file_name)].spacing(12))
-            .padding(4)
+            .padding_all(4.0)
             .on_click(move |_| entries.update(|entries| entries.change_dir(entry.clone())))
     }
 }

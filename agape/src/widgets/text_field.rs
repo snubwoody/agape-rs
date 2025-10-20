@@ -34,7 +34,7 @@ impl TextField {
 impl Default for TextField {
     fn default() -> Self {
         let child = Container::new(Text::new(""))
-            .padding(12)
+            .padding_all(12.0)
             .border_width(1.0)
             .border_color(0)
             .corner_radius(12);

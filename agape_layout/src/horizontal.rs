@@ -233,7 +233,6 @@ impl Layout for HorizontalLayout {
             BoxSizing::Fixed(width) => {
                 self.constraints.min_width = width;
             }
-            // TODO: combine this
             BoxSizing::Flex(_) | BoxSizing::Shrink => {
                 self.constraints.min_width = child_constraint_sum.width;
             }
