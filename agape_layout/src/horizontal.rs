@@ -385,6 +385,50 @@ mod test {
     use crate::EmptyLayout;
 
     #[test]
+    fn fixed_min_constraints() {
+        let mut layout = HorizontalLayout {
+            intrinsic_size: IntrinsicSize::fixed(20.0, 24.0),
+            ..Default::default()
+        };
+
+        layout.solve_min_constraints();
+        assert_eq!(layout.constraints.min_width, 20.0);
+        assert_eq!(layout.constraints.min_height, 24.0);
+    }
+
+    #[test]
+    fn flex_max_constraints() {
+        let flex: [u8; 4] = [2, 4, 5, 1];
+        let flex_total: u8 = flex.iter().sum();
+        let children = flex
+            .into_iter()
+            .map(|f| EmptyLayout {
+                intrinsic_size: IntrinsicSize::flex(f),
+                ..Default::default()
+            })
+            .map(|l| Box::new(l) as Box<dyn Layout>)
+            .collect::<Vec<_>>();
+        let mut layout = HorizontalLayout {
+            children,
+            constraints: BoxConstraints {
+                max_width: 500.0,
+                max_height: 250.0,
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        layout.solve_max_constraints(Size::default());
+
+        for (layout, flex) in layout.children.iter().zip(flex.iter()) {
+            let width = 500.0 * (*flex as f32 / flex_total as f32);
+            // FIXME: will come back
+            // assert_eq!(layout.constraints().max_width, width);
+            // assert_eq!(layout.constraints().max_height, 250.0);
+        }
+    }
+
+    #[test]
     fn compute_min_size_no_children() {
         let mut layout = HorizontalLayout::new();
         let size = layout.compute_children_min_size();

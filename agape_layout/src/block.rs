@@ -174,6 +174,7 @@ impl Layout for BlockLayout {
     }
 
     fn solve_max_constraints(&mut self, space: Size) {
+        // FIXME: how?
         let mut available_space = space;
         available_space.width -= self.padding.horizontal_sum();
         available_space.height -= self.padding.vertical_sum();

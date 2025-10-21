@@ -3,6 +3,7 @@ use crate::{
     Padding, error::OverflowAxis,
 };
 use agape_core::{GlobalId, Position, Size};
+
 // TODO maybe make some items private
 // TODO if min width is larger than max width then it's an overflow
 /// A [`Layout`] that arranges it's children vertically.
@@ -154,19 +155,21 @@ impl VerticalLayout {
 
     fn compute_children_min_size(&mut self) -> Size {
         let mut sum = Size::default();
+        sum.width += self.padding.horizontal_sum();
+        sum.height += self.padding.vertical_sum();
         if self.children.is_empty() {
             return sum;
         }
 
         let space_between = (self.children.len() - 1) as f32 * self.spacing as f32;
         sum.height += space_between;
+        let mut max_width = 0.0f32;
         for child in self.children.iter_mut() {
             let (min_width, min_height) = child.solve_min_constraints();
             sum.height += min_height;
-            sum.width = sum.width.max(min_width);
+            max_width = max_width.max(min_width);
         }
-        sum.width += self.padding.horizontal_sum();
-        sum.height += self.padding.vertical_sum();
+        sum.width += max_width;
         sum
     }
 }
@@ -451,6 +454,7 @@ mod test {
             .max_by(|x, y| x.partial_cmp(y).unwrap())
             .unwrap();
         max_width += padding.horizontal_sum();
+        dbg!(layout.constraints);
         assert_eq!(layout.constraints.min_width, max_width);
     }
 
@@ -626,9 +630,9 @@ mod test {
         assert_eq!(root.children()[1].size(), Size::new(500.0, 350.0));
     }
 
-    /// Padding should still be applied when a `VerticalLayout` is empty to ensure
-    /// consistency in the overall layout. It also preserves the structure
-    /// if layouts are added later on
+    // Padding should still be applied when a `VerticalLayout` is empty to ensure
+    // consistency in the overall layout. It also preserves the structure
+    // if layouts are added later on
     #[test]
     fn padding_applied_when_empty() {
         let mut empty = VerticalLayout {
@@ -640,9 +644,6 @@ mod test {
         assert_eq!(empty.size, Size::new(23.0 * 2.0, 23.0 * 2.0));
     }
 
-    /// Spacing should not be applied when a [`VerticalLayout`] is empty even though the
-    /// `padding` should, as spacing is the space in between `layouts` so there is no consistency
-    /// being lost, it would actually mess up with the size as it would be added with the `padding`,
     #[test]
     fn spacing_not_applied_when_empty() {
         let mut empty = VerticalLayout {
