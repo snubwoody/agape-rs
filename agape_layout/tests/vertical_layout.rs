@@ -1,5 +1,5 @@
 use agape_layout::{
-    BlockLayout, BoxSizing, EmptyLayout, IntrinsicSize, Size, VerticalLayout, solve_layout,
+    BlockLayout, BoxSizing, EmptyLayout, IntrinsicSize, Padding, Size, VerticalLayout, solve_layout,
 };
 
 // TODO test than fill sizing is working with shrink elements
@@ -23,7 +23,7 @@ fn child_flex_height_works_with_shrink_height() {
 
     let mut root = VerticalLayout {
         spacing: 24,
-        padding: 10,
+        padding: Padding::all(10.0),
         children: vec![
             Box::new(BlockLayout::new(Box::new(inner_child.clone()))),
             Box::new(flex_child),

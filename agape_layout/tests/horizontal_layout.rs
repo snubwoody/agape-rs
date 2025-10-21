@@ -1,9 +1,10 @@
 use agape_layout::{
-    BlockLayout, BoxSizing, EmptyLayout, HorizontalLayout, Layout, Size, solve_layout,
+    BlockLayout, BoxSizing, EmptyLayout, HorizontalLayout, IntrinsicSize, Layout, Padding, Size,
+    solve_layout,
 };
 
 #[test]
-fn test_horizontal_layout() {
+fn horizontal_layout() {
     let window = Size::new(800.0, 800.0);
     let mut root = HorizontalLayout::new();
     let mut child_1 = HorizontalLayout::new();
@@ -80,86 +81,96 @@ fn test_flex_sizing() {
 }
 
 #[test]
-fn test_flex_with_shrink() {
+fn flex_with_shrink() {
     let window = Size::new(800.0, 800.0);
-    let padding = 24;
+    let padding = Padding::all(24.0);
     let spacing = 45;
 
-    let mut inner_child = EmptyLayout::new();
-    inner_child.intrinsic_size.width = BoxSizing::Fixed(250.0);
-    inner_child.intrinsic_size.height = BoxSizing::Fixed(250.0);
+    let inner_child = EmptyLayout {
+        intrinsic_size: IntrinsicSize::fixed(250.0, 250.0),
+        ..EmptyLayout::new()
+    };
 
-    let mut child_1 = BlockLayout::new(Box::new(inner_child));
-    child_1.padding = padding;
+    let mut block = BlockLayout::new(Box::new(inner_child));
+    block.padding = Padding::all(24.0);
 
-    let mut child_2 = EmptyLayout::new();
-    child_2.intrinsic_size.width = BoxSizing::Flex(1);
-    child_2.intrinsic_size.height = BoxSizing::Flex(1);
+    let empty = EmptyLayout {
+        intrinsic_size: IntrinsicSize::flex(1),
+        ..EmptyLayout::new()
+    };
 
-    let mut root = HorizontalLayout::new();
+    let mut root = HorizontalLayout {
+        padding,
+        spacing,
+        ..HorizontalLayout::new()
+    };
     root.intrinsic_size.width = BoxSizing::Flex(1);
-    root.padding = padding;
-    root.spacing = spacing;
-    root.add_child(child_1);
-    root.add_child(child_2);
+    root.add_child(block);
+    root.add_child(empty);
 
     solve_layout(&mut root, window);
 
     let mut child_1_size = Size::new(250.0, 250.0);
-    child_1_size += (padding * 2) as f32;
+    child_1_size.width += padding.horizontal_sum();
+    child_1_size.height += padding.vertical_sum();
 
-    let mut root_size = Size::new(800.0, 250.0);
-    root_size.height += (padding * 4) as f32; // Add the padding for child_1 and for the root
+    let mut root_size = Size::new(window.width, child_1_size.height);
+    root_size.height += padding.vertical_sum(); // Add the padding for child_1 and for the root
 
-    let mut child_2_size = Size::new(window.width, child_1_size.height);
-    child_2_size.width -= child_1_size.width;
-    child_2_size.width -= spacing as f32;
-    child_2_size.width -= (padding * 2) as f32;
-    child_2_size.height += (padding * 2) as f32;
+    let mut empty_size = Size::new(window.width, child_1_size.height);
+    empty_size.width -= child_1_size.width;
+    empty_size.width -= spacing as f32;
+    empty_size.width -= padding.horizontal_sum();
+    empty_size.height += padding.vertical_sum();
 
-    assert_eq!(root.size(), root_size);
+    let empty = &root.children[1];
+    assert_eq!(empty.size(), empty_size);
     assert_eq!(root.children[0].size(), child_1_size);
-    assert_eq!(root.children[1].size(), child_2_size);
+    assert_eq!(root.size(), root_size);
 }
 
 #[test]
-fn test_flex_with_fixed() {
+fn flex_with_fixed() {
     let window = Size::new(800.0, 800.0);
-    let padding = 24;
+    let padding = Padding::all(24.0);
     let spacing = 45;
 
-    let mut child_1 = EmptyLayout::new();
-    child_1.intrinsic_size.width = BoxSizing::Fixed(250.0);
-    child_1.intrinsic_size.height = BoxSizing::Fixed(250.0);
+    let child_1 = EmptyLayout {
+        intrinsic_size: IntrinsicSize::fixed(250.0, 250.0),
+        ..Default::default()
+    };
 
     let mut child_2 = EmptyLayout::new();
     child_2.intrinsic_size.width = BoxSizing::Flex(1);
     child_2.intrinsic_size.height = BoxSizing::Flex(2);
 
-    let mut child_3 = EmptyLayout::new();
-    child_3.intrinsic_size.width = BoxSizing::Flex(4);
-    child_3.intrinsic_size.height = BoxSizing::Flex(4);
+    let child_3 = EmptyLayout {
+        intrinsic_size: IntrinsicSize::flex(4),
+        ..Default::default()
+    };
 
-    let mut root = HorizontalLayout::new();
-    root.intrinsic_size.width = BoxSizing::Flex(1);
-    root.intrinsic_size.height = BoxSizing::Flex(1);
-    root.padding = padding;
-    root.spacing = spacing;
+    let mut root = HorizontalLayout {
+        padding,
+        spacing,
+        intrinsic_size: IntrinsicSize::fill(),
+        ..Default::default()
+    };
     root.add_children([child_1, child_2, child_3]);
 
     solve_layout(&mut root, window);
 
     let mut space = window;
-    space -= (padding * 2) as f32;
-    space -= (spacing * 2) as f32;
+    space.width -= spacing as f32 * 2.0;
+    space.width -= padding.horizontal_sum();
+    space.height -= padding.vertical_sum();
     space.width -= 250.0;
 
-    assert_eq!(root.children[1].size().width, 1.0 / 5.0 * space.width);
-    assert_eq!(root.children[2].size().width, 4.0 / 5.0 * space.width);
     assert_eq!(
         root.children[1].size().height,
-        window.height - (padding * 2) as f32
+        window.height - padding.vertical_sum()
     );
+    assert_eq!(root.children[2].size().width, 4.0 / 5.0 * space.width);
+    assert_eq!(root.children[1].size().width, 1.0 / 5.0 * space.width);
 }
 
 #[test]

@@ -56,11 +56,6 @@ impl HStack {
         self
     }
 
-    pub fn padding(mut self, padding: u32) -> Self {
-        self.layout.padding = padding;
-        self
-    }
-
     pub fn spacing(mut self, spacing: u32) -> Self {
         self.layout.spacing = spacing;
         self
@@ -111,7 +106,7 @@ impl Widget for HStack {
             main_axis_alignment: self.layout.main_axis_alignment,
             cross_axis_alignment: self.layout.cross_axis_alignment,
             spacing: self.layout.spacing,
-            padding: self.layout.padding,
+            padding: self.style.padding,
             children,
             ..Default::default()
         };
@@ -152,7 +147,7 @@ impl Widget for HStack {
 ///     Rect::new(),
 /// }
 /// .spacing(12)
-/// .padding(24);
+/// .padding_all(24.0);
 ///
 /// ```
 ///

@@ -1,5 +1,5 @@
 use agape_layout::{
-    AxisAlignment, BoxSizing, EmptyLayout, IntrinsicSize, Position, Size, VerticalLayout,
+    AxisAlignment, BoxSizing, EmptyLayout, IntrinsicSize, Padding, Position, Size, VerticalLayout,
     solve_layout,
 };
 
@@ -18,7 +18,7 @@ fn test_single_center_alignment() {
     let mut root = VerticalLayout {
         main_axis_alignment: AxisAlignment::Center,
         cross_axis_alignment: AxisAlignment::Center,
-        padding: 24,
+        padding: Padding::all(24.0),
         intrinsic_size: IntrinsicSize {
             width: BoxSizing::Flex(1),
             height: BoxSizing::Flex(1),
@@ -66,7 +66,7 @@ fn test_center_alignment() {
     let mut root = VerticalLayout {
         main_axis_alignment: AxisAlignment::Center,
         cross_axis_alignment: AxisAlignment::Center,
-        padding: 24,
+        padding: Padding::all(24.0),
         spacing: 50,
         intrinsic_size: IntrinsicSize {
             width: BoxSizing::Flex(1),
@@ -109,7 +109,7 @@ fn test_center_alignment() {
 fn test_start_alignment() {
     let window = Size::new(200.0, 200.0);
 
-    let padding = 32;
+    let padding = Padding::all(32.0);
     let spacing = 10;
 
     let child_1 = EmptyLayout {
@@ -139,7 +139,7 @@ fn test_start_alignment() {
     solve_layout(&mut root, window);
 
     let mut child_1_pos = root.position;
-    child_1_pos += padding as f32;
+    child_1_pos += padding.top;
     let mut child_2_pos = child_1_pos;
     child_2_pos.y += root.children[0].size().height + spacing as f32;
 
@@ -151,7 +151,7 @@ fn test_start_alignment() {
 fn test_end_alignment() {
     let window = Size::new(200.0, 200.0);
 
-    let padding = 32;
+    let padding = Padding::all(32.0);
     let spacing = 10;
 
     let child_1 = EmptyLayout {
@@ -186,7 +186,7 @@ fn test_end_alignment() {
         x: root.position.x + root.size.width,
         y: root.position.y + root.size.height,
     };
-    child_2_pos -= padding as f32;
+    child_2_pos -= padding.right;
 
     let mut child_1_pos = child_2_pos;
     child_1_pos.y -= root.children[1].size().height - spacing as f32;

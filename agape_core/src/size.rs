@@ -198,6 +198,18 @@ where
     N: Into<f32>,
 {
     type Output = Self;
+
+    /// Divide the width and height by a value.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use agape_core::Size;
+    ///
+    /// let size = Size::new(10.0,20.0) / 2.0;
+    ///
+    /// assert_eq!(size, Size::new(5.0,10.0));
+    /// ```
     fn div(self, rhs: N) -> Self::Output {
         let rhs: f32 = rhs.into();
         Self {
@@ -208,6 +220,18 @@ where
 }
 
 impl From<(u32, u32)> for Size {
+    /// Convert a `(u32,u32)` into a [`Size`], the first value will be the width
+    /// and the second value will be the height.
+    ///
+    /// # Example
+    /// ```
+    /// use agape_core::Size;
+    ///
+    /// let size:Size = (10u32,20u32).into();
+    ///
+    /// assert_eq!(size.width, 10.0);
+    /// assert_eq!(size.height, 20.0);
+    /// ```
     fn from(value: (u32, u32)) -> Self {
         Self {
             width: value.0 as f32,

@@ -1,5 +1,5 @@
 use agape_core::{Border, Color, IntoColor, Rgba};
-use agape_layout::{BoxSizing, IntrinsicSize};
+use agape_layout::{BoxSizing, IntrinsicSize, Padding};
 
 #[derive(Default, Debug, PartialOrd, PartialEq, Clone)]
 pub struct BoxStyle {
@@ -7,6 +7,7 @@ pub struct BoxStyle {
     pub background_color: Color<Rgba>,
     pub border: Option<Border>,
     pub corner_radius: u32,
+    pub padding: Padding,
 }
 
 impl BoxStyle {
@@ -145,6 +146,34 @@ impl BoxStyle {
     pub fn fixed(&mut self, width: f32, height: f32) {
         self.intrinsic_width(BoxSizing::Fixed(width));
         self.intrinsic_height(BoxSizing::Fixed(height));
+    }
+
+    pub fn padding(&mut self, padding: Padding) {
+        self.padding = padding;
+    }
+
+    pub fn padding_left(&mut self, value: f32) {
+        self.padding.left = value;
+    }
+
+    pub fn padding_right(&mut self, value: f32) {
+        self.padding.right = value;
+    }
+
+    pub fn padding_top(&mut self, value: f32) {
+        self.padding.top = value;
+    }
+
+    pub fn padding_bottom(&mut self, value: f32) {
+        self.padding.bottom = value;
+    }
+
+    pub fn padding_symmetric(&mut self, vertical: f32, horizontal: f32) {
+        self.padding = Padding::symmetric(vertical, horizontal);
+    }
+
+    pub fn padding_all(&mut self, value: f32) {
+        self.padding = Padding::all(value);
     }
 
     /// Set the intrinsic width and height to [`BoxSizing::Shrink`].

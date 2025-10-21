@@ -1,17 +1,18 @@
 use crate::{
     AxisAlignment, BoxConstraints, BoxSizing, IntrinsicSize, Layout, LayoutError, LayoutIter,
+    Padding,
 };
 use agape_core::{GlobalId, Position, Size};
 
 // TODO add example
-/// A [`HorizontalLayout`] arranges it's children horizontally.
+/// A [`Layout`] that arranges it's children horizontally.
 #[derive(Default, Debug)]
 pub struct HorizontalLayout {
     pub id: GlobalId,
     pub size: Size,
     pub position: Position,
     pub spacing: u32,
-    pub padding: u32,
+    pub padding: Padding,
     pub constraints: BoxConstraints,
     pub intrinsic_size: IntrinsicSize,
     /// The main axis is the axis which the content flows in, for the [`HorizontalLayout`]
@@ -39,6 +40,29 @@ impl HorizontalLayout {
         for child in children {
             self.children.push(Box::new(child));
         }
+    }
+
+    /// Calculate the total minimum constraints of all
+    /// the child nodes. The width is the sum of all
+    /// the children's minimum width plus the space in
+    /// between. The height is gotten from the largest
+    /// of the minimum height.
+    fn compute_children_min_size(&mut self) -> Size {
+        let mut sum = Size::default();
+        if self.children.is_empty() {
+            return sum;
+        }
+
+        let space_between = (self.children.len() - 1) as f32 * self.spacing as f32;
+        sum.width += space_between;
+        for child in self.children.iter_mut() {
+            let (min_width, min_height) = child.solve_min_constraints();
+            sum.width += min_width;
+            sum.height = sum.height.max(min_height);
+        }
+        sum.width += self.padding.horizontal_sum();
+        sum.height += self.padding.vertical_sum();
+        sum
     }
 
     // TODO should probably rename this function
@@ -72,7 +96,7 @@ impl HorizontalLayout {
 
     fn align_main_axis_start(&mut self) {
         let mut x_pos = self.position.x;
-        x_pos += self.padding as f32;
+        x_pos += self.padding.left;
 
         for child in &mut self.children {
             child.set_x(x_pos);
@@ -83,13 +107,19 @@ impl HorizontalLayout {
     /// Align the children on the main axis in the center
     fn align_main_axis_center(&mut self) {
         // TODO handle overflow
+        if self.children.is_empty() {
+            return;
+        }
+
+        // Sum the width of all the children.
         let mut width_sum = self
             .children
             .iter()
             .map(|child| child.size().width)
             .sum::<f32>();
-        // FIXME panics with no children
-        width_sum += (self.spacing * (self.children.len() as u32 - 1)) as f32;
+        // Add the spacing in between each child
+        let space_between = self.spacing * (self.children.len() - 1) as u32;
+        width_sum += space_between as f32;
         let mut center_start = self.position.x + (self.size.width - width_sum) / 2.0;
 
         for child in &mut self.children {
@@ -100,16 +130,18 @@ impl HorizontalLayout {
 
     fn align_main_axis_end(&mut self) {
         let mut x_pos = self.position.x + self.size.width;
-        x_pos -= self.padding as f32;
+        x_pos -= self.padding.right;
 
         for child in self.children.iter_mut().rev() {
+            // Set the right edge
+            x_pos -= child.size().width;
             child.set_x(x_pos);
-            x_pos -= child.size().width - self.spacing as f32;
+            x_pos -= self.spacing as f32;
         }
     }
 
     fn align_cross_axis_start(&mut self) {
-        let y = self.position.y + self.padding as f32;
+        let y = self.position.y + self.padding.top;
         for child in &mut self.children {
             child.set_y(y);
         }
@@ -125,7 +157,7 @@ impl HorizontalLayout {
 
     fn align_cross_axis_end(&mut self) {
         for child in &mut self.children {
-            child.set_y(self.position.y + self.size.height - self.padding as f32);
+            child.set_y(self.position.y + self.size.height - self.padding.bottom);
         }
     }
 }
@@ -133,10 +165,6 @@ impl HorizontalLayout {
 impl Layout for HorizontalLayout {
     fn id(&self) -> GlobalId {
         self.id
-    }
-
-    fn set_position(&mut self, position: Position) {
-        self.position = position;
     }
 
     fn set_x(&mut self, x: f32) {
@@ -195,29 +223,17 @@ impl Layout for HorizontalLayout {
             .collect::<Vec<_>>()
     }
 
-    fn iter(&self) -> crate::LayoutIter<'_> {
+    fn iter(&self) -> LayoutIter<'_> {
         LayoutIter { stack: vec![self] }
     }
 
     fn solve_min_constraints(&mut self) -> (f32, f32) {
-        let mut child_constraint_sum = Size::default();
-
-        for child in &mut self.children {
-            let (min_width, min_height) = child.solve_min_constraints();
-            child_constraint_sum.width += min_width;
-            child_constraint_sum.width += self.spacing as f32; // Not sure about this
-            child_constraint_sum.height = child_constraint_sum.height.max(min_height);
-        }
-        child_constraint_sum += self.padding as f32 * 2.0;
-
+        let child_constraint_sum = self.compute_children_min_size();
         match self.intrinsic_size.width {
             BoxSizing::Fixed(width) => {
                 self.constraints.min_width = width;
             }
-            BoxSizing::Flex(_) => {
-                self.constraints.min_width = child_constraint_sum.width;
-            }
-            BoxSizing::Shrink => {
+            BoxSizing::Flex(_) | BoxSizing::Shrink => {
                 self.constraints.min_width = child_constraint_sum.width;
             }
         }
@@ -226,10 +242,7 @@ impl Layout for HorizontalLayout {
             BoxSizing::Fixed(height) => {
                 self.constraints.min_height = height;
             }
-            BoxSizing::Flex(_) => {
-                self.constraints.min_height = child_constraint_sum.height;
-            }
-            BoxSizing::Shrink => {
+            BoxSizing::Flex(_) | BoxSizing::Shrink => {
                 self.constraints.min_height = child_constraint_sum.height;
             }
         }
@@ -256,7 +269,7 @@ impl Layout for HorizontalLayout {
             BoxSizing::Shrink => available_height = self.constraints.min_height,
             BoxSizing::Fixed(_) | BoxSizing::Flex(_) => {
                 available_height = self.constraints.max_height;
-                available_height -= self.padding as f32 * 2.0;
+                available_height -= self.padding.vertical_sum();
             }
         }
 
@@ -268,7 +281,7 @@ impl Layout for HorizontalLayout {
             }
             BoxSizing::Fixed(_) | BoxSizing::Flex(_) => {
                 available_width = self.constraints.max_width;
-                available_width -= self.padding as f32 * 2.0;
+                available_width -= self.padding.horizontal_sum();
                 available_width -= self.fixed_size_sum().width;
             }
         }
@@ -362,6 +375,204 @@ impl Layout for HorizontalLayout {
                 });
             }
             child.position_children();
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::EmptyLayout;
+
+    #[test]
+    fn fixed_min_constraints() {
+        let mut layout = HorizontalLayout {
+            intrinsic_size: IntrinsicSize::fixed(20.0, 24.0),
+            ..Default::default()
+        };
+
+        layout.solve_min_constraints();
+        assert_eq!(layout.constraints.min_width, 20.0);
+        assert_eq!(layout.constraints.min_height, 24.0);
+    }
+
+    #[test]
+    fn flex_max_constraints() {
+        let flex: [u8; 4] = [2, 4, 5, 1];
+        let children = flex
+            .into_iter()
+            .map(|f| EmptyLayout {
+                intrinsic_size: IntrinsicSize::flex(f),
+                ..Default::default()
+            })
+            .map(|l| Box::new(l) as Box<dyn Layout>)
+            .collect::<Vec<_>>();
+        let mut layout = HorizontalLayout {
+            children,
+            constraints: BoxConstraints {
+                max_width: 500.0,
+                max_height: 250.0,
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        layout.solve_max_constraints(Size::default());
+
+        // for (layout, flex) in layout.children.iter().zip(flex.iter()) {
+        //     let width = 500.0 * (*flex as f32 / flex_total as f32);
+        //     // FIXME: will come back
+        //     // assert_eq!(layout.constraints().max_width, width);
+        //     // assert_eq!(layout.constraints().max_height, 250.0);
+        // }
+    }
+
+    #[test]
+    fn compute_min_size_no_children() {
+        let mut layout = HorizontalLayout::new();
+        let size = layout.compute_children_min_size();
+        assert_eq!(size, Size::default());
+    }
+
+    #[test]
+    fn calculate_min_width() {
+        // TODO: test max height and width
+        let widths: &[f32] = &[500.0, 200.0, 10.2, 20.2, 45.0];
+        let children: Vec<Box<dyn Layout>> = widths
+            .iter()
+            .map(|w| EmptyLayout {
+                intrinsic_size: IntrinsicSize::fixed(*w, 0.0),
+                ..Default::default()
+            })
+            .map(|l| Box::new(l) as Box<dyn Layout>)
+            .collect();
+
+        let spacing = 20;
+        let padding = Padding::new(24.0, 42.0, 24.0, 20.0);
+        let mut layout = HorizontalLayout {
+            children,
+            spacing,
+            padding,
+            ..Default::default()
+        };
+        layout.solve_min_constraints();
+        let space_between = (widths.len() - 1) as f32 * spacing as f32;
+        let mut min_width = widths.iter().sum::<f32>();
+        min_width += space_between;
+        min_width += padding.horizontal_sum();
+        assert_eq!(layout.constraints.min_width, min_width);
+    }
+
+    #[test]
+    fn calculate_min_height() {
+        // TODO: test max height and width
+        let heights: [f32; 5] = [500.0, 200.0, 10.2, 20.2, 45.0];
+        let children: Vec<Box<dyn Layout>> = heights
+            .iter()
+            .map(|h| EmptyLayout {
+                intrinsic_size: IntrinsicSize::fixed(0.0, *h),
+                ..Default::default()
+            })
+            .map(|l| Box::new(l) as Box<dyn Layout>)
+            .collect();
+
+        let spacing = 20;
+        let padding = Padding::new(24.0, 42.0, 24.0, 20.0);
+        let mut layout = HorizontalLayout {
+            children,
+            spacing,
+            padding,
+            ..Default::default()
+        };
+        layout.solve_min_constraints();
+        let mut max_height = heights
+            .into_iter()
+            .max_by(|x, y| x.partial_cmp(y).unwrap())
+            .unwrap();
+        max_height += padding.vertical_sum();
+        assert_eq!(layout.constraints.min_height, max_height);
+    }
+
+    #[test]
+    fn align_main_axis_center_no_children() {
+        let mut layout = HorizontalLayout::new();
+        layout.align_main_axis_center();
+    }
+
+    #[test]
+    fn align_main_axis_end() {
+        let mut child = Box::new(EmptyLayout::new());
+        child.size.width = 200.0;
+        let mut layout = HorizontalLayout {
+            children: vec![child],
+            main_axis_alignment: AxisAlignment::End,
+            ..Default::default()
+        };
+
+        layout.size.width = 500.0;
+        layout.position.x = 50.0;
+        layout.align_main_axis_end();
+
+        let position = layout.children[0].position();
+        let right_edge = layout.size.width + layout.position.x;
+        assert_eq!(position.x, right_edge - 200.0);
+    }
+
+    #[test]
+    fn align_main_axis_end_include_padding() {
+        let mut child = Box::new(EmptyLayout::new());
+        child.size.width = 200.0;
+        let mut layout = HorizontalLayout {
+            children: vec![child],
+            padding: Padding::new(10.0, 50.0, 20.0, 24.0),
+            main_axis_alignment: AxisAlignment::End,
+            ..Default::default()
+        };
+
+        layout.size.width = 500.0;
+        layout.align_main_axis_end();
+
+        let position = layout.children[0].position();
+        assert_eq!(position.x, 500.0 - 200.0 - 50.0);
+    }
+
+    #[test]
+    fn align_main_axis_end_multiple_children() {
+        let widths: &[f32] = &[500.0, 200.0, 10.2, 20.2, 45.0];
+        let children: Vec<Box<dyn Layout>> = widths
+            .iter()
+            .map(|w| EmptyLayout {
+                size: Size::unit(*w),
+                ..Default::default()
+            })
+            .map(|l| Box::new(l) as Box<dyn Layout>)
+            .collect();
+
+        let size = Size::new(200.0, 200.0);
+        let position = Position::new(200.0, 200.0);
+        let mut layout = HorizontalLayout {
+            children,
+            size,
+            position,
+            spacing: 20,
+            padding: Padding::all(24.0),
+            main_axis_alignment: AxisAlignment::End,
+            ..Default::default()
+        };
+
+        layout.align_main_axis_end();
+        let mut right_edge = layout.size.width + layout.position.x;
+        right_edge -= layout.padding.right;
+        let mut iter = layout.iter();
+        // Skip the root layout, we just want the children.
+        iter.next();
+        let layouts = iter.collect::<Vec<_>>();
+
+        let mut x_pos = right_edge;
+        for (i, l) in layouts.iter().rev().enumerate() {
+            x_pos -= l.size().width;
+            assert_eq!(l.position().x, x_pos, "Failed on iteration {i}");
+            x_pos -= layout.spacing as f32;
         }
     }
 }

@@ -32,6 +32,41 @@ macro_rules! impl_style {
             self
         }
 
+        pub fn padding(mut self, padding: $crate::Padding) -> Self {
+            self.style.padding(padding);
+            self
+        }
+
+        pub fn padding_all(mut self, value: f32) -> Self {
+            self.style.padding_all(value);
+            self
+        }
+
+        pub fn padding_symmetric(mut self, vertical: f32, horizontal: f32) -> Self {
+            self.style.padding_symmetric(vertical, horizontal);
+            self
+        }
+
+        pub fn padding_top(mut self, value: f32) -> Self {
+            self.style.padding_top(value);
+            self
+        }
+
+        pub fn padding_bottom(mut self, value: f32) -> Self {
+            self.style.padding_bottom(value);
+            self
+        }
+
+        pub fn padding_left(mut self, value: f32) -> Self {
+            self.style.padding_left(value);
+            self
+        }
+
+        pub fn padding_right(mut self, value: f32) -> Self {
+            self.style.padding_right(value);
+            self
+        }
+
         /// Make the [`Widget`] fit it's children.
         pub fn fit(mut self) -> Self {
             self.style.fit();
