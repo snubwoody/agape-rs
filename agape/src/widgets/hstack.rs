@@ -147,7 +147,7 @@ impl Widget for HStack {
 ///     Rect::new(),
 /// }
 /// .spacing(12)
-/// .padding(24);
+/// .padding_all(24.0);
 ///
 /// ```
 ///

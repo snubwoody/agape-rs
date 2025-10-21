@@ -286,7 +286,7 @@ impl Padding {
     ///
     /// let padding = Padding::symmetric(20.0,10.0);
     ///
-    /// assert_eq!(padding.horizontal_sum(),40.0);
+    /// assert_eq!(padding.horizontal_sum(),20.0);
     /// ```
     pub const fn horizontal_sum(&self) -> f32 {
         self.left + self.right
