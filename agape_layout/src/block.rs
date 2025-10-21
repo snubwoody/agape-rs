@@ -3,7 +3,6 @@ use crate::{
     LayoutIter, Padding,
 };
 use agape_core::{GlobalId, Position, Size};
-use std::ops::{Add, Mul};
 
 // TODO make these private and add builder
 /// A [`Layout`] that only has one child.
@@ -301,8 +300,10 @@ mod test {
 
     #[test]
     fn no_padding_in_fixed_min_constraints() {
-        let mut child = EmptyLayout::default();
-        child.intrinsic_size = IntrinsicSize::fixed(24.2, 24.0);
+        let child = EmptyLayout {
+            intrinsic_size: IntrinsicSize::fixed(24.2, 24.0),
+            ..Default::default()
+        };
         let mut layout = BlockLayout::new(Box::new(child));
         layout.intrinsic_size = IntrinsicSize::fixed(20.0, 500.0);
         layout.solve_min_constraints();
@@ -314,8 +315,10 @@ mod test {
 
     #[test]
     fn shrink_min_constraints() {
-        let mut child = EmptyLayout::default();
-        child.intrinsic_size = IntrinsicSize::fixed(20.0, 20.0);
+        let child = EmptyLayout {
+            intrinsic_size: IntrinsicSize::fixed(20.0, 20.0),
+            ..Default::default()
+        };
         let mut layout = BlockLayout::new(Box::new(child));
         layout.intrinsic_size = IntrinsicSize::shrink();
         layout.solve_min_constraints();
@@ -326,8 +329,10 @@ mod test {
 
     #[test]
     fn include_padding_shrink_min_constraints() {
-        let mut child = EmptyLayout::default();
-        child.intrinsic_size = IntrinsicSize::fixed(20.0, 20.0);
+        let child = EmptyLayout {
+            intrinsic_size: IntrinsicSize::fixed(20.0, 20.0),
+            ..Default::default()
+        };
         let mut layout = BlockLayout::new(Box::new(child));
         layout.intrinsic_size = IntrinsicSize::shrink();
         layout.padding = Padding::new(10.0, 15.0, 93.0, 53.0);

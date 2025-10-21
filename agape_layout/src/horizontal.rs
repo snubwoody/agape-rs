@@ -399,7 +399,6 @@ mod test {
     #[test]
     fn flex_max_constraints() {
         let flex: [u8; 4] = [2, 4, 5, 1];
-        let flex_total: u8 = flex.iter().sum();
         let children = flex
             .into_iter()
             .map(|f| EmptyLayout {
@@ -420,12 +419,12 @@ mod test {
 
         layout.solve_max_constraints(Size::default());
 
-        for (layout, flex) in layout.children.iter().zip(flex.iter()) {
-            let width = 500.0 * (*flex as f32 / flex_total as f32);
-            // FIXME: will come back
-            // assert_eq!(layout.constraints().max_width, width);
-            // assert_eq!(layout.constraints().max_height, 250.0);
-        }
+        // for (layout, flex) in layout.children.iter().zip(flex.iter()) {
+        //     let width = 500.0 * (*flex as f32 / flex_total as f32);
+        //     // FIXME: will come back
+        //     // assert_eq!(layout.constraints().max_width, width);
+        //     // assert_eq!(layout.constraints().max_height, 250.0);
+        // }
     }
 
     #[test]

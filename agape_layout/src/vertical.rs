@@ -373,7 +373,7 @@ impl Layout for VerticalLayout {
 
         // TODO check for padding and spacing
         let width_sum: f32 = self.children.iter().map(|child| child.size().width).sum();
-        let mut height_sum = (self.padding.vertical_sum()) as f32;
+        let mut height_sum = self.padding.vertical_sum();
         for (i, child) in self.children.iter().enumerate() {
             height_sum += child.size().height;
             if i != self.children.len() - 1 {
@@ -425,7 +425,7 @@ impl Layout for VerticalLayout {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{BlockLayout, EmptyLayout, HorizontalLayout, Padding, solve_layout};
+    use crate::{BlockLayout, EmptyLayout, Padding, solve_layout};
 
     #[test]
     fn calculate_min_width() {
