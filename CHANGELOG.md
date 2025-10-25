@@ -2,6 +2,13 @@
 
 All notable changes to agape will be documented in this file.
 
+## 0.4.0 (unreleased)
+
+### Features
+- `Padding` now has individual sides i.e. `top`, `bottom`,`left` and `right`
+([#191](https://github.com/snubwoody/agape-rs/pull/191))
+- Added support for loading custom fonts ([#181](https://github.com/snubwoody/agape-rs/pull/187))
+
 ## 0.3.0 - 2025-09-25
 
 ### Features
