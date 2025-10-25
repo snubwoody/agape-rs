@@ -1,3 +1,4 @@
+#![windows_subsystem = "windows"]
 use agape::state::{Context, StateCell};
 use agape::widgets::{Button, StatelessWidget, VStack, *};
 use agape::{App, vstack};
