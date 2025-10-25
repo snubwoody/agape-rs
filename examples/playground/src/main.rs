@@ -1,4 +1,4 @@
-#![windows_subsystem = "windows"]
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use agape::state::{Context, StateCell};
 use agape::widgets::{Button, StatelessWidget, VStack, *};
 use agape::{App, vstack};
