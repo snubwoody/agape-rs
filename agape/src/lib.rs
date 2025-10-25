@@ -38,10 +38,9 @@ pub use agape_macros::hex;
 pub use agape_renderer as renderer;
 pub use build::build;
 pub use error::{Error, Result};
-use image::ImageBuffer;
 pub use message::{Message, MessageQueue};
 use std::path::Path;
-use winit::window::{Icon, WindowAttributes};
+use winit::window::WindowAttributes;
 
 use crate::message::{MouseButtonDown, MouseButtonUp};
 use crate::state::{Scroll, State};
@@ -130,15 +129,8 @@ where
 {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         info!("Initializing resources");
-        let width = 64;
-        let height = 64;
-        let mut buf = ImageBuffer::new(width, height);
-        for pixel in buf.pixels_mut() {
-            *pixel = image::Rgba([0u8, 0u8, 0u8, 255u8]);
-        }
-        buf.save("icon.ico");
-        let icon = Icon::from_rgba(buf.into_vec(), width, height).unwrap();
-        let attrs = WindowAttributes::default().with_window_icon(Some(icon));
+        // let icon = Icon::from_rgba(buf.into_vec(), width, height).unwrap();
+        let attrs = WindowAttributes::default().with_window_icon(None);
         let window = event_loop.create_window(attrs).unwrap();
         let window = Arc::new(window);
 
