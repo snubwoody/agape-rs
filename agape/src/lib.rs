@@ -88,6 +88,7 @@ where
         self
     }
 
+    /// Load a font file, must be either a `.ttf` or `.otf` file.
     pub fn load_font(mut self, path: impl AsRef<Path>) -> Result<Self> {
         self.state.renderer_mut().load_font_file(path)?;
         Ok(self)
@@ -107,6 +108,25 @@ where
 
         pixels.frame_mut().copy_from_slice(renderer.pixmap().data());
         pixels.render().unwrap();
+    }
+
+    fn resize(&mut self, size: Size) {
+        let width = size.width.max(1.0) as u32;
+        let height = size.height.max(1.0) as u32;
+
+        self.pixels
+            .as_mut()
+            .unwrap()
+            .resize_surface(width, height)
+            .expect("Failed to resize the pixel buffer");
+
+        self.pixels
+            .as_mut()
+            .unwrap()
+            .resize_buffer(width, height)
+            .expect("Failed to resize the pixel buffer");
+
+        self.state.resize(Size::from((width, height)));
     }
 
     /// Run the app.
@@ -173,19 +193,7 @@ where
                 self.window.as_mut().unwrap().request_redraw();
             }
             WindowEvent::Resized(size) => {
-                self.pixels
-                    .as_mut()
-                    .unwrap()
-                    .resize_surface(size.width, size.height)
-                    .expect("Failed to resize the pixel buffer");
-
-                self.pixels
-                    .as_mut()
-                    .unwrap()
-                    .resize_buffer(size.width, size.height)
-                    .expect("Failed to resize the pixel buffer");
-
-                self.state.resize(size.into());
+                self.resize(size.into());
             }
             WindowEvent::KeyboardInput { event, .. } => {
                 self.state.key_event(&event);
