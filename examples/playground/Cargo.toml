@@ -11,5 +11,8 @@ agape = { path = "../../agape" }
 tracing-subscriber = "0.3.19"
 tracing.workspace = true
 
+[build-dependencies]
+agape = { path = "../../agape" }
+
 [lints]
 workspace = true

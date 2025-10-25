@@ -23,6 +23,7 @@
 //!
 //! ```
 mod assets;
+mod build;
 pub mod error;
 mod macros;
 pub mod message;
@@ -35,9 +36,11 @@ pub use agape_core::*;
 pub use agape_layout as layout;
 pub use agape_macros::hex;
 pub use agape_renderer as renderer;
+pub use build::build;
 pub use error::{Error, Result};
 pub use message::{Message, MessageQueue};
 use std::path::Path;
+use winit::window::WindowAttributes;
 
 use crate::message::{MouseButtonDown, MouseButtonUp};
 use crate::state::{Scroll, State};
@@ -85,14 +88,16 @@ where
         self
     }
 
-    pub fn load_font(mut self, path: impl AsRef<Path>) -> Result<()> {
+    pub fn load_font(mut self, path: impl AsRef<Path>) -> Result<Self> {
         self.state.renderer_mut().load_font_file(path)?;
-        Ok(())
+        Ok(self)
     }
 
-    pub fn load_font_dir(mut self, path: impl AsRef<Path>) -> Result<()> {
+    /// Load all the font files in a directory, malformed fonts will
+    /// be skipped.
+    pub fn load_font_dir(mut self, path: impl AsRef<Path>) -> Result<Self> {
         self.state.renderer_mut().load_fonts_dir(path);
-        Ok(())
+        Ok(self)
     }
 
     fn render(&mut self) {
@@ -124,7 +129,9 @@ where
 {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         info!("Initializing resources");
-        let window = event_loop.create_window(Default::default()).unwrap();
+        // let icon = Icon::from_rgba(buf.into_vec(), width, height).unwrap();
+        let attrs = WindowAttributes::default().with_window_icon(None);
+        let window = event_loop.create_window(attrs).unwrap();
         let window = Arc::new(window);
 
         let size = Size::from(window.inner_size());

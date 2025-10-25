@@ -1,6 +1,7 @@
 # Output
 target/
 dist/
+Cargo.lock
 
 # IDE settings
 .idea/

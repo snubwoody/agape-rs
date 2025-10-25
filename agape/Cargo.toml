@@ -22,8 +22,10 @@ tiny-skia.workspace = true
 pixels.workspace = true
 rand = "0.9.1"
 usvg = "0.45.1"
+winres = "0.1.12"
 tracing.workspace = true
 tempfile.workspace = true
+winresource = "0.1.23"
 
 [lints]
 workspace = true
