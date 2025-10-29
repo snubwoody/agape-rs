@@ -13,10 +13,10 @@
 //!
 //! struct Home;
 //!
-//! impl StatelessWidget for Home{
+//! impl View for Home{
 //!     type Widget = Text;
 //!
-//!     fn build(&self, ctx: &mut Context) -> Self::Widget {
+//!     fn view(&self, ctx: &mut Context) -> Self::Widget {
 //!        Text::new("Hello world")
 //!    }
 //! }
@@ -44,7 +44,7 @@ use winit::window::WindowAttributes;
 
 use crate::message::{MouseButtonDown, MouseButtonUp};
 use crate::state::{Scroll, State};
-use crate::widgets::{StatelessWidget, Widget};
+use crate::widgets::{View, Widget};
 pub use agape_macros::Widget;
 pub use layout::Padding;
 use pixels::{Pixels, SurfaceTexture};
@@ -74,7 +74,7 @@ where
     T: Widget + 'static,
 {
     /// Create a new app.
-    pub fn new(widget: impl StatelessWidget<Widget = T> + 'static) -> Self {
+    pub fn new(widget: impl View<Widget = T> + 'static) -> Self {
         Self {
             state: State::new(widget),
             pixels: None,

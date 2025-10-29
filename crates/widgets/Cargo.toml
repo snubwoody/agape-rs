@@ -1,0 +1,14 @@
+[package]
+name = "agape_widgets"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+categories.workspace = true
+keywords.workspace = true
+
+[dependencies]
+
+[lints]
+workspace = true

@@ -13,10 +13,10 @@ struct TodoList {
     items: StateCell<Vec<String>>,
 }
 
-impl StatelessWidget for TodoList {
+impl View for TodoList {
     type Widget = VStack;
 
-    fn build(&self, _: &mut Context) -> Self::Widget {
+    fn view(&self, _: &mut Context) -> Self::Widget {
         // TODO: get or init
         let items = self.items.clone();
         let mut item_list = VStack::new().spacing(20);

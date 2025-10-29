@@ -2,7 +2,7 @@ use crate::MessageQueue;
 use crate::assets::AssetManager;
 use crate::message::MouseButtonDown;
 use crate::resources::CursorPosition;
-use crate::widgets::{StatelessWidget, Widget};
+use crate::widgets::{View, Widget};
 use agape_core::{Position, Size};
 use agape_layout::{Layout, solve_layout};
 use agape_renderer::Renderer;
@@ -16,6 +16,7 @@ use winit::keyboard::NamedKey;
 #[derive(Debug, Clone, Copy, PartialOrd, PartialEq)]
 pub struct Scroll(pub f32);
 
+// TODO: Add method to trigger rebuild
 pub struct State<T> {
     cursor_position: CursorPosition,
     message_queue: MessageQueue,
@@ -25,17 +26,17 @@ pub struct State<T> {
     window_size: Size,
     renderer: Renderer,
     context: Context,
-    root: Box<dyn StatelessWidget<Widget = T>>,
+    root: Box<dyn View<Widget = T>>,
 }
 
 impl<T> State<T>
 where
     T: Widget + 'static,
 {
-    pub fn new(root: impl StatelessWidget<Widget = T> + 'static) -> Self {
+    pub fn new(root: impl View<Widget = T> + 'static) -> Self {
         let mut context = Context::new();
         let mut renderer = Renderer::new();
-        let widget = root.build(&mut context);
+        let widget = root.view(&mut context);
         let layout = widget.layout(&mut renderer);
         Self {
             asset_manager: AssetManager::new("."),
@@ -55,7 +56,7 @@ where
     }
 
     pub fn update(&mut self) {
-        self.widget = Box::new(self.root.build(&mut self.context));
+        self.widget = Box::new(self.root.view(&mut self.context));
         self.message_queue.tick();
         self.message_queue.clear();
         // Assets need to be fetched before recreating the

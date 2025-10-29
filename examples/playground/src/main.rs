@@ -1,6 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use agape::state::{Context, StateCell};
-use agape::widgets::{Button, StatelessWidget, VStack, *};
+use agape::widgets::{Button, VStack, View, *};
 use agape::{App, vstack};
 
 fn main() -> agape::Result<()> {
@@ -13,10 +13,10 @@ struct Page {
     count: StateCell<usize>,
 }
 
-impl StatelessWidget for Page {
+impl View for Page {
     type Widget = VStack;
 
-    fn build(&self, _: &mut Context) -> Self::Widget {
+    fn view(&self, _: &mut Context) -> Self::Widget {
         let count = self.count.clone();
         vstack![
             Text::new(&format!("{}", self.count.get())).family("Times New Roman"),
