@@ -29,6 +29,8 @@ pub use text::Text;
 pub use text_field::TextField;
 pub use vstack::*;
 
+// FIXME: start removing the weeds
+
 /// A `Widget` is anything that can ultimately be drawn to the screen. Widgets internally
 /// can be composed of anything, but each widget must have a [`GlobalId`] and a [`Layout`].
 /// See the [module docs] for more info.
@@ -62,10 +64,10 @@ pub trait Widget {
     fn mouse_left(&mut self, _: &mut MessageQueue) {}
 }
 
-pub trait StatelessWidget {
+pub trait View {
     type Widget: Widget;
 
-    fn build(&self, ctx: &mut Context) -> Self::Widget;
+    fn view(&self, ctx: &mut Context) -> Self::Widget;
 }
 
 /// An iterator over a tree of widgets.

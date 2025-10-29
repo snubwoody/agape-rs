@@ -6,10 +6,10 @@ use agape::widgets::*;
 #[derive(Debug, Clone, Default)]
 pub struct MenuBar;
 
-impl StatelessWidget for MenuBar {
+impl View for MenuBar {
     type Widget = HStack;
 
-    fn build(&self, ctx: &mut Context) -> Self::Widget {
+    fn view(&self, ctx: &mut Context) -> Self::Widget {
         let state = ctx.get::<DirState>();
         hstack![
             Button::new(Icon::asset("icons/regular/caret-left.svg").fixed(16.0, 16.0))

@@ -52,12 +52,12 @@ impl DirState {
 #[derive(Debug, Clone, Default)]
 pub struct Page;
 
-impl StatelessWidget for Page {
+impl View for Page {
     type Widget = VStack;
 
-    fn build(&self, ctx: &mut Context) -> Self::Widget {
+    fn view(&self, ctx: &mut Context) -> Self::Widget {
         ctx.get_or_init(DirState::new);
-        vstack![MenuBar.build(ctx), Directories.build(ctx)]
+        vstack![MenuBar.view(ctx), Directories.view(ctx)]
             .fill()
             .spacing(12)
     }
@@ -66,15 +66,15 @@ impl StatelessWidget for Page {
 #[derive(Debug, Clone, Default)]
 pub struct Directories;
 
-impl StatelessWidget for Directories {
+impl View for Directories {
     type Widget = VStack;
 
-    fn build(&self, ctx: &mut Context) -> Self::Widget {
+    fn view(&self, ctx: &mut Context) -> Self::Widget {
         let state = ctx.get_or_init(DirState::new);
         // dbg!(&state.get().entries[0]);
         let mut vstack = VStack::new().spacing(16);
         for entry in state.get().entries {
-            let child = DirectoryEntry::new(entry).build(ctx);
+            let child = DirectoryEntry::new(entry).view(ctx);
             vstack.append_child(child);
         }
         vstack
@@ -91,10 +91,10 @@ impl DirectoryEntry {
     }
 }
 
-impl StatelessWidget for DirectoryEntry {
+impl View for DirectoryEntry {
     type Widget = Button<HStack>;
 
-    fn build(&self, ctx: &mut Context) -> Self::Widget {
+    fn view(&self, ctx: &mut Context) -> Self::Widget {
         let entries = ctx.get::<DirState>().clone();
         let entry = self.entry.clone();
         let asset_path = match self.entry.is_dir {
