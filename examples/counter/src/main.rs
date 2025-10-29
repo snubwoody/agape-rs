@@ -4,8 +4,7 @@ use agape::widgets::{Button, View, *};
 use agape::{App, MessageQueue, hstack};
 
 fn main() -> agape::Result<()> {
-    tracing_subscriber::fmt::init();
-    App::new(Page::default()).run()
+    App::new(Counter::default()).run()
 }
 
 #[derive(Debug)]
@@ -14,11 +13,11 @@ struct Increment;
 struct Decrement;
 
 #[derive(Default)]
-struct Page {
+struct Counter {
     count: i32,
 }
 
-impl View for Page {
+impl View for Counter {
     type Widget = HStack;
 
     fn update(&mut self, msg: &mut MessageQueue) {
@@ -33,11 +32,11 @@ impl View for Page {
 
     fn view(&self, _: &mut Context) -> Self::Widget {
         hstack![
-            Button::text("Decrement").on_click(|msg| msg.add(Decrement)),
+            Button::text("Subtract").on_click(|msg| msg.add(Decrement)),
             Text::new(&format!("{}", self.count)),
-            Button::text("Increment").on_click(|msg| msg.add(Increment)),
+            Button::text("Add").on_click(|msg| msg.add(Increment)),
         ]
-        .spacing(8)
+        .spacing(24)
         .fill()
         .align_center()
     }

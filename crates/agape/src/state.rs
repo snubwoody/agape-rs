@@ -26,7 +26,7 @@ pub struct State<T> {
     window_size: Size,
     renderer: Renderer,
     context: Context,
-    root: Box<dyn View<Widget = T>>,
+    view: Box<dyn View<Widget = T>>,
 }
 
 impl<T> State<T>
@@ -46,7 +46,7 @@ where
             widget: Box::new(widget),
             layout,
             context,
-            root: Box::new(root),
+            view: Box::new(root),
             renderer,
         }
     }
@@ -56,9 +56,8 @@ where
     }
 
     pub fn update(&mut self) {
-        self.widget = Box::new(self.root.view(&mut self.context));
-        self.message_queue.tick();
-        self.message_queue.clear();
+        self.widget = Box::new(self.view.view(&mut self.context));
+
         // Assets need to be fetched before recreating the
         // layout tree
         self.widget.tick(&mut self.message_queue);
@@ -72,6 +71,12 @@ where
         self.layout = layout;
         self.check_hovered();
         self.check_clicked();
+
+        // Views have to be updated after all the widgets
+        self.view.update(&mut self.message_queue);
+
+        self.message_queue.tick();
+        self.message_queue.clear();
     }
 
     pub fn render(&mut self) {

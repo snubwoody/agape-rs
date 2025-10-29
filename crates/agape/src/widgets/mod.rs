@@ -28,7 +28,6 @@ pub use svg::Svg;
 pub use text::Text;
 pub use text_field::TextField;
 pub use vstack::*;
-
 // FIXME: start removing the weeds
 
 /// A `Widget` is anything that can ultimately be drawn to the screen. Widgets internally
@@ -66,6 +65,8 @@ pub trait Widget {
 
 pub trait View {
     type Widget: Widget;
+
+    fn update(&mut self, _: &mut MessageQueue) {}
 
     fn view(&self, ctx: &mut Context) -> Self::Widget;
 }

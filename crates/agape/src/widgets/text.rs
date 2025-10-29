@@ -135,3 +135,15 @@ impl Widget for Text {
         self.id
     }
 }
+
+impl From<String> for Text {
+    fn from(value: String) -> Self {
+        Text::new(&value)
+    }
+}
+
+impl From<&String> for Text {
+    fn from(value: &String) -> Self {
+        Text::new(value.as_str())
+    }
+}
