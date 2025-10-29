@@ -56,10 +56,8 @@ where
     }
 
     pub fn update(&mut self) {
-        self.view.update(&mut self.message_queue);
         self.widget = Box::new(self.view.view(&mut self.context));
-        self.message_queue.tick();
-        self.message_queue.clear();
+
         // Assets need to be fetched before recreating the
         // layout tree
         self.widget.tick(&mut self.message_queue);
@@ -73,6 +71,12 @@ where
         self.layout = layout;
         self.check_hovered();
         self.check_clicked();
+
+        // Views have to be updated after all the widgets
+        self.view.update(&mut self.message_queue);
+
+        self.message_queue.tick();
+        self.message_queue.clear();
     }
 
     pub fn render(&mut self) {

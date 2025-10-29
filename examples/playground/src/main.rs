@@ -1,30 +1,41 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use agape::state::{Context, StateCell};
 use agape::widgets::{Button, VStack, View, *};
-use agape::{App, MessageQueue, vstack};
+use agape::{App, MessageQueue, hstack, vstack};
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
     App::new(Page::default()).run()
 }
 
+#[derive(Debug)]
+struct Increment;
+#[derive(Debug)]
+struct Decrement;
+
 #[derive(Default)]
 struct Page {
-    count: StateCell<usize>,
+    count: i32,
 }
 
 impl View for Page {
-    type Widget = VStack;
+    type Widget = HStack;
 
-    fn update(&mut self, _: &mut MessageQueue) {
-        dbg!("Update!!!!");
+    fn update(&mut self, msg: &mut MessageQueue) {
+        if msg.has::<Increment>() {
+            self.count += 1;
+        }
+
+        if msg.has::<Decrement>() {
+            self.count -= 1;
+        }
     }
 
     fn view(&self, _: &mut Context) -> Self::Widget {
-        let count = self.count.clone();
-        vstack![
-            Text::new(&format!("{}", self.count.get())).family("Times New Roman"),
-            Button::text("Click me").on_click(move |_| count.set(|count| count + 1)),
+        hstack![
+            Button::text("Decrement").on_click(|msg| msg.add(Decrement)),
+            Text::new(&format!("{}", self.count)),
+            Button::text("Increment").on_click(|msg| msg.add(Increment)),
         ]
         .spacing(8)
         .fill()
