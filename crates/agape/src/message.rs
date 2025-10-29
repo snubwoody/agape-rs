@@ -81,6 +81,10 @@ impl MessageQueue {
         (item.inner as Box<dyn Any>).downcast().ok().map(|m| *m)
     }
 
+    /// Remove the message at the index.
+    ///
+    /// # Panics
+    /// Panics if `index` is out of bounds.
     pub fn remove_index(&mut self, index: usize) {
         self.items.swap_remove(index);
     }
