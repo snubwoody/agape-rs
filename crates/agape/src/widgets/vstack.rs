@@ -63,12 +63,24 @@ impl VStack {
         self.children.get(index).map(|w| &**w)
     }
 
-    pub fn append_child(&mut self, child: impl Widget + 'static) {
+    /// Append a [`Widget`] into the vstack.
+    pub fn push(&mut self, child: impl Widget + 'static) {
         self.children.push(Box::new(child));
     }
 
-    pub fn add_child(mut self, widget: impl Widget + 'static) -> Self {
+    pub fn with_child(mut self, widget: impl Widget + 'static) -> Self {
         self.children.push(Box::new(widget));
+        self
+    }
+
+    pub fn with_children<I, W>(mut self, iter: I) -> Self
+    where
+        I: IntoIterator<Item = W>,
+        W: Widget + 'static,
+    {
+        for child in iter {
+            self.children.push(Box::new(child));
+        }
         self
     }
 
@@ -187,7 +199,7 @@ macro_rules! vstack {
 	($($child:expr), + $(,)?) => {
 		{
 			$crate::widgets::VStack::new()
-			$(.add_child($child))*
+			$(.with_child($child))*
 		}
 
 	};
@@ -195,7 +207,7 @@ macro_rules! vstack {
         {
             let mut vstack = $crate::widgets::VStack::new();
             for _ in 0..$count {
-                vstack = vstack.add_child($child.clone());
+                vstack = vstack.push($child.clone());
             }
             vstack
         }

@@ -75,7 +75,7 @@ impl View for Directories {
         let mut vstack = VStack::new().spacing(16);
         for entry in state.get().entries {
             let child = DirectoryEntry::new(entry).view(ctx);
-            vstack.append_child(child);
+            vstack.push(child);
         }
         vstack
     }
