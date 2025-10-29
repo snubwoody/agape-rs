@@ -12,7 +12,6 @@ mod text;
 mod text_field;
 mod vstack;
 
-use crate::Message;
 use crate::assets::AssetManager;
 use crate::message::MessageQueue;
 use crate::state::Context;

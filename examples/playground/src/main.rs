@@ -1,7 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use agape::state::{Context, StateCell};
-use agape::widgets::{Button, VStack, View, *};
-use agape::{App, MessageQueue, hstack, vstack};
+use agape::state::Context;
+use agape::widgets::{Button, View, *};
+use agape::{App, MessageQueue, hstack};
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();

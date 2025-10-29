@@ -15,12 +15,6 @@ pub struct MouseButtonUp;
 pub trait Message: Any + Debug {}
 impl<T: Any + Debug> Message for T {}
 
-#[derive(Debug)]
-struct MessageNode {
-    frame_delta: u32,
-    inner: Box<dyn Message>,
-}
-
 #[derive(Default, Debug)]
 pub struct MessageQueue {
     items: Vec<Box<dyn Message>>,

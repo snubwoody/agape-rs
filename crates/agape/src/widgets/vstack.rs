@@ -207,7 +207,7 @@ macro_rules! vstack {
         {
             let mut vstack = $crate::widgets::VStack::new();
             for _ in 0..$count {
-                vstack = vstack.push($child.clone());
+                vstack.push($child.clone());
             }
             vstack
         }

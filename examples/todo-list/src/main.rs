@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
-use agape::state::{Context, StateCell};
+use agape::state::Context;
 use agape::widgets::*;
-use agape::{App, MessageQueue, hstack, vstack};
+use agape::{App, MessageQueue, vstack};
 
 fn main() -> agape::Result<()> {
     tracing_subscriber::fmt::init();
