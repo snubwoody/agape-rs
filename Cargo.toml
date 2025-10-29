@@ -11,12 +11,8 @@ keywords = ["gui", "graphics"]
 resolver = "3"
 
 members = [
-    "agape",
-    "agape_macros",
-    "agape_core",
-    "agape_layout",
-    "agape_renderer",
-    "examples/*", "agape_cli",
+    "crates/*",
+    "examples/*",
 ]
 
 [profile.bench]
@@ -24,10 +20,11 @@ debug = true
 
 
 [workspace.dependencies]
-agape_core = { version = "0.4.0", path = "agape_core" }
-agape_layout = { version = "0.4.0", path = "agape_layout" }
-agape_macros = { version = "0.4.0", path = "agape_macros" }
-agape_renderer = { version = "0.4.0", path = "agape_renderer" }
+agape_core = { version = "0.4.0", path = "crates/agape_core" }
+agape_layout = { version = "0.4.0", path = "crates/agape_layout" }
+agape_macros = { version = "0.4.0", path = "crates/agape_macros" }
+agape_renderer = { version = "0.4.0", path = "crates/agape_renderer" }
+agape = { version = "0.4.0", path = "crates/agape" }
 thiserror = "2.0.9"
 image = "0.25.2"
 winit = { version = "0.30.11", features = ["rwh_05"] }

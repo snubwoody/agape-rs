@@ -7,12 +7,12 @@ edition.workspace = true
 publish = false
 
 [dependencies]
-agape = { path = "../../agape" }
+agape = { path = "../../crates/agape" }
 tracing-subscriber = "0.3.19"
 tracing.workspace = true
 
 [build-dependencies]
-agape = { path = "../../agape" }
+agape = { path = "../../crates/agape" }
 
 [lints]
 workspace = true
