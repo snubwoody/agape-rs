@@ -5,6 +5,7 @@ use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
+use tracing::trace;
 use winit::keyboard::NamedKey;
 
 type Callback = Option<Box<dyn FnMut(&str, &mut MessageQueue)>>;
@@ -38,6 +39,7 @@ impl Default for TextField {
             .border_width(1.0)
             .border_color(0)
             .corner_radius(12);
+
         Self {
             id: GlobalId::new(),
             child,
@@ -49,7 +51,8 @@ impl Default for TextField {
 
 impl Widget for TextField {
     fn click(&mut self, _: &mut MessageQueue) {
-        self.focused = !self.focused
+        self.focused = !self.focused;
+        trace!("Input ({}) focus state change: {}", self.id, self.focused);
     }
 
     fn tick(&mut self, messages: &mut MessageQueue) {

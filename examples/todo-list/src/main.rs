@@ -28,10 +28,12 @@ impl View for TodoList {
     fn view(&self, _: &mut Context) -> Self::Widget {
         let items: Vec<Text> = self.items.iter().map(Text::from).collect();
 
+        // TODO: impl From
         let item_list = vstack![].with_children(items);
 
         vstack![
             Text::new("Todo List"),
+            TextField::new().on_change(|text, msg| println!("{text}")),
             Button::text("Add item").on_click(|msg| msg.add(AddTodo("TODO"))),
             item_list,
         ]

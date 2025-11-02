@@ -27,6 +27,7 @@ pub struct State<T> {
     renderer: Renderer,
     context: Context,
     view: Box<dyn View<Widget = T>>,
+    state_map: StateMap,
 }
 
 impl<T> State<T>
@@ -48,6 +49,7 @@ where
             context,
             view: Box::new(root),
             renderer,
+            state_map: StateMap::default(),
         }
     }
 
@@ -172,6 +174,31 @@ where
     }
 }
 
+#[derive(Debug, Default)]
+pub(crate) struct StateMap {
+    map: HashMap<usize, Box<dyn Any>>,
+}
+
+impl StateMap {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn insert<T: Any + 'static>(&mut self, key: usize, value: T) {
+        self.map.insert(key, Box::new(value));
+    }
+
+    pub fn get<T: 'static>(&mut self, key: usize) -> Option<T> {
+        if let Some(object) = self.map.remove(&key) {
+            return match object.downcast::<T>() {
+                Ok(value) => Some(*value),
+                Err(_) => None,
+            };
+        }
+
+        None
+    }
+}
 #[derive(Clone)]
 pub struct StateCell<T> {
     data: Arc<Mutex<T>>,
