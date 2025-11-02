@@ -14,7 +14,7 @@ mod vstack;
 
 use crate::assets::AssetManager;
 use crate::message::MessageQueue;
-use crate::state::Context;
+use crate::state::{Context, StateMap};
 use agape_core::GlobalId;
 use agape_layout::Layout;
 use agape_renderer::Renderer;
@@ -38,6 +38,9 @@ pub use vstack::*;
 pub trait Widget {
     /// Get the `id` of the [`Widget`].
     fn id(&self) -> GlobalId;
+
+    fn state(&self, _: usize, _: &mut StateMap) {}
+    fn get_state(&mut self, _: usize, _: &mut StateMap) {}
 
     /// Construct a [`Layout`] to solve layout for the whole
     /// widget tree.

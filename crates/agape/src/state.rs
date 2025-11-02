@@ -27,6 +27,7 @@ pub struct State<T> {
     renderer: Renderer,
     context: Context,
     view: Box<dyn View<Widget = T>>,
+    state_map: StateMap,
 }
 
 impl<T> State<T>
@@ -48,6 +49,7 @@ where
             context,
             view: Box::new(root),
             renderer,
+            state_map: StateMap::default(),
         }
     }
 
@@ -57,6 +59,12 @@ where
 
     pub fn update(&mut self) {
         self.widget = Box::new(self.view.view(&mut self.context));
+        let mut index = 0;
+        self.widget.get_state(index, &mut self.state_map);
+        self.widget.traverse(&mut |widget| {
+            index += 1;
+            widget.get_state(index, &mut self.state_map);
+        });
 
         // Assets need to be fetched before recreating the
         // layout tree
@@ -71,6 +79,13 @@ where
         self.layout = layout;
         self.check_hovered();
         self.check_clicked();
+
+        let mut index = 0;
+        self.widget.state(index, &mut self.state_map);
+        self.widget.traverse(&mut |widget| {
+            index += 1;
+            widget.state(index, &mut self.state_map);
+        });
 
         // Views have to be updated after all the widgets
         self.view.update(&mut self.message_queue);
@@ -172,6 +187,31 @@ where
     }
 }
 
+#[derive(Debug, Default)]
+pub struct StateMap {
+    map: HashMap<usize, Box<dyn Any>>,
+}
+
+impl StateMap {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn insert<T: Any + 'static>(&mut self, key: usize, value: T) {
+        self.map.insert(key, Box::new(value));
+    }
+
+    pub fn get<T: 'static>(&mut self, key: usize) -> Option<T> {
+        if let Some(object) = self.map.remove(&key) {
+            return match object.downcast::<T>() {
+                Ok(value) => Some(*value),
+                Err(_) => None,
+            };
+        }
+
+        None
+    }
+}
 #[derive(Clone)]
 pub struct StateCell<T> {
     data: Arc<Mutex<T>>,

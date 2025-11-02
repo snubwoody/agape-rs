@@ -1,13 +1,19 @@
 use super::{Container, Text, Widget};
 use crate::MessageQueue;
-use crate::state::{CharacterInput, NamedKeyInput};
+use crate::state::{CharacterInput, NamedKeyInput, StateMap};
 use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
+use tracing::trace;
 use winit::keyboard::NamedKey;
 
 type Callback = Option<Box<dyn FnMut(&str, &mut MessageQueue)>>;
+
+struct TextFieldState {
+    value: String,
+    focused: bool,
+}
 
 pub struct TextField {
     id: GlobalId,
@@ -38,6 +44,7 @@ impl Default for TextField {
             .border_width(1.0)
             .border_color(0)
             .corner_radius(12);
+
         Self {
             id: GlobalId::new(),
             child,
@@ -49,7 +56,24 @@ impl Default for TextField {
 
 impl Widget for TextField {
     fn click(&mut self, _: &mut MessageQueue) {
-        self.focused = !self.focused
+        self.focused = !self.focused;
+        // TODO: add on submit when enter key is pressed
+        trace!("Input ({}) focus state change: {}", self.id, self.focused);
+    }
+
+    fn state(&self, index: usize, state_map: &mut StateMap) {
+        let state = TextFieldState {
+            focused: self.focused,
+            value: self.child.child.value.clone(),
+        };
+        state_map.insert(index, state);
+    }
+
+    fn get_state(&mut self, index: usize, state_map: &mut StateMap) {
+        if let Some(value) = state_map.get::<TextFieldState>(index) {
+            self.child.child.value = value.value.clone();
+            self.focused = value.focused;
+        }
     }
 
     fn tick(&mut self, messages: &mut MessageQueue) {
