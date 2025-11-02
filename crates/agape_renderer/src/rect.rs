@@ -44,6 +44,9 @@ impl Rect {
     }
 
     pub(crate) fn draw(&self, pixmap: &mut Pixmap) {
+        if self.size.width == 0.0 || self.size.height == 0.0 {
+            return;
+        }
         let (r, g, b, a) = self.color.inner();
 
         // Map the alpha since it's clipped to 100
