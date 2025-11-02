@@ -5,7 +5,6 @@ use agape_core::GlobalId;
 use agape_layout::{BlockLayout, Layout};
 use agape_renderer::Renderer;
 use agape_renderer::rect::Rect;
-use std::panic::Location;
 use tracing::trace;
 use winit::keyboard::NamedKey;
 
@@ -24,10 +23,7 @@ pub struct TextField {
 }
 
 impl TextField {
-    #[track_caller]
     pub fn new() -> Self {
-        let caller = Location::caller();
-        // dbg!(caller);
         Self::default()
     }
 
@@ -61,6 +57,7 @@ impl Default for TextField {
 impl Widget for TextField {
     fn click(&mut self, _: &mut MessageQueue) {
         self.focused = !self.focused;
+        // TODO: add on submit when enter key is pressed
         trace!("Input ({}) focus state change: {}", self.id, self.focused);
     }
 

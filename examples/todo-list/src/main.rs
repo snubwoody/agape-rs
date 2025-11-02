@@ -9,19 +9,27 @@ fn main() -> agape::Result<()> {
 }
 
 #[derive(Debug)]
-struct AddTodo(&'static str);
+struct AddTodo;
+#[derive(Debug)]
+struct InputChange(String);
 
 #[derive(Default)]
 struct TodoList {
     items: Vec<String>,
+    value: String,
 }
 
 impl View for TodoList {
     type Widget = VStack;
 
     fn update(&mut self, msg: &mut MessageQueue) {
-        if let Some(message) = msg.get::<AddTodo>() {
-            self.items.push(message.0.to_owned())
+        if msg.has::<AddTodo>() {
+            self.items.push(self.value.clone());
+            self.value.clear()
+        }
+
+        if let Some(message) = msg.get::<InputChange>() {
+            self.value = message.0.to_owned();
         }
     }
 
@@ -33,8 +41,8 @@ impl View for TodoList {
 
         vstack![
             Text::new("Todo List"),
-            TextField::new().on_change(|text, msg| println!("{text}")),
-            Button::text("Add item").on_click(|msg| msg.add(AddTodo("TODO"))),
+            TextField::new().on_change(|text, msg| msg.add(InputChange(text.to_owned()))),
+            Button::text("Add item").on_click(|msg| msg.add(AddTodo)),
             item_list,
         ]
         .spacing(12)

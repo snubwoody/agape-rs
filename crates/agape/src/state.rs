@@ -58,7 +58,6 @@ where
     }
 
     pub fn update(&mut self) {
-        // State diffing!!!!!!!!!!!
         self.widget = Box::new(self.view.view(&mut self.context));
         let mut index = 0;
         self.widget.get_state(index, &mut self.state_map);
@@ -189,7 +188,7 @@ where
 }
 
 #[derive(Debug, Default)]
-pub(crate) struct StateMap {
+pub struct StateMap {
     map: HashMap<usize, Box<dyn Any>>,
 }
 
