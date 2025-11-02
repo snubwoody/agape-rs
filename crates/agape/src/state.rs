@@ -58,7 +58,14 @@ where
     }
 
     pub fn update(&mut self) {
+        // State diffing!!!!!!!!!!!
         self.widget = Box::new(self.view.view(&mut self.context));
+        let mut index = 0;
+        self.widget.get_state(index, &mut self.state_map);
+        self.widget.traverse(&mut |widget| {
+            index += 1;
+            widget.get_state(index, &mut self.state_map);
+        });
 
         // Assets need to be fetched before recreating the
         // layout tree
@@ -73,6 +80,13 @@ where
         self.layout = layout;
         self.check_hovered();
         self.check_clicked();
+
+        let mut index = 0;
+        self.widget.state(index, &mut self.state_map);
+        self.widget.traverse(&mut |widget| {
+            index += 1;
+            widget.state(index, &mut self.state_map);
+        });
 
         // Views have to be updated after all the widgets
         self.view.update(&mut self.message_queue);
